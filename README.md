@@ -20,9 +20,9 @@ In addition to the specific generation tasks, Amphion also includes several voco
 
 - Amphion achieves state-of-the-art performance when compared with existing open-source repositories on text-to-speech (TTS) systems.
 - It supports the following models or architectures,
-    - [FastSpeech2](https://arxiv.org/abs/2006.04558): A non-autoregressive TTS architecture that utilizes feed-forward Transformer blocks.
+    - **[FastSpeech2](https://arxiv.org/abs/2006.04558)**: A non-autoregressive TTS architecture that utilizes feed-forward Transformer blocks.
     - **[VITS](https://arxiv.org/abs/2106.06103)**: An end-to-end TTS architecture that utilizes conditional variational autoencoder with adversarial learning
-    - [Vall-E](https://arxiv.org/abs/2301.02111): A zero-shot TTS architecture that uses a neural codec language model with discrete codes.
+    - **[Vall-E](https://arxiv.org/abs/2301.02111)**: A zero-shot TTS architecture that uses a neural codec language model with discrete codes.
     - **[NaturalSpeech2](https://arxiv.org/abs/2304.09116)**: An architecture for TTS that utilizes a latent diffusion model to generate natural-sounding voices.
 
 ### SVC: Singing Voice Conversion
@@ -37,12 +37,11 @@ In addition to the specific generation tasks, Amphion also includes several voco
 
 ### Vocoder
 
-- Amphion supports both classic and state-of-the-art signal processing and neural vocoders, including
-    - GAN-based vocoders: **MelGAN**, **HiFi-GAN**, **NSF-HiFiGAN**, and **BigVGAN**
-    - Flow-based vocoders: **WaveGlow**
-    - Diffusion-based vocoders: **Diffwav**
-    - Auto-regressive based vocoders: **WaveNet**, **WaveRNN**
-    - DSP-based vocoder: **WORLD**
+- Amphion supports both classic and state-of-the-art neural vocoders, including
+  - GAN-based vocoders: **[MelGAN](https://arxiv.org/abs/1910.06711)**, **[HiFi-GAN](https://arxiv.org/abs/2010.05646)**, **[NSF-HiFiGAN](https://github.com/nii-yamagishilab/project-NN-Pytorch-scripts)**, **[BigVGAN](https://arxiv.org/abs/2206.04658)**, **[APNet](https://arxiv.org/abs/2305.07952)**
+  - Flow-based vocoders: **[WaveGlow](https://arxiv.org/abs/1811.00002)**
+  - Diffusion-based vocoders: **[Diffwave](https://arxiv.org/abs/2009.09761)**
+  - Auto-regressive based vocoders: **[WaveNet](https://arxiv.org/abs/1609.03499)**, **[WaveRNN](https://arxiv.org/abs/1802.08435v1)**
 
 ### Evaluation
 
