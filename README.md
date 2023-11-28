@@ -15,7 +15,7 @@
 
 **The North-Star objective of Amphion is to offer a platform for studying the conversion of any inputs into audio.** Amphion is designed to support individual generation tasks, including but not limited to,
 
-- **TTS**: Text to Speech Synthesis (⛳ supported)
+- **TTS**: Text to Speech (⛳ supported)
 - **SVS**: Singing Voice Synthesis (👨‍💻 developing)
 - **VC**: Voice Conversion (👨‍💻 developing)
 - **SVC**: Singing Voice Conversion (⛳ supported)
@@ -31,7 +31,7 @@ In addition to the specific generation tasks, Amphion also includes several **vo
 
 ## ⭐ Key Features
 
-### TTS: Text-to-Speech
+### TTS: Text to Speech
 
 - Amphion achieves state-of-the-art performance when compared with existing open-source repositories on text-to-speech (TTS) systems. It supports the following models or architectures:
     - [FastSpeech2](https://arxiv.org/abs/2006.04558): A non-autoregressive TTS architecture that utilizes feed-forward Transformer blocks.
@@ -44,7 +44,7 @@ In addition to the specific generation tasks, Amphion also includes several **vo
 - Ampion supports multiple content-based features from various pretrained models, including [WeNet](https://github.com/wenet-e2e/wenet), [Whisper](https://github.com/openai/whisper), and [ContentVec](https://github.com/auspicious3000/contentvec). Their specific roles in SVC has been investigated in our NeurIPS 2023 workshop paper. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2310.11160) [![code](https://img.shields.io/badge/README-Code-red)](egs/svc/MultipleContentsSVC)
 - Amphion implements several state-of-the-art model architectures, including diffusion-, transformer-, VAE- and flow-based models. The diffusion-based architecture uses [Bidirectional dilated CNN](https://openreview.net/pdf?id=a-xFK8Ymz5J) as a backend and supports several sampling algorithms such as [DDPM](https://arxiv.org/pdf/2006.11239.pdf), [DDIM](https://arxiv.org/pdf/2010.02502.pdf), and [PNDM](https://arxiv.org/pdf/2202.09778.pdf). Additionally, it supports single-step inference based on the [Consistency Model](https://openreview.net/pdf?id=FmqFfMTNnv).
 
-### TTA: Text-to-Audio
+### TTA: Text to Audio
 
 - Amphion supports the TTA with a latent diffusion model. It is designed like [AudioLDM](https://arxiv.org/abs/2301.12503), [Make-an-Audio](https://arxiv.org/abs/2301.12661), and [AUDIT](https://arxiv.org/abs/2304.00830). It is also the official implementation of the text-to-audio generation part of our NeurIPS 2023 paper. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2304.00830) [![code](https://img.shields.io/badge/README-Code-red)](egs/tta/RECIPE.md)
 
@@ -89,9 +89,9 @@ sh env.sh
 
 We detail the instructions of different tasks in the following recipes:
 
-- [Text-to-Speech (TTS)](egs/tts/README.md)
+- [Text to Speech (TTS)](egs/tts/README.md)
 - [Singing Voice Conversion (SVC)](egs/svc/README.md)
-- [Text-to-Audio (TTA)](egs/tta/README.md)
+- [Text to Audio (TTA)](egs/tta/README.md)
 - [Vocoder](egs/vocoder/README.md)
 - [Evaluation](egs/metrics/README.md)
 
