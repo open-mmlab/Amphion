@@ -1,0 +1,111 @@
+{
+  "base_config": "config/vocoder.json",
+  "model_type": "GANVocoder",
+  // TODO: Choose your needed datasets
+  "dataset": [
+    "csd",
+    "kising",
+    "m4singer",
+    "nus48e",
+    "opencpop",
+    "opensinger",
+    "opera",
+    "pjs",
+    "popbutfy",
+    "popcs",
+    "ljspeech",
+    "vctk",
+    "libritts",
+  ],
+  "dataset_path": {
+    // TODO: Fill in your dataset path
+    "csd": "[dataset path]",
+    "kising": "[dataset path]",
+    "m4singer": "[dataset path]",
+    "nus48e": "[dataset path]",
+    "opencpop": "[dataset path]",
+    "opensinger": "[dataset path]",
+    "opera": "[dataset path]",
+    "pjs": "[dataset path]",
+    "popbutfy": "[dataset path]",
+    "popcs": "[dataset path]",
+    "ljspeech": "[dataset path]",
+    "vctk": "[dataset path]",
+    "libritts": "[dataset path]",
+  },
+  // TODO: Fill in the output log path
+  "log_dir": "ckpts/vocoder",
+  "preprocess": {
+    // Acoustic features
+    "extract_mel": true,
+    "extract_audio": true,
+    "extract_pitch": false,
+    "extract_uv": false,
+    "pitch_extractor": "parselmouth",
+
+    // Features used for model training
+    "use_mel": true,
+    "use_frame_pitch": false,
+    "use_uv": false,
+    "use_audio": true,
+
+    // TODO: Fill in the output data path
+    "processed_dir": "data/",
+    "n_mel": 100,
+    "sample_rate": 24000
+  },
+  "model": {
+    // TODO: Choose your needed discriminators
+    "discriminators": [
+      "msd",
+      "mpd",
+      "msstftd",
+      "mssbcqtd",
+    ],
+    "mpd": {
+      "mpd_reshapes": [
+        2,
+        3,
+        5,
+        7,
+        11
+      ],
+      "use_spectral_norm": false,
+      "discriminator_channel_mult_factor": 1
+    },
+    "mrd": {
+      "resolutions": [[1024, 120, 600], [2048, 240, 1200], [512, 50, 240]],
+      "use_spectral_norm": false,
+      "discriminator_channel_mult_factor": 1,
+      "mrd_override": false
+    },
+    "msstftd": {
+        "filters": 32
+    },
+    "mssbcqtd": {
+      hop_lengths: [512, 256, 256],
+      filters: 32,
+      max_filters: 1024,
+      filters_scale: 1,
+      dilations: [1, 2, 4],
+      in_channels: 1,
+      out_channels: 1,
+      n_octaves: [9, 9, 9],
+      bins_per_octaves: [24, 36, 48]
+    },
+  },
+  "train": {
+    // TODO: Choose a suitable batch size, training epoch, and save stride
+    "batch_size": 32,
+    "max_epoch": 1000000,
+    "save_checkpoint_stride": [20],
+    "adamw": {
+        "lr": 2.0e-4,
+        "adam_b1": 0.8,
+        "adam_b2": 0.99
+    },
+    "exponential_lr": {
+        "lr_decay": 0.999
+    },
+  }
+}

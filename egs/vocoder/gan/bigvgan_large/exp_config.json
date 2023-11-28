@@ -1,0 +1,70 @@
+{
+  "base_config": "egs/vocoder/gan/exp_config_base.json",
+  "preprocess": {
+    // acoustic features
+    "extract_mel": true,
+    "extract_audio": true,
+
+    // Features used for model training
+    "use_mel": true,
+    "use_audio": true
+  },
+  "model": {
+    "generator": "bigvgan",
+    "bigvgan": {
+      "resblock": "1",
+      "activation": "snakebeta",
+      "snake_logscale": true,
+      "upsample_rates": [
+        4,
+        4,
+        2,
+        2,
+        2,
+        2
+      ],
+      "upsample_kernel_sizes": [
+        8,
+        8,
+        4,
+        4,
+        4,
+        4
+      ],
+      "upsample_initial_channel": 1536,
+      "resblock_kernel_sizes": [
+        3,
+        7,
+        11
+      ],
+      "resblock_dilation_sizes": [
+        [
+          1,
+          3,
+          5
+        ],
+        [
+          1,
+          3,
+          5
+        ],
+        [
+          1,
+          3,
+          5
+        ]
+      ]
+    },
+  },
+  "train": {
+    "criterions": [
+        "feature",
+        "discriminator",
+        "generator",
+        "mel",
+    ]
+  },
+  "inference": {
+    "batch_size": 1,
+  }
+}

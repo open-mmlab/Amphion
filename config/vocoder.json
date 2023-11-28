@@ -1,0 +1,84 @@
+{
+  "base_config": "config/base.json",
+  "dataset": [
+    "LJSpeech",
+    "LibriTTS",
+    "opencpop",
+    "m4singer",
+    "svcc",
+    "svcceval",
+    "pjs",
+    "opensinger",
+    "popbutfy",
+    "nus48e",
+    "popcs",
+    "kising",
+    "csd",
+    "opera",
+    "vctk",
+    "lijian",
+    "cdmusiceval"
+  ],
+  "task_type": "vocoder",
+  "preprocess": {
+    // acoustic features
+    "extract_mel": true,
+    "extract_pitch": false,
+    "extract_uv": false,
+    "extract_audio": true,
+    "extract_label": false,
+    "extract_one_hot": false,
+    "extract_amplitude_phase": false,
+    "pitch_extractor": "parselmouth",
+    // Settings for data preprocessing
+    "n_mel": 100,
+    "win_size": 1024,
+    "hop_size": 256,
+    "sample_rate": 24000,
+    "n_fft": 1024,
+    "fmin": 0,
+    "fmax": 12000,
+    "f0_min": 50,
+    "f0_max": 1100,
+    "pitch_bin": 256,
+    "pitch_max": 1100.0,
+    "pitch_min": 50.0,
+    "is_mu_law": false,
+    "bits": 8,
+    "cut_mel_frame": 32,
+    // Directory names of processed data or extracted features
+    "spk2id": "singers.json",
+    // Features used for model training
+    "use_mel": true,
+    "use_frame_pitch": false,
+    "use_uv": false,
+    "use_audio": true,
+    "use_label": false,
+    "use_one_hot": false,
+    "train_file": "train.json",
+    "valid_file": "test.json"
+  },
+  "train": {
+    "random_seed": 114514,
+    "batch_size": 64,
+    "gradient_accumulation_step": 1,
+    "max_epoch": 1000000,
+    "save_checkpoint_stride": [
+      20
+    ],
+    "run_eval": [
+      true
+    ],
+    "sampler": {
+      "holistic_shuffle": true,
+      "drop_last": true
+    },
+    "dataloader": {
+      "num_worker": 4,
+      "pin_memory": true
+    },
+    "tracker": [
+      "tensorboard"
+    ],
+  }
+}

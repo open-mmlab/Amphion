@@ -1,0 +1,227 @@
+{
+    // FIXME: THESE ARE LEGACY
+    "base_config": "config/base.json",
+    "model_type": "diffusion",
+    "task_type": "svc",
+    "use_custom_dataset": false,
+    "preprocess": {
+        // data augmentations
+        "use_pitch_shift": false,
+        "use_formant_shift": false,
+        "use_time_stretch": false,
+        "use_equalizer": false,
+        // acoustic features
+        "extract_mel": true,
+        "mel_min_max_norm": true,
+        "extract_pitch": true,
+        "pitch_extractor": "parselmouth",
+        "extract_uv": true,
+        "extract_energy": true,
+        // content features
+        "extract_whisper_feature": false,
+        "whisper_sample_rate": 16000,
+        "extract_contentvec_feature": false,
+        "contentvec_sample_rate": 16000,
+        "extract_wenet_feature": false,
+        "wenet_sample_rate": 16000,
+        "extract_mert_feature": false,
+        "mert_sample_rate": 16000,
+        // Default config for whisper
+        "whisper_frameshift": 0.01,
+        "whisper_downsample_rate": 2,
+        // Default config for content vector
+        "contentvec_frameshift": 0.02,
+        // Default config for mert
+        "mert_model": "m-a-p/MERT-v1-330M",
+        "mert_feature_layer": -1,
+        "mert_hop_size": 320,
+        // 24k
+        "mert_frameshit": 0.01333,
+        // 10ms
+        "wenet_frameshift": 0.01,
+        // wenetspeech is 4, gigaspeech is 6
+        "wenet_downsample_rate": 4,
+        // Default config
+        "n_mel": 100,
+        "win_size": 1024,
+        // todo
+        "hop_size": 256,
+        "sample_rate": 24000,
+        "n_fft": 1024,
+        // todo
+        "fmin": 0,
+        "fmax": 12000,
+        // todo
+        "f0_min": 50,
+        // ~C2
+        "f0_max": 1100,
+        //1100,    // ~C6(1100), ~G5(800)
+        "pitch_bin": 256,
+        "pitch_max": 1100.0,
+        "pitch_min": 50.0,
+        "is_label": true,
+        "is_mu_law": true,
+        "bits": 8,
+        "mel_min_max_stats_dir": "mel_min_max_stats",
+        "whisper_dir": "whisper",
+        "contentvec_dir": "contentvec",
+        "wenet_dir": "wenet",
+        "mert_dir": "mert",
+        // Extract content features using dataloader
+        "pin_memory": true,
+        "num_workers": 8,
+        "content_feature_batch_size": 16,
+        // Features used for model training
+        "use_mel": true,
+        "use_min_max_norm_mel": true,
+        "use_frame_pitch": true,
+        "use_uv": true,
+        "use_frame_energy": true,
+        "use_log_scale_pitch": false,
+        "use_log_scale_energy": false,
+        "use_spkid": true,
+        // Meta file
+        "train_file": "train.json",
+        "valid_file": "test.json",
+        "spk2id": "singers.json",
+        "utt2spk": "utt2singer"
+    },
+    "model": {
+        "condition_encoder": {
+            "merge_mode": "add",
+            "input_melody_dim": 1,
+            "use_log_f0": true,
+            "n_bins_melody": 256,
+            //# Quantization (0 for not quantization)
+            "output_melody_dim": 384,
+            "input_loudness_dim": 1,
+            "use_log_loudness": true,
+            "n_bins_loudness": 256,
+            "output_loudness_dim": 384,
+            "use_whisper": false,
+            "use_contentvec": false,
+            "use_wenet": false,
+            "use_mert": false,
+            "whisper_dim": 1024,
+            "contentvec_dim": 256,
+            "mert_dim": 256,
+            "wenet_dim": 512,
+            "content_encoder_dim": 384,
+            "output_singer_dim": 384,
+            "singer_table_size": 512,
+            "output_content_dim": 384,
+            "use_spkid": true
+        },
+        // FIXME: FOLLOWING ARE NEW!!
+        "diffusion": {
+            "scheduler": "ddpm",
+            "scheduler_settings": {
+                "num_train_timesteps": 1000,
+                "beta_start": 1.0e-4,
+                "beta_end": 0.02,
+                "beta_schedule": "linear"
+            },
+            // Diffusion steps encoder
+            "step_encoder": {
+                "dim_raw_embedding": 128,
+                "dim_hidden_layer": 512,
+                "activation": "SiLU",
+                "num_layer": 2,
+                "max_period": 10000
+            },
+            // Diffusion decoder
+            "model_type": "bidilconv",
+            // bidilconv, unet2d, TODO: unet1d
+            "bidilconv": {
+                "base_channel": 384,
+                "n_res_block": 20,
+                "conv_kernel_size": 3,
+                "dilation_cycle_length": 4,
+                // specially, 1 means no dilation
+                "conditioner_size": 384
+            },
+            "unet2d": {
+                "in_channels": 1,
+                "out_channels": 1,
+                "down_block_types": [
+                    "CrossAttnDownBlock2D",
+                    "CrossAttnDownBlock2D",
+                    "CrossAttnDownBlock2D",
+                    "DownBlock2D"
+                ],
+                "mid_block_type": "UNetMidBlock2DCrossAttn",
+                "up_block_types": [
+                    "UpBlock2D",
+                    "CrossAttnUpBlock2D",
+                    "CrossAttnUpBlock2D",
+                    "CrossAttnUpBlock2D"
+                ],
+                "only_cross_attention": false
+            }
+        }
+    },
+    // FIXME: FOLLOWING ARE NEW!!
+    "train": {
+        // Basic settings
+        "batch_size": 64,
+        "gradient_accumulation_step": 1,
+        "max_epoch": -1,
+        // -1 means no limit
+        "save_checkpoint_stride": [
+            5,
+            20
+        ],
+        // unit is epoch
+        "keep_last": [
+            3,
+            -1
+        ],
+        // -1 means infinite, if one number will broadcast
+        "run_eval": [
+            false,
+            true
+        ],
+        // if one number will broadcast
+        // Fix the random seed
+        "random_seed": 10086,
+        // Batchsampler
+        "sampler": {
+            "holistic_shuffle": true,
+            "drop_last": true
+        },
+        // Dataloader
+        "dataloader": {
+            "num_worker": 32,
+            "pin_memory": true
+        },
+        // Trackers
+        "tracker": [
+            "tensorboard"
+            // "wandb",
+            // "cometml",
+            // "mlflow",
+        ],
+        // Optimizer
+        "optimizer": "AdamW",
+        "adamw": {
+            "lr": 4.0e-4
+            // nn model lr
+        },
+        // LR Scheduler
+        "scheduler": "ReduceLROnPlateau",
+        "reducelronplateau": {
+            "factor": 0.8,
+            "patience": 10,
+            // unit is epoch
+            "min_lr": 1.0e-4
+        }
+    },
+    "inference": {
+        "diffusion": {
+            "scheduler": "pndm",
+            "scheduler_settings": {
+                "num_inference_timesteps": 1000
+            }
+        }
+    }
+}

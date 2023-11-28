@@ -1,0 +1,11 @@
+{
+    "base_config": "config/audioldm.json",
+    "model_type": "AudioLDM",
+    "dataset": [
+        "AudioCaps"
+    ],
+    "preprocess": {
+        "train_file": "train.json",
+        "valid_file": "vaild.json"
+    }
+}

@@ -1,0 +1,4120 @@
+a1 a1
+a2 a2
+a3 a3
+a4 a4
+a5 a5
+ai1 ai1
+ai2 ai2
+ai3 ai3
+ai4 ai4
+ai5 ai5
+an1 an1
+an2 an2
+an3 an3
+an4 an4
+an5 an5
+ang1 ang1
+ang2 ang2
+ang3 ang3
+ang4 ang4
+ang5 ang5
+ao1 ao1
+ao2 ao2
+ao3 ao3
+ao4 ao4
+ao5 ao5
+ba1 b a1
+ba2 b a2
+ba3 b a3
+ba4 b a4
+ba5 b a5
+bai1 b ai1
+bai2 b ai2
+bai3 b ai3
+bai4 b ai4
+bai5 b ai5
+ban1 b an1
+ban2 b an2
+ban3 b an3
+ban4 b an4
+ban5 b an5
+bang1 b ang1
+bang2 b ang2
+bang3 b ang3
+bang4 b ang4
+bang5 b ang5
+bao1 b ao1
+bao2 b ao2
+bao3 b ao3
+bao4 b ao4
+bao5 b ao5
+bei1 b ei1
+bei2 b ei2
+bei3 b ei3
+bei4 b ei4
+bei5 b ei5
+ben1 b en1
+ben2 b en2
+ben3 b en3
+ben4 b en4
+ben5 b en5
+beng1 b eng1
+beng2 b eng2
+beng3 b eng3
+beng4 b eng4
+beng5 b eng5
+bi1 b i1
+bi2 b i2
+bi3 b i3
+bi4 b i4
+bi5 b i5
+bian1 b ian1
+bian2 b ian2
+bian3 b ian3
+bian4 b ian4
+bian5 b ian5
+biao1 b iao1
+biao2 b iao2
+biao3 b iao3
+biao4 b iao4
+biao5 b iao5
+bie1 b ie1
+bie2 b ie2
+bie3 b ie3
+bie4 b ie4
+bie5 b ie5
+bin1 b in1
+bin2 b in2
+bin3 b in3
+bin4 b in4
+bin5 b in5
+bing1 b ing1
+bing2 b ing2
+bing3 b ing3
+bing4 b ing4
+bing5 b ing5
+bo1 b o1
+bo2 b o2
+bo3 b o3
+bo4 b o4
+bo5 b o5
+bu1 b u1
+bu2 b u2
+bu3 b u3
+bu4 b u4
+bu5 b u5
+ca1 c a1
+ca2 c a2
+ca3 c a3
+ca4 c a4
+ca5 c a5
+cai1 c ai1
+cai2 c ai2
+cai3 c ai3
+cai4 c ai4
+cai5 c ai5
+can1 c an1
+can2 c an2
+can3 c an3
+can4 c an4
+can5 c an5
+cang1 c ang1
+cang2 c ang2
+cang3 c ang3
+cang4 c ang4
+cang5 c ang5
+cao1 c ao1
+cao2 c ao2
+cao3 c ao3
+cao4 c ao4
+cao5 c ao5
+ce1 c e1
+ce2 c e2
+ce3 c e3
+ce4 c e4
+ce5 c e5
+cen1 c en1
+cen2 c en2
+cen3 c en3
+cen4 c en4
+cen5 c en5
+ceng1 c eng1
+ceng2 c eng2
+ceng3 c eng3
+ceng4 c eng4
+ceng5 c eng5
+cha1 ch a1
+cha2 ch a2
+cha3 ch a3
+cha4 ch a4
+cha5 ch a5
+chai1 ch ai1
+chai2 ch ai2
+chai3 ch ai3
+chai4 ch ai4
+chai5 ch ai5
+chan1 ch an1
+chan2 ch an2
+chan3 ch an3
+chan4 ch an4
+chan5 ch an5
+chang1 ch ang1
+chang2 ch ang2
+chang3 ch ang3
+chang4 ch ang4
+chang5 ch ang5
+chao1 ch ao1
+chao2 ch ao2
+chao3 ch ao3
+chao4 ch ao4
+chao5 ch ao5
+che1 ch e1
+che2 ch e2
+che3 ch e3
+che4 ch e4
+che5 ch e5
+chen1 ch en1
+chen2 ch en2
+chen3 ch en3
+chen4 ch en4
+chen5 ch en5
+cheng1 ch eng1
+cheng2 ch eng2
+cheng3 ch eng3
+cheng4 ch eng4
+cheng5 ch eng5
+chi1 ch iii1
+chi2 ch iii2
+chi3 ch iii3
+chi4 ch iii4
+chi5 ch iii5
+chong1 ch ong1
+chong2 ch ong2
+chong3 ch ong3
+chong4 ch ong4
+chong5 ch ong5
+chou1 ch ou1
+chou2 ch ou2
+chou3 ch ou3
+chou4 ch ou4
+chou5 ch ou5
+chu1 ch u1
+chu2 ch u2
+chu3 ch u3
+chu4 ch u4
+chu5 ch u5
+chuai1 ch uai1
+chuai2 ch uai2
+chuai3 ch uai3
+chuai4 ch uai4
+chuai5 ch uai5
+chuan1 ch uan1
+chuan2 ch uan2
+chuan3 ch uan3
+chuan4 ch uan4
+chuan5 ch uan5
+chuang1 ch uang1
+chuang2 ch uang2
+chuang3 ch uang3
+chuang4 ch uang4
+chuang5 ch uang5
+chui1 ch uei1
+chui2 ch uei2
+chui3 ch uei3
+chui4 ch uei4
+chui5 ch uei5
+chun1 ch uen1
+chun2 ch uen2
+chun3 ch uen3
+chun4 ch uen4
+chun5 ch uen5
+chuo1 ch uo1
+chuo2 ch uo2
+chuo3 ch uo3
+chuo4 ch uo4
+chuo5 ch uo5
+ci1 c ii1
+ci2 c ii2
+ci3 c ii3
+ci4 c ii4
+ci5 c ii5
+cong1 c ong1
+cong2 c ong2
+cong3 c ong3
+cong4 c ong4
+cong5 c ong5
+cou1 c ou1
+cou2 c ou2
+cou3 c ou3
+cou4 c ou4
+cou5 c ou5
+cu1 c u1
+cu2 c u2
+cu3 c u3
+cu4 c u4
+cu5 c u5
+cuan1 c uan1
+cuan2 c uan2
+cuan3 c uan3
+cuan4 c uan4
+cuan5 c uan5
+cui1 c uei1
+cui2 c uei2
+cui3 c uei3
+cui4 c uei4
+cui5 c uei5
+cun1 c uen1
+cun2 c uen2
+cun3 c uen3
+cun4 c uen4
+cun5 c uen5
+cuo1 c uo1
+cuo2 c uo2
+cuo3 c uo3
+cuo4 c uo4
+cuo5 c uo5
+da1 d a1
+da2 d a2
+da3 d a3
+da4 d a4
+da5 d a5
+dai1 d ai1
+dai2 d ai2
+dai3 d ai3
+dai4 d ai4
+dai5 d ai5
+dan1 d an1
+dan2 d an2
+dan3 d an3
+dan4 d an4
+dan5 d an5
+dang1 d ang1
+dang2 d ang2
+dang3 d ang3
+dang4 d ang4
+dang5 d ang5
+dao1 d ao1
+dao2 d ao2
+dao3 d ao3
+dao4 d ao4
+dao5 d ao5
+de1 d e1
+de2 d e2
+de3 d e3
+de4 d e4
+de5 d e5
+dei1 d ei1
+dei2 d ei2
+dei3 d ei3
+dei4 d ei4
+dei5 d ei5
+den1 d en1
+den2 d en2
+den3 d en3
+den4 d en4
+den5 d en5
+deng1 d eng1
+deng2 d eng2
+deng3 d eng3
+deng4 d eng4
+deng5 d eng5
+di1 d i1
+di2 d i2
+di3 d i3
+di4 d i4
+di5 d i5
+dia1 d ia1
+dia2 d ia2
+dia3 d ia3
+dia4 d ia4
+dia5 d ia5
+dian1 d ian1
+dian2 d ian2
+dian3 d ian3
+dian4 d ian4
+dian5 d ian5
+diao1 d iao1
+diao2 d iao2
+diao3 d iao3
+diao4 d iao4
+diao5 d iao5
+die1 d ie1
+die2 d ie2
+die3 d ie3
+die4 d ie4
+die5 d ie5
+ding1 d ing1
+ding2 d ing2
+ding3 d ing3
+ding4 d ing4
+ding5 d ing5
+diu1 d iou1
+diu2 d iou2
+diu3 d iou3
+diu4 d iou4
+diu5 d iou5
+dong1 d ong1
+dong2 d ong2
+dong3 d ong3
+dong4 d ong4
+dong5 d ong5
+dou1 d ou1
+dou2 d ou2
+dou3 d ou3
+dou4 d ou4
+dou5 d ou5
+du1 d u1
+du2 d u2
+du3 d u3
+du4 d u4
+du5 d u5
+duan1 d uan1
+duan2 d uan2
+duan3 d uan3
+duan4 d uan4
+duan5 d uan5
+dui1 d uei1
+dui2 d uei2
+dui3 d uei3
+dui4 d uei4
+dui5 d uei5
+dun1 d uen1
+dun2 d uen2
+dun3 d uen3
+dun4 d uen4
+dun5 d uen5
+duo1 d uo1
+duo2 d uo2
+duo3 d uo3
+duo4 d uo4
+duo5 d uo5
+e1 e1
+e2 e2
+e3 e3
+e4 e4
+e5 e5
+ei1 ei1
+ei2 ei2
+ei3 ei3
+ei4 ei4
+ei5 ei5
+en1 en1
+en2 en2
+en3 en3
+en4 en4
+en5 en5
+eng1 eng1
+eng2 eng2
+eng3 eng3
+eng4 eng4
+eng5 eng5
+r1 er1
+r2 er2
+r3 er3
+r4 er4
+r5 er5
+er1 er1
+er2 er2
+er3 er3
+er4 er4
+er5 er5
+fa1 f a1
+fa2 f a2
+fa3 f a3
+fa4 f a4
+fa5 f a5
+fan1 f an1
+fan2 f an2
+fan3 f an3
+fan4 f an4
+fan5 f an5
+fang1 f ang1
+fang2 f ang2
+fang3 f ang3
+fang4 f ang4
+fang5 f ang5
+fei1 f ei1
+fei2 f ei2
+fei3 f ei3
+fei4 f ei4
+fei5 f ei5
+fen1 f en1
+fen2 f en2
+fen3 f en3
+fen4 f en4
+fen5 f en5
+feng1 f eng1
+feng2 f eng2
+feng3 f eng3
+feng4 f eng4
+feng5 f eng5
+fo1 f o1
+fo2 f o2
+fo3 f o3
+fo4 f o4
+fo5 f o5
+fou1 f ou1
+fou2 f ou2
+fou3 f ou3
+fou4 f ou4
+fou5 f ou5
+fu1 f u1
+fu2 f u2
+fu3 f u3
+fu4 f u4
+fu5 f u5
+ga1 g a1
+ga2 g a2
+ga3 g a3
+ga4 g a4
+ga5 g a5
+gai1 g ai1
+gai2 g ai2
+gai3 g ai3
+gai4 g ai4
+gai5 g ai5
+gan1 g an1
+gan2 g an2
+gan3 g an3
+gan4 g an4
+gan5 g an5
+gang1 g ang1
+gang2 g ang2
+gang3 g ang3
+gang4 g ang4
+gang5 g ang5
+gao1 g ao1
+gao2 g ao2
+gao3 g ao3
+gao4 g ao4
+gao5 g ao5
+ge1 g e1
+ge2 g e2
+ge3 g e3
+ge4 g e4
+ge5 g e5
+gei1 g ei1
+gei2 g ei2
+gei3 g ei3
+gei4 g ei4
+gei5 g ei5
+gen1 g en1
+gen2 g en2
+gen3 g en3
+gen4 g en4
+gen5 g en5
+geng1 g eng1
+geng2 g eng2
+geng3 g eng3
+geng4 g eng4
+geng5 g eng5
+gong1 g ong1
+gong2 g ong2
+gong3 g ong3
+gong4 g ong4
+gong5 g ong5
+gou1 g ou1
+gou2 g ou2
+gou3 g ou3
+gou4 g ou4
+gou5 g ou5
+gu1 g u1
+gu2 g u2
+gu3 g u3
+gu4 g u4
+gu5 g u5
+gua1 g ua1
+gua2 g ua2
+gua3 g ua3
+gua4 g ua4
+gua5 g ua5
+guai1 g uai1
+guai2 g uai2
+guai3 g uai3
+guai4 g uai4
+guai5 g uai5
+guan1 g uan1
+guan2 g uan2
+guan3 g uan3
+guan4 g uan4
+guan5 g uan5
+guang1 g uang1
+guang2 g uang2
+guang3 g uang3
+guang4 g uang4
+guang5 g uang5
+gui1 g uei1
+gui2 g uei2
+gui3 g uei3
+gui4 g uei4
+gui5 g uei5
+gun1 g uen1
+gun2 g uen2
+gun3 g uen3
+gun4 g uen4
+gun5 g uen5
+guo1 g uo1
+guo2 g uo2
+guo3 g uo3
+guo4 g uo4
+guo5 g uo5
+ha1 h a1
+ha2 h a2
+ha3 h a3
+ha4 h a4
+ha5 h a5
+hai1 h ai1
+hai2 h ai2
+hai3 h ai3
+hai4 h ai4
+hai5 h ai5
+han1 h an1
+han2 h an2
+han3 h an3
+han4 h an4
+han5 h an5
+hang1 h ang1
+hang2 h ang2
+hang3 h ang3
+hang4 h ang4
+hang5 h ang5
+hao1 h ao1
+hao2 h ao2
+hao3 h ao3
+hao4 h ao4
+hao5 h ao5
+he1 h e1
+he2 h e2
+he3 h e3
+he4 h e4
+he5 h e5
+hei1 h ei1
+hei2 h ei2
+hei3 h ei3
+hei4 h ei4
+hei5 h ei5
+hen1 h en1
+hen2 h en2
+hen3 h en3
+hen4 h en4
+hen5 h en5
+heng1 h eng1
+heng2 h eng2
+heng3 h eng3
+heng4 h eng4
+heng5 h eng5
+hong1 h ong1
+hong2 h ong2
+hong3 h ong3
+hong4 h ong4
+hong5 h ong5
+hou1 h ou1
+hou2 h ou2
+hou3 h ou3
+hou4 h ou4
+hou5 h ou5
+hu1 h u1
+hu2 h u2
+hu3 h u3
+hu4 h u4
+hu5 h u5
+hua1 h ua1
+hua2 h ua2
+hua3 h ua3
+hua4 h ua4
+hua5 h ua5
+huai1 h uai1
+huai2 h uai2
+huai3 h uai3
+huai4 h uai4
+huai5 h uai5
+huan1 h uan1
+huan2 h uan2
+huan3 h uan3
+huan4 h uan4
+huan5 h uan5
+huang1 h uang1
+huang2 h uang2
+huang3 h uang3
+huang4 h uang4
+huang5 h uang5
+hui1 h uei1
+hui2 h uei2
+hui3 h uei3
+hui4 h uei4
+hui5 h uei5
+hun1 h uen1
+hun2 h uen2
+hun3 h uen3
+hun4 h uen4
+hun5 h uen5
+huo1 h uo1
+huo2 h uo2
+huo3 h uo3
+huo4 h uo4
+huo5 h uo5
+ji1 j i1
+ji2 j i2
+ji3 j i3
+ji4 j i4
+ji5 j i5
+jia1 j ia1
+jia2 j ia2
+jia3 j ia3
+jia4 j ia4
+jia5 j ia5
+jian1 j ian1
+jian2 j ian2
+jian3 j ian3
+jian4 j ian4
+jian5 j ian5
+jiang1 j iang1
+jiang2 j iang2
+jiang3 j iang3
+jiang4 j iang4
+jiang5 j iang5
+jiao1 j iao1
+jiao2 j iao2
+jiao3 j iao3
+jiao4 j iao4
+jiao5 j iao5
+jie1 j ie1
+jie2 j ie2
+jie3 j ie3
+jie4 j ie4
+jie5 j ie5
+jin1 j in1
+jin2 j in2
+jin3 j in3
+jin4 j in4
+jin5 j in5
+jing1 j ing1
+jing2 j ing2
+jing3 j ing3
+jing4 j ing4
+jing5 j ing5
+jiong1 j iong1
+jiong2 j iong2
+jiong3 j iong3
+jiong4 j iong4
+jiong5 j iong5
+jiu1 j iou1
+jiu2 j iou2
+jiu3 j iou3
+jiu4 j iou4
+jiu5 j iou5
+ju1 j v1
+ju2 j v2
+ju3 j v3
+ju4 j v4
+ju5 j v5
+juan1 j van1
+juan2 j van2
+juan3 j van3
+juan4 j van4
+juan5 j van5
+jue1 j ve1
+jue2 j ve2
+jue3 j ve3
+jue4 j ve4
+jue5 j ve5
+jun1 j vn1
+jun2 j vn2
+jun3 j vn3
+jun4 j vn4
+jun5 j vn5
+ka1 k a1
+ka2 k a2
+ka3 k a3
+ka4 k a4
+ka5 k a5
+kai1 k ai1
+kai2 k ai2
+kai3 k ai3
+kai4 k ai4
+kai5 k ai5
+kan1 k an1
+kan2 k an2
+kan3 k an3
+kan4 k an4
+kan5 k an5
+kang1 k ang1
+kang2 k ang2
+kang3 k ang3
+kang4 k ang4
+kang5 k ang5
+kao1 k ao1
+kao2 k ao2
+kao3 k ao3
+kao4 k ao4
+kao5 k ao5
+ke1 k e1
+ke2 k e2
+ke3 k e3
+ke4 k e4
+ke5 k e5
+kei1 k ei1
+kei2 k ei2
+kei3 k ei3
+kei4 k ei4
+kei5 k ei5
+ken1 k en1
+ken2 k en2
+ken3 k en3
+ken4 k en4
+ken5 k en5
+keng1 k eng1
+keng2 k eng2
+keng3 k eng3
+keng4 k eng4
+keng5 k eng5
+kong1 k ong1
+kong2 k ong2
+kong3 k ong3
+kong4 k ong4
+kong5 k ong5
+kou1 k ou1
+kou2 k ou2
+kou3 k ou3
+kou4 k ou4
+kou5 k ou5
+ku1 k u1
+ku2 k u2
+ku3 k u3
+ku4 k u4
+ku5 k u5
+kua1 k ua1
+kua2 k ua2
+kua3 k ua3
+kua4 k ua4
+kua5 k ua5
+kuai1 k uai1
+kuai2 k uai2
+kuai3 k uai3
+kuai4 k uai4
+kuai5 k uai5
+kuan1 k uan1
+kuan2 k uan2
+kuan3 k uan3
+kuan4 k uan4
+kuan5 k uan5
+kuang1 k uang1
+kuang2 k uang2
+kuang3 k uang3
+kuang4 k uang4
+kuang5 k uang5
+kui1 k uei1
+kui2 k uei2
+kui3 k uei3
+kui4 k uei4
+kui5 k uei5
+kun1 k uen1
+kun2 k uen2
+kun3 k uen3
+kun4 k uen4
+kun5 k uen5
+kuo1 k uo1
+kuo2 k uo2
+kuo3 k uo3
+kuo4 k uo4
+kuo5 k uo5
+la1 l a1
+la2 l a2
+la3 l a3
+la4 l a4
+la5 l a5
+lai1 l ai1
+lai2 l ai2
+lai3 l ai3
+lai4 l ai4
+lai5 l ai5
+lan1 l an1
+lan2 l an2
+lan3 l an3
+lan4 l an4
+lan5 l an5
+lang1 l ang1
+lang2 l ang2
+lang3 l ang3
+lang4 l ang4
+lang5 l ang5
+lao1 l ao1
+lao2 l ao2
+lao3 l ao3
+lao4 l ao4
+lao5 l ao5
+le1 l e1
+le2 l e2
+le3 l e3
+le4 l e4
+le5 l e5
+lei1 l ei1
+lei2 l ei2
+lei3 l ei3
+lei4 l ei4
+lei5 l ei5
+leng1 l eng1
+leng2 l eng2
+leng3 l eng3
+leng4 l eng4
+leng5 l eng5
+li1 l i1
+li2 l i2
+li3 l i3
+li4 l i4
+li5 l i5
+lia1 l ia1
+lia2 l ia2
+lia3 l ia3
+lia4 l ia4
+lia5 l ia5
+lian1 l ian1
+lian2 l ian2
+lian3 l ian3
+lian4 l ian4
+lian5 l ian5
+liang1 l iang1
+liang2 l iang2
+liang3 l iang3
+liang4 l iang4
+liang5 l iang5
+liao1 l iao1
+liao2 l iao2
+liao3 l iao3
+liao4 l iao4
+liao5 l iao5
+lie1 l ie1
+lie2 l ie2
+lie3 l ie3
+lie4 l ie4
+lie5 l ie5
+lin1 l in1
+lin2 l in2
+lin3 l in3
+lin4 l in4
+lin5 l in5
+ling1 l ing1
+ling2 l ing2
+ling3 l ing3
+ling4 l ing4
+ling5 l ing5
+liu1 l iou1
+liu2 l iou2
+liu3 l iou3
+liu4 l iou4
+liu5 l iou5
+lo1 l o1
+lo2 l o2
+lo3 l o3
+lo4 l o4
+lo5 l o5
+long1 l ong1
+long2 l ong2
+long3 l ong3
+long4 l ong4
+long5 l ong5
+lou1 l ou1
+lou2 l ou2
+lou3 l ou3
+lou4 l ou4
+lou5 l ou5
+lu1 l u1
+lu2 l u2
+lu3 l u3
+lu4 l u4
+lu5 l u5
+luan1 l uan1
+luan2 l uan2
+luan3 l uan3
+luan4 l uan4
+luan5 l uan5
+lue1 l ve1
+lue2 l ve2
+lue3 l ve3
+lue4 l ve4
+lue5 l ve5
+lve1 l ve1
+lve2 l ve2
+lve3 l ve3
+lve4 l ve4
+lve5 l ve5
+lun1 l uen1
+lun2 l uen2
+lun3 l uen3
+lun4 l uen4
+lun5 l uen5
+luo1 l uo1
+luo2 l uo2
+luo3 l uo3
+luo4 l uo4
+luo5 l uo5
+lv1 l v1
+lv2 l v2
+lv3 l v3
+lv4 l v4
+lv5 l v5
+ma1 m a1
+ma2 m a2
+ma3 m a3
+ma4 m a4
+ma5 m a5
+mai1 m ai1
+mai2 m ai2
+mai3 m ai3
+mai4 m ai4
+mai5 m ai5
+man1 m an1
+man2 m an2
+man3 m an3
+man4 m an4
+man5 m an5
+mang1 m ang1
+mang2 m ang2
+mang3 m ang3
+mang4 m ang4
+mang5 m ang5
+mao1 m ao1
+mao2 m ao2
+mao3 m ao3
+mao4 m ao4
+mao5 m ao5
+me1 m e1
+me2 m e2
+me3 m e3
+me4 m e4
+me5 m e5
+mei1 m ei1
+mei2 m ei2
+mei3 m ei3
+mei4 m ei4
+mei5 m ei5
+men1 m en1
+men2 m en2
+men3 m en3
+men4 m en4
+men5 m en5
+meng1 m eng1
+meng2 m eng2
+meng3 m eng3
+meng4 m eng4
+meng5 m eng5
+mi1 m i1
+mi2 m i2
+mi3 m i3
+mi4 m i4
+mi5 m i5
+mian1 m ian1
+mian2 m ian2
+mian3 m ian3
+mian4 m ian4
+mian5 m ian5
+miao1 m iao1
+miao2 m iao2
+miao3 m iao3
+miao4 m iao4
+miao5 m iao5
+mie1 m ie1
+mie2 m ie2
+mie3 m ie3
+mie4 m ie4
+mie5 m ie5
+min1 m in1
+min2 m in2
+min3 m in3
+min4 m in4
+min5 m in5
+ming1 m ing1
+ming2 m ing2
+ming3 m ing3
+ming4 m ing4
+ming5 m ing5
+miu1 m iou1
+miu2 m iou2
+miu3 m iou3
+miu4 m iou4
+miu5 m iou5
+mo1 m o1
+mo2 m o2
+mo3 m o3
+mo4 m o4
+mo5 m o5
+mou1 m ou1
+mou2 m ou2
+mou3 m ou3
+mou4 m ou4
+mou5 m ou5
+mu1 m u1
+mu2 m u2
+mu3 m u3
+mu4 m u4
+mu5 m u5
+na1 n a1
+na2 n a2
+na3 n a3
+na4 n a4
+na5 n a5
+nai1 n ai1
+nai2 n ai2
+nai3 n ai3
+nai4 n ai4
+nai5 n ai5
+nan1 n an1
+nan2 n an2
+nan3 n an3
+nan4 n an4
+nan5 n an5
+nang1 n ang1
+nang2 n ang2
+nang3 n ang3
+nang4 n ang4
+nang5 n ang5
+nao1 n ao1
+nao2 n ao2
+nao3 n ao3
+nao4 n ao4
+nao5 n ao5
+ne1 n e1
+ne2 n e2
+ne3 n e3
+ne4 n e4
+ne5 n e5
+nei1 n ei1
+nei2 n ei2
+nei3 n ei3
+nei4 n ei4
+nei5 n ei5
+nen1 n en1
+nen2 n en2
+nen3 n en3
+nen4 n en4
+nen5 n en5
+neng1 n eng1
+neng2 n eng2
+neng3 n eng3
+neng4 n eng4
+neng5 n eng5
+ni1 n i1
+ni2 n i2
+ni3 n i3
+ni4 n i4
+ni5 n i5
+nian1 n ian1
+nian2 n ian2
+nian3 n ian3
+nian4 n ian4
+nian5 n ian5
+niang1 n iang1
+niang2 n iang2
+niang3 n iang3
+niang4 n iang4
+niang5 n iang5
+niao1 n iao1
+niao2 n iao2
+niao3 n iao3
+niao4 n iao4
+niao5 n iao5
+nie1 n ie1
+nie2 n ie2
+nie3 n ie3
+nie4 n ie4
+nie5 n ie5
+nin1 n in1
+nin2 n in2
+nin3 n in3
+nin4 n in4
+nin5 n in5
+ning1 n ing1
+ning2 n ing2
+ning3 n ing3
+ning4 n ing4
+ning5 n ing5
+niu1 n iou1
+niu2 n iou2
+niu3 n iou3
+niu4 n iou4
+niu5 n iou5
+nong1 n ong1
+nong2 n ong2
+nong3 n ong3
+nong4 n ong4
+nong5 n ong5
+nou1 n ou1
+nou2 n ou2
+nou3 n ou3
+nou4 n ou4
+nou5 n ou5
+nu1 n u1
+nu2 n u2
+nu3 n u3
+nu4 n u4
+nu5 n u5
+nuan1 n uan1
+nuan2 n uan2
+nuan3 n uan3
+nuan4 n uan4
+nuan5 n uan5
+nue1 n ve1
+nue2 n ve2
+nue3 n ve3
+nue4 n ve4
+nue5 n ve5
+nve1 n ve1
+nve2 n ve2
+nve3 n ve3
+nve4 n ve4
+nve5 n ve5
+nuo1 n uo1
+nuo2 n uo2
+nuo3 n uo3
+nuo4 n uo4
+nuo5 n uo5
+nv1 n v1
+nv2 n v2
+nv3 n v3
+nv4 n v4
+nv5 n v5
+o1 o1
+o2 o2
+o3 o3
+o4 o4
+o5 o5
+ou1 ou1
+ou2 ou2
+ou3 ou3
+ou4 ou4
+ou5 ou5
+pa1 p a1
+pa2 p a2
+pa3 p a3
+pa4 p a4
+pa5 p a5
+pai1 p ai1
+pai2 p ai2
+pai3 p ai3
+pai4 p ai4
+pai5 p ai5
+pan1 p an1
+pan2 p an2
+pan3 p an3
+pan4 p an4
+pan5 p an5
+pang1 p ang1
+pang2 p ang2
+pang3 p ang3
+pang4 p ang4
+pang5 p ang5
+pao1 p ao1
+pao2 p ao2
+pao3 p ao3
+pao4 p ao4
+pao5 p ao5
+pei1 p ei1
+pei2 p ei2
+pei3 p ei3
+pei4 p ei4
+pei5 p ei5
+pen1 p en1
+pen2 p en2
+pen3 p en3
+pen4 p en4
+pen5 p en5
+peng1 p eng1
+peng2 p eng2
+peng3 p eng3
+peng4 p eng4
+peng5 p eng5
+pi1 p i1
+pi2 p i2
+pi3 p i3
+pi4 p i4
+pi5 p i5
+pian1 p ian1
+pian2 p ian2
+pian3 p ian3
+pian4 p ian4
+pian5 p ian5
+piao1 p iao1
+piao2 p iao2
+piao3 p iao3
+piao4 p iao4
+piao5 p iao5
+pie1 p ie1
+pie2 p ie2
+pie3 p ie3
+pie4 p ie4
+pie5 p ie5
+pin1 p in1
+pin2 p in2
+pin3 p in3
+pin4 p in4
+pin5 p in5
+ping1 p ing1
+ping2 p ing2
+ping3 p ing3
+ping4 p ing4
+ping5 p ing5
+po1 p o1
+po2 p o2
+po3 p o3
+po4 p o4
+po5 p o5
+pou1 p ou1
+pou2 p ou2
+pou3 p ou3
+pou4 p ou4
+pou5 p ou5
+pu1 p u1
+pu2 p u2
+pu3 p u3
+pu4 p u4
+pu5 p u5
+qi1 q i1
+qi2 q i2
+qi3 q i3
+qi4 q i4
+qi5 q i5
+qia1 q ia1
+qia2 q ia2
+qia3 q ia3
+qia4 q ia4
+qia5 q ia5
+qian1 q ian1
+qian2 q ian2
+qian3 q ian3
+qian4 q ian4
+qian5 q ian5
+qiang1 q iang1
+qiang2 q iang2
+qiang3 q iang3
+qiang4 q iang4
+qiang5 q iang5
+qiao1 q iao1
+qiao2 q iao2
+qiao3 q iao3
+qiao4 q iao4
+qiao5 q iao5
+qie1 q ie1
+qie2 q ie2
+qie3 q ie3
+qie4 q ie4
+qie5 q ie5
+qin1 q in1
+qin2 q in2
+qin3 q in3
+qin4 q in4
+qin5 q in5
+qing1 q ing1
+qing2 q ing2
+qing3 q ing3
+qing4 q ing4
+qing5 q ing5
+qiong1 q iong1
+qiong2 q iong2
+qiong3 q iong3
+qiong4 q iong4
+qiong5 q iong5
+qiu1 q iou1
+qiu2 q iou2
+qiu3 q iou3
+qiu4 q iou4
+qiu5 q iou5
+qu1 q v1
+qu2 q v2
+qu3 q v3
+qu4 q v4
+qu5 q v5
+quan1 q van1
+quan2 q van2
+quan3 q van3
+quan4 q van4
+quan5 q van5
+que1 q ve1
+que2 q ve2
+que3 q ve3
+que4 q ve4
+que5 q ve5
+qun1 q vn1
+qun2 q vn2
+qun3 q vn3
+qun4 q vn4
+qun5 q vn5
+ran1 r an1
+ran2 r an2
+ran3 r an3
+ran4 r an4
+ran5 r an5
+rang1 r ang1
+rang2 r ang2
+rang3 r ang3
+rang4 r ang4
+rang5 r ang5
+rao1 r ao1
+rao2 r ao2
+rao3 r ao3
+rao4 r ao4
+rao5 r ao5
+re1 r e1
+re2 r e2
+re3 r e3
+re4 r e4
+re5 r e5
+ren1 r en1
+ren2 r en2
+ren3 r en3
+ren4 r en4
+ren5 r en5
+reng1 r eng1
+reng2 r eng2
+reng3 r eng3
+reng4 r eng4
+reng5 r eng5
+ri1 r iii1
+ri2 r iii2
+ri3 r iii3
+ri4 r iii4
+ri5 r iii5
+rong1 r ong1
+rong2 r ong2
+rong3 r ong3
+rong4 r ong4
+rong5 r ong5
+rou1 r ou1
+rou2 r ou2
+rou3 r ou3
+rou4 r ou4
+rou5 r ou5
+ru1 r u1
+ru2 r u2
+ru3 r u3
+ru4 r u4
+ru5 r u5
+rua1 r ua1
+rua2 r ua2
+rua3 r ua3
+rua4 r ua4
+rua5 r ua5
+ruan1 r uan1
+ruan2 r uan2
+ruan3 r uan3
+ruan4 r uan4
+ruan5 r uan5
+rui1 r uei1
+rui2 r uei2
+rui3 r uei3
+rui4 r uei4
+rui5 r uei5
+run1 r uen1
+run2 r uen2
+run3 r uen3
+run4 r uen4
+run5 r uen5
+ruo1 r uo1
+ruo2 r uo2
+ruo3 r uo3
+ruo4 r uo4
+ruo5 r uo5
+sa1 s a1
+sa2 s a2
+sa3 s a3
+sa4 s a4
+sa5 s a5
+sai1 s ai1
+sai2 s ai2
+sai3 s ai3
+sai4 s ai4
+sai5 s ai5
+san1 s an1
+san2 s an2
+san3 s an3
+san4 s an4
+san5 s an5
+sang1 s ang1
+sang2 s ang2
+sang3 s ang3
+sang4 s ang4
+sang5 s ang5
+sao1 s ao1
+sao2 s ao2
+sao3 s ao3
+sao4 s ao4
+sao5 s ao5
+se1 s e1
+se2 s e2
+se3 s e3
+se4 s e4
+se5 s e5
+sen1 s en1
+sen2 s en2
+sen3 s en3
+sen4 s en4
+sen5 s en5
+seng1 s eng1
+seng2 s eng2
+seng3 s eng3
+seng4 s eng4
+seng5 s eng5
+sha1 sh a1
+sha2 sh a2
+sha3 sh a3
+sha4 sh a4
+sha5 sh a5
+shai1 sh ai1
+shai2 sh ai2
+shai3 sh ai3
+shai4 sh ai4
+shai5 sh ai5
+shan1 sh an1
+shan2 sh an2
+shan3 sh an3
+shan4 sh an4
+shan5 sh an5
+shang1 sh ang1
+shang2 sh ang2
+shang3 sh ang3
+shang4 sh ang4
+shang5 sh ang5
+shao1 sh ao1
+shao2 sh ao2
+shao3 sh ao3
+shao4 sh ao4
+shao5 sh ao5
+she1 sh e1
+she2 sh e2
+she3 sh e3
+she4 sh e4
+she5 sh e5
+shei1 sh ei1
+shei2 sh ei2
+shei3 sh ei3
+shei4 sh ei4
+shei5 sh ei5
+shen1 sh en1
+shen2 sh en2
+shen3 sh en3
+shen4 sh en4
+shen5 sh en5
+sheng1 sh eng1
+sheng2 sh eng2
+sheng3 sh eng3
+sheng4 sh eng4
+sheng5 sh eng5
+shi1 sh iii1
+shi2 sh iii2
+shi3 sh iii3
+shi4 sh iii4
+shi5 sh iii5
+shou1 sh ou1
+shou2 sh ou2
+shou3 sh ou3
+shou4 sh ou4
+shou5 sh ou5
+shu1 sh u1
+shu2 sh u2
+shu3 sh u3
+shu4 sh u4
+shu5 sh u5
+shua1 sh ua1
+shua2 sh ua2
+shua3 sh ua3
+shua4 sh ua4
+shua5 sh ua5
+shuai1 sh uai1
+shuai2 sh uai2
+shuai3 sh uai3
+shuai4 sh uai4
+shuai5 sh uai5
+shuan1 sh uan1
+shuan2 sh uan2
+shuan3 sh uan3
+shuan4 sh uan4
+shuan5 sh uan5
+shuang1 sh uang1
+shuang2 sh uang2
+shuang3 sh uang3
+shuang4 sh uang4
+shuang5 sh uang5
+shui1 sh uei1
+shui2 sh uei2
+shui3 sh uei3
+shui4 sh uei4
+shui5 sh uei5
+shun1 sh uen1
+shun2 sh uen2
+shun3 sh uen3
+shun4 sh uen4
+shun5 sh uen5
+shuo1 sh uo1
+shuo2 sh uo2
+shuo3 sh uo3
+shuo4 sh uo4
+shuo5 sh uo5
+si1 s ii1
+si2 s ii2
+si3 s ii3
+si4 s ii4
+si5 s ii5
+song1 s ong1
+song2 s ong2
+song3 s ong3
+song4 s ong4
+song5 s ong5
+sou1 s ou1
+sou2 s ou2
+sou3 s ou3
+sou4 s ou4
+sou5 s ou5
+su1 s u1
+su2 s u2
+su3 s u3
+su4 s u4
+su5 s u5
+suan1 s uan1
+suan2 s uan2
+suan3 s uan3
+suan4 s uan4
+suan5 s uan5
+sui1 s uei1
+sui2 s uei2
+sui3 s uei3
+sui4 s uei4
+sui5 s uei5
+sun1 s uen1
+sun2 s uen2
+sun3 s uen3
+sun4 s uen4
+sun5 s uen5
+suo1 s uo1
+suo2 s uo2
+suo3 s uo3
+suo4 s uo4
+suo5 s uo5
+ta1 t a1
+ta2 t a2
+ta3 t a3
+ta4 t a4
+ta5 t a5
+tai1 t ai1
+tai2 t ai2
+tai3 t ai3
+tai4 t ai4
+tai5 t ai5
+tan1 t an1
+tan2 t an2
+tan3 t an3
+tan4 t an4
+tan5 t an5
+tang1 t ang1
+tang2 t ang2
+tang3 t ang3
+tang4 t ang4
+tang5 t ang5
+tao1 t ao1
+tao2 t ao2
+tao3 t ao3
+tao4 t ao4
+tao5 t ao5
+te1 t e1
+te2 t e2
+te3 t e3
+te4 t e4
+te5 t e5
+tei1 t ei1
+tei2 t ei2
+tei3 t ei3
+tei4 t ei4
+tei5 t ei5
+teng1 t eng1
+teng2 t eng2
+teng3 t eng3
+teng4 t eng4
+teng5 t eng5
+ti1 t i1
+ti2 t i2
+ti3 t i3
+ti4 t i4
+ti5 t i5
+tian1 t ian1
+tian2 t ian2
+tian3 t ian3
+tian4 t ian4
+tian5 t ian5
+tiao1 t iao1
+tiao2 t iao2
+tiao3 t iao3
+tiao4 t iao4
+tiao5 t iao5
+tie1 t ie1
+tie2 t ie2
+tie3 t ie3
+tie4 t ie4
+tie5 t ie5
+ting1 t ing1
+ting2 t ing2
+ting3 t ing3
+ting4 t ing4
+ting5 t ing5
+tong1 t ong1
+tong2 t ong2
+tong3 t ong3
+tong4 t ong4
+tong5 t ong5
+tou1 t ou1
+tou2 t ou2
+tou3 t ou3
+tou4 t ou4
+tou5 t ou5
+tu1 t u1
+tu2 t u2
+tu3 t u3
+tu4 t u4
+tu5 t u5
+tuan1 t uan1
+tuan2 t uan2
+tuan3 t uan3
+tuan4 t uan4
+tuan5 t uan5
+tui1 t uei1
+tui2 t uei2
+tui3 t uei3
+tui4 t uei4
+tui5 t uei5
+tun1 t uen1
+tun2 t uen2
+tun3 t uen3
+tun4 t uen4
+tun5 t uen5
+tuo1 t uo1
+tuo2 t uo2
+tuo3 t uo3
+tuo4 t uo4
+tuo5 t uo5
+wa1 w ua1
+wa2 w ua2
+wa3 w ua3
+wa4 w ua4
+wa5 w ua5
+wai1 w uai1
+wai2 w uai2
+wai3 w uai3
+wai4 w uai4
+wai5 w uai5
+wan1 w uan1
+wan2 w uan2
+wan3 w uan3
+wan4 w uan4
+wan5 w uan5
+wang1 w uang1
+wang2 w uang2
+wang3 w uang3
+wang4 w uang4
+wang5 w uang5
+wei1 w uei1
+wei2 w uei2
+wei3 w uei3
+wei4 w uei4
+wei5 w uei5
+wen1 w uen1
+wen2 w uen2
+wen3 w uen3
+wen4 w uen4
+wen5 w uen5
+weng1 w uen1
+weng2 w uen2
+weng3 w uen3
+weng4 w uen4
+weng5 w uen5
+wo1 w uo1
+wo2 w uo2
+wo3 w uo3
+wo4 w uo4
+wo5 w uo5
+wu1 w u1
+wu2 w u2
+wu3 w u3
+wu4 w u4
+wu5 w u5
+xi1 x i1
+xi2 x i2
+xi3 x i3
+xi4 x i4
+xi5 x i5
+xia1 x ia1
+xia2 x ia2
+xia3 x ia3
+xia4 x ia4
+xia5 x ia5
+xian1 x ian1
+xian2 x ian2
+xian3 x ian3
+xian4 x ian4
+xian5 x ian5
+xiang1 x iang1
+xiang2 x iang2
+xiang3 x iang3
+xiang4 x iang4
+xiang5 x iang5
+xiao1 x iao1
+xiao2 x iao2
+xiao3 x iao3
+xiao4 x iao4
+xiao5 x iao5
+xie1 x ie1
+xie2 x ie2
+xie3 x ie3
+xie4 x ie4
+xie5 x ie5
+xin1 x in1
+xin2 x in2
+xin3 x in3
+xin4 x in4
+xin5 x in5
+xing1 x ing1
+xing2 x ing2
+xing3 x ing3
+xing4 x ing4
+xing5 x ing5
+xiong1 x iong1
+xiong2 x iong2
+xiong3 x iong3
+xiong4 x iong4
+xiong5 x iong5
+xiu1 x iou1
+xiu2 x iou2
+xiu3 x iou3
+xiu4 x iou4
+xiu5 x iou5
+xu1 x v1
+xu2 x v2
+xu3 x v3
+xu4 x v4
+xu5 x v5
+xuan1 x van1
+xuan2 x van2
+xuan3 x van3
+xuan4 x van4
+xuan5 x van5
+xue1 x ve1
+xue2 x ve2
+xue3 x ve3
+xue4 x ve4
+xue5 x ve5
+xun1 x vn1
+xun2 x vn2
+xun3 x vn3
+xun4 x vn4
+xun5 x vn5
+ya1 y ia1
+ya2 y ia2
+ya3 y ia3
+ya4 y ia4
+ya5 y ia5
+yan1 y ian1
+yan2 y ian2
+yan3 y ian3
+yan4 y ian4
+yan5 y ian5
+yang1 y iang1
+yang2 y iang2
+yang3 y iang3
+yang4 y iang4
+yang5 y iang5
+yao1 y iao1
+yao2 y iao2
+yao3 y iao3
+yao4 y iao4
+yao5 y iao5
+ye1 y ie1
+ye2 y ie2
+ye3 y ie3
+ye4 y ie4
+ye5 y ie5
+yi1 y i1
+yi2 y i2
+yi3 y i3
+yi4 y i4
+yi5 y i5
+yin1 y in1
+yin2 y in2
+yin3 y in3
+yin4 y in4
+yin5 y in5
+ying1 y ing1
+ying2 y ing2
+ying3 y ing3
+ying4 y ing4
+ying5 y ing5
+yo1 y iou1
+yo2 y iou2
+yo3 y iou3
+yo4 y iou4
+yo5 y iou5
+yong1 y iong1
+yong2 y iong2
+yong3 y iong3
+yong4 y iong4
+yong5 y iong5
+you1 y iou1
+you2 y iou2
+you3 y iou3
+you4 y iou4
+you5 y iou5
+yu1 y v1
+yu2 y v2
+yu3 y v3
+yu4 y v4
+yu5 y v5
+yuan1 y van1
+yuan2 y van2
+yuan3 y van3
+yuan4 y van4
+yuan5 y van5
+yue1 y ve1
+yue2 y ve2
+yue3 y ve3
+yue4 y ve4
+yue5 y ve5
+yun1 y vn1
+yun2 y vn2
+yun3 y vn3
+yun4 y vn4
+yun5 y vn5
+za1 z a1
+za2 z a2
+za3 z a3
+za4 z a4
+za5 z a5
+zai1 z ai1
+zai2 z ai2
+zai3 z ai3
+zai4 z ai4
+zai5 z ai5
+zan1 z an1
+zan2 z an2
+zan3 z an3
+zan4 z an4
+zan5 z an5
+zang1 z ang1
+zang2 z ang2
+zang3 z ang3
+zang4 z ang4
+zang5 z ang5
+zao1 z ao1
+zao2 z ao2
+zao3 z ao3
+zao4 z ao4
+zao5 z ao5
+ze1 z e1
+ze2 z e2
+ze3 z e3
+ze4 z e4
+ze5 z e5
+zei1 z ei1
+zei2 z ei2
+zei3 z ei3
+zei4 z ei4
+zei5 z ei5
+zen1 z en1
+zen2 z en2
+zen3 z en3
+zen4 z en4
+zen5 z en5
+zeng1 z eng1
+zeng2 z eng2
+zeng3 z eng3
+zeng4 z eng4
+zeng5 z eng5
+zha1 zh a1
+zha2 zh a2
+zha3 zh a3
+zha4 zh a4
+zha5 zh a5
+zhai1 zh ai1
+zhai2 zh ai2
+zhai3 zh ai3
+zhai4 zh ai4
+zhai5 zh ai5
+zhan1 zh an1
+zhan2 zh an2
+zhan3 zh an3
+zhan4 zh an4
+zhan5 zh an5
+zhang1 zh ang1
+zhang2 zh ang2
+zhang3 zh ang3
+zhang4 zh ang4
+zhang5 zh ang5
+zhao1 zh ao1
+zhao2 zh ao2
+zhao3 zh ao3
+zhao4 zh ao4
+zhao5 zh ao5
+zhe1 zh e1
+zhe2 zh e2
+zhe3 zh e3
+zhe4 zh e4
+zhe5 zh e5
+zhei1 zh ei1
+zhei2 zh ei2
+zhei3 zh ei3
+zhei4 zh ei4
+zhei5 zh ei5
+zhen1 zh en1
+zhen2 zh en2
+zhen3 zh en3
+zhen4 zh en4
+zhen5 zh en5
+zheng1 zh eng1
+zheng2 zh eng2
+zheng3 zh eng3
+zheng4 zh eng4
+zheng5 zh eng5
+zhi1 zh iii1
+zhi2 zh iii2
+zhi3 zh iii3
+zhi4 zh iii4
+zhi5 zh iii5
+zhong1 zh ong1
+zhong2 zh ong2
+zhong3 zh ong3
+zhong4 zh ong4
+zhong5 zh ong5
+zhou1 zh ou1
+zhou2 zh ou2
+zhou3 zh ou3
+zhou4 zh ou4
+zhou5 zh ou5
+zhu1 zh u1
+zhu2 zh u2
+zhu3 zh u3
+zhu4 zh u4
+zhu5 zh u5
+zhua1 zh ua1
+zhua2 zh ua2
+zhua3 zh ua3
+zhua4 zh ua4
+zhua5 zh ua5
+zhuai1 zh uai1
+zhuai2 zh uai2
+zhuai3 zh uai3
+zhuai4 zh uai4
+zhuai5 zh uai5
+zhuan1 zh uan1
+zhuan2 zh uan2
+zhuan3 zh uan3
+zhuan4 zh uan4
+zhuan5 zh uan5
+zhuang1 zh uang1
+zhuang2 zh uang2
+zhuang3 zh uang3
+zhuang4 zh uang4
+zhuang5 zh uang5
+zhui1 zh uei1
+zhui2 zh uei2
+zhui3 zh uei3
+zhui4 zh uei4
+zhui5 zh uei5
+zhun1 zh uen1
+zhun2 zh uen2
+zhun3 zh uen3
+zhun4 zh uen4
+zhun5 zh uen5
+zhuo1 zh uo1
+zhuo2 zh uo2
+zhuo3 zh uo3
+zhuo4 zh uo4
+zhuo5 zh uo5
+zi1 z ii1
+zi2 z ii2
+zi3 z ii3
+zi4 z ii4
+zi5 z ii5
+zong1 z ong1
+zong2 z ong2
+zong3 z ong3
+zong4 z ong4
+zong5 z ong5
+zou1 z ou1
+zou2 z ou2
+zou3 z ou3
+zou4 z ou4
+zou5 z ou5
+zu1 z u1
+zu2 z u2
+zu3 z u3
+zu4 z u4
+zu5 z u5
+zuan1 z uan1
+zuan2 z uan2
+zuan3 z uan3
+zuan4 z uan4
+zuan5 z uan5
+zui1 z uei1
+zui2 z uei2
+zui3 z uei3
+zui4 z uei4
+zui5 z uei5
+zun1 z uen1
+zun2 z uen2
+zun3 z uen3
+zun4 z uen4
+zun5 z uen5
+zuo1 z uo1
+zuo2 z uo2
+zuo3 z uo3
+zuo4 z uo4
+zuo5 z uo5
+ar1 a1 rr
+ar2 a2 rr
+ar3 a3 rr
+ar4 a4 rr
+ar5 a5 rr
+air1 ai1 rr
+air2 ai2 rr
+air3 ai3 rr
+air4 ai4 rr
+air5 ai5 rr
+anr1 an1 rr
+anr2 an2 rr
+anr3 an3 rr
+anr4 an4 rr
+anr5 an5 rr
+angr1 ang1 rr
+angr2 ang2 rr
+angr3 ang3 rr
+angr4 ang4 rr
+angr5 ang5 rr
+aor1 ao1 rr
+aor2 ao2 rr
+aor3 ao3 rr
+aor4 ao4 rr
+aor5 ao5 rr
+bar1 b a1 rr
+bar2 b a2 rr
+bar3 b a3 rr
+bar4 b a4 rr
+bar5 b a5 rr
+bair1 b ai1 rr
+bair2 b ai2 rr
+bair3 b ai3 rr
+bair4 b ai4 rr
+bair5 b ai5 rr
+banr1 b an1 rr
+banr2 b an2 rr
+banr3 b an3 rr
+banr4 b an4 rr
+banr5 b an5 rr
+bangr1 b ang1 rr
+bangr2 b ang2 rr
+bangr3 b ang3 rr
+bangr4 b ang4 rr
+bangr5 b ang5 rr
+baor1 b ao1 rr
+baor2 b ao2 rr
+baor3 b ao3 rr
+baor4 b ao4 rr
+baor5 b ao5 rr
+beir1 b ei1 rr
+beir2 b ei2 rr
+beir3 b ei3 rr
+beir4 b ei4 rr
+beir5 b ei5 rr
+benr1 b en1 rr
+benr2 b en2 rr
+benr3 b en3 rr
+benr4 b en4 rr
+benr5 b en5 rr
+bengr1 b eng1 rr
+bengr2 b eng2 rr
+bengr3 b eng3 rr
+bengr4 b eng4 rr
+bengr5 b eng5 rr
+bir1 b i1 rr
+bir2 b i2 rr
+bir3 b i3 rr
+bir4 b i4 rr
+bir5 b i5 rr
+bianr1 b ian1 rr
+bianr2 b ian2 rr
+bianr3 b ian3 rr
+bianr4 b ian4 rr
+bianr5 b ian5 rr
+biaor1 b iao1 rr
+biaor2 b iao2 rr
+biaor3 b iao3 rr
+biaor4 b iao4 rr
+biaor5 b iao5 rr
+bier1 b ie1 rr
+bier2 b ie2 rr
+bier3 b ie3 rr
+bier4 b ie4 rr
+bier5 b ie5 rr
+binr1 b in1 rr
+binr2 b in2 rr
+binr3 b in3 rr
+binr4 b in4 rr
+binr5 b in5 rr
+bingr1 b ing1 rr
+bingr2 b ing2 rr
+bingr3 b ing3 rr
+bingr4 b ing4 rr
+bingr5 b ing5 rr
+bor1 b o1 rr
+bor2 b o2 rr
+bor3 b o3 rr
+bor4 b o4 rr
+bor5 b o5 rr
+bur1 b u1 rr
+bur2 b u2 rr
+bur3 b u3 rr
+bur4 b u4 rr
+bur5 b u5 rr
+car1 c a1 rr
+car2 c a2 rr
+car3 c a3 rr
+car4 c a4 rr
+car5 c a5 rr
+cair1 c ai1 rr
+cair2 c ai2 rr
+cair3 c ai3 rr
+cair4 c ai4 rr
+cair5 c ai5 rr
+canr1 c an1 rr
+canr2 c an2 rr
+canr3 c an3 rr
+canr4 c an4 rr
+canr5 c an5 rr
+cangr1 c ang1 rr
+cangr2 c ang2 rr
+cangr3 c ang3 rr
+cangr4 c ang4 rr
+cangr5 c ang5 rr
+caor1 c ao1 rr
+caor2 c ao2 rr
+caor3 c ao3 rr
+caor4 c ao4 rr
+caor5 c ao5 rr
+cer1 c e1 rr
+cer2 c e2 rr
+cer3 c e3 rr
+cer4 c e4 rr
+cer5 c e5 rr
+cenr1 c en1 rr
+cenr2 c en2 rr
+cenr3 c en3 rr
+cenr4 c en4 rr
+cenr5 c en5 rr
+cengr1 c eng1 rr
+cengr2 c eng2 rr
+cengr3 c eng3 rr
+cengr4 c eng4 rr
+cengr5 c eng5 rr
+char1 ch a1 rr
+char2 ch a2 rr
+char3 ch a3 rr
+char4 ch a4 rr
+char5 ch a5 rr
+chair1 ch ai1 rr
+chair2 ch ai2 rr
+chair3 ch ai3 rr
+chair4 ch ai4 rr
+chair5 ch ai5 rr
+chanr1 ch an1 rr
+chanr2 ch an2 rr
+chanr3 ch an3 rr
+chanr4 ch an4 rr
+chanr5 ch an5 rr
+changr1 ch ang1 rr
+changr2 ch ang2 rr
+changr3 ch ang3 rr
+changr4 ch ang4 rr
+changr5 ch ang5 rr
+chaor1 ch ao1 rr
+chaor2 ch ao2 rr
+chaor3 ch ao3 rr
+chaor4 ch ao4 rr
+chaor5 ch ao5 rr
+cher1 ch e1 rr
+cher2 ch e2 rr
+cher3 ch e3 rr
+cher4 ch e4 rr
+cher5 ch e5 rr
+chenr1 ch en1 rr
+chenr2 ch en2 rr
+chenr3 ch en3 rr
+chenr4 ch en4 rr
+chenr5 ch en5 rr
+chengr1 ch eng1 rr
+chengr2 ch eng2 rr
+chengr3 ch eng3 rr
+chengr4 ch eng4 rr
+chengr5 ch eng5 rr
+chir1 ch iii1 rr
+chir2 ch iii2 rr
+chir3 ch iii3 rr
+chir4 ch iii4 rr
+chir5 ch iii5 rr
+chongr1 ch ong1 rr
+chongr2 ch ong2 rr
+chongr3 ch ong3 rr
+chongr4 ch ong4 rr
+chongr5 ch ong5 rr
+chour1 ch ou1 rr
+chour2 ch ou2 rr
+chour3 ch ou3 rr
+chour4 ch ou4 rr
+chour5 ch ou5 rr
+chur1 ch u1 rr
+chur2 ch u2 rr
+chur3 ch u3 rr
+chur4 ch u4 rr
+chur5 ch u5 rr
+chuair1 ch uai1 rr
+chuair2 ch uai2 rr
+chuair3 ch uai3 rr
+chuair4 ch uai4 rr
+chuair5 ch uai5 rr
+chuanr1 ch uan1 rr
+chuanr2 ch uan2 rr
+chuanr3 ch uan3 rr
+chuanr4 ch uan4 rr
+chuanr5 ch uan5 rr
+chuangr1 ch uang1 rr
+chuangr2 ch uang2 rr
+chuangr3 ch uang3 rr
+chuangr4 ch uang4 rr
+chuangr5 ch uang5 rr
+chuir1 ch uei1 rr
+chuir2 ch uei2 rr
+chuir3 ch uei3 rr
+chuir4 ch uei4 rr
+chuir5 ch uei5 rr
+chunr1 ch uen1 rr
+chunr2 ch uen2 rr
+chunr3 ch uen3 rr
+chunr4 ch uen4 rr
+chunr5 ch uen5 rr
+chuor1 ch uo1 rr
+chuor2 ch uo2 rr
+chuor3 ch uo3 rr
+chuor4 ch uo4 rr
+chuor5 ch uo5 rr
+cir1 c ii1 rr
+cir2 c ii2 rr
+cir3 c ii3 rr
+cir4 c ii4 rr
+cir5 c ii5 rr
+congr1 c ong1 rr
+congr2 c ong2 rr
+congr3 c ong3 rr
+congr4 c ong4 rr
+congr5 c ong5 rr
+cour1 c ou1 rr
+cour2 c ou2 rr
+cour3 c ou3 rr
+cour4 c ou4 rr
+cour5 c ou5 rr
+cur1 c u1 rr
+cur2 c u2 rr
+cur3 c u3 rr
+cur4 c u4 rr
+cur5 c u5 rr
+cuanr1 c uan1 rr
+cuanr2 c uan2 rr
+cuanr3 c uan3 rr
+cuanr4 c uan4 rr
+cuanr5 c uan5 rr
+cuir1 c uei1 rr
+cuir2 c uei2 rr
+cuir3 c uei3 rr
+cuir4 c uei4 rr
+cuir5 c uei5 rr
+cunr1 c uen1 rr
+cunr2 c uen2 rr
+cunr3 c uen3 rr
+cunr4 c uen4 rr
+cunr5 c uen5 rr
+cuor1 c uo1 rr
+cuor2 c uo2 rr
+cuor3 c uo3 rr
+cuor4 c uo4 rr
+cuor5 c uo5 rr
+dar1 d a1 rr
+dar2 d a2 rr
+dar3 d a3 rr
+dar4 d a4 rr
+dar5 d a5 rr
+dair1 d ai1 rr
+dair2 d ai2 rr
+dair3 d ai3 rr
+dair4 d ai4 rr
+dair5 d ai5 rr
+danr1 d an1 rr
+danr2 d an2 rr
+danr3 d an3 rr
+danr4 d an4 rr
+danr5 d an5 rr
+dangr1 d ang1 rr
+dangr2 d ang2 rr
+dangr3 d ang3 rr
+dangr4 d ang4 rr
+dangr5 d ang5 rr
+daor1 d ao1 rr
+daor2 d ao2 rr
+daor3 d ao3 rr
+daor4 d ao4 rr
+daor5 d ao5 rr
+der1 d e1 rr
+der2 d e2 rr
+der3 d e3 rr
+der4 d e4 rr
+der5 d e5 rr
+deir1 d ei1 rr
+deir2 d ei2 rr
+deir3 d ei3 rr
+deir4 d ei4 rr
+deir5 d ei5 rr
+denr1 d en1 rr
+denr2 d en2 rr
+denr3 d en3 rr
+denr4 d en4 rr
+denr5 d en5 rr
+dengr1 d eng1 rr
+dengr2 d eng2 rr
+dengr3 d eng3 rr
+dengr4 d eng4 rr
+dengr5 d eng5 rr
+dir1 d i1 rr
+dir2 d i2 rr
+dir3 d i3 rr
+dir4 d i4 rr
+dir5 d i5 rr
+diar1 d ia1 rr
+diar2 d ia2 rr
+diar3 d ia3 rr
+diar4 d ia4 rr
+diar5 d ia5 rr
+dianr1 d ian1 rr
+dianr2 d ian2 rr
+dianr3 d ian3 rr
+dianr4 d ian4 rr
+dianr5 d ian5 rr
+diaor1 d iao1 rr
+diaor2 d iao2 rr
+diaor3 d iao3 rr
+diaor4 d iao4 rr
+diaor5 d iao5 rr
+dier1 d ie1 rr
+dier2 d ie2 rr
+dier3 d ie3 rr
+dier4 d ie4 rr
+dier5 d ie5 rr
+dingr1 d ing1 rr
+dingr2 d ing2 rr
+dingr3 d ing3 rr
+dingr4 d ing4 rr
+dingr5 d ing5 rr
+diur1 d iou1 rr
+diur2 d iou2 rr
+diur3 d iou3 rr
+diur4 d iou4 rr
+diur5 d iou5 rr
+dongr1 d ong1 rr
+dongr2 d ong2 rr
+dongr3 d ong3 rr
+dongr4 d ong4 rr
+dongr5 d ong5 rr
+dour1 d ou1 rr
+dour2 d ou2 rr
+dour3 d ou3 rr
+dour4 d ou4 rr
+dour5 d ou5 rr
+dur1 d u1 rr
+dur2 d u2 rr
+dur3 d u3 rr
+dur4 d u4 rr
+dur5 d u5 rr
+duanr1 d uan1 rr
+duanr2 d uan2 rr
+duanr3 d uan3 rr
+duanr4 d uan4 rr
+duanr5 d uan5 rr
+duir1 d uei1 rr
+duir2 d uei2 rr
+duir3 d uei3 rr
+duir4 d uei4 rr
+duir5 d uei5 rr
+dunr1 d uen1 rr
+dunr2 d uen2 rr
+dunr3 d uen3 rr
+dunr4 d uen4 rr
+dunr5 d uen5 rr
+duor1 d uo1 rr
+duor2 d uo2 rr
+duor3 d uo3 rr
+duor4 d uo4 rr
+duor5 d uo5 rr
+er1 e1 rr
+er2 e2 rr
+er3 e3 rr
+er4 e4 rr
+er5 e5 rr
+eir1 ei1 rr
+eir2 ei2 rr
+eir3 ei3 rr
+eir4 ei4 rr
+eir5 ei5 rr
+enr1 en1 rr
+enr2 en2 rr
+enr3 en3 rr
+enr4 en4 rr
+enr5 en5 rr
+engr1 eng1 rr
+engr2 eng2 rr
+engr3 eng3 rr
+engr4 eng4 rr
+engr5 eng5 rr
+far1 f a1 rr
+far2 f a2 rr
+far3 f a3 rr
+far4 f a4 rr
+far5 f a5 rr
+fanr1 f an1 rr
+fanr2 f an2 rr
+fanr3 f an3 rr
+fanr4 f an4 rr
+fanr5 f an5 rr
+fangr1 f ang1 rr
+fangr2 f ang2 rr
+fangr3 f ang3 rr
+fangr4 f ang4 rr
+fangr5 f ang5 rr
+feir1 f ei1 rr
+feir2 f ei2 rr
+feir3 f ei3 rr
+feir4 f ei4 rr
+feir5 f ei5 rr
+fenr1 f en1 rr
+fenr2 f en2 rr
+fenr3 f en3 rr
+fenr4 f en4 rr
+fenr5 f en5 rr
+fengr1 f eng1 rr
+fengr2 f eng2 rr
+fengr3 f eng3 rr
+fengr4 f eng4 rr
+fengr5 f eng5 rr
+for1 f o1 rr
+for2 f o2 rr
+for3 f o3 rr
+for4 f o4 rr
+for5 f o5 rr
+four1 f ou1 rr
+four2 f ou2 rr
+four3 f ou3 rr
+four4 f ou4 rr
+four5 f ou5 rr
+fur1 f u1 rr
+fur2 f u2 rr
+fur3 f u3 rr
+fur4 f u4 rr
+fur5 f u5 rr
+gar1 g a1 rr
+gar2 g a2 rr
+gar3 g a3 rr
+gar4 g a4 rr
+gar5 g a5 rr
+gair1 g ai1 rr
+gair2 g ai2 rr
+gair3 g ai3 rr
+gair4 g ai4 rr
+gair5 g ai5 rr
+ganr1 g an1 rr
+ganr2 g an2 rr
+ganr3 g an3 rr
+ganr4 g an4 rr
+ganr5 g an5 rr
+gangr1 g ang1 rr
+gangr2 g ang2 rr
+gangr3 g ang3 rr
+gangr4 g ang4 rr
+gangr5 g ang5 rr
+gaor1 g ao1 rr
+gaor2 g ao2 rr
+gaor3 g ao3 rr
+gaor4 g ao4 rr
+gaor5 g ao5 rr
+ger1 g e1 rr
+ger2 g e2 rr
+ger3 g e3 rr
+ger4 g e4 rr
+ger5 g e5 rr
+geir1 g ei1 rr
+geir2 g ei2 rr
+geir3 g ei3 rr
+geir4 g ei4 rr
+geir5 g ei5 rr
+genr1 g en1 rr
+genr2 g en2 rr
+genr3 g en3 rr
+genr4 g en4 rr
+genr5 g en5 rr
+gengr1 g eng1 rr
+gengr2 g eng2 rr
+gengr3 g eng3 rr
+gengr4 g eng4 rr
+gengr5 g eng5 rr
+gongr1 g ong1 rr
+gongr2 g ong2 rr
+gongr3 g ong3 rr
+gongr4 g ong4 rr
+gongr5 g ong5 rr
+gour1 g ou1 rr
+gour2 g ou2 rr
+gour3 g ou3 rr
+gour4 g ou4 rr
+gour5 g ou5 rr
+gur1 g u1 rr
+gur2 g u2 rr
+gur3 g u3 rr
+gur4 g u4 rr
+gur5 g u5 rr
+guar1 g ua1 rr
+guar2 g ua2 rr
+guar3 g ua3 rr
+guar4 g ua4 rr
+guar5 g ua5 rr
+guair1 g uai1 rr
+guair2 g uai2 rr
+guair3 g uai3 rr
+guair4 g uai4 rr
+guair5 g uai5 rr
+guanr1 g uan1 rr
+guanr2 g uan2 rr
+guanr3 g uan3 rr
+guanr4 g uan4 rr
+guanr5 g uan5 rr
+guangr1 g uang1 rr
+guangr2 g uang2 rr
+guangr3 g uang3 rr
+guangr4 g uang4 rr
+guangr5 g uang5 rr
+guir1 g uei1 rr
+guir2 g uei2 rr
+guir3 g uei3 rr
+guir4 g uei4 rr
+guir5 g uei5 rr
+gunr1 g uen1 rr
+gunr2 g uen2 rr
+gunr3 g uen3 rr
+gunr4 g uen4 rr
+gunr5 g uen5 rr
+guor1 g uo1 rr
+guor2 g uo2 rr
+guor3 g uo3 rr
+guor4 g uo4 rr
+guor5 g uo5 rr
+har1 h a1 rr
+har2 h a2 rr
+har3 h a3 rr
+har4 h a4 rr
+har5 h a5 rr
+hair1 h ai1 rr
+hair2 h ai2 rr
+hair3 h ai3 rr
+hair4 h ai4 rr
+hair5 h ai5 rr
+hanr1 h an1 rr
+hanr2 h an2 rr
+hanr3 h an3 rr
+hanr4 h an4 rr
+hanr5 h an5 rr
+hangr1 h ang1 rr
+hangr2 h ang2 rr
+hangr3 h ang3 rr
+hangr4 h ang4 rr
+hangr5 h ang5 rr
+haor1 h ao1 rr
+haor2 h ao2 rr
+haor3 h ao3 rr
+haor4 h ao4 rr
+haor5 h ao5 rr
+her1 h e1 rr
+her2 h e2 rr
+her3 h e3 rr
+her4 h e4 rr
+her5 h e5 rr
+heir1 h ei1 rr
+heir2 h ei2 rr
+heir3 h ei3 rr
+heir4 h ei4 rr
+heir5 h ei5 rr
+henr1 h en1 rr
+henr2 h en2 rr
+henr3 h en3 rr
+henr4 h en4 rr
+henr5 h en5 rr
+hengr1 h eng1 rr
+hengr2 h eng2 rr
+hengr3 h eng3 rr
+hengr4 h eng4 rr
+hengr5 h eng5 rr
+hongr1 h ong1 rr
+hongr2 h ong2 rr
+hongr3 h ong3 rr
+hongr4 h ong4 rr
+hongr5 h ong5 rr
+hour1 h ou1 rr
+hour2 h ou2 rr
+hour3 h ou3 rr
+hour4 h ou4 rr
+hour5 h ou5 rr
+hur1 h u1 rr
+hur2 h u2 rr
+hur3 h u3 rr
+hur4 h u4 rr
+hur5 h u5 rr
+huar1 h ua1 rr
+huar2 h ua2 rr
+huar3 h ua3 rr
+huar4 h ua4 rr
+huar5 h ua5 rr
+huair1 h uai1 rr
+huair2 h uai2 rr
+huair3 h uai3 rr
+huair4 h uai4 rr
+huair5 h uai5 rr
+huanr1 h uan1 rr
+huanr2 h uan2 rr
+huanr3 h uan3 rr
+huanr4 h uan4 rr
+huanr5 h uan5 rr
+huangr1 h uang1 rr
+huangr2 h uang2 rr
+huangr3 h uang3 rr
+huangr4 h uang4 rr
+huangr5 h uang5 rr
+huir1 h uei1 rr
+huir2 h uei2 rr
+huir3 h uei3 rr
+huir4 h uei4 rr
+huir5 h uei5 rr
+hunr1 h uen1 rr
+hunr2 h uen2 rr
+hunr3 h uen3 rr
+hunr4 h uen4 rr
+hunr5 h uen5 rr
+huor1 h uo1 rr
+huor2 h uo2 rr
+huor3 h uo3 rr
+huor4 h uo4 rr
+huor5 h uo5 rr
+jir1 j i1 rr
+jir2 j i2 rr
+jir3 j i3 rr
+jir4 j i4 rr
+jir5 j i5 rr
+jiar1 j ia1 rr
+jiar2 j ia2 rr
+jiar3 j ia3 rr
+jiar4 j ia4 rr
+jiar5 j ia5 rr
+jianr1 j ian1 rr
+jianr2 j ian2 rr
+jianr3 j ian3 rr
+jianr4 j ian4 rr
+jianr5 j ian5 rr
+jiangr1 j iang1 rr
+jiangr2 j iang2 rr
+jiangr3 j iang3 rr
+jiangr4 j iang4 rr
+jiangr5 j iang5 rr
+jiaor1 j iao1 rr
+jiaor2 j iao2 rr
+jiaor3 j iao3 rr
+jiaor4 j iao4 rr
+jiaor5 j iao5 rr
+jier1 j ie1 rr
+jier2 j ie2 rr
+jier3 j ie3 rr
+jier4 j ie4 rr
+jier5 j ie5 rr
+jinr1 j in1 rr
+jinr2 j in2 rr
+jinr3 j in3 rr
+jinr4 j in4 rr
+jinr5 j in5 rr
+jingr1 j ing1 rr
+jingr2 j ing2 rr
+jingr3 j ing3 rr
+jingr4 j ing4 rr
+jingr5 j ing5 rr
+jiongr1 j iong1 rr
+jiongr2 j iong2 rr
+jiongr3 j iong3 rr
+jiongr4 j iong4 rr
+jiongr5 j iong5 rr
+jiur1 j iou1 rr
+jiur2 j iou2 rr
+jiur3 j iou3 rr
+jiur4 j iou4 rr
+jiur5 j iou5 rr
+jur1 j v1 rr
+jur2 j v2 rr
+jur3 j v3 rr
+jur4 j v4 rr
+jur5 j v5 rr
+juanr1 j van1 rr
+juanr2 j van2 rr
+juanr3 j van3 rr
+juanr4 j van4 rr
+juanr5 j van5 rr
+juer1 j ve1 rr
+juer2 j ve2 rr
+juer3 j ve3 rr
+juer4 j ve4 rr
+juer5 j ve5 rr
+junr1 j vn1 rr
+junr2 j vn2 rr
+junr3 j vn3 rr
+junr4 j vn4 rr
+junr5 j vn5 rr
+kar1 k a1 rr
+kar2 k a2 rr
+kar3 k a3 rr
+kar4 k a4 rr
+kar5 k a5 rr
+kair1 k ai1 rr
+kair2 k ai2 rr
+kair3 k ai3 rr
+kair4 k ai4 rr
+kair5 k ai5 rr
+kanr1 k an1 rr
+kanr2 k an2 rr
+kanr3 k an3 rr
+kanr4 k an4 rr
+kanr5 k an5 rr
+kangr1 k ang1 rr
+kangr2 k ang2 rr
+kangr3 k ang3 rr
+kangr4 k ang4 rr
+kangr5 k ang5 rr
+kaor1 k ao1 rr
+kaor2 k ao2 rr
+kaor3 k ao3 rr
+kaor4 k ao4 rr
+kaor5 k ao5 rr
+ker1 k e1 rr
+ker2 k e2 rr
+ker3 k e3 rr
+ker4 k e4 rr
+ker5 k e5 rr
+keir1 k ei1 rr
+keir2 k ei2 rr
+keir3 k ei3 rr
+keir4 k ei4 rr
+keir5 k ei5 rr
+kenr1 k en1 rr
+kenr2 k en2 rr
+kenr3 k en3 rr
+kenr4 k en4 rr
+kenr5 k en5 rr
+kengr1 k eng1 rr
+kengr2 k eng2 rr
+kengr3 k eng3 rr
+kengr4 k eng4 rr
+kengr5 k eng5 rr
+kongr1 k ong1 rr
+kongr2 k ong2 rr
+kongr3 k ong3 rr
+kongr4 k ong4 rr
+kongr5 k ong5 rr
+kour1 k ou1 rr
+kour2 k ou2 rr
+kour3 k ou3 rr
+kour4 k ou4 rr
+kour5 k ou5 rr
+kur1 k u1 rr
+kur2 k u2 rr
+kur3 k u3 rr
+kur4 k u4 rr
+kur5 k u5 rr
+kuar1 k ua1 rr
+kuar2 k ua2 rr
+kuar3 k ua3 rr
+kuar4 k ua4 rr
+kuar5 k ua5 rr
+kuair1 k uai1 rr
+kuair2 k uai2 rr
+kuair3 k uai3 rr
+kuair4 k uai4 rr
+kuair5 k uai5 rr
+kuanr1 k uan1 rr
+kuanr2 k uan2 rr
+kuanr3 k uan3 rr
+kuanr4 k uan4 rr
+kuanr5 k uan5 rr
+kuangr1 k uang1 rr
+kuangr2 k uang2 rr
+kuangr3 k uang3 rr
+kuangr4 k uang4 rr
+kuangr5 k uang5 rr
+kuir1 k uei1 rr
+kuir2 k uei2 rr
+kuir3 k uei3 rr
+kuir4 k uei4 rr
+kuir5 k uei5 rr
+kunr1 k uen1 rr
+kunr2 k uen2 rr
+kunr3 k uen3 rr
+kunr4 k uen4 rr
+kunr5 k uen5 rr
+kuor1 k uo1 rr
+kuor2 k uo2 rr
+kuor3 k uo3 rr
+kuor4 k uo4 rr
+kuor5 k uo5 rr
+lar1 l a1 rr
+lar2 l a2 rr
+lar3 l a3 rr
+lar4 l a4 rr
+lar5 l a5 rr
+lair1 l ai1 rr
+lair2 l ai2 rr
+lair3 l ai3 rr
+lair4 l ai4 rr
+lair5 l ai5 rr
+lanr1 l an1 rr
+lanr2 l an2 rr
+lanr3 l an3 rr
+lanr4 l an4 rr
+lanr5 l an5 rr
+langr1 l ang1 rr
+langr2 l ang2 rr
+langr3 l ang3 rr
+langr4 l ang4 rr
+langr5 l ang5 rr
+laor1 l ao1 rr
+laor2 l ao2 rr
+laor3 l ao3 rr
+laor4 l ao4 rr
+laor5 l ao5 rr
+ler1 l e1 rr
+ler2 l e2 rr
+ler3 l e3 rr
+ler4 l e4 rr
+ler5 l e5 rr
+leir1 l ei1 rr
+leir2 l ei2 rr
+leir3 l ei3 rr
+leir4 l ei4 rr
+leir5 l ei5 rr
+lengr1 l eng1 rr
+lengr2 l eng2 rr
+lengr3 l eng3 rr
+lengr4 l eng4 rr
+lengr5 l eng5 rr
+lir1 l i1 rr
+lir2 l i2 rr
+lir3 l i3 rr
+lir4 l i4 rr
+lir5 l i5 rr
+liar1 l ia1 rr
+liar2 l ia2 rr
+liar3 l ia3 rr
+liar4 l ia4 rr
+liar5 l ia5 rr
+lianr1 l ian1 rr
+lianr2 l ian2 rr
+lianr3 l ian3 rr
+lianr4 l ian4 rr
+lianr5 l ian5 rr
+liangr1 l iang1 rr
+liangr2 l iang2 rr
+liangr3 l iang3 rr
+liangr4 l iang4 rr
+liangr5 l iang5 rr
+liaor1 l iao1 rr
+liaor2 l iao2 rr
+liaor3 l iao3 rr
+liaor4 l iao4 rr
+liaor5 l iao5 rr
+lier1 l ie1 rr
+lier2 l ie2 rr
+lier3 l ie3 rr
+lier4 l ie4 rr
+lier5 l ie5 rr
+linr1 l in1 rr
+linr2 l in2 rr
+linr3 l in3 rr
+linr4 l in4 rr
+linr5 l in5 rr
+lingr1 l ing1 rr
+lingr2 l ing2 rr
+lingr3 l ing3 rr
+lingr4 l ing4 rr
+lingr5 l ing5 rr
+liur1 l iou1 rr
+liur2 l iou2 rr
+liur3 l iou3 rr
+liur4 l iou4 rr
+liur5 l iou5 rr
+lor1 l o1 rr
+lor2 l o2 rr
+lor3 l o3 rr
+lor4 l o4 rr
+lor5 l o5 rr
+longr1 l ong1 rr
+longr2 l ong2 rr
+longr3 l ong3 rr
+longr4 l ong4 rr
+longr5 l ong5 rr
+lour1 l ou1 rr
+lour2 l ou2 rr
+lour3 l ou3 rr
+lour4 l ou4 rr
+lour5 l ou5 rr
+lur1 l u1 rr
+lur2 l u2 rr
+lur3 l u3 rr
+lur4 l u4 rr
+lur5 l u5 rr
+luanr1 l uan1 rr
+luanr2 l uan2 rr
+luanr3 l uan3 rr
+luanr4 l uan4 rr
+luanr5 l uan5 rr
+luer1 l ve1 rr
+luer2 l ve2 rr
+luer3 l ve3 rr
+luer4 l ve4 rr
+luer5 l ve5 rr
+lver1 l ve1 rr
+lver2 l ve2 rr
+lver3 l ve3 rr
+lver4 l ve4 rr
+lver5 l ve5 rr
+lunr1 l uen1 rr
+lunr2 l uen2 rr
+lunr3 l uen3 rr
+lunr4 l uen4 rr
+lunr5 l uen5 rr
+luor1 l uo1 rr
+luor2 l uo2 rr
+luor3 l uo3 rr
+luor4 l uo4 rr
+luor5 l uo5 rr
+lvr1 l v1 rr
+lvr2 l v2 rr
+lvr3 l v3 rr
+lvr4 l v4 rr
+lvr5 l v5 rr
+mar1 m a1 rr
+mar2 m a2 rr
+mar3 m a3 rr
+mar4 m a4 rr
+mar5 m a5 rr
+mair1 m ai1 rr
+mair2 m ai2 rr
+mair3 m ai3 rr
+mair4 m ai4 rr
+mair5 m ai5 rr
+manr1 m an1 rr
+manr2 m an2 rr
+manr3 m an3 rr
+manr4 m an4 rr
+manr5 m an5 rr
+mangr1 m ang1 rr
+mangr2 m ang2 rr
+mangr3 m ang3 rr
+mangr4 m ang4 rr
+mangr5 m ang5 rr
+maor1 m ao1 rr
+maor2 m ao2 rr
+maor3 m ao3 rr
+maor4 m ao4 rr
+maor5 m ao5 rr
+mer1 m e1 rr
+mer2 m e2 rr
+mer3 m e3 rr
+mer4 m e4 rr
+mer5 m e5 rr
+meir1 m ei1 rr
+meir2 m ei2 rr
+meir3 m ei3 rr
+meir4 m ei4 rr
+meir5 m ei5 rr
+menr1 m en1 rr
+menr2 m en2 rr
+menr3 m en3 rr
+menr4 m en4 rr
+menr5 m en5 rr
+mengr1 m eng1 rr
+mengr2 m eng2 rr
+mengr3 m eng3 rr
+mengr4 m eng4 rr
+mengr5 m eng5 rr
+mir1 m i1 rr
+mir2 m i2 rr
+mir3 m i3 rr
+mir4 m i4 rr
+mir5 m i5 rr
+mianr1 m ian1 rr
+mianr2 m ian2 rr
+mianr3 m ian3 rr
+mianr4 m ian4 rr
+mianr5 m ian5 rr
+miaor1 m iao1 rr
+miaor2 m iao2 rr
+miaor3 m iao3 rr
+miaor4 m iao4 rr
+miaor5 m iao5 rr
+mier1 m ie1 rr
+mier2 m ie2 rr
+mier3 m ie3 rr
+mier4 m ie4 rr
+mier5 m ie5 rr
+minr1 m in1 rr
+minr2 m in2 rr
+minr3 m in3 rr
+minr4 m in4 rr
+minr5 m in5 rr
+mingr1 m ing1 rr
+mingr2 m ing2 rr
+mingr3 m ing3 rr
+mingr4 m ing4 rr
+mingr5 m ing5 rr
+miur1 m iou1 rr
+miur2 m iou2 rr
+miur3 m iou3 rr
+miur4 m iou4 rr
+miur5 m iou5 rr
+mor1 m o1 rr
+mor2 m o2 rr
+mor3 m o3 rr
+mor4 m o4 rr
+mor5 m o5 rr
+mour1 m ou1 rr
+mour2 m ou2 rr
+mour3 m ou3 rr
+mour4 m ou4 rr
+mour5 m ou5 rr
+mur1 m u1 rr
+mur2 m u2 rr
+mur3 m u3 rr
+mur4 m u4 rr
+mur5 m u5 rr
+nar1 n a1 rr
+nar2 n a2 rr
+nar3 n a3 rr
+nar4 n a4 rr
+nar5 n a5 rr
+nair1 n ai1 rr
+nair2 n ai2 rr
+nair3 n ai3 rr
+nair4 n ai4 rr
+nair5 n ai5 rr
+nanr1 n an1 rr
+nanr2 n an2 rr
+nanr3 n an3 rr
+nanr4 n an4 rr
+nanr5 n an5 rr
+nangr1 n ang1 rr
+nangr2 n ang2 rr
+nangr3 n ang3 rr
+nangr4 n ang4 rr
+nangr5 n ang5 rr
+naor1 n ao1 rr
+naor2 n ao2 rr
+naor3 n ao3 rr
+naor4 n ao4 rr
+naor5 n ao5 rr
+ner1 n e1 rr
+ner2 n e2 rr
+ner3 n e3 rr
+ner4 n e4 rr
+ner5 n e5 rr
+neir1 n ei1 rr
+neir2 n ei2 rr
+neir3 n ei3 rr
+neir4 n ei4 rr
+neir5 n ei5 rr
+nenr1 n en1 rr
+nenr2 n en2 rr
+nenr3 n en3 rr
+nenr4 n en4 rr
+nenr5 n en5 rr
+nengr1 n eng1 rr
+nengr2 n eng2 rr
+nengr3 n eng3 rr
+nengr4 n eng4 rr
+nengr5 n eng5 rr
+nir1 n i1 rr
+nir2 n i2 rr
+nir3 n i3 rr
+nir4 n i4 rr
+nir5 n i5 rr
+nianr1 n ian1 rr
+nianr2 n ian2 rr
+nianr3 n ian3 rr
+nianr4 n ian4 rr
+nianr5 n ian5 rr
+niangr1 n iang1 rr
+niangr2 n iang2 rr
+niangr3 n iang3 rr
+niangr4 n iang4 rr
+niangr5 n iang5 rr
+niaor1 n iao1 rr
+niaor2 n iao2 rr
+niaor3 n iao3 rr
+niaor4 n iao4 rr
+niaor5 n iao5 rr
+nier1 n ie1 rr
+nier2 n ie2 rr
+nier3 n ie3 rr
+nier4 n ie4 rr
+nier5 n ie5 rr
+ninr1 n in1 rr
+ninr2 n in2 rr
+ninr3 n in3 rr
+ninr4 n in4 rr
+ninr5 n in5 rr
+ningr1 n ing1 rr
+ningr2 n ing2 rr
+ningr3 n ing3 rr
+ningr4 n ing4 rr
+ningr5 n ing5 rr
+niur1 n iou1 rr
+niur2 n iou2 rr
+niur3 n iou3 rr
+niur4 n iou4 rr
+niur5 n iou5 rr
+nongr1 n ong1 rr
+nongr2 n ong2 rr
+nongr3 n ong3 rr
+nongr4 n ong4 rr
+nongr5 n ong5 rr
+nour1 n ou1 rr
+nour2 n ou2 rr
+nour3 n ou3 rr
+nour4 n ou4 rr
+nour5 n ou5 rr
+nur1 n u1 rr
+nur2 n u2 rr
+nur3 n u3 rr
+nur4 n u4 rr
+nur5 n u5 rr
+nuanr1 n uan1 rr
+nuanr2 n uan2 rr
+nuanr3 n uan3 rr
+nuanr4 n uan4 rr
+nuanr5 n uan5 rr
+nuer1 n ve1 rr
+nuer2 n ve2 rr
+nuer3 n ve3 rr
+nuer4 n ve4 rr
+nuer5 n ve5 rr
+nver1 n ve1 rr
+nver2 n ve2 rr
+nver3 n ve3 rr
+nver4 n ve4 rr
+nver5 n ve5 rr
+nuor1 n uo1 rr
+nuor2 n uo2 rr
+nuor3 n uo3 rr
+nuor4 n uo4 rr
+nuor5 n uo5 rr
+nvr1 n v1 rr
+nvr2 n v2 rr
+nvr3 n v3 rr
+nvr4 n v4 rr
+nvr5 n v5 rr
+or1 o1 rr
+or2 o2 rr
+or3 o3 rr
+or4 o4 rr
+or5 o5 rr
+our1 ou1 rr
+our2 ou2 rr
+our3 ou3 rr
+our4 ou4 rr
+our5 ou5 rr
+par1 p a1 rr
+par2 p a2 rr
+par3 p a3 rr
+par4 p a4 rr
+par5 p a5 rr
+pair1 p ai1 rr
+pair2 p ai2 rr
+pair3 p ai3 rr
+pair4 p ai4 rr
+pair5 p ai5 rr
+panr1 p an1 rr
+panr2 p an2 rr
+panr3 p an3 rr
+panr4 p an4 rr
+panr5 p an5 rr
+pangr1 p ang1 rr
+pangr2 p ang2 rr
+pangr3 p ang3 rr
+pangr4 p ang4 rr
+pangr5 p ang5 rr
+paor1 p ao1 rr
+paor2 p ao2 rr
+paor3 p ao3 rr
+paor4 p ao4 rr
+paor5 p ao5 rr
+peir1 p ei1 rr
+peir2 p ei2 rr
+peir3 p ei3 rr
+peir4 p ei4 rr
+peir5 p ei5 rr
+penr1 p en1 rr
+penr2 p en2 rr
+penr3 p en3 rr
+penr4 p en4 rr
+penr5 p en5 rr
+pengr1 p eng1 rr
+pengr2 p eng2 rr
+pengr3 p eng3 rr
+pengr4 p eng4 rr
+pengr5 p eng5 rr
+pir1 p i1 rr
+pir2 p i2 rr
+pir3 p i3 rr
+pir4 p i4 rr
+pir5 p i5 rr
+pianr1 p ian1 rr
+pianr2 p ian2 rr
+pianr3 p ian3 rr
+pianr4 p ian4 rr
+pianr5 p ian5 rr
+piaor1 p iao1 rr
+piaor2 p iao2 rr
+piaor3 p iao3 rr
+piaor4 p iao4 rr
+piaor5 p iao5 rr
+pier1 p ie1 rr
+pier2 p ie2 rr
+pier3 p ie3 rr
+pier4 p ie4 rr
+pier5 p ie5 rr
+pinr1 p in1 rr
+pinr2 p in2 rr
+pinr3 p in3 rr
+pinr4 p in4 rr
+pinr5 p in5 rr
+pingr1 p ing1 rr
+pingr2 p ing2 rr
+pingr3 p ing3 rr
+pingr4 p ing4 rr
+pingr5 p ing5 rr
+por1 p o1 rr
+por2 p o2 rr
+por3 p o3 rr
+por4 p o4 rr
+por5 p o5 rr
+pour1 p ou1 rr
+pour2 p ou2 rr
+pour3 p ou3 rr
+pour4 p ou4 rr
+pour5 p ou5 rr
+pur1 p u1 rr
+pur2 p u2 rr
+pur3 p u3 rr
+pur4 p u4 rr
+pur5 p u5 rr
+qir1 q i1 rr
+qir2 q i2 rr
+qir3 q i3 rr
+qir4 q i4 rr
+qir5 q i5 rr
+qiar1 q ia1 rr
+qiar2 q ia2 rr
+qiar3 q ia3 rr
+qiar4 q ia4 rr
+qiar5 q ia5 rr
+qianr1 q ian1 rr
+qianr2 q ian2 rr
+qianr3 q ian3 rr
+qianr4 q ian4 rr
+qianr5 q ian5 rr
+qiangr1 q iang1 rr
+qiangr2 q iang2 rr
+qiangr3 q iang3 rr
+qiangr4 q iang4 rr
+qiangr5 q iang5 rr
+qiaor1 q iao1 rr
+qiaor2 q iao2 rr
+qiaor3 q iao3 rr
+qiaor4 q iao4 rr
+qiaor5 q iao5 rr
+qier1 q ie1 rr
+qier2 q ie2 rr
+qier3 q ie3 rr
+qier4 q ie4 rr
+qier5 q ie5 rr
+qinr1 q in1 rr
+qinr2 q in2 rr
+qinr3 q in3 rr
+qinr4 q in4 rr
+qinr5 q in5 rr
+qingr1 q ing1 rr
+qingr2 q ing2 rr
+qingr3 q ing3 rr
+qingr4 q ing4 rr
+qingr5 q ing5 rr
+qiongr1 q iong1 rr
+qiongr2 q iong2 rr
+qiongr3 q iong3 rr
+qiongr4 q iong4 rr
+qiongr5 q iong5 rr
+qiur1 q iou1 rr
+qiur2 q iou2 rr
+qiur3 q iou3 rr
+qiur4 q iou4 rr
+qiur5 q iou5 rr
+qur1 q v1 rr
+qur2 q v2 rr
+qur3 q v3 rr
+qur4 q v4 rr
+qur5 q v5 rr
+quanr1 q van1 rr
+quanr2 q van2 rr
+quanr3 q van3 rr
+quanr4 q van4 rr
+quanr5 q van5 rr
+quer1 q ve1 rr
+quer2 q ve2 rr
+quer3 q ve3 rr
+quer4 q ve4 rr
+quer5 q ve5 rr
+qunr1 q vn1 rr
+qunr2 q vn2 rr
+qunr3 q vn3 rr
+qunr4 q vn4 rr
+qunr5 q vn5 rr
+ranr1 r an1 rr
+ranr2 r an2 rr
+ranr3 r an3 rr
+ranr4 r an4 rr
+ranr5 r an5 rr
+rangr1 r ang1 rr
+rangr2 r ang2 rr
+rangr3 r ang3 rr
+rangr4 r ang4 rr
+rangr5 r ang5 rr
+raor1 r ao1 rr
+raor2 r ao2 rr
+raor3 r ao3 rr
+raor4 r ao4 rr
+raor5 r ao5 rr
+rer1 r e1 rr
+rer2 r e2 rr
+rer3 r e3 rr
+rer4 r e4 rr
+rer5 r e5 rr
+renr1 r en1 rr
+renr2 r en2 rr
+renr3 r en3 rr
+renr4 r en4 rr
+renr5 r en5 rr
+rengr1 r eng1 rr
+rengr2 r eng2 rr
+rengr3 r eng3 rr
+rengr4 r eng4 rr
+rengr5 r eng5 rr
+rir1 r iii1 rr
+rir2 r iii2 rr
+rir3 r iii3 rr
+rir4 r iii4 rr
+rir5 r iii5 rr
+rongr1 r ong1 rr
+rongr2 r ong2 rr
+rongr3 r ong3 rr
+rongr4 r ong4 rr
+rongr5 r ong5 rr
+rour1 r ou1 rr
+rour2 r ou2 rr
+rour3 r ou3 rr
+rour4 r ou4 rr
+rour5 r ou5 rr
+rur1 r u1 rr
+rur2 r u2 rr
+rur3 r u3 rr
+rur4 r u4 rr
+rur5 r u5 rr
+ruar1 r ua1 rr
+ruar2 r ua2 rr
+ruar3 r ua3 rr
+ruar4 r ua4 rr
+ruar5 r ua5 rr
+ruanr1 r uan1 rr
+ruanr2 r uan2 rr
+ruanr3 r uan3 rr
+ruanr4 r uan4 rr
+ruanr5 r uan5 rr
+ruir1 r uei1 rr
+ruir2 r uei2 rr
+ruir3 r uei3 rr
+ruir4 r uei4 rr
+ruir5 r uei5 rr
+runr1 r uen1 rr
+runr2 r uen2 rr
+runr3 r uen3 rr
+runr4 r uen4 rr
+runr5 r uen5 rr
+ruor1 r uo1 rr
+ruor2 r uo2 rr
+ruor3 r uo3 rr
+ruor4 r uo4 rr
+ruor5 r uo5 rr
+sar1 s a1 rr
+sar2 s a2 rr
+sar3 s a3 rr
+sar4 s a4 rr
+sar5 s a5 rr
+sair1 s ai1 rr
+sair2 s ai2 rr
+sair3 s ai3 rr
+sair4 s ai4 rr
+sair5 s ai5 rr
+sanr1 s an1 rr
+sanr2 s an2 rr
+sanr3 s an3 rr
+sanr4 s an4 rr
+sanr5 s an5 rr
+sangr1 s ang1 rr
+sangr2 s ang2 rr
+sangr3 s ang3 rr
+sangr4 s ang4 rr
+sangr5 s ang5 rr
+saor1 s ao1 rr
+saor2 s ao2 rr
+saor3 s ao3 rr
+saor4 s ao4 rr
+saor5 s ao5 rr
+ser1 s e1 rr
+ser2 s e2 rr
+ser3 s e3 rr
+ser4 s e4 rr
+ser5 s e5 rr
+senr1 s en1 rr
+senr2 s en2 rr
+senr3 s en3 rr
+senr4 s en4 rr
+senr5 s en5 rr
+sengr1 s eng1 rr
+sengr2 s eng2 rr
+sengr3 s eng3 rr
+sengr4 s eng4 rr
+sengr5 s eng5 rr
+shar1 sh a1 rr
+shar2 sh a2 rr
+shar3 sh a3 rr
+shar4 sh a4 rr
+shar5 sh a5 rr
+shair1 sh ai1 rr
+shair2 sh ai2 rr
+shair3 sh ai3 rr
+shair4 sh ai4 rr
+shair5 sh ai5 rr
+shanr1 sh an1 rr
+shanr2 sh an2 rr
+shanr3 sh an3 rr
+shanr4 sh an4 rr
+shanr5 sh an5 rr
+shangr1 sh ang1 rr
+shangr2 sh ang2 rr
+shangr3 sh ang3 rr
+shangr4 sh ang4 rr
+shangr5 sh ang5 rr
+shaor1 sh ao1 rr
+shaor2 sh ao2 rr
+shaor3 sh ao3 rr
+shaor4 sh ao4 rr
+shaor5 sh ao5 rr
+sher1 sh e1 rr
+sher2 sh e2 rr
+sher3 sh e3 rr
+sher4 sh e4 rr
+sher5 sh e5 rr
+sheir1 sh ei1 rr
+sheir2 sh ei2 rr
+sheir3 sh ei3 rr
+sheir4 sh ei4 rr
+sheir5 sh ei5 rr
+shenr1 sh en1 rr
+shenr2 sh en2 rr
+shenr3 sh en3 rr
+shenr4 sh en4 rr
+shenr5 sh en5 rr
+shengr1 sh eng1 rr
+shengr2 sh eng2 rr
+shengr3 sh eng3 rr
+shengr4 sh eng4 rr
+shengr5 sh eng5 rr
+shir1 sh iii1 rr
+shir2 sh iii2 rr
+shir3 sh iii3 rr
+shir4 sh iii4 rr
+shir5 sh iii5 rr
+shour1 sh ou1 rr
+shour2 sh ou2 rr
+shour3 sh ou3 rr
+shour4 sh ou4 rr
+shour5 sh ou5 rr
+shur1 sh u1 rr
+shur2 sh u2 rr
+shur3 sh u3 rr
+shur4 sh u4 rr
+shur5 sh u5 rr
+shuar1 sh ua1 rr
+shuar2 sh ua2 rr
+shuar3 sh ua3 rr
+shuar4 sh ua4 rr
+shuar5 sh ua5 rr
+shuair1 sh uai1 rr
+shuair2 sh uai2 rr
+shuair3 sh uai3 rr
+shuair4 sh uai4 rr
+shuair5 sh uai5 rr
+shuanr1 sh uan1 rr
+shuanr2 sh uan2 rr
+shuanr3 sh uan3 rr
+shuanr4 sh uan4 rr
+shuanr5 sh uan5 rr
+shuangr1 sh uang1 rr
+shuangr2 sh uang2 rr
+shuangr3 sh uang3 rr
+shuangr4 sh uang4 rr
+shuangr5 sh uang5 rr
+shuir1 sh uei1 rr
+shuir2 sh uei2 rr
+shuir3 sh uei3 rr
+shuir4 sh uei4 rr
+shuir5 sh uei5 rr
+shunr1 sh uen1 rr
+shunr2 sh uen2 rr
+shunr3 sh uen3 rr
+shunr4 sh uen4 rr
+shunr5 sh uen5 rr
+shuor1 sh uo1 rr
+shuor2 sh uo2 rr
+shuor3 sh uo3 rr
+shuor4 sh uo4 rr
+shuor5 sh uo5 rr
+sir1 s ii1 rr
+sir2 s ii2 rr
+sir3 s ii3 rr
+sir4 s ii4 rr
+sir5 s ii5 rr
+songr1 s ong1 rr
+songr2 s ong2 rr
+songr3 s ong3 rr
+songr4 s ong4 rr
+songr5 s ong5 rr
+sour1 s ou1 rr
+sour2 s ou2 rr
+sour3 s ou3 rr
+sour4 s ou4 rr
+sour5 s ou5 rr
+sur1 s u1 rr
+sur2 s u2 rr
+sur3 s u3 rr
+sur4 s u4 rr
+sur5 s u5 rr
+suanr1 s uan1 rr
+suanr2 s uan2 rr
+suanr3 s uan3 rr
+suanr4 s uan4 rr
+suanr5 s uan5 rr
+suir1 s uei1 rr
+suir2 s uei2 rr
+suir3 s uei3 rr
+suir4 s uei4 rr
+suir5 s uei5 rr
+sunr1 s uen1 rr
+sunr2 s uen2 rr
+sunr3 s uen3 rr
+sunr4 s uen4 rr
+sunr5 s uen5 rr
+suor1 s uo1 rr
+suor2 s uo2 rr
+suor3 s uo3 rr
+suor4 s uo4 rr
+suor5 s uo5 rr
+tar1 t a1 rr
+tar2 t a2 rr
+tar3 t a3 rr
+tar4 t a4 rr
+tar5 t a5 rr
+tair1 t ai1 rr
+tair2 t ai2 rr
+tair3 t ai3 rr
+tair4 t ai4 rr
+tair5 t ai5 rr
+tanr1 t an1 rr
+tanr2 t an2 rr
+tanr3 t an3 rr
+tanr4 t an4 rr
+tanr5 t an5 rr
+tangr1 t ang1 rr
+tangr2 t ang2 rr
+tangr3 t ang3 rr
+tangr4 t ang4 rr
+tangr5 t ang5 rr
+taor1 t ao1 rr
+taor2 t ao2 rr
+taor3 t ao3 rr
+taor4 t ao4 rr
+taor5 t ao5 rr
+ter1 t e1 rr
+ter2 t e2 rr
+ter3 t e3 rr
+ter4 t e4 rr
+ter5 t e5 rr
+teir1 t ei1 rr
+teir2 t ei2 rr
+teir3 t ei3 rr
+teir4 t ei4 rr
+teir5 t ei5 rr
+tengr1 t eng1 rr
+tengr2 t eng2 rr
+tengr3 t eng3 rr
+tengr4 t eng4 rr
+tengr5 t eng5 rr
+tir1 t i1 rr
+tir2 t i2 rr
+tir3 t i3 rr
+tir4 t i4 rr
+tir5 t i5 rr
+tianr1 t ian1 rr
+tianr2 t ian2 rr
+tianr3 t ian3 rr
+tianr4 t ian4 rr
+tianr5 t ian5 rr
+tiaor1 t iao1 rr
+tiaor2 t iao2 rr
+tiaor3 t iao3 rr
+tiaor4 t iao4 rr
+tiaor5 t iao5 rr
+tier1 t ie1 rr
+tier2 t ie2 rr
+tier3 t ie3 rr
+tier4 t ie4 rr
+tier5 t ie5 rr
+tingr1 t ing1 rr
+tingr2 t ing2 rr
+tingr3 t ing3 rr
+tingr4 t ing4 rr
+tingr5 t ing5 rr
+tongr1 t ong1 rr
+tongr2 t ong2 rr
+tongr3 t ong3 rr
+tongr4 t ong4 rr
+tongr5 t ong5 rr
+tour1 t ou1 rr
+tour2 t ou2 rr
+tour3 t ou3 rr
+tour4 t ou4 rr
+tour5 t ou5 rr
+tur1 t u1 rr
+tur2 t u2 rr
+tur3 t u3 rr
+tur4 t u4 rr
+tur5 t u5 rr
+tuanr1 t uan1 rr
+tuanr2 t uan2 rr
+tuanr3 t uan3 rr
+tuanr4 t uan4 rr
+tuanr5 t uan5 rr
+tuir1 t uei1 rr
+tuir2 t uei2 rr
+tuir3 t uei3 rr
+tuir4 t uei4 rr
+tuir5 t uei5 rr
+tunr1 t uen1 rr
+tunr2 t uen2 rr
+tunr3 t uen3 rr
+tunr4 t uen4 rr
+tunr5 t uen5 rr
+tuor1 t uo1 rr
+tuor2 t uo2 rr
+tuor3 t uo3 rr
+tuor4 t uo4 rr
+tuor5 t uo5 rr
+war1 w ua1 rr
+war2 w ua2 rr
+war3 w ua3 rr
+war4 w ua4 rr
+war5 w ua5 rr
+wair1 w uai1 rr
+wair2 w uai2 rr
+wair3 w uai3 rr
+wair4 w uai4 rr
+wair5 w uai5 rr
+wanr1 w uan1 rr
+wanr2 w uan2 rr
+wanr3 w uan3 rr
+wanr4 w uan4 rr
+wanr5 w uan5 rr
+wangr1 w uang1 rr
+wangr2 w uang2 rr
+wangr3 w uang3 rr
+wangr4 w uang4 rr
+wangr5 w uang5 rr
+weir1 w uei1 rr
+weir2 w uei2 rr
+weir3 w uei3 rr
+weir4 w uei4 rr
+weir5 w uei5 rr
+wenr1 w uen1 rr
+wenr2 w uen2 rr
+wenr3 w uen3 rr
+wenr4 w uen4 rr
+wenr5 w uen5 rr
+wengr1 w uen1 rr
+wengr2 w uen2 rr
+wengr3 w uen3 rr
+wengr4 w uen4 rr
+wengr5 w uen5 rr
+wor1 w uo1 rr
+wor2 w uo2 rr
+wor3 w uo3 rr
+wor4 w uo4 rr
+wor5 w uo5 rr
+wur1 w u1 rr
+wur2 w u2 rr
+wur3 w u3 rr
+wur4 w u4 rr
+wur5 w u5 rr
+xir1 x i1 rr
+xir2 x i2 rr
+xir3 x i3 rr
+xir4 x i4 rr
+xir5 x i5 rr
+xiar1 x ia1 rr
+xiar2 x ia2 rr
+xiar3 x ia3 rr
+xiar4 x ia4 rr
+xiar5 x ia5 rr
+xianr1 x ian1 rr
+xianr2 x ian2 rr
+xianr3 x ian3 rr
+xianr4 x ian4 rr
+xianr5 x ian5 rr
+xiangr1 x iang1 rr
+xiangr2 x iang2 rr
+xiangr3 x iang3 rr
+xiangr4 x iang4 rr
+xiangr5 x iang5 rr
+xiaor1 x iao1 rr
+xiaor2 x iao2 rr
+xiaor3 x iao3 rr
+xiaor4 x iao4 rr
+xiaor5 x iao5 rr
+xier1 x ie1 rr
+xier2 x ie2 rr
+xier3 x ie3 rr
+xier4 x ie4 rr
+xier5 x ie5 rr
+xinr1 x in1 rr
+xinr2 x in2 rr
+xinr3 x in3 rr
+xinr4 x in4 rr
+xinr5 x in5 rr
+xingr1 x ing1 rr
+xingr2 x ing2 rr
+xingr3 x ing3 rr
+xingr4 x ing4 rr
+xingr5 x ing5 rr
+xiongr1 x iong1 rr
+xiongr2 x iong2 rr
+xiongr3 x iong3 rr
+xiongr4 x iong4 rr
+xiongr5 x iong5 rr
+xiur1 x iou1 rr
+xiur2 x iou2 rr
+xiur3 x iou3 rr
+xiur4 x iou4 rr
+xiur5 x iou5 rr
+xur1 x v1 rr
+xur2 x v2 rr
+xur3 x v3 rr
+xur4 x v4 rr
+xur5 x v5 rr
+xuanr1 x van1 rr
+xuanr2 x van2 rr
+xuanr3 x van3 rr
+xuanr4 x van4 rr
+xuanr5 x van5 rr
+xuer1 x ve1 rr
+xuer2 x ve2 rr
+xuer3 x ve3 rr
+xuer4 x ve4 rr
+xuer5 x ve5 rr
+xunr1 x vn1 rr
+xunr2 x vn2 rr
+xunr3 x vn3 rr
+xunr4 x vn4 rr
+xunr5 x vn5 rr
+yar1 y ia1 rr
+yar2 y ia2 rr
+yar3 y ia3 rr
+yar4 y ia4 rr
+yar5 y ia5 rr
+yanr1 y ian1 rr
+yanr2 y ian2 rr
+yanr3 y ian3 rr
+yanr4 y ian4 rr
+yanr5 y ian5 rr
+yangr1 y iang1 rr
+yangr2 y iang2 rr
+yangr3 y iang3 rr
+yangr4 y iang4 rr
+yangr5 y iang5 rr
+yaor1 y iao1 rr
+yaor2 y iao2 rr
+yaor3 y iao3 rr
+yaor4 y iao4 rr
+yaor5 y iao5 rr
+yer1 y ie1 rr
+yer2 y ie2 rr
+yer3 y ie3 rr
+yer4 y ie4 rr
+yer5 y ie5 rr
+yir1 y i1 rr
+yir2 y i2 rr
+yir3 y i3 rr
+yir4 y i4 rr
+yir5 y i5 rr
+yinr1 y in1 rr
+yinr2 y in2 rr
+yinr3 y in3 rr
+yinr4 y in4 rr
+yinr5 y in5 rr
+yingr1 y ing1 rr
+yingr2 y ing2 rr
+yingr3 y ing3 rr
+yingr4 y ing4 rr
+yingr5 y ing5 rr
+yor1 y iou1 rr
+yor2 y iou2 rr
+yor3 y iou3 rr
+yor4 y iou4 rr
+yor5 y iou5 rr
+yongr1 y iong1 rr
+yongr2 y iong2 rr
+yongr3 y iong3 rr
+yongr4 y iong4 rr
+yongr5 y iong5 rr
+your1 y iou1 rr
+your2 y iou2 rr
+your3 y iou3 rr
+your4 y iou4 rr
+your5 y iou5 rr
+yur1 y v1 rr
+yur2 y v2 rr
+yur3 y v3 rr
+yur4 y v4 rr
+yur5 y v5 rr
+yuanr1 y van1 rr
+yuanr2 y van2 rr
+yuanr3 y van3 rr
+yuanr4 y van4 rr
+yuanr5 y van5 rr
+yuer1 y ve1 rr
+yuer2 y ve2 rr
+yuer3 y ve3 rr
+yuer4 y ve4 rr
+yuer5 y ve5 rr
+yunr1 y vn1 rr
+yunr2 y vn2 rr
+yunr3 y vn3 rr
+yunr4 y vn4 rr
+yunr5 y vn5 rr
+zar1 z a1 rr
+zar2 z a2 rr
+zar3 z a3 rr
+zar4 z a4 rr
+zar5 z a5 rr
+zair1 z ai1 rr
+zair2 z ai2 rr
+zair3 z ai3 rr
+zair4 z ai4 rr
+zair5 z ai5 rr
+zanr1 z an1 rr
+zanr2 z an2 rr
+zanr3 z an3 rr
+zanr4 z an4 rr
+zanr5 z an5 rr
+zangr1 z ang1 rr
+zangr2 z ang2 rr
+zangr3 z ang3 rr
+zangr4 z ang4 rr
+zangr5 z ang5 rr
+zaor1 z ao1 rr
+zaor2 z ao2 rr
+zaor3 z ao3 rr
+zaor4 z ao4 rr
+zaor5 z ao5 rr
+zer1 z e1 rr
+zer2 z e2 rr
+zer3 z e3 rr
+zer4 z e4 rr
+zer5 z e5 rr
+zeir1 z ei1 rr
+zeir2 z ei2 rr
+zeir3 z ei3 rr
+zeir4 z ei4 rr
+zeir5 z ei5 rr
+zenr1 z en1 rr
+zenr2 z en2 rr
+zenr3 z en3 rr
+zenr4 z en4 rr
+zenr5 z en5 rr
+zengr1 z eng1 rr
+zengr2 z eng2 rr
+zengr3 z eng3 rr
+zengr4 z eng4 rr
+zengr5 z eng5 rr
+zhar1 zh a1 rr
+zhar2 zh a2 rr
+zhar3 zh a3 rr
+zhar4 zh a4 rr
+zhar5 zh a5 rr
+zhair1 zh ai1 rr
+zhair2 zh ai2 rr
+zhair3 zh ai3 rr
+zhair4 zh ai4 rr
+zhair5 zh ai5 rr
+zhanr1 zh an1 rr
+zhanr2 zh an2 rr
+zhanr3 zh an3 rr
+zhanr4 zh an4 rr
+zhanr5 zh an5 rr
+zhangr1 zh ang1 rr
+zhangr2 zh ang2 rr
+zhangr3 zh ang3 rr
+zhangr4 zh ang4 rr
+zhangr5 zh ang5 rr
+zhaor1 zh ao1 rr
+zhaor2 zh ao2 rr
+zhaor3 zh ao3 rr
+zhaor4 zh ao4 rr
+zhaor5 zh ao5 rr
+zher1 zh e1 rr
+zher2 zh e2 rr
+zher3 zh e3 rr
+zher4 zh e4 rr
+zher5 zh e5 rr
+zheir1 zh ei1 rr
+zheir2 zh ei2 rr
+zheir3 zh ei3 rr
+zheir4 zh ei4 rr
+zheir5 zh ei5 rr
+zhenr1 zh en1 rr
+zhenr2 zh en2 rr
+zhenr3 zh en3 rr
+zhenr4 zh en4 rr
+zhenr5 zh en5 rr
+zhengr1 zh eng1 rr
+zhengr2 zh eng2 rr
+zhengr3 zh eng3 rr
+zhengr4 zh eng4 rr
+zhengr5 zh eng5 rr
+zhir1 zh iii1 rr
+zhir2 zh iii2 rr
+zhir3 zh iii3 rr
+zhir4 zh iii4 rr
+zhir5 zh iii5 rr
+zhongr1 zh ong1 rr
+zhongr2 zh ong2 rr
+zhongr3 zh ong3 rr
+zhongr4 zh ong4 rr
+zhongr5 zh ong5 rr
+zhour1 zh ou1 rr
+zhour2 zh ou2 rr
+zhour3 zh ou3 rr
+zhour4 zh ou4 rr
+zhour5 zh ou5 rr
+zhur1 zh u1 rr
+zhur2 zh u2 rr
+zhur3 zh u3 rr
+zhur4 zh u4 rr
+zhur5 zh u5 rr
+zhuar1 zh ua1 rr
+zhuar2 zh ua2 rr
+zhuar3 zh ua3 rr
+zhuar4 zh ua4 rr
+zhuar5 zh ua5 rr
+zhuair1 zh uai1 rr
+zhuair2 zh uai2 rr
+zhuair3 zh uai3 rr
+zhuair4 zh uai4 rr
+zhuair5 zh uai5 rr
+zhuanr1 zh uan1 rr
+zhuanr2 zh uan2 rr
+zhuanr3 zh uan3 rr
+zhuanr4 zh uan4 rr
+zhuanr5 zh uan5 rr
+zhuangr1 zh uang1 rr
+zhuangr2 zh uang2 rr
+zhuangr3 zh uang3 rr
+zhuangr4 zh uang4 rr
+zhuangr5 zh uang5 rr
+zhuir1 zh uei1 rr
+zhuir2 zh uei2 rr
+zhuir3 zh uei3 rr
+zhuir4 zh uei4 rr
+zhuir5 zh uei5 rr
+zhunr1 zh uen1 rr
+zhunr2 zh uen2 rr
+zhunr3 zh uen3 rr
+zhunr4 zh uen4 rr
+zhunr5 zh uen5 rr
+zhuor1 zh uo1 rr
+zhuor2 zh uo2 rr
+zhuor3 zh uo3 rr
+zhuor4 zh uo4 rr
+zhuor5 zh uo5 rr
+zir1 z ii1 rr
+zir2 z ii2 rr
+zir3 z ii3 rr
+zir4 z ii4 rr
+zir5 z ii5 rr
+zongr1 z ong1 rr
+zongr2 z ong2 rr
+zongr3 z ong3 rr
+zongr4 z ong4 rr
+zongr5 z ong5 rr
+zour1 z ou1 rr
+zour2 z ou2 rr
+zour3 z ou3 rr
+zour4 z ou4 rr
+zour5 z ou5 rr
+zur1 z u1 rr
+zur2 z u2 rr
+zur3 z u3 rr
+zur4 z u4 rr
+zur5 z u5 rr
+zuanr1 z uan1 rr
+zuanr2 z uan2 rr
+zuanr3 z uan3 rr
+zuanr4 z uan4 rr
+zuanr5 z uan5 rr
+zuir1 z uei1 rr
+zuir2 z uei2 rr
+zuir3 z uei3 rr
+zuir4 z uei4 rr
+zuir5 z uei5 rr
+zunr1 z uen1 rr
+zunr2 z uen2 rr
+zunr3 z uen3 rr
+zunr4 z uen4 rr
+zunr5 z uen5 rr
+zuor1 z uo1 rr
+zuor2 z uo2 rr
+zuor3 z uo3 rr
+zuor4 z uo4 rr
+zuor5 z uo5 rr

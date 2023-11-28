@@ -1,0 +1,49 @@
+{
+    "base_config": "egs/tta/autoencoderkl/exp_config_base.json",
+    "dataset": [
+      "AudioCaps"
+    ],
+    "preprocess": {
+      // Specify the output root path to save the processed data 
+      "processed_dir": "data",
+
+      // feature
+      "use_spk": false,
+      "use_spkid": false,
+      "use_uv": false,
+      "use_frame_pitch": false,
+      "use_phone_pitch": false,
+      "use_frame_energy": false,
+      "use_phone_energy": false,
+      "use_mel": false,
+      "use_audio": false,
+      "use_label": false,
+      "use_one_hot": false,
+      // feature for text to audio
+      "use_caption": true,
+      "use_melspec": true,
+      "use_wav": false,
+      // feature dir
+      "melspec_dir": "mel",
+      "wav_dir": "wav"
+    },
+    // Specify the output root path to save model ckpts and logs
+    "log_dir": "ckpts/tta",
+
+    // train
+    "train": {
+      "adam": {
+        "lr": 4.0e-5
+      },
+      "ddp": false,
+      "random_seed": 12345,
+      "batch_size": 12,
+      "epochs": 50000,
+      "max_steps": 1000000,
+      "total_training_steps": 800000,
+      "save_summary_steps": 1000,
+      "save_checkpoints_steps": 5000,
+      "valid_interval": 5000,
+      "keep_checkpoint_max": 100
+    }
+  }
