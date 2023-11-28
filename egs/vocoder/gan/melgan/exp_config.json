@@ -1,0 +1,34 @@
+{
+  "base_config": "egs/vocoder/gan/exp_config_base.json",
+  "preprocess": {
+    // acoustic features
+    "extract_mel": true,
+    "extract_audio": true,
+
+    // Features used for model training
+    "use_mel": true,
+    "use_audio": true
+  },
+  "model": {
+    "generator": "melgan",
+    "melgan": {
+      "ratios": [8, 8, 2, 2],
+      "ngf": 32,
+      "n_residual_layers": 3,
+      "num_D": 3,
+      "ndf": 16,
+      "n_layers": 4,
+      "downsampling_factor": 4
+    },
+  },
+  "train": {
+    "criterions": [
+        "feature",
+        "discriminator",
+        "generator",
+    ]
+  },
+  "inference": {
+    "batch_size": 1,
+  }
+}

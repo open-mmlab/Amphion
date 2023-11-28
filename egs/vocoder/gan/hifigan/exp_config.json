@@ -1,0 +1,59 @@
+{
+  "base_config": "egs/vocoder/gan/exp_config_base.json",
+  "preprocess": {
+    // acoustic features
+    "extract_mel": true,
+    "extract_audio": true,
+
+    // Features used for model training
+    "use_mel": true,
+    "use_audio": true
+  },
+  "model": {
+    "generator": "hifigan",
+    "hifigan": {
+      "resblock": "2",
+      "upsample_rates": [
+        8,
+        8,
+        4
+      ],
+      "upsample_kernel_sizes": [
+        16,
+        16,
+        8
+      ],
+      "upsample_initial_channel": 256,
+      "resblock_kernel_sizes": [
+        3,
+        5,
+        7
+      ],
+      "resblock_dilation_sizes": [
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          12
+        ]
+      ]
+    }
+  },
+  "train": {
+    "criterions": [
+        "feature",
+        "discriminator",
+        "generator",
+        "mel",
+    ]
+  },
+  "inference": {
+    "batch_size": 1,
+  }
+}

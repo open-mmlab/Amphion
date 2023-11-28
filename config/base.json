@@ -1,0 +1,215 @@
+{
+  "supported_model_type": [
+    "GANVocoder",
+    "Fastspeech2",
+    "DiffSVC",
+    "Transformer",
+    "EDM",
+    "CD"
+  ],
+  "task_type": "",
+  "dataset": [],
+  "use_custom_dataset": false,
+  "preprocess": {
+    // trim audio silence
+    "data_augment": false,
+    "trim_silence": false,
+    "num_silent_frames": 8,
+    "trim_fft_size": 512, // fft size used in trimming
+    "trim_hop_size": 128, // hop size used in trimming
+    "trim_top_db": 30, // top db used in trimming sensitive to each dataset
+    // acoustic features
+    "extract_mel": false,
+    "mel_extract_mode": "",
+    "extract_linear_spec": false,
+    "extract_mcep": false,
+    "extract_pitch": false,
+    "pitch_remove_outlier": false,
+    "extract_uv": false,
+    "pitch_norm": false,
+    "extract_audio": false,
+    "extract_label": false,
+    "pitch_extractor": "parselmouth", // pyin, dio, pyworld, pyreaper, parselmouth, CWT (Continuous Wavelet Transform)
+    "extract_energy": false,
+    "energy_remove_outlier": false,
+    "energy_norm": false,
+    "energy_extract_mode": "from_mel",
+    "extract_duration": false,
+    "extract_amplitude_phase": false,
+    "mel_min_max_norm": false,
+    // content features
+    "use_text": false,
+    "use_phone": false,
+    "lexicon_path": "./text/lexicon/librispeech-lexicon.txt",
+    "extract_whisper_feature": false,
+    "extract_contentvec_feature": false,
+    "extract_mert_feature": false,
+    "extract_wenet_feature": false,
+    // Settings for data preprocessing
+    "n_mel": 80,
+    "win_size": 480,
+    "hop_size": 120,
+    "sample_rate": 24000,
+    "n_fft": 1024,
+    "fmin": 0,
+    "fmax": 12000,
+    "min_level_db": -115,
+    "ref_level_db": 20,
+    "bits": 8,
+    // Directory names of processed data or extracted features
+    "processed_dir": "processed_data",
+    "trimmed_wav_dir": "trimmed_wavs", // directory name of silence trimed wav
+    "raw_data": "raw_data",
+    "wav_dir": "wavs", // directory name of processed wav (such as downsampled waveform)
+    "audio_dir": "audios",
+    "log_amplitude_dir": "log_amplitudes",
+    "phase_dir": "phases",
+    "real_dir": "reals",
+    "imaginary_dir": "imaginarys",
+    "label_dir": "labels",
+    "linear_dir": "linears",
+    "mel_dir": "mels", // directory name of extraced mel features
+    "mcep_dir": "mcep", // directory name of extraced mcep features
+    "dur_dir": "durs",
+    "lab_dir": "labs", // directory name of extraced label features
+    "wenet_dir": "wenet", // directory name of extraced wenet features
+    "contentvec_dir": "contentvec", // directory name of extraced wenet features
+    "pitch_dir": "pitches", // directory name of extraced pitch features
+    "energy_dir": "energys", // directory name of extracted energy features
+    "phone_pitch_dir": "phone_pitches", // directory name of extraced pitch features
+    "phone_energy_dir": "phone_energys", // directory name of extracted energy features
+    "uv_dir": "uvs", // directory name of extracted unvoiced features
+    "duration_dir": "duration", // ground-truth duration file
+    "phone_seq_file": "phone_seq_file", // phoneme sequence file
+    "file_lst": "file.lst",
+    "train_file": "train.json", // training set, the json file contains detailed information about the dataset, including dataset name, utterance id, duration of the utterance
+    "valid_file": "test.json", // validattion set
+    "spk2id": "spk2id.json", // used for multi-speaker dataset
+    "utt2spk": "utt2spk", // used for multi-speaker dataset
+    "emo2id": "emo2id.json", // used for multi-emotion dataset
+    "utt2emo": "utt2emo", // used for multi-emotion dataset
+    // Features used for model training
+    "use_phn_seq": false,
+    "use_lab": false,
+    "use_linear": false,
+    "use_mel": false,
+    "use_min_max_norm_mel": false,
+    "use_wav": false,
+    "use_phone_pitch": false,
+    "use_log_scale_pitch": false,
+    "use_phone_energy": false,
+    "use_phone_duration": false,
+    "use_log_scale_energy": false,
+    "use_wenet": false,
+    "use_dur": false,
+    "use_spkid": false, // True: use speaker id for multi-speaker dataset
+    "use_emoid": false, // True: use emotion id for multi-emotion dataset
+    "use_frame_pitch": false,
+    "use_uv": false,
+    "use_frame_energy": false,
+    "use_frame_duration": false,
+    "use_audio": false,
+    "use_label": false,
+    "use_one_hot": false,
+    "use_amplitude_phase": false,
+    "data_augment": false,
+    "align_mel_duration": false
+  },
+  "train": {
+    "ddp": true,
+    "random_seed": 970227,
+    "batch_size": 16,
+    "max_steps": 1000000,
+    // Trackers
+    "tracker": [
+      "tensorboard"
+      // "wandb",
+      // "cometml",
+      // "mlflow",
+    ],
+    "max_epoch": -1,
+    // -1 means no limit
+    "save_checkpoint_stride": [
+      5,
+      20
+    ],
+    // unit is epoch
+    "keep_last": [
+      3,
+      -1
+    ],
+    // -1 means infinite, if one number will broadcast
+    "run_eval": [
+      false,
+      true
+    ],
+    // if one number will broadcast
+    // Fix the random seed
+    "random_seed": 10086,
+    // Optimizer
+    "optimizer": "AdamW",
+    "adamw": {
+      "lr": 4.0e-4
+      // nn model lr
+    },
+    // LR Scheduler
+    "scheduler": "ReduceLROnPlateau",
+    "reducelronplateau": {
+      "factor": 0.8,
+      "patience": 10,
+      // unit is epoch
+      "min_lr": 1.0e-4
+    },
+    // Batchsampler
+    "sampler": {
+      "holistic_shuffle": true,
+      "drop_last": true
+    },
+    // Dataloader
+    "dataloader": {
+      "num_worker": 32,
+      "pin_memory": true
+    },
+    "gradient_accumulation_step": 1,
+    "total_training_steps": 50000,
+    "save_summary_steps": 500,
+    "save_checkpoints_steps": 10000,
+    "valid_interval": 10000,
+    "keep_checkpoint_max": 5,
+    "multi_speaker_training": false, // True: train multi-speaker model; False: training single-speaker model;
+    "gradient_accumulation_step": 1,
+    "max_epoch": -1,
+    // -1 means no limit
+    "save_checkpoint_stride": [
+      5,
+      20
+    ],
+    // unit is epoch
+    "keep_last": [
+      3,
+      -1
+    ],
+    // -1 means infinite, if one number will broadcast
+    "run_eval": [
+      false,
+      true
+    ],
+    // Batchsampler
+    "sampler": {
+      "holistic_shuffle": true,
+      "drop_last": true
+    },
+    // Dataloader
+    "dataloader": {
+      "num_worker": 32,
+      "pin_memory": true
+    },
+    // Trackers
+    "tracker": [
+      "tensorboard"
+      // "wandb",
+      // "cometml",
+      // "mlflow",
+    ],
+  },
+}

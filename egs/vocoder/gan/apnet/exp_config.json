@@ -1,0 +1,45 @@
+{
+  "base_config": "egs/vocoder/gan/exp_config_base.json",
+  "preprocess": {
+    // acoustic features
+    "extract_mel": true,
+    "extract_audio": true,
+    "extract_amplitude_phase": true,
+
+    // Features used for model training
+    "use_mel": true,
+    "use_audio": true,
+    "use_amplitude_phase": true
+  },
+  "model": {
+    "generator": "apnet",
+    "apnet": {
+      "ASP_channel": 512,
+      "ASP_resblock_kernel_sizes": [3,7,11],
+      "ASP_resblock_dilation_sizes": [[1,3,5], [1,3,5], [1,3,5]],
+      "ASP_input_conv_kernel_size": 7,
+      "ASP_output_conv_kernel_size": 7,
+
+      "PSP_channel": 512,
+      "PSP_resblock_kernel_sizes": [3,7,11],
+      "PSP_resblock_dilation_sizes": [[1,3,5], [1,3,5], [1,3,5]], 
+      "PSP_input_conv_kernel_size": 7,
+      "PSP_output_R_conv_kernel_size": 7,
+      "PSP_output_I_conv_kernel_size": 7,
+    }
+  },
+  "train": {
+    "criterions": [
+        "feature",
+        "discriminator",
+        "generator",
+        "mel",
+        "phase",
+        "amplitude",
+        "consistency"
+    ]
+  },
+  "inference": {
+    "batch_size": 1,
+  }
+}

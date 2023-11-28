@@ -1,0 +1,88 @@
+{
+    "base_config": "egs/tta/audioldm/exp_config_base.json",
+    "dataset": [
+      "AudioCaps"
+    ],
+    "preprocess": {
+      // Specify the output root path to save the processed data 
+      "processed_dir": "data",
+
+      // feature
+      "use_spkid": false,
+      "use_uv": false,
+      "use_frame_pitch": false,
+      "use_phone_pitch": false,
+      "use_frame_energy": false,
+      "use_phone_energy": false,
+      "use_mel": false,
+      "use_audio": false,
+      "use_label": false,
+      "use_one_hot": false,
+      // feature for text to audio
+      "use_caption": true,
+      "use_melspec": true,
+      "use_wav": false,
+      // feature dir
+      "melspec_dir": "mel",
+      "wav_dir": "wav"
+    },
+    // Specify the output root path to save model ckpts and logs
+    "log_dir": "ckpts/tta",
+
+    // model
+    "model": {
+      "audioldm": {
+        "image_size": 32,
+        "in_channels": 4,
+        "out_channels": 4,
+        "model_channels": 256,
+        "attention_resolutions": [4, 2, 1],
+        "num_res_blocks": 2,
+        "channel_mult": [1, 2, 4],
+        "num_heads": 8,
+        "use_spatial_transformer": true,
+        "transformer_depth": 1,
+        "context_dim": 768,
+        "use_checkpoint": true,
+        "legacy": false
+      },
+      "autoencoderkl": {
+        "ch": 128,
+        "ch_mult": [1,2,2,4],
+        "num_res_blocks": 2,
+        "in_channels": 1,
+        "z_channels": 4,
+        "out_ch": 1,
+        "double_z": true
+      },
+      "noise_scheduler": {
+        "num_train_timesteps": 1000,
+        "beta_start": 0.00085,
+        "beta_end": 0.012,
+        "beta_schedule": "scaled_linear",
+        "clip_sample": false,
+        "steps_offset": 1,
+        "set_alpha_to_one": false,
+        "skip_prk_steps": true,
+        "prediction_type": "epsilon"
+      },
+      "autoencoder_path": "ckpts/tta/autoencoder_kl_debug_latent_size_4_10_78/checkpoints/step-0390000_loss-0.2876.pt"
+    },
+
+    // train
+    "train": {
+      "adam": {
+        "lr": 2.0e-5
+      },
+      "ddp": false,
+      "random_seed": 12345,
+      "batch_size": 12,
+      "epochs": 50000,
+      "max_steps": 1000000,
+      "total_training_steps": 800000,
+      "save_summary_steps": 1000,
+      "save_checkpoints_steps": 5000,
+      "valid_interval": 5000,
+      "keep_checkpoint_max": 100
+    }
+  }

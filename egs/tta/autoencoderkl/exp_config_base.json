@@ -1,0 +1,11 @@
+{
+    "base_config": "config/autoencoderkl.json",
+    "model_type": "AutoencoderKL",
+    "dataset": [
+        "AudioCaps"
+    ],
+    "preprocess": {
+        "train_file": "train.json",
+        "valid_file": "vaild.json"
+    }
+}
