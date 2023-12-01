@@ -29,7 +29,15 @@ def extract_acoustic_features(dataset, output_path, cfg, n_workers=1):
         cfg (dict): dictionary that stores configurations
         n_workers (int, optional): num of processes to extract features in parallel. Defaults to 1.
     """
-    types = ["train", "test"] if "eval" not in dataset else ["test"]
+    # types = ["train", "test"] if "eval" not in dataset else ["test"]
+    types = list()
+    types.append((cfg.preprocess.train_file).split('.')[0])
+    types.append((cfg.preprocess.valid_file).split('.')[0])
+    if 'test' not in types: 
+        types.append('test') 
+    if "eval" in dataset:
+        types = ["test"]
+    
     metadata = []
     for dataset_type in types:
         dataset_output = os.path.join(output_path, dataset)
@@ -53,10 +61,20 @@ def extract_content_features(dataset, output_path, cfg, num_workers=1):
         output_path (str): directory that stores train, test and feature files of datasets
         cfg (dict): dictionary that stores configurations
     """
-    types = ["train", "test"] if "eval" not in dataset else ["test"]
+    # types = ["train", "test"] if "eval" not in dataset else ["test"]
+
+    types = list()
+    types.append((cfg.preprocess.train_file).split('.')[0])
+    types.append((cfg.preprocess.valid_file).split('.')[0])
+    if 'test' not in types: 
+        types.append('test') 
+    if "eval" in dataset:
+        types = ["test"]
+            
     metadata = []
     for dataset_type in types:
         dataset_output = os.path.join(output_path, dataset)
+        # dataset_file = os.path.join(dataset_output, "{}.json".format(dataset_type))
         dataset_file = os.path.join(dataset_output, "{}.json".format(dataset_type))
         with open(dataset_file, "r") as f:
             metadata.extend(json.load(f))
@@ -87,6 +105,7 @@ def preprocess(cfg, args):
             prepare_align(
                 dataset, cfg.dataset_path[dataset], cfg.preprocess, output_path
             )
+            
         preprocess_dataset(
             dataset,
             cfg.dataset_path[dataset],
