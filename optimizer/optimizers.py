@@ -1,3 +1,5 @@
+# This module is modified from https://github.com/Plachtaa/VALL-E-X/blob/3faaf8ccadb154d63b38070caf518ce9309ea0f4/modules/optim.py.
+#
 # Copyright (c) 2023 Amphion.
 #
 # This source code is licensed under the MIT license found in the
