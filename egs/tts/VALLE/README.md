@@ -123,7 +123,7 @@ sh egs/tts/VALLE/run.sh --stage 3 --gpu "0" \
 	--infer_mode "single" \
     --infer_text "This is a clip of generated speech with the given text from a TTS model." \
     --infer_text_prompt "But even the unsuccessful dramatist has his moments." \
-    --iner_audio_prompt egs/tts/VALLE/prompt_examples/7176_92135_000004_000000.wav
+    --infer_audio_prompt egs/tts/VALLE/prompt_examples/7176_92135_000004_000000.wav
 ```
 
 

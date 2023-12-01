@@ -14,7 +14,6 @@ import torch.nn.functional as F
 from torchmetrics.classification import MulticlassAccuracy
 from utils.util import make_pad_mask
 from utils.topk_sampling import topk_sampling
-from utils.prompt_preparer import PromptPreparer
 from modules.general import Transpose
 from modules.encoder import TokenEmbedding
 from modules.general import PromptedFeatures
@@ -294,6 +293,7 @@ class VALLE(nn.Module):
             )
         else:
             ar_xy_padding_mask = xy_padding_mask
+        self.xy_padding_mask = xy_padding_mask
         self.ar_xy_padding_mask = ar_xy_padding_mask
             
         # AR Decoder 
@@ -393,9 +393,10 @@ class VALLE(nn.Module):
         x = self.nar_text_prenet(x)
         x = self.nar_text_position(x)
 
-        y_emb, prefix_len = PromptPreparer.prepare_prompts(
+        y_emb, prefix_len = self._prepare_prompts(
             y, y_lens, codes, nar_stage, y_prompts_codes
         )
+
 
         y_len = y_lens.max()
         targets = codes[..., nar_stage] + self.audio_token_num * self.y_mask_int
@@ -415,7 +416,7 @@ class VALLE(nn.Module):
         xy_pos = torch.concat([x, y_pos], dim=1)
         xy_dec, _ = self.nar_decoder(
             (xy_pos, self.nar_stage_embeddings[nar_stage - 1].weight),
-            src_key_padding_mask=xy_padding_mask,
+            src_key_padding_mask=self.xy_padding_mask,
         )
         xy_dec = xy_dec[:, x_lens.max() + prefix_len :]
         if self.prefix_mode == 4:
@@ -759,3 +760,63 @@ class VALLE(nn.Module):
             )
 
         return targets[:, :-1], targets[:, 1:]
+
+    def _prepare_prompts(self, y, y_lens, codes, nar_stage, y_prompts_codes):
+        # 5.1 For the NAR acoustic prompt tokens, we select a random segment waveform of 3 seconds
+        # from the same utterance.
+        # We implement this differently.
+        if self.prefix_mode == 0:
+            # no prefix
+            prefix_len = 0
+            y_emb = self.nar_audio_embeddings[0](y)
+            for j in range(1, nar_stage):
+                # Formula (4) (5)
+                y_emb = y_emb + self.nar_audio_embeddings[j](codes[..., j])
+        elif self.prefix_mode == 1:
+            # prefix at begining
+            int_low = (0.25 * y_lens.min()).type(torch.int64).item()
+            prefix_len = torch.randint(int_low, int_low * 2, size=()).item()
+            prefix_len = min(prefix_len, 225)  # 24000/320 * 3s = 225 frames
+
+            y_prompts = self.nar_audio_embeddings[0](y[:, :prefix_len])
+            y_emb = self.nar_audio_embeddings[0](y[:, prefix_len:])
+            for j in range(1, self.num_quantizers):
+                y_prompts += self.nar_audio_embeddings[j](
+                    codes[:, :prefix_len, j]
+                )
+                if j < nar_stage:
+                    y_emb += self.nar_audio_embeddings[j](
+                        codes[:, prefix_len:, j]
+                    )
+            y_emb = torch.concat([y_prompts, y_emb], axis=1)
+        elif self.prefix_mode in [2, 4]:
+            if self.prefix_mode == 2:
+                # random prefix
+                prefix_len = min(225, int(0.25 * y_lens.min().item()))
+
+                y_prompts_codes = []
+                for b in range(codes.shape[0]):
+                    start = self.rng.randint(0, y_lens[b].item() - prefix_len)
+                    y_prompts_codes.append(
+                        torch.clone(codes[b, start : start + prefix_len])
+                    )
+                    codes[
+                        b, start : start + prefix_len, nar_stage
+                    ] = NUM_AUDIO_TOKENS
+                y_prompts_codes = torch.stack(y_prompts_codes, dim=0)
+            else:
+                prefix_len = y_prompts_codes.shape[1]
+
+            y_prompts = self.nar_audio_embeddings[0](y_prompts_codes[..., 0])
+            y_emb = self.nar_audio_embeddings[0](y)
+            for j in range(1, self.num_quantizers):
+                y_prompts += self.nar_audio_embeddings[j](
+                    y_prompts_codes[..., j]
+                )
+                if j < nar_stage:
+                    y_emb += self.nar_audio_embeddings[j](codes[..., j])
+            y_emb = torch.concat([y_prompts, y_emb], axis=1)
+        else:
+            raise ValueError
+
+        return y_emb, prefix_len

@@ -98,7 +98,7 @@ if [ $running_stage -eq 2 ]; then
 
     echo "Exprimental Name: $exp_name"
 
-    CUDA_VISIBLE_DEVICES=$gpu accelerate launch \
+    CUDA_VISIBLE_DEVICES=$gpu accelerate launch --main_process_port 29510 \
     "${work_dir}"/bins/tts/train.py \
         --config $exp_config \
         --exp_name $exp_name \

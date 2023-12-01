@@ -2,10 +2,10 @@
     "base_config": "config/valle.json",
     "model_type": "VALLE",
     "dataset": [
-        "LibriTTS"
+        "libritts"
     ],
     "dataset_path": {
-        "LibriTTS": "[LibriTTS dataset path]"
+        "libritts": "[LibriTTS dataset path]"
     },
     "preprocess": {
         "extract_phoneme": true,
