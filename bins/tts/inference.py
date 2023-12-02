@@ -73,7 +73,7 @@ def build_parser():
     )
     parser.add_argument(
         "--text",
-        help="Text",
+        help="Text to be synthesized.",
         type=str,
         default="",
     )
