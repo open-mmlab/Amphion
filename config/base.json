@@ -25,6 +25,7 @@
     "extract_linear_spec": false,
     "extract_mcep": false,
     "extract_pitch": false,
+    "extract_acoustic_token": false,
     "pitch_remove_outlier": false,
     "extract_uv": false,
     "pitch_norm": false,
