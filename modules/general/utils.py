@@ -91,3 +91,10 @@ def append_zero(x, count=1):
     r"""Appends ``count`` zeros to the end of a tensor along the last dimension."""
     assert count > 0, f"invalid count: {count}"
     return torch.cat([x, x.new_zeros((*x.size()[:-1], count))], dim=-1)
+
+
+class Transpose(nn.Identity):
+    """(N, T, D) -> (N, D, T)"""
+
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        return input.transpose(1, 2)

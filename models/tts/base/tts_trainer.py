@@ -5,27 +5,23 @@
 
 import json
 import os
-import random
 import shutil
 import torch
 import time
-from abc import abstractmethod
 from pathlib import Path
 import torch
-import torch.nn as nn
 from tqdm import tqdm
 import re
-
-import accelerate
+import logging
 import json5
-import numpy as np
+import accelerate
 from accelerate.logging import get_logger
 from accelerate.utils import ProjectConfiguration
 from torch.utils.data import ConcatDataset, DataLoader
-
+from accelerate import DistributedDataParallelKwargs
+from schedulers.scheduler import Eden
 from models.base.base_sampler import build_samplers
 from models.base.new_trainer import BaseTrainer
-
 
 class TTSTrainer(BaseTrainer):
     r"""The base trainer for all TTS models. It inherits from BaseTrainer and implements
@@ -39,12 +35,12 @@ class TTSTrainer(BaseTrainer):
 
         cfg.exp_name = args.exp_name
 
+        # init with accelerate
         self._init_accelerator()
         self.accelerator.wait_for_everyone()
 
-        # Init logger
         with self.accelerator.main_process_first():
-            self.logger = get_logger(args.exp_name, log_level=args.log_level)
+            self.logger = get_logger(args.exp_name, log_level="INFO")
 
         # Log some info
         self.logger.info("=" * 56)
@@ -74,7 +70,7 @@ class TTSTrainer(BaseTrainer):
 
         # Check values
         if self.accelerator.is_main_process:
-            self._check_basic_configs()
+            self.__check_basic_configs()
             # Set runtime configs
             self.save_checkpoint_stride = self.cfg.train.save_checkpoint_stride
             self.checkpoints_path = [
@@ -112,9 +108,9 @@ class TTSTrainer(BaseTrainer):
             self.logger.debug(self.model)
             self.logger.info(f"Building model done in {(end - start) / 1e6:.2f}ms")
             self.logger.info(
-                f"Model parameters: {self._count_parameters(self.model)/1e6:.2f}M"
+                f"Model parameters: {self.__count_parameters(self.model)/1e6:.2f}M"
             )
-
+            
         # optimizer & scheduler
         with self.accelerator.main_process_first():
             self.logger.info("Building optimizer and scheduler...")
@@ -126,9 +122,78 @@ class TTSTrainer(BaseTrainer):
                 f"Building optimizer and scheduler done in {(end - start) / 1e6:.2f}ms"
             )
 
+        # create criterion
+        with self.accelerator.main_process_first():
+            self.logger.info("Building criterion...")
+            start = time.monotonic_ns()
+            self.criterion = self._build_criterion()
+            end = time.monotonic_ns()
+            self.logger.info(f"Building criterion done in {(end - start) / 1e6:.2f}ms")
+
+        # Resume or Finetune
+        with self.accelerator.main_process_first():
+            self._check_resume()
+
         # accelerate prepare
         self.logger.info("Initializing accelerate...")
         start = time.monotonic_ns()
+        self._accelerator_prepare()
+        end = time.monotonic_ns()
+        self.logger.info(f"Initializing accelerate done in {(end - start) / 1e6:.2f}ms")
+
+        # save config file path
+        self.config_save_path = os.path.join(self.exp_dir, "args.json")
+        self.device = self.accelerator.device
+                
+        # Only for TTS tasks
+        self.task_type = "TTS"
+        self.logger.info("Task type: {}".format(self.task_type))
+        
+    def _check_resume(self):
+        # if args.resume:
+        if self.args.resume or (self.cfg.model_type == 'VALLE' and self.args.train_stage == 2):
+            if (self.cfg.model_type == 'VALLE' and self.args.train_stage == 2):
+                self.args.resume_type = 'finetune'
+                    
+            self.logger.info("Resuming from checkpoint...")
+            start = time.monotonic_ns()
+            self.ckpt_path = self._load_model(self.checkpoint_dir, self.args.checkpoint_path, self.args.resume_type)
+            end = time.monotonic_ns()
+            self.logger.info(
+                f"Resuming from checkpoint done in {(end - start) / 1e6:.2f}ms"
+            )
+            self.checkpoints_path = json.load(
+                open(os.path.join(self.ckpt_path, "ckpts.json"), "r")
+            )
+
+        self.checkpoint_dir = os.path.join(self.exp_dir, "checkpoint")
+        if self.accelerator.is_main_process:
+            os.makedirs(self.checkpoint_dir, exist_ok=True)
+        self.logger.debug(f"Checkpoint directory: {self.checkpoint_dir}")        
+
+    def _init_accelerator(self):
+        self.exp_dir = os.path.join(
+            os.path.abspath(self.cfg.log_dir), self.args.exp_name
+        )
+        project_config = ProjectConfiguration(
+            project_dir=self.exp_dir,
+            logging_dir=os.path.join(self.exp_dir, "log"),
+        )
+        kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
+        self.accelerator = accelerate.Accelerator(
+            gradient_accumulation_steps=self.cfg.train.gradient_accumulation_step,
+            log_with=self.cfg.train.tracker,
+            project_config=project_config,
+            kwargs_handlers=[kwargs]
+        )
+        if self.accelerator.is_main_process:
+            os.makedirs(project_config.project_dir, exist_ok=True)
+            os.makedirs(project_config.logging_dir, exist_ok=True)
+        with self.accelerator.main_process_first():
+            self.accelerator.init_trackers(self.args.exp_name)
+
+        
+    def _accelerator_prepare(self):
         (
             self.train_dataloader,
             self.valid_dataloader,
@@ -136,13 +201,13 @@ class TTSTrainer(BaseTrainer):
             self.train_dataloader,
             self.valid_dataloader,
         )
-
+        
         if isinstance(self.model, dict):
             for key in self.model.keys():
                 self.model[key] = self.accelerator.prepare(self.model[key])
         else:
             self.model = self.accelerator.prepare(self.model)
-
+        
         if isinstance(self.optimizer, dict):
             for key in self.optimizer.keys():
                 self.optimizer[key] = self.accelerator.prepare(self.optimizer[key])
@@ -153,78 +218,13 @@ class TTSTrainer(BaseTrainer):
             for key in self.scheduler.keys():
                 self.scheduler[key] = self.accelerator.prepare(self.scheduler[key])
         else:
-            self.scheduler = self.accelerator.prepare(self.scheduler)
-
-        end = time.monotonic_ns()
-        self.logger.info(f"Initializing accelerate done in {(end - start) / 1e6:.2f}ms")
-
-        # create criterion
-        with self.accelerator.main_process_first():
-            self.logger.info("Building criterion...")
-            start = time.monotonic_ns()
-            self.criterion = self._build_criterion()
-            end = time.monotonic_ns()
-            self.logger.info(f"Building criterion done in {(end - start) / 1e6:.2f}ms")
-
-        # TODO: Resume from ckpt need test/debug
-        with self.accelerator.main_process_first():
-            if args.resume:
-                self.logger.info("Resuming from checkpoint...")
-                start = time.monotonic_ns()
-                self.ckpt_path = self._load_model(self.checkpoint_dir, args.resume_type)
-                end = time.monotonic_ns()
-                self.logger.info(
-                    f"Resuming from checkpoint done in {(end - start) / 1e6:.2f}ms"
-                )
-                self.checkpoints_path = json.load(
-                    open(os.path.join(self.ckpt_path, "ckpts.json"), "r")
-                )
-
-            self.checkpoint_dir = os.path.join(self.exp_dir, "checkpoint")
-            if self.accelerator.is_main_process:
-                os.makedirs(self.checkpoint_dir, exist_ok=True)
-            self.logger.debug(f"Checkpoint directory: {self.checkpoint_dir}")
-
-        # save config file path
-        self.config_save_path = os.path.join(self.exp_dir, "args.json")
-
-        # For TTS tasks
-        if self.cfg.train.multi_speaker_training:
-            with self.accelerator.main_process_first():
-                self.speakers = self._build_speaker_lut()
-
-        # Only for TTS tasks
-        self.task_type = "TTS"
-        self.logger.info("Task type: {}".format(self.task_type))
-
-    def _init_accelerator(self):
-        self.exp_dir = os.path.join(
-            os.path.abspath(self.cfg.log_dir), self.args.exp_name
-        )
-        project_config = ProjectConfiguration(
-            project_dir=self.exp_dir,
-            logging_dir=os.path.join(self.exp_dir, "log"),
-        )
-        self.accelerator = accelerate.Accelerator(
-            gradient_accumulation_steps=self.cfg.train.gradient_accumulation_step,
-            log_with=self.cfg.train.tracker,
-            project_config=project_config,
-        )
-        if self.accelerator.is_main_process:
-            os.makedirs(project_config.project_dir, exist_ok=True)
-            os.makedirs(project_config.logging_dir, exist_ok=True)
-        with self.accelerator.main_process_first():
-            self.accelerator.init_trackers(self.args.exp_name)
-
+            self.scheduler = self.accelerator.prepare(self.scheduler)        
+    
     ### Following are methods only for TTS tasks ###
-    # TODO: LEGACY CODE, NEED TO BE REFACTORED
     def _build_dataset(self):
         pass
 
-    def build_scaler(self):
-        pass
-
-    def _build_criterion():
+    def _build_criterion(self):
         pass
 
     def _build_model(self):
@@ -274,6 +274,17 @@ class TTSTrainer(BaseTrainer):
     def _build_scheduler(self):
         pass
 
+    def _get_state_dict(self):
+        state_dict = {
+            "model": self.model.state_dict(),
+            "optimizer": self.optimizer.state_dict(),
+            "scheduler": self.scheduler.state_dict(),
+            "step": self.step,
+            "epoch": self.epoch,
+            "batch_size": self.cfg.train.batch_size,
+        }        
+        return state_dict
+
     def _load_model(self, checkpoint_dir, checkpoint_path=None, resume_type="resume"):
         """Load model from checkpoint. If a folder is given, it will
         load the latest checkpoint in checkpoint_dir. If a path is given
@@ -284,18 +295,25 @@ class TTSTrainer(BaseTrainer):
             ls = [str(i) for i in Path(checkpoint_dir).glob("*")]
             ls.sort(key=lambda x: int(x.split("_")[-3].split("-")[-1]), reverse=True)
             checkpoint_path = ls[0]
+        self.logger.info("Load model from {}".format(checkpoint_path))  
+        print("Load model from {}".format(checkpoint_path))          
         if resume_type == "resume":
             self.accelerator.load_state(checkpoint_path)
+            self.epoch = int(checkpoint_path.split("_")[-3].split("-")[-1]) + 1
+            self.step = int(checkpoint_path.split("_")[-2].split("-")[-1]) + 1
         elif resume_type == "finetune":
-            accelerate.load_checkpoint_and_dispatch(
-                self.accelerator.unwrap_model(self.model),
-                os.path.join(checkpoint_path, "pytorch_model.bin"),
-            )
+            self.model.load_state_dict(
+                torch.load(
+                    os.path.join(checkpoint_path, 
+                                 "pytorch_model.bin"
+                                 )
+                    )
+                )
+            self.model.cuda(self.accelerator.device)
             self.logger.info("Load model weights for finetune SUCCESS!")
         else:
             raise ValueError("Unsupported resume type: {}".format(resume_type))
-        self.epoch = int(checkpoint_path.split("_")[-3].split("-")[-1]) + 1
-        self.step = int(checkpoint_path.split("_")[-2].split("-")[-1]) + 1
+        
         return checkpoint_path
 
     ### THIS IS MAIN ENTRY ###
@@ -305,11 +323,11 @@ class TTSTrainer(BaseTrainer):
         self.accelerator.wait_for_everyone()
         # dump config file
         if self.accelerator.is_main_process:
-            self._dump_cfg(self.config_save_path)
+            self.__dump_cfg(self.config_save_path)
 
         # self.optimizer.zero_grad()
-
         # Wait to ensure good to go
+        
         self.accelerator.wait_for_everyone()
         while self.epoch < self.max_epoch:
             self.logger.info("\n")
@@ -346,11 +364,6 @@ class TTSTrainer(BaseTrainer):
             )
 
             self.accelerator.wait_for_everyone()
-            if isinstance(self.scheduler, dict):
-                for key in self.scheduler.keys():
-                    self.scheduler[key].step()
-            else:
-                self.scheduler.step()
 
             # Check if hit save_checkpoint_stride and run_eval
             run_eval = False
@@ -372,6 +385,9 @@ class TTSTrainer(BaseTrainer):
                     ),
                 )
                 self.accelerator.save_state(path)
+                ckpt_path = os.path.join(path, "epoch-{:04d}.pt".format(self.epoch))
+                state_dict = self._get_state_dict()
+                torch.save(state_dict, ckpt_path)
                 json.dump(
                     self.checkpoints_path,
                     open(os.path.join(path, "ckpts.json"), "w"),
@@ -413,6 +429,10 @@ class TTSTrainer(BaseTrainer):
         # Finish training and save final checkpoint
         self.accelerator.wait_for_everyone()
         if self.accelerator.is_main_process:
+            path = os.path.join(self.checkpoint_dir,
+                                "final_epoch-{:04d}_step-{:07d}_loss-{:.6f}".format(
+                                    self.epoch, self.step, valid_total_loss
+                                ))
             self.accelerator.save_state(
                 os.path.join(
                     self.checkpoint_dir,
@@ -420,7 +440,17 @@ class TTSTrainer(BaseTrainer):
                         self.epoch, self.step, valid_total_loss
                     ),
                 )
+            )            
+            ckpt_path = os.path.join(path, "epoch-{:04d}.pt".format(self.epoch))
+            state_dict = self._get_state_dict()
+            torch.save(state_dict, ckpt_path)
+            json.dump(
+                self.checkpoints_path,
+                open(os.path.join(path, "ckpts.json"), "w"),
+                ensure_ascii=False,
+                indent=4,
             )
+
         self.accelerator.end_training()
 
     ### Following are methods that can be used directly in child classes ###
@@ -447,23 +477,29 @@ class TTSTrainer(BaseTrainer):
             smoothing=0.04,
             disable=not self.accelerator.is_main_process,
         ):
-            # # Put the data to cuda device
-            # device = self.accelerator.device
-            # for k, v in batch.items():
-            #     if isinstance(v, torch.Tensor):
-            #         batch[k] = v.to(device)
 
             # Do training step and BP
             with self.accelerator.accumulate(self.model):
-                total_loss, train_losses, training_stats = self._train_step(batch)
+                total_loss, train_losses, _ = self._train_step(batch)
             self.batch_count += 1
 
             # Update info for each step
             # TODO: step means BP counts or batch counts?
             if self.batch_count % self.cfg.train.gradient_accumulation_step == 0:
+                if isinstance(self.scheduler, dict):
+                    for key in self.scheduler.keys():
+                        self.scheduler[key].step()
+                else:
+                    if isinstance(self.scheduler, Eden):
+                        self.scheduler.step_batch(self.step)
+                    else:
+                        self.scheduler.step()
+                                        
                 epoch_sum_loss += total_loss
-                for key, value in train_losses.items():
-                    epoch_losses[key] += value
+                
+                if isinstance(train_losses, dict):
+                    for key, value in train_losses.items():
+                        epoch_losses[key] += value
 
                 if isinstance(train_losses, dict):
                     for key, loss in train_losses.items():
@@ -515,10 +551,10 @@ class TTSTrainer(BaseTrainer):
             smoothing=0.04,
             disable=not self.accelerator.is_main_process,
         ):
-            total_loss, train_losses, training_stats = self._valid_step(batch)
+            total_loss, valid_losses, valid_stats = self._valid_step(batch)
             epoch_sum_loss += total_loss
-            for key, value in train_losses.items():
-                for key, value in train_losses.items():
+            if isinstance(valid_losses, dict):
+                for key, value in valid_losses.items():
                     if key not in epoch_losses.keys():
                         epoch_losses[key] = value
                     else:
@@ -535,54 +571,12 @@ class TTSTrainer(BaseTrainer):
     def _train_step(self):
         pass
 
-    def _valid_step(self):
+    def _valid_step(self, batch):
         pass
 
     def _inference(self):
         pass
 
-    def _set_random_seed(self, seed):
-        """Set random seed for all possible random modules."""
-        random.seed(seed)
-        np.random.seed(seed)
-        torch.random.manual_seed(seed)
-
-    def _check_nan(self, loss):
-        if torch.any(torch.isnan(loss)):
-            self.logger.fatal("Fatal Error: NaN!")
-            self.logger.error("loss = {:.6f}".format(loss.item()), in_order=True)
-
-    def _check_basic_configs(self):
-        if self.cfg.train.gradient_accumulation_step <= 0:
-            self.logger.fatal("Invalid gradient_accumulation_step value!")
-            self.logger.error(
-                f"Invalid gradient_accumulation_step value: {self.cfg.train.gradient_accumulation_step}. It should be positive."
-            )
-            self.accelerator.end_training()
-            raise ValueError(
-                f"Invalid gradient_accumulation_step value: {self.cfg.train.gradient_accumulation_step}. It should be positive."
-            )
-
-    @staticmethod
-    def _count_parameters(model):
-        model_param = 0.0
-        if isinstance(model, dict):
-            for key, value in model.items():
-                model_param += sum(p.numel() for p in model[key].parameters())
-        else:
-            model_param = sum(p.numel() for p in model.parameters())
-        return model_param
-
-    def _dump_cfg(self, path):
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        json5.dump(
-            self.cfg,
-            open(path, "w"),
-            indent=4,
-            sort_keys=True,
-            ensure_ascii=False,
-            quote_keys=True,
-        )
 
     def _is_valid_pattern(self, directory_name):
         directory_name = str(directory_name)
@@ -600,6 +594,40 @@ class TTSTrainer(BaseTrainer):
                 f"Invalid gradient_accumulation_step value: {self.cfg.train.gradient_accumulation_step}. It should be positive."
             )
 
+    def __dump_cfg(self, path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        json5.dump(
+            self.cfg,
+            open(path, "w"),
+            indent=4,
+            sort_keys=True,
+            ensure_ascii=False,
+            quote_keys=True,
+        )
+
+    def __check_basic_configs(self):
+        if self.cfg.train.gradient_accumulation_step <= 0:
+            self.logger.fatal("Invalid gradient_accumulation_step value!")
+            self.logger.error(
+                f"Invalid gradient_accumulation_step value: {self.cfg.train.gradient_accumulation_step}. It should be positive."
+            )
+            self.accelerator.end_training()
+            raise ValueError(
+                f"Invalid gradient_accumulation_step value: {self.cfg.train.gradient_accumulation_step}. It should be positive."
+            )
+        # TODO: check other values
+        
+
+    @staticmethod
+    def __count_parameters(model):
+        model_param = 0.0
+        if isinstance(model, dict):
+            for key, value in model.items():
+                model_param += sum(p.numel() for p in model[key].parameters())
+        else:
+            model_param = sum(p.numel() for p in model.parameters())
+        return model_param
+    
     def _build_speaker_lut(self):
         # combine speakers
         if not os.path.exists(os.path.join(self.exp_dir, self.cfg.preprocess.spk2id)):

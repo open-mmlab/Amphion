@@ -7,13 +7,10 @@ import argparse
 from argparse import ArgumentParser
 import os
 
-# from models.base.base_inference import BaseInference, base_parser
 from models.tts.fastspeech2.fs2_inference import FastSpeech2Inference
 from models.tts.vits.vits_inference import VitsInference
-from utils.util import save_config, load_model_config, load_config
-from utils.io import save_audio
-from processors.acoustic_extractor import denorm_for_pred_mels
-import numpy as np
+from models.tts.valle.valle_inference import VALLEInference
+from utils.util import load_config
 import torch
 
 
@@ -21,6 +18,7 @@ def build_inference(args, cfg):
     supported_inference = {
         "FastSpeech2": FastSpeech2Inference,
         "VITS": VitsInference,
+        "VALLE": VALLEInference,
     }
 
     inference_class = supported_inference[cfg.model_type]
@@ -53,7 +51,7 @@ def build_parser():
         "--dataset",
         type=str,
         help="convert from the source data",
-        default="LJSpeech",
+        default=None,
     )
     parser.add_argument(
         "--testing_set",
@@ -75,9 +73,9 @@ def build_parser():
     )
     parser.add_argument(
         "--text",
-        help="Text to be synthesized",
+        help="Text to be synthesized.",
         type=str,
-        default="Text to be synthesized.",
+        default="",
     )
     parser.add_argument(
         "--vocoder_dir",
@@ -89,6 +87,7 @@ def build_parser():
     parser.add_argument(
         "--acoustics_dir",
         type=str,
+        default=None,
         help="Acoustic model checkpoint directory. If a directory is given, "
         "search for the latest checkpoint dir in the directory. If a specific "
         "checkpoint dir is given, directly load the checkpoint.",
@@ -96,6 +95,7 @@ def build_parser():
     parser.add_argument(
         "--checkpoint_path",
         type=str,
+        default=None,
         help="Acoustic model checkpoint directory. If a directory is given, "
         "search for the latest checkpoint dir in the directory. If a specific "
         "checkpoint dir is given, directly load the checkpoint.",
@@ -139,13 +139,12 @@ def build_parser():
     )
     return parser
 
-
 def main():
     # Parse arguments
-    args = build_parser().parse_args()
-    # args, infer_type = formulate_parser(args)
-    print("args: ", args)
-
+    parser = build_parser()
+    VALLEInference.add_arguments(parser)
+    args = parser.parse_args()
+    
     # Parse config
     cfg = load_config(args.config)
 

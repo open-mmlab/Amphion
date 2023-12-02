@@ -33,6 +33,7 @@ class TTSInference(object):
         # Init accelerator
         self.accelerator = accelerate.Accelerator()
         self.accelerator.wait_for_everyone()
+        self.device = self.accelerator.device
 
         # Get logger
         with self.accelerator.main_process_first():
@@ -163,7 +164,7 @@ class TTSInference(object):
             out_dir = os.path.join(self.args.output_dir, "single")
             os.makedirs(out_dir, exist_ok=True)
 
-            pred_audio = self.inference_for_single_utterance(self.args.text)
+            pred_audio = self.inference_for_single_utterance()
             save_path = os.path.join(out_dir, "test_pred.wav")
             save_audio(save_path, pred_audio, self.cfg.preprocess.sample_rate)
 
@@ -184,6 +185,7 @@ class TTSInference(object):
                 tmp_file = os.path.join(out_dir, f"{uid}.pt")
                 if os.path.exists(tmp_file):
                     os.remove(tmp_file)
+        print('Saved to: ', out_dir)
 
     @torch.inference_mode()
     def inference_for_batches(self):

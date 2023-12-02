@@ -243,9 +243,9 @@ class BaseDataset(torch.utils.data.Dataset):
             single_feature["audio"] = audio
             single_feature["audio_len"] = audio.shape[0]
 
-        if self.cfg.preprocess.use_text or self.cfg.preprocess.use_phone:
-            single_feature["text_seq"] = np.array(self.utt2seq[utt])
-            single_feature["text_len"] = len(self.utt2seq[utt])
+        if self.cfg.preprocess.use_phone:
+            single_feature["phone_seq"] = np.array(self.utt2seq[utt])
+            single_feature["phone_len"] = len(self.utt2seq[utt])
 
         return single_feature
 
@@ -279,12 +279,12 @@ class BaseCollator(object):
                 packed_batch_features["mask"] = pad_sequence(
                     masks, batch_first=True, padding_value=0
                 )
-            elif key == "text_len":
-                packed_batch_features["text_len"] = torch.LongTensor(
-                    [b["text_len"] for b in batch]
+            elif key == "phone_len":
+                packed_batch_features["phone_len"] = torch.LongTensor(
+                    [b["phone_len"] for b in batch]
                 )
                 masks = [
-                    torch.ones((b["text_len"], 1), dtype=torch.long) for b in batch
+                    torch.ones((b["phone_len"], 1), dtype=torch.long) for b in batch
                 ]
                 packed_batch_features["phn_mask"] = pad_sequence(
                     masks, batch_first=True, padding_value=0

@@ -1,0 +1,52 @@
+{
+    "base_config": "config/base.json",
+    "model_type": "VALLE",
+    "task_type": "tts",
+    "dataset": [
+        "libritts"
+    ],
+    "preprocess": {
+        "extract_phoneme": true,
+        "text_extractor": "espeak", // phoneme extractor: espeak, pypinyin, pypinyin_initials_finals or lexicon 
+        "extract_acoustic_token": true,
+        "acoustic_token_extractor": "Encodec", // acoustic token extractor: encodec, dac(todo)
+        "acoustic_token_dir": "acoutic_tokens",
+        "use_text": false,
+        "use_phone": true,
+        "use_acoustic_token": true,
+        "symbols_dict": "symbols.dict",
+        "min_duration": 0.5, // the duration lowerbound to filter the audio with duration < min_duration
+        "max_duration": 14, //  the duration uperbound to filter the audio with duration > max_duration.              
+        "sampling_rate": 24000, 
+    },
+    "model": {
+        "text_token_num": 512,
+        "audio_token_num": 1024,
+        "decoder_dim": 1024, // embedding dimension of the decoder model
+        "nhead": 16, // number of attention heads in the decoder layers
+        "num_decoder_layers": 12, // number of decoder layers
+        "norm_first": true, // pre or post Normalization.
+        "add_prenet": false, // whether add PreNet after Inputs
+        "prefix_mode": 0, //  mode for how to prefix VALL-E NAR Decoder, 0: no prefix, 1: 0 to random, 2: random to random, 4: chunk of pre or post utterance
+        "share_embedding": true, // share the parameters of the output projection layer with the parameters of the acoustic embedding
+        "nar_scale_factor": 1, // model scale factor which will be assigned different meanings in different models
+        "prepend_bos": false, // whether prepend <BOS> to the acoustic tokens -> AR Decoder inputs
+        "num_quantizers": 8, // numbert of the audio quantization layers
+        // "scaling_xformers": false, // Apply Reworked Conformer scaling on Transformers 
+    },
+    "train": {
+        "ddp": false,
+        "train_stage": 1, // 0: train all modules, For VALL_E, support 1: AR Decoder 2: NAR Decoder(s)
+        "max_epoch": 20, 
+        "optimizer": "ScaledAdam", 
+        "scheduler": "Eden",
+        "warmup_steps": 200, // number of steps that affects how rapidly the learning rate decreases
+        "base_lr": 0.05, // base learning rate."
+        "valid_interval": 1000,
+        "log_epoch_step": 1000,
+        "save_checkpoint_stride": [
+            1,
+            1
+        ]
+    }
+}

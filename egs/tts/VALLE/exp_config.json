@@ -1,0 +1,27 @@
+{
+    "base_config": "config/valle.json",
+    "model_type": "VALLE",
+    "dataset": [
+        "libritts"
+    ],
+    "dataset_path": {
+        "libritts": "[LibriTTS dataset path]"
+    },
+    "preprocess": {
+        "extract_phoneme": true,
+        "extract_acoustic_token": true,
+        "use_phone": true,
+        "use_acoustic_token": true,
+        "processed_dir": "Amphion/data/",
+        "sampling_rate": "24000", // "Audio sampling rate."  
+    },
+    "model": {
+        "prefix_mode": 1, // "The mode for how to prefix VALL-E NAR Decoder, 0: no prefix, 1: 0 to random, 2: random to random, 4: chunk of pre or post utterance.",
+    },
+    "log_dir": "Amphion/ckpts/tts/valle",
+    "train": {
+        "batch_size": 4,
+        "train_stage": 1, // 0: train all modules, For VALL_E, support 1: AR Decoder 2: NAR Decoder(s)
+        "max_epoch": 20, // "Number of epochs to train."
+    }
+}

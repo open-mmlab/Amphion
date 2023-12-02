@@ -11,6 +11,7 @@
   "dataset": [],
   "use_custom_dataset": false,
   "preprocess": {
+    "text_extractor": "lexicon", // "espeak, pypinyin, pypinyin_initials_finals, lexicon"
     // trim audio silence
     "data_augment": false,
     "trim_silence": false,
@@ -24,6 +25,7 @@
     "extract_linear_spec": false,
     "extract_mcep": false,
     "extract_pitch": false,
+    "extract_acoustic_token": false,
     "pitch_remove_outlier": false,
     "extract_uv": false,
     "pitch_norm": false,
@@ -35,6 +37,7 @@
     "energy_norm": false,
     "energy_extract_mode": "from_mel",
     "extract_duration": false,
+    "extract_phoneme": false,
     "extract_amplitude_phase": false,
     "mel_min_max_norm": false,
     // content features
@@ -60,6 +63,7 @@
     "processed_dir": "processed_data",
     "trimmed_wav_dir": "trimmed_wavs", // directory name of silence trimed wav
     "raw_data": "raw_data",
+    "phone_dir": "phones",
     "wav_dir": "wavs", // directory name of processed wav (such as downsampled waveform)
     "audio_dir": "audios",
     "log_amplitude_dir": "log_amplitudes",
@@ -71,6 +75,7 @@
     "mel_dir": "mels", // directory name of extraced mel features
     "mcep_dir": "mcep", // directory name of extraced mcep features
     "dur_dir": "durs",
+    "symbols_dict": "symbols.dict",
     "lab_dir": "labs", // directory name of extraced label features
     "wenet_dir": "wenet", // directory name of extraced wenet features
     "contentvec_dir": "contentvec", // directory name of extraced wenet features
@@ -83,7 +88,7 @@
     "phone_seq_file": "phone_seq_file", // phoneme sequence file
     "file_lst": "file.lst",
     "train_file": "train.json", // training set, the json file contains detailed information about the dataset, including dataset name, utterance id, duration of the utterance
-    "valid_file": "test.json", // validattion set
+    "valid_file": "valid.json", // validattion set
     "spk2id": "spk2id.json", // used for multi-speaker dataset
     "utt2spk": "utt2spk", // used for multi-speaker dataset
     "emo2id": "emo2id.json", // used for multi-emotion dataset
@@ -177,7 +182,6 @@
     "valid_interval": 10000,
     "keep_checkpoint_max": 5,
     "multi_speaker_training": false, // True: train multi-speaker model; False: training single-speaker model;
-    "gradient_accumulation_step": 1,
     "max_epoch": -1,
     // -1 means no limit
     "save_checkpoint_stride": [
