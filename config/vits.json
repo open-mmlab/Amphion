@@ -1,8 +1,9 @@
 {
-    "base_config": "config/base.json",
+    "base_config": "config/tts.json",
     "model_type": "VITS",
     "task_type": "tts",
     "preprocess": {
+        "extract_phone": true,
         "extract_mel": true,
         "n_mel": 80,
         "fmin": 0,
@@ -24,6 +25,7 @@
         ]
     },
     "model": {
+        "text_token_num": 512,
         "inter_channels": 192,
         "hidden_channels": 192,
         "filter_channels": 768,
@@ -69,8 +71,8 @@
         ],
         "n_layers_q": 3,
         "use_spectral_norm": false,
-        "n_speakers": 0,
-        "gin_channels": 0,
+        "n_speakers": 0, // number of speakers, while be automatically set if n_speakers is 0 and multi_speaker_training is true
+        "gin_channels": 256,
         "use_sdp": true
     },
     "train": {

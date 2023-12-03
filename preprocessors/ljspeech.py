@@ -13,7 +13,6 @@ import random
 
 from utils.util import has_existed
 from text import _clean_text
-from text.g2p import preprocess_english, read_lexicon
 import librosa
 import soundfile as sf
 from scipy.io import wavfile
@@ -59,19 +58,11 @@ def get_uid2utt(ljspeech_path, dataset, cfg):
     index_count = 0
     total_duration = 0
 
-    if cfg.use_phone:
-        lexicon = read_lexicon(cfg.lexicon_path)
-
     uid2utt = []
     for l in tqdm(dataset):
         items = l.split("|")
         uid = items[0]
         text = items[2]
-
-        if cfg.use_phone:
-            phone = preprocess_english(text, lexicon)
-        else:
-            phone = ""
 
         res = {
             "Dataset": "LJSpeech",
@@ -79,7 +70,6 @@ def get_uid2utt(ljspeech_path, dataset, cfg):
             "Singer": "LJSpeech",
             "Uid": uid,
             "Text": text,
-            "Phone": phone,
         }
 
         # Duration in wav files
@@ -176,7 +166,7 @@ def main(output_path, dataset_path, cfg):
 
     speaker = "LJSpeech"
     speakers = [dataset + "_" + speaker]
-    singer_lut = {name: i for i, name in enumerate(speakers)}
+    singer_lut = {name: i for i, name in enumerate(sorted(speakers))}
     with open(singer_dict_file, "w") as f:
         json.dump(singer_lut, f, indent=4, ensure_ascii=False)
 

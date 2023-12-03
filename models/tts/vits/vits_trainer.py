@@ -8,7 +8,7 @@ import torch.nn as nn
 from torch.optim.lr_scheduler import ExponentialLR
 
 from tqdm import tqdm
-from text.symbols import symbols
+
 from utils.util import *
 from utils.mel import mel_spectrogram_torch
 from models.tts.base import TTSTrainer
@@ -22,11 +22,26 @@ from models.vocoders.gan.discriminator.mpd import (
 class VITSTrainer(TTSTrainer):
     def __init__(self, args, cfg):
         TTSTrainer.__init__(self, args, cfg)
-
-    ### Following are methods only for VITS ###
+        
+        if cfg.preprocess.use_spkid and cfg.train.multi_speaker_training:
+            if cfg.model.n_speakers == 0:
+                cfg.model.n_speaker = len(self.speakers)
+            
+            
     def _build_model(self):
+        
+        # if self.cfg.preprocess.phone_extractor == 'lexicon':
+        #     from text.symbols import symbols
+        #     symbols_len = len(symbols)
+        # else:
+        #     from text.symbol_table import SymbolTable
+        #     phone_symbols_file = os.path.join(self.exp_dir, self.cfg.preprocess.symbols_dict)
+        #     assert os.path.exists(phone_symbols_file) 
+        #     symbols= SymbolTable.from_file(phone_symbols_file)._sym2id.keys()
+        #     symbols_len = len(symbols) + 3
+                    
         net_g = SynthesizerTrn(
-            len(symbols),
+            self.cfg.model.text_token_num,
             self.cfg.preprocess.n_fft // 2 + 1,
             self.cfg.preprocess.segment_size // self.cfg.preprocess.hop_size,
             **self.cfg.model,
