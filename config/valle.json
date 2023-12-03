@@ -1,13 +1,13 @@
 {
-    "base_config": "config/base.json",
+    "base_config": "config/tts.json",
     "model_type": "VALLE",
     "task_type": "tts",
     "dataset": [
         "libritts"
     ],
     "preprocess": {
-        "extract_phoneme": true,
-        "text_extractor": "espeak", // phoneme extractor: espeak, pypinyin, pypinyin_initials_finals or lexicon 
+        "extract_phone": true,
+        "phone_extractor": "espeak", // phoneme extractor: espeak, pypinyin, pypinyin_initials_finals or lexicon 
         "extract_acoustic_token": true,
         "acoustic_token_extractor": "Encodec", // acoustic token extractor: encodec, dac(todo)
         "acoustic_token_dir": "acoutic_tokens",

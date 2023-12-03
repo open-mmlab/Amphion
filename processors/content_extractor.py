@@ -24,9 +24,6 @@ from utils.io_optim import (
 from modules import whisper_extractor as whisper
 from modules.wenet_extractor.utils.init_model import init_model
 from modules.wenet_extractor.utils.checkpoint import load_checkpoint
-from utils.tokenizer import G2PModule, tokenize_text
-from utils.symbol_table import SymbolTable
-from text.g2p import preprocess_english, read_lexicon
 
 """
     Extractor for content features
@@ -541,49 +538,3 @@ def extract_utt_content_features_dataloader(cfg, metadata, num_workers):
                 )
                 for index, utt in enumerate(_metadata):
                     extractor.save_feature(utt, batch_content_features[index])
-
-    if cfg.preprocess.extract_phoneme:
-        phone_symbols = set()
-        out_path = os.path.join(cfg.preprocess.processed_dir, dataset_name, cfg.preprocess.phone_dir)
-        os.makedirs(out_path, exist_ok=True)
-        
-        if cfg.preprocess.text_extractor in ["espeak", "pypinyin", "pypinyin_initials_finals"]:
-            text_tokenizer = G2PModule(backend=cfg.preprocess.text_extractor)
-        elif cfg.preprocess.text_extractor == 'lexicon':
-            assert cfg.lexicon_path != ""
-            lexicon = read_lexicon(cfg.lexicon_path)
-        else:
-            print('No suppert to', cfg.preprocess.text_extractor)
-            raise
-
-        for utt in tqdm(metadata):
-            uid = utt["Uid"]
-            text = utt["Text"]            
-            if cfg.preprocess.text_extractor in ["espeak", "pypinyin", "pypinyin_initials_finals"]:
-                text = text.replace("”", '"').replace("“", '"')
-                phone = tokenize_text(text_tokenizer, text=text)        
-                phone_symbols.update(phone)    
-                phone_seq = [phn for phn in phone]
-                
-            elif cfg.preprocess.text_extractor == 'lexicon':
-                phone = preprocess_english(text, lexicon)
-                phone_seq = [phn for phn in phone]
-               
-            phone_path = os.path.join(out_path, uid+'.phone')
-            with open(phone_path, 'w') as fin:
-                fin.write(' '.join(phone_seq))
-
-        phone_symbols_file = os.path.join(cfg.preprocess.processed_dir, 
-                                          dataset_name, 
-                                          cfg.preprocess.symbols_dict)
-
-
-        # load and merge saved phone symbols                
-        if os.path.exists(phone_symbols_file):
-            phone_symbol_dict_saved = SymbolTable.from_file(phone_symbols_file)._sym2id.keys()
-            phone_symbols.update(set(phone_symbol_dict_saved))
-
-        phone_symbol_dict = SymbolTable()
-        for s in sorted(list(phone_symbols)):
-            phone_symbol_dict.add(s)
-        phone_symbol_dict.to_file(phone_symbols_file)            

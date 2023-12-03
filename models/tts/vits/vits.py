@@ -240,18 +240,19 @@ class SynthesizerTrn(nn.Module):
                 hidden_channels, 256, 3, 0.5, gin_channels=gin_channels
             )
 
-        if n_speakers > 1:
+        if n_speakers >= 1:
             self.emb_g = nn.Embedding(n_speakers, gin_channels)
+            
 
     def forward(self, data):
-        x = data["text_seq"]
-        x_lengths = data["text_len"]
+        x = data["phone_seq"]
+        x_lengths = data["phone_len"]
         y = data["linear"]
         y_lengths = data["target_len"]
 
         x, m_p, logs_p, x_mask = self.enc_p(x, x_lengths)
         if self.n_speakers > 0:
-            g = self.emb_g(x["spk_id"]).unsqueeze(-1)  # [b, h, 1]
+            g = self.emb_g(data["spk_id"].squeeze(-1)).unsqueeze(-1)  # [b, h, 1]
         else:
             g = None
 
@@ -325,6 +326,7 @@ class SynthesizerTrn(nn.Module):
     ):
         x, m_p, logs_p, x_mask = self.enc_p(x, x_lengths)
         if self.n_speakers > 0:
+            sid = sid.squeeze(-1)
             g = self.emb_g(sid).unsqueeze(-1)  # [b, h, 1]
         else:
             g = None

@@ -10,6 +10,7 @@ from torch.nn.utils.rnn import pad_sequence
 from utils.data_utils import *
 from processors.acoustic_extractor import cal_normalized_mel
 from text import text_to_sequence
+from text.text_token_collation import phoneIDCollation
 
 
 class BaseDataset(torch.utils.data.Dataset):
@@ -23,25 +24,33 @@ class BaseDataset(torch.utils.data.Dataset):
 
         assert isinstance(dataset, str)
 
+        # self.data_root = processed_data_dir
+        self.cfg = cfg
+        
         processed_data_dir = os.path.join(cfg.preprocess.processed_dir, dataset)
-
         meta_file = cfg.preprocess.valid_file if is_valid else cfg.preprocess.train_file
         self.metafile_path = os.path.join(processed_data_dir, meta_file)
         self.metadata = self.get_metadata()
 
-        self.data_root = processed_data_dir
-        self.cfg = cfg
+        
 
-        if cfg.preprocess.use_spkid:
-            self.spk2id_path = os.path.join(
-                cfg.log_dir, cfg.exp_name, cfg.preprocess.spk2id
-            )
-            self.utt2spk_path = os.path.join(self.data_root, cfg.preprocess.utt2spk)
-            """
+        '''
+        load spk2id and utt2spk from json file
             spk2id: {spk1: 0, spk2: 1, ...}
             utt2spk: {dataset_uid: spk1, ...}
-            """
-            self.spk2id, self.utt2spk = get_spk_map(self.spk2id_path, self.utt2spk_path)
+        '''
+        if cfg.preprocess.use_spkid:
+            spk2id_path = os.path.join(processed_data_dir, cfg.preprocess.spk2id)
+            with open(spk2id_path, "r") as f:
+                self.spk2id = json.load(f)
+            
+            utt2spk_path = os.path.join(processed_data_dir, cfg.preprocess.utt2spk)
+            self.utt2spk = dict()
+            with open(utt2spk_path, "r") as f:
+                for line in f.readlines():
+                    utt, spk = line.strip().split('\t')
+                    self.utt2spk[utt] = spk
+        
 
         if cfg.preprocess.use_uv:
             self.utt2uv_path = {}
@@ -163,11 +172,23 @@ class BaseDataset(torch.utils.data.Dataset):
                     text = utt_info["Text"]
                     sequence = text_to_sequence(text, cfg.preprocess.text_cleaners)
                 elif cfg.preprocess.use_phone:
-                    phone = utt_info["Phone"]
-                    sequence = text_to_sequence(phone, cfg.preprocess.text_cleaners)
+                    # load phoneme squence from phone file
+                    phone_path = os.path.join(processed_data_dir, 
+                                            cfg.preprocess.phone_dir,
+                                            uid+'.phone'
+                                            )
+                    with open(phone_path, 'r') as fin:
+                        phones = fin.readlines()
+                        assert len(phones) == 1
+                        phones = phones[0].strip()
+                    phones_seq = phones.split(' ')
+
+                    phon_id_collator = phoneIDCollation(cfg, dataset=dataset)
+                    sequence = phon_id_collator.get_phone_id_sequence(cfg, phones_seq)
 
                 self.utt2seq[utt] = sequence
 
+        
     def get_metadata(self):
         with open(self.metafile_path, "r", encoding="utf-8") as f:
             metadata = json.load(f)
@@ -243,7 +264,7 @@ class BaseDataset(torch.utils.data.Dataset):
             single_feature["audio"] = audio
             single_feature["audio_len"] = audio.shape[0]
 
-        if self.cfg.preprocess.use_phone:
+        if self.cfg.preprocess.use_phone or self.cfg.preprocess.use_text:
             single_feature["phone_seq"] = np.array(self.utt2seq[utt])
             single_feature["phone_len"] = len(self.utt2seq[utt])
 
@@ -301,13 +322,13 @@ class BaseCollator(object):
                 packed_batch_features[key] = pad_sequence(
                     values, batch_first=True, padding_value=0
                 )
-
         return packed_batch_features
 
 
 class BaseTestDataset(torch.utils.data.Dataset):
     def __init__(self, cfg, args):
         raise NotImplementedError
+          
 
     def get_metadata(self):
         raise NotImplementedError
