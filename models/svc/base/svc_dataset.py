@@ -130,6 +130,12 @@ class SVCDataset(BaseDataset):
                 'content_vector_feat': (seq_len, dim)
             }
         """
+        # for k in sample.keys():
+        #     if type(sample[k]) in [torch.Tensor, np.ndarray]:
+        #         print(k, sample[k].shape)
+        #     else:
+        #         print(k, sample[k])
+        # exit()
         if sample["target_len"] <= max_seq_len:
             return sample
 
@@ -137,7 +143,7 @@ class SVCDataset(BaseDataset):
         sample["target_len"] = end - start
 
         for k in sample.keys():
-            if k not in ["spk_id", "target_len"]:
+            if k not in ["spk_id", "target_len", "audio_len", "audio"]:
                 sample[k] = sample[k][start:end]
 
         return sample
@@ -173,11 +179,11 @@ class SVCTestDataset(BaseTestDataset):
         self.target_singer = target_singer.replace(
             "{}_".format(self.target_dataset), ""
         )
-
-        self.target_mel_extrema = load_mel_extrema(cfg.preprocess, self.target_dataset)
-        self.target_mel_extrema = torch.as_tensor(
-            self.target_mel_extrema[0]
-        ), torch.as_tensor(self.target_mel_extrema[1])
+        if cfg.preprocess.mel_min_max_norm:
+            self.target_mel_extrema = load_mel_extrema(cfg.preprocess, self.target_dataset)
+            self.target_mel_extrema = torch.as_tensor(
+                self.target_mel_extrema[0]
+            ), torch.as_tensor(self.target_mel_extrema[1])
 
         ######### Load source acoustic features #########
         if cfg.preprocess.use_spkid:
