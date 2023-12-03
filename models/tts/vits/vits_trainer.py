@@ -30,16 +30,6 @@ class VITSTrainer(TTSTrainer):
             
     def _build_model(self):
         
-        # if self.cfg.preprocess.phone_extractor == 'lexicon':
-        #     from text.symbols import symbols
-        #     symbols_len = len(symbols)
-        # else:
-        #     from text.symbol_table import SymbolTable
-        #     phone_symbols_file = os.path.join(self.exp_dir, self.cfg.preprocess.symbols_dict)
-        #     assert os.path.exists(phone_symbols_file) 
-        #     symbols= SymbolTable.from_file(phone_symbols_file)._sym2id.keys()
-        #     symbols_len = len(symbols) + 3
-                    
         net_g = SynthesizerTrn(
             self.cfg.model.text_token_num,
             self.cfg.preprocess.n_fft // 2 + 1,

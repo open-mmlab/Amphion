@@ -284,17 +284,6 @@ class TTSTrainer(BaseTrainer):
     def _build_scheduler(self):
         pass
 
-    # def _get_state_dict(self):
-    #     state_dict = {
-    #         "model": self.model.state_dict(),
-    #         "optimizer": self.optimizer.state_dict(),
-    #         "scheduler": self.scheduler.state_dict(),
-    #         "step": self.step,
-    #         "epoch": self.epoch,
-    #         "batch_size": self.cfg.train.batch_size,
-    #     }        
-    #     return state_dict
-
     def _load_model(self, checkpoint_dir, checkpoint_path=None, resume_type="resume"):
         """Load model from checkpoint. If a folder is given, it will
         load the latest checkpoint in checkpoint_dir. If a path is given
@@ -395,9 +384,7 @@ class TTSTrainer(BaseTrainer):
                     ),
                 )
                 self.accelerator.save_state(path)
-                # ckpt_path = os.path.join(path, "epoch-{:04d}.pt".format(self.epoch))
-                # state_dict = self._get_state_dict()
-                # torch.save(state_dict, ckpt_path)
+
                 json.dump(
                     self.checkpoints_path,
                     open(os.path.join(path, "ckpts.json"), "w"),
@@ -451,9 +438,7 @@ class TTSTrainer(BaseTrainer):
                     ),
                 )
             )            
-            # ckpt_path = os.path.join(path, "epoch-{:04d}.pt".format(self.epoch))
-            # state_dict = self._get_state_dict()
-            # torch.save(state_dict, ckpt_path)
+
             json.dump(
                 self.checkpoints_path,
                 open(os.path.join(path, "ckpts.json"), "w"),
