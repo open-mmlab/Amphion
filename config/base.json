@@ -11,7 +11,7 @@
   "dataset": [],
   "use_custom_dataset": false,
   "preprocess": {
-    "phone_extractor": "lexicon", // "espeak, pypinyin, pypinyin_initials_finals, lexicon"
+    "phone_extractor": "espeak", // "espeak, pypinyin, pypinyin_initials_finals, lexicon"
     // trim audio silence
     "data_augment": false,
     "trim_silence": false,
