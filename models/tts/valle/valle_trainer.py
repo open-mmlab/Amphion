@@ -209,17 +209,6 @@ class VALLETrainer(TTSTrainer):
 
         return epoch_sum_loss, epoch_losses
                
-    # def _get_state_dict(self):
-    #     state_dict = {
-    #         "model": self.model.state_dict(),
-    #         "optimizer": self.optimizer.state_dict(),
-    #         "scheduler": self.scheduler.state_dict(),
-    #         "step": self.step,
-    #         "epoch": self.epoch,
-    #         "batch_size": self.cfg.train.batch_size,
-    #         "trian_stage": self.args.train_stage
-    #     }        
-    #     return state_dict
     
     def _train_step(self, batch, is_training=True):
         text_tokens = batch["phone_seq"].to(self.device)
