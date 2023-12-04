@@ -30,9 +30,18 @@ class TTSInference(object):
         self.cfg = cfg
         self.infer_type = args.mode
 
+        # get exp_dir
+        if self.args.acoustics_dir is not None:
+            self.exp_dir = self.args.acoustics_dir
+        elif self.args.checkpoint_path is not None:
+            self.exp_dir = os.path.dirname(
+                os.path.dirname(self.args.checkpoint_path))
+            
         # Init accelerator
         self.accelerator = accelerate.Accelerator()
         self.accelerator.wait_for_everyone()
+        self.device = self.accelerator.device
+        
 
         # Get logger
         with self.accelerator.main_process_first():
@@ -120,7 +129,7 @@ class TTSInference(object):
     # TODO: LEGACY CODE
     def _build_test_dataloader(self):
         datasets, collate = self._build_test_dataset()
-        self.test_dataset = datasets(self.args, self.cfg, self.infer_type)
+        self.test_dataset = datasets(self.args, self.cfg)
         self.test_collate = collate(self.cfg)
         self.test_batch_size = min(
             self.cfg.train.batch_size, len(self.test_dataset.metadata)
@@ -163,7 +172,7 @@ class TTSInference(object):
             out_dir = os.path.join(self.args.output_dir, "single")
             os.makedirs(out_dir, exist_ok=True)
 
-            pred_audio = self.inference_for_single_utterance(self.args.text)
+            pred_audio = self.inference_for_single_utterance()
             save_path = os.path.join(out_dir, "test_pred.wav")
             save_audio(save_path, pred_audio, self.cfg.preprocess.sample_rate)
 
@@ -184,6 +193,7 @@ class TTSInference(object):
                 tmp_file = os.path.join(out_dir, f"{uid}.pt")
                 if os.path.exists(tmp_file):
                     os.remove(tmp_file)
+        print('Saved to: ', out_dir)
 
     @torch.inference_mode()
     def inference_for_batches(self):

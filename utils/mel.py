@@ -47,7 +47,6 @@ def extract_linear_features(y, cfg, center=False):
     )
     spec = torch.view_as_real(spec)
     spec = torch.sqrt(spec.pow(2).sum(-1) + (1e-9))
-    print("linear spec.shape: ", spec.shape)
     spec = torch.squeeze(spec, 0)
     return spec
 

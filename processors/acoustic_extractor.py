@@ -12,6 +12,7 @@ from tqdm import tqdm
 from sklearn.preprocessing import StandardScaler
 from utils.io import save_feature, save_txt
 from utils.util import has_existed
+from utils.tokenizer import extract_encodec_token
 from utils.stft import TacotronSTFT
 from utils.dsp import compress, audio_to_label
 from utils.data_utils import remove_outlier
@@ -20,7 +21,7 @@ from scipy.interpolate import interp1d
 
 ZERO = 1e-12
 
-
+            
 def extract_utt_acoustic_features_parallel(metadata, dataset_output, cfg, n_workers=1):
     """Extract acoustic features from utterances using muliprocess
 
@@ -211,6 +212,11 @@ def __extract_utt_acoustic_features(dataset_output, cfg, utt):
             label = audio_to_label(wav, cfg.preprocess.bits)
             save_feature(dataset_output, cfg.preprocess.label_dir, uid, label)
 
+        if cfg.preprocess.extract_acoustic_token:
+            if cfg.preprocess.acoustic_token_extractor == "Encodec":
+                codes = extract_encodec_token(wav_path)
+                save_feature(dataset_output, cfg.preprocess.acoustic_token_dir, uid, codes)
+            
 
 def extract_utt_acoustic_features_tts(dataset_output, cfg, utt):
     __extract_utt_acoustic_features(dataset_output, cfg, utt)

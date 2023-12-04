@@ -17,5 +17,11 @@ pip install https://github.com/vBaiCai/python-pesq/archive/master.zip
 
 pip install fairseq
 
+pip install git+https://github.com/lhotse-speech/lhotse
+
+pip install -U encodec
+
+pip install phonemizer==3.2.1 pypinyin==0.48.0
+
 # Uninstall nvidia-cublas-cu11 if there exist some bugs about CUDA version
 # pip uninstall nvidia-cublas-cu11

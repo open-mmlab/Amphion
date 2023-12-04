@@ -9,6 +9,7 @@ import torch
 
 from models.tts.fastspeech2.fs2_trainer import FastSpeech2Trainer
 from models.tts.vits.vits_trainer import VITSTrainer
+from models.tts.valle.valle_trainer import VALLETrainer
 from utils.util import load_config
 
 
@@ -16,6 +17,7 @@ def build_trainer(args, cfg):
     supported_trainer = {
         "FastSpeech2": FastSpeech2Trainer,
         "VITS": VITSTrainer,
+        "VALLE": VALLETrainer,
     }
 
     trainer_class = supported_trainer[cfg.model_type]
@@ -56,6 +58,20 @@ def main():
     parser.add_argument(
         "--log_level", default="warning", help="logging level (debug, info, warning)"
     )
+    parser.add_argument(
+        "--resume_type",
+        type=str,
+        default="resume",
+        help="Resume training or finetuning.",
+    )    
+    parser.add_argument(
+        "--checkpoint_path",
+        type=str,
+        default=None,
+        help="Checkpoint for resume training or finetuning.",
+    )        
+    
+    VALLETrainer.add_arguments(parser)
     args = parser.parse_args()
     cfg = load_config(args.config)
 
@@ -77,12 +93,13 @@ def main():
             new_datasets_list.extend(filter(None, new_datasets))
         cfg.dataset.extend(new_datasets_list)
 
-    # CUDA settings
+    # # CUDA settings
     cuda_relevant()
 
     # Build trainer
     trainer = build_trainer(args, cfg)
-
+    torch.set_num_threads(1)
+    torch.set_num_interop_threads(1)
     trainer.train_loop()
 
 
