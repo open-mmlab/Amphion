@@ -25,7 +25,6 @@ from modules import whisper_extractor as whisper
 from modules.wenet_extractor.utils.init_model import init_model
 from modules.wenet_extractor.utils.checkpoint import load_checkpoint
 
-
 """
     Extractor for content features
     1. whisper
