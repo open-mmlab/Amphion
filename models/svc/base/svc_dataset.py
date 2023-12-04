@@ -164,14 +164,9 @@ class SVCTestDataset(BaseTestDataset):
         self.trans_key = args.trans_key
         assert type(target_singer) == str
 
-        # self.target_singer = target_singer.split("_")[-1]
-        # self.target_dataset = target_singer.replace(
-        #     "_{}".format(self.target_singer), ""
-        # )
-
-        self.target_dataset = target_singer.split("_")[0]
-        self.target_singer = target_singer.replace(
-            "{}_".format(self.target_dataset), ""
+        self.target_singer = target_singer.split("_")[-1]
+        self.target_dataset = target_singer.replace(
+            "_{}".format(self.target_singer), ""
         )
 
         self.target_mel_extrema = load_mel_extrema(cfg.preprocess, self.target_dataset)

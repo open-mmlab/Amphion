@@ -13,29 +13,34 @@ from utils.f0 import f0_to_coarse
 
 
 class ContentEncoder(nn.Module):
-    def __init__(self, input_dim, output_dim):
+    def __init__(self, cfg, input_dim, output_dim):
         super().__init__()
-
-        # if input_dim != 0:
-        #     self.nn = nn.Linear(input_dim, output_dim)
+        self.cfg = cfg
 
         assert input_dim != 0
-
-        # TODO: introduce conformer
-        self.pos_encoder = PositionalEncoding(input_dim)
-        self.conformer = Conformer(
-            input_dim=input_dim,
-            num_heads=2,
-            ffn_dim=256,
-            num_layers=6,
-            depthwise_conv_kernel_size=3,
-        )
         self.nn = nn.Linear(input_dim, output_dim)
+
+        # Introduce conformer or not
+        if (
+            "use_conformer_for_content_features" in cfg
+            and cfg.use_conformer_for_content_features
+        ):
+            self.pos_encoder = PositionalEncoding(input_dim)
+            self.conformer = Conformer(
+                input_dim=input_dim,
+                num_heads=2,
+                ffn_dim=256,
+                num_layers=6,
+                depthwise_conv_kernel_size=3,
+            )
+        else:
+            self.conformer = None
 
     def forward(self, x, length=None):
         # x: (N, seq_len, input_dim) -> (N, seq_len, output_dim)
-        x = self.pos_encoder(x)
-        x, _ = self.conformer(x, length)
+        if self.conformer:
+            x = self.pos_encoder(x)
+            x, _ = self.conformer(x, length)
         return self.nn(x)
 
 
@@ -160,22 +165,22 @@ class ConditionEncoder(nn.Module):
 
         if cfg.use_whisper:
             self.whisper_encoder = ContentEncoder(
-                self.cfg.whisper_dim, self.cfg.content_encoder_dim
+                self.cfg, self.cfg.whisper_dim, self.cfg.content_encoder_dim
             )
 
         if cfg.use_contentvec:
             self.contentvec_encoder = ContentEncoder(
-                self.cfg.contentvec_dim, self.cfg.content_encoder_dim
+                self.cfg, self.cfg.contentvec_dim, self.cfg.content_encoder_dim
             )
 
         if cfg.use_mert:
             self.mert_encoder = ContentEncoder(
-                self.cfg.mert_dim, self.cfg.content_encoder_dim
+                self.cfg, self.cfg.mert_dim, self.cfg.content_encoder_dim
             )
 
         if cfg.use_wenet:
             self.wenet_encoder = ContentEncoder(
-                self.cfg.wenet_dim, self.cfg.content_encoder_dim
+                self.cfg, self.cfg.wenet_dim, self.cfg.content_encoder_dim
             )
 
         self.melody_encoder = MelodyEncoder(self.cfg)
