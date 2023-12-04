@@ -1,5 +1,5 @@
 {
-    "base_config": "config/base.json",
+    "base_config": "config/tts.json",
     "model_type": "FastSpeech2",
     "task_type": "tts",
     "dataset": ["LJSpeech"], 

@@ -11,9 +11,15 @@
   // TODO: Fill in the output log path. The default value is "Amphion/ckpts/tts"
   "log_dir": "ckpts/tts",
   "preprocess": {
+    "use_phone": true,
+    // linguistic features
+    "extract_phone": true,
+    "phone_extractor": "lexicon", // "espeak, pypinyin, pypinyin_initials_finals, lexicon (only for language=en-us right now)"
     // TODO: Fill in the output data path. The default value is "Amphion/data"
     "processed_dir": "data",
+    
     "sample_rate": 22050,
+    "valid_file": "test.json", // validattion set
   },
   "train": {
     "batch_size": 16,
