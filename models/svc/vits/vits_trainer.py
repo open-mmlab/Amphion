@@ -14,7 +14,7 @@ from models.vocoders.gan.discriminator.mpd import (
     MultiPeriodDiscriminator_vits as MultiPeriodDiscriminator,
 )
 
-class VITSSVCTrainer(TTSTrainer):
+class VitsSVCTrainer(TTSTrainer):
     def __init__(self, args, cfg):
         self.args = args
         self.cfg = cfg
@@ -32,7 +32,7 @@ class VITSSVCTrainer(TTSTrainer):
             # directly use cfg
             self.cfg,
         )
-        net_d = MultiPeriodDiscriminator(self.cfg.model.use_spectral_norm)
+        net_d = MultiPeriodDiscriminator(self.cfg.model.vits.use_spectral_norm)
         model = {"generator": net_g, "discriminator": net_d}
 
         return model

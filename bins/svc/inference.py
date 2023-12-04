@@ -25,7 +25,7 @@ def build_inference(args, cfg, infer_type="from_dataset"):
         "DiffWaveNetSVC": DiffusionInference,
         "DiffComoSVC": ComoSVCInference,
         "TransformerSVC": TransformerInference,
-        "VITSSVC": VitsInference,
+        "VitsSVC": VitsInference,
     }
 
     inference_class = supported_inference[cfg.model_type]

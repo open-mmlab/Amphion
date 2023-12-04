@@ -75,10 +75,7 @@ class VitsInference(SVCInference):
                 batch_data[k] = v.to(device)
 
             audios, f0 = self.model.infer(
-                batch_data["contentvec_feat"],
-                batch_data["frame_pitch"],
-                batch_data["frame_uv"],
-                g=batch_data["spk_id"],
+                batch_data,
                 noise_scale=noise_scale
             )
 

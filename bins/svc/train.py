@@ -10,7 +10,7 @@ import torch
 from models.svc.diffusion.diffusion_trainer import DiffusionTrainer
 from models.svc.comosvc.comosvc_trainer import ComoSVCTrainer
 from models.svc.transformer.transformer_trainer import TransformerTrainer
-from models.svc.vits.vits_trainer import VITSSVCTrainer
+from models.svc.vits.vits_trainer import VitsSVCTrainer
 from utils.util import load_config
 
 
@@ -19,7 +19,7 @@ def build_trainer(args, cfg):
         "DiffWaveNetSVC": DiffusionTrainer,
         "DiffComoSVC": ComoSVCTrainer,
         "TransformerSVC": TransformerTrainer,
-        "VITSSVC": VITSSVCTrainer,
+        "VitsSVC": VitsSVCTrainer,
     }
 
     trainer_class = supported_trainer[cfg.model_type]

@@ -14,6 +14,7 @@ from models.vocoders.gan.generator.hifigan import HiFiGAN
 from models.vocoders.gan.generator.nsfhifigan import NSFHiFiGAN
 from models.vocoders.gan.generator.melgan import MelGAN
 from models.vocoders.gan.generator.apnet import APNet
+from modules.encoder.condition_encoder import ConditionEncoder
 
 
 
@@ -86,6 +87,7 @@ class SynthesizerTrn(nn.Module):
         super().__init__()
         self.spec_channels = spec_channels
         self.segment_size = segment_size
+        self.cfg = cfg
         self.inter_channels = cfg.model.vits.inter_channels
         self.hidden_channels = cfg.model.vits.hidden_channels
         self.filter_channels = cfg.model.vits.filter_channels
@@ -103,7 +105,13 @@ class SynthesizerTrn(nn.Module):
         self.f0_min = cfg.preprocess.f0_min
         self.f0_max = cfg.preprocess.f0_max
         
+        # TODO: sort out the config
+        self.cfg.model.condition_encoder.f0_min = self.cfg.preprocess.f0_min
+        self.cfg.model.condition_encoder.f0_max = self.cfg.preprocess.f0_max
+        self.condition_encoder = ConditionEncoder(self.cfg.model.condition_encoder)
+        
         self.emb_g = nn.Embedding(self.n_speakers, self.gin_channels)
+        self.emb_uv = nn.Embedding(2, self.hidden_channels)
 
         self.pre = nn.Conv1d(self.ssl_dim, self.hidden_channels, kernel_size=5, padding=2)
 
@@ -122,14 +130,19 @@ class SynthesizerTrn(nn.Module):
         temp_cfg = copy.deepcopy(cfg)
         temp_cfg.preprocess.n_mel = self.inter_channels
         if cfg.model.generator == 'bigvgan':
+            temp_cfg.model.bigvgan = cfg.model.generator_config.bigvgan
             self.dec = BigVGAN(temp_cfg)
         elif cfg.model.generator == 'hifigan':
+            temp_cfg.model.hifigan = cfg.model.generator_config.hifigan
             self.dec = HiFiGAN(temp_cfg)
         elif cfg.model.generator == 'melgan':
+            temp_cfg.model.melgan = cfg.model.generator_config.melgan
             self.dec = MelGAN(temp_cfg)
         elif cfg.model.generator == 'nsfhifigan':
+            temp_cfg.model.nsfhifigan = cfg.model.generator_config.nsfhifigan
             self.dec = NSFHiFiGAN(temp_cfg) # TODO: nsf need f0
         elif cfg.model.generator == 'apnet':
+            temp_cfg.model.apnet = cfg.model.generator_config.apnet
             self.dec = APNet(temp_cfg)
         
         self.enc_q = PosteriorEncoder(
@@ -150,11 +163,6 @@ class SynthesizerTrn(nn.Module):
             self.n_flow_layer, 
             gin_channels=self.gin_channels,
         )
-        
-        self.emb_uv = nn.Embedding(2, self.hidden_channels)
-
-        # TODO
-        self.character_mix = False
         
     def forward(self, data):
         # c, f0, uv, spec, g=None, c_lengths=None, spec_lengths=None, vol = None
@@ -197,8 +205,11 @@ class SynthesizerTrn(nn.Module):
 
         # ssl prenet
         x_mask = torch.unsqueeze(sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
-        # x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1,2) + vol
         x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1,2)
+        # x = self.condition_encoder(data).transpose(1,2)
+        # print("x", x.shape)
+        # print("x_con", x_con.shape)
+        # exit()
         
         # encoder
         z_ptemp, m_p, logs_p, _ = self.enc_p(x, x_mask, f0=f0_to_coarse(f0, self.n_bins, self.f0_min, self.f0_max))
@@ -208,10 +219,6 @@ class SynthesizerTrn(nn.Module):
         z_p = self.flow(z, spec_mask, g=g)
         z_slice, pitch_slice, ids_slice = rand_slice_segments_with_pitch(z, f0, spec_lengths, self.segment_size)
 
-        # TODO: nsf decoder
-        # o = self.dec(z_slice, g=g, f0=pitch_slice)
-        # o = self.dec(z_slice, g=g)
-        # print("z_slice", z_slice.shape)
         if self.dec_name == 'nsfhifigan':
             o = self.dec(z_slice, f0=f0)
         elif self.dec_name == 'apnet':
@@ -237,9 +244,12 @@ class SynthesizerTrn(nn.Module):
         return outputs
 
     @torch.no_grad()
-    def infer(self, c, f0, uv, g=None, noise_scale=0.35, seed=52468):
-        c = c.transpose(1, 2)
-        
+    def infer(self, data, noise_scale=0.35, seed=52468):
+        # c, f0, uv, g
+        c = data['contentvec_feat'].transpose(1, 2)
+        f0 = data['frame_pitch']
+        uv = data['frame_uv']
+        g = data['spk_id']
         
         if c.device == torch.device("cuda"):
             torch.cuda.manual_seed_all(seed)
@@ -248,21 +258,20 @@ class SynthesizerTrn(nn.Module):
 
         c_lengths = (torch.ones(c.size(0)) * c.size(-1)).to(c.device)
 
-        if self.character_mix and len(g) > 1:   # [N, S]  *  [S, B, 1, H]
-            g = g.reshape((g.shape[0], g.shape[1], 1, 1, 1))  # [N, S, B, 1, 1]
-            g = g * self.speaker_map  # [N, S, B, 1, H]
-            g = torch.sum(g, dim=1) # [N, 1, B, 1, H]
-            g = g.transpose(0, -1).transpose(0, -2).squeeze(0) # [B, H, N]
-        else:
-            if g.dim() == 1:
-                g = g.unsqueeze(0)
-            g = self.emb_g(g).transpose(1, 2)
+        # if self.character_mix and len(g) > 1:   # [N, S]  *  [S, B, 1, H]
+        #     g = g.reshape((g.shape[0], g.shape[1], 1, 1, 1))  # [N, S, B, 1, 1]
+        #     g = g * self.speaker_map  # [N, S, B, 1, H]
+        #     g = torch.sum(g, dim=1) # [N, 1, B, 1, H]
+        #     g = g.transpose(0, -1).transpose(0, -2).squeeze(0) # [B, H, N]
+        # else:
+        #     if g.dim() == 1:
+        #         g = g.unsqueeze(0)
+        #     g = self.emb_g(g).transpose(1, 2)
+        if g.dim() == 1:
+            g = g.unsqueeze(0)
+        g = self.emb_g(g).transpose(1, 2)
         
         x_mask = torch.unsqueeze(sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
-        
-        # vol proj
-        # vol = self.emb_vol(vol[:,:,None]).transpose(1,2) if vol is not None and self.vol_embedding else 0
-        # x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1, 2) + vol
         x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1, 2)
         
         z_p, m_p, logs_p, c_mask = self.enc_p(x, x_mask, f0=f0_to_coarse(f0, self.n_bins, self.f0_min, self.f0_max), noice_scale=noise_scale)
