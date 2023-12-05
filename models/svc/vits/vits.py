@@ -65,9 +65,12 @@ class ContentEncoder(nn.Module):
         
         self.proj = nn.Conv1d(hidden_channels, out_channels * 2, 1)
 
-    def forward(self, x, x_mask, f0=None, noice_scale=1):
-        x = x + self.f0_emb(f0).transpose(1, 2)
+    # condition_encoder ver.
+    def forward(self, x, x_mask, noice_scale=1):
         x = self.enc_(x * x_mask, x_mask)
+    # def forward(self, x, x_mask, f0=None, noice_scale=1):
+    #     x = x + self.f0_emb(f0).transpose(1, 2)
+    #     x = self.enc_(x * x_mask, x_mask)
         stats = self.proj(x) * x_mask
         m, logs = torch.split(stats, self.out_channels, dim=1)
         z = (m + torch.randn_like(m) * torch.exp(logs) * noice_scale) * x_mask
@@ -205,14 +208,16 @@ class SynthesizerTrn(nn.Module):
 
         # ssl prenet
         x_mask = torch.unsqueeze(sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
-        x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1,2)
-        # x = self.condition_encoder(data).transpose(1,2)
+        # x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1,2)
+        # z_ptemp, m_p, logs_p, _ = self.enc_p(x, x_mask, f0=f0_to_coarse(f0, self.n_bins, self.f0_min, self.f0_max))
+        # condition_encoder ver.
+        x = self.condition_encoder(data).transpose(1,2)
+        z_ptemp, m_p, logs_p, _ = self.enc_p(x, x_mask)
         # print("x", x.shape)
         # print("x_con", x_con.shape)
         # exit()
         
         # encoder
-        z_ptemp, m_p, logs_p, _ = self.enc_p(x, x_mask, f0=f0_to_coarse(f0, self.n_bins, self.f0_min, self.f0_max))
         z, m_q, logs_q, spec_mask = self.enc_q(spec, spec_lengths, g=g)
 
         # flow
@@ -272,9 +277,12 @@ class SynthesizerTrn(nn.Module):
         g = self.emb_g(g).transpose(1, 2)
         
         x_mask = torch.unsqueeze(sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
-        x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1, 2)
-        
-        z_p, m_p, logs_p, c_mask = self.enc_p(x, x_mask, f0=f0_to_coarse(f0, self.n_bins, self.f0_min, self.f0_max), noice_scale=noise_scale)
+        # x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1, 2)
+
+        # z_p, m_p, logs_p, c_mask = self.enc_p(x, x_mask, f0=f0_to_coarse(f0, self.n_bins, self.f0_min, self.f0_max), noice_scale=noise_scale)
+        # condition_encoder ver.
+        x = self.condition_encoder(data).transpose(1,2)
+        z_p, m_p, logs_p, c_mask = self.enc_p(x, x_mask, noice_scale=noise_scale)
         z = self.flow(z_p, c_mask, g=g, reverse=True)
         # o = self.dec(z * c_mask, g=g, f0=f0)
         # o = self.dec(z * c_mask, g=g)
