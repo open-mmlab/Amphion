@@ -193,7 +193,7 @@ class VarianceAdaptor(nn.Module):
             x = x + pitch_embedding
         if self.energy_feature_level == "phoneme_level":
             energy_prediction, energy_embedding = self.get_energy_embedding(
-                x, energy_target, src_mask, p_control
+                x, energy_target, src_mask, e_control
             )
             x = x + energy_embedding
 
@@ -401,19 +401,18 @@ class FastSpeech2(nn.Module):
         texts = data["texts"]
         src_lens = data["text_len"]
         max_src_len = max(src_lens)
-        mels = data["mel"] if "mel" in data else None
         mel_lens = data["target_len"] if "target_len" in data else None
         max_mel_len = max(mel_lens) if "target_len" in data else None
         p_targets = data["pitch"] if "pitch" in data else None
         e_targets = data["energy"] if "energy" in data else None
         d_targets = data["durations"] if "durations" in data else None
-        src_masks = data["text_mask"].squeeze(-1) > 0
-        src_masks = ~src_masks
+        src_masks = get_mask_from_lengths(src_lens, max_src_len)
         mel_masks = (
             get_mask_from_lengths(mel_lens, max_mel_len)
             if mel_lens is not None
             else None
         )
+        
         output = self.encoder(texts, src_masks)
 
         if self.speaker_emb is not None:
