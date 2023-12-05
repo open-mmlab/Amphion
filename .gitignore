@@ -42,6 +42,7 @@ ckpts
 *.pt
 *.npy
 *.npz
+!modules/whisper_extractor/assets/mel_filters.npz
 *.tar.gz
 *.ckpt
 *.wav
