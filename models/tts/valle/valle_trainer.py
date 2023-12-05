@@ -182,10 +182,10 @@ class VALLETrainer(TTSTrainer):
                 )
                 
                 # print loss every log_epoch_step steps
-                if epoch_step % self.cfg.train.log_epoch_step == 0:
-                    for key, loss in train_losses.items():
-                        self.logger.info("Step/Train {}: {:.6f}".format(key, loss))
-                        print("Step/Train {}: {:.6f}".format(key, loss))
+                # if epoch_step % self.cfg.train.log_epoch_step == 0:
+                #     for key, loss in train_losses.items():
+                #         self.logger.info("Step/Train {}: {:.6f}".format(key, loss))
+                #         print("Step/Train {}: {:.6f}".format(key, loss))
                     
 
                 self.step += 1
@@ -209,17 +209,6 @@ class VALLETrainer(TTSTrainer):
 
         return epoch_sum_loss, epoch_losses
                
-    def _get_state_dict(self):
-        state_dict = {
-            "model": self.model.state_dict(),
-            "optimizer": self.optimizer.state_dict(),
-            "scheduler": self.scheduler.state_dict(),
-            "step": self.step,
-            "epoch": self.epoch,
-            "batch_size": self.cfg.train.batch_size,
-            "trian_stage": self.args.train_stage
-        }        
-        return state_dict
     
     def _train_step(self, batch, is_training=True):
         text_tokens = batch["phone_seq"].to(self.device)

@@ -66,10 +66,10 @@ def build_parser():
         default=None,
     )
     parser.add_argument(
-        "--speaker_id",
-        type=int,
-        default=0,
-        help="speaker ID for multi-speaker synthesis, for single-sentence mode only",
+        "--speaker_name",
+        type=str,
+        default=None,
+        help="speaker name for multi-speaker synthesis, for single-sentence mode only",
     )
     parser.add_argument(
         "--text",

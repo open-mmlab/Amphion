@@ -11,7 +11,7 @@
   "dataset": [],
   "use_custom_dataset": false,
   "preprocess": {
-    "text_extractor": "lexicon", // "espeak, pypinyin, pypinyin_initials_finals, lexicon"
+    "phone_extractor": "espeak", // "espeak, pypinyin, pypinyin_initials_finals, lexicon"
     // trim audio silence
     "data_augment": false,
     "trim_silence": false,
@@ -37,13 +37,12 @@
     "energy_norm": false,
     "energy_extract_mode": "from_mel",
     "extract_duration": false,
-    "extract_phoneme": false,
     "extract_amplitude_phase": false,
     "mel_min_max_norm": false,
+    // lingusitic features
+    "extract_phone": false,
+    "lexicon_path": "./text/lexicon/librispeech-lexicon.txt", 
     // content features
-    "use_text": false,
-    "use_phone": false,
-    "lexicon_path": "./text/lexicon/librispeech-lexicon.txt",
     "extract_whisper_feature": false,
     "extract_contentvec_feature": false,
     "extract_mert_feature": false,
@@ -94,6 +93,8 @@
     "emo2id": "emo2id.json", // used for multi-emotion dataset
     "utt2emo": "utt2emo", // used for multi-emotion dataset
     // Features used for model training
+    "use_text": false,
+    "use_phone": false,   
     "use_phn_seq": false,
     "use_lab": false,
     "use_linear": false,

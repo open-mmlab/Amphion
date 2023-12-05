@@ -147,7 +147,7 @@ if [ $running_stage -eq 3 ]; then
     CUDA_VISIBLE_DEVICES=$gpu accelerate launch "$work_dir"/bins/tts/inference.py \
         --config $exp_config \
         --log_level debug \
-        --checkpoint_path $infer_expt_dir \
+        --acoustics_dir $infer_expt_dir \
         --output_dir $infer_output_dir  \
         --mode $infer_mode \
         --text "$infer_text" \

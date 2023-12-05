@@ -33,6 +33,7 @@ egs/svc/custom
 egs/svc/*/dev*
 egs/svc/dev_exp_config.json
 bins/svc/demo*
+bins/svc/preprocess_custom.py
 data
 ckpts
 

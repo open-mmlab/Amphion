@@ -67,7 +67,7 @@ class TTSTrainer(BaseTrainer):
                 self.max_epoch if self.max_epoch < float("inf") else "Unlimited"
             )
         )
-
+            
         # Check values
         if self.accelerator.is_main_process:
             self.__check_basic_configs()
@@ -99,6 +99,11 @@ class TTSTrainer(BaseTrainer):
             end = time.monotonic_ns()
             self.logger.info(f"Building dataset done in {(end - start) / 1e6:.2f}ms")
 
+        # save phone table to exp dir. Should be done before building model due to loading phone table in model
+        if cfg.preprocess.use_phone and cfg.preprocess.phone_extractor != 'lexicon':
+            self._save_phone_symbols_file_to_exp_path()
+                          
+            
         # setup model
         with self.accelerator.main_process_first():
             self.logger.info("Building model...")
@@ -144,7 +149,12 @@ class TTSTrainer(BaseTrainer):
         # save config file path
         self.config_save_path = os.path.join(self.exp_dir, "args.json")
         self.device = self.accelerator.device
-                
+        
+        if cfg.preprocess.use_spkid and cfg.train.multi_speaker_training:
+            self.speakers = self._build_speaker_lut()
+            self.utt2spk_dict = self._build_utt2spk_dict()
+              
+
         # Only for TTS tasks
         self.task_type = "TTS"
         self.logger.info("Task type: {}".format(self.task_type))
@@ -274,17 +284,6 @@ class TTSTrainer(BaseTrainer):
     def _build_scheduler(self):
         pass
 
-    def _get_state_dict(self):
-        state_dict = {
-            "model": self.model.state_dict(),
-            "optimizer": self.optimizer.state_dict(),
-            "scheduler": self.scheduler.state_dict(),
-            "step": self.step,
-            "epoch": self.epoch,
-            "batch_size": self.cfg.train.batch_size,
-        }        
-        return state_dict
-
     def _load_model(self, checkpoint_dir, checkpoint_path=None, resume_type="resume"):
         """Load model from checkpoint. If a folder is given, it will
         load the latest checkpoint in checkpoint_dir. If a path is given
@@ -385,9 +384,7 @@ class TTSTrainer(BaseTrainer):
                     ),
                 )
                 self.accelerator.save_state(path)
-                ckpt_path = os.path.join(path, "epoch-{:04d}.pt".format(self.epoch))
-                state_dict = self._get_state_dict()
-                torch.save(state_dict, ckpt_path)
+
                 json.dump(
                     self.checkpoints_path,
                     open(os.path.join(path, "ckpts.json"), "w"),
@@ -441,9 +438,7 @@ class TTSTrainer(BaseTrainer):
                     ),
                 )
             )            
-            ckpt_path = os.path.join(path, "epoch-{:04d}.pt".format(self.epoch))
-            state_dict = self._get_state_dict()
-            torch.save(state_dict, ckpt_path)
+
             json.dump(
                 self.checkpoints_path,
                 open(os.path.join(path, "ckpts.json"), "w"),
@@ -635,24 +630,71 @@ class TTSTrainer(BaseTrainer):
         else:
             with open(
                 os.path.join(self.exp_dir, self.cfg.preprocess.spk2id), "r"
-            ) as singer_file:
-                speakers = json.load(singer_file)
+            ) as speaker_file:
+                speakers = json.load(speaker_file)
         for dataset in self.cfg.dataset:
-            singer_lut_path = os.path.join(
+            speaker_lut_path = os.path.join(
                 self.cfg.preprocess.processed_dir, dataset, self.cfg.preprocess.spk2id
             )
-            with open(singer_lut_path, "r") as singer_lut_path:
-                singer_lut = json.load(singer_lut_path)
+            with open(speaker_lut_path, "r") as speaker_lut_path:
+                singer_lut = json.load(speaker_lut_path)
             for singer in singer_lut.keys():
                 if singer not in speakers:
                     speakers[singer] = len(speakers)
         with open(
             os.path.join(self.exp_dir, self.cfg.preprocess.spk2id), "w"
-        ) as singer_file:
-            json.dump(speakers, singer_file, indent=4, ensure_ascii=False)
+        ) as speaker_file:
+            json.dump(speakers, speaker_file, indent=4, ensure_ascii=False)
         print(
             "speakers have been dumped to {}".format(
                 os.path.join(self.exp_dir, self.cfg.preprocess.spk2id)
             )
         )
         return speakers
+
+    def _build_utt2spk_dict(self):
+        # combine speakers
+        utt2spk = {}
+        if not os.path.exists(os.path.join(self.exp_dir, self.cfg.preprocess.utt2spk)):
+            utt2spk = {}
+        else:
+            with open(
+                os.path.join(self.exp_dir, self.cfg.preprocess.utt2spk), "r"
+            ) as utt2spk_file:
+                for line in utt2spk_file.readlines():
+                    utt, spk = line.strip().split('\t')
+                    utt2spk[utt] = spk
+        for dataset in self.cfg.dataset:
+            utt2spk_dict_path = os.path.join(
+                self.cfg.preprocess.processed_dir, dataset, self.cfg.preprocess.utt2spk
+            )
+            with open(utt2spk_dict_path, "r") as utt2spk_dict:
+                for line in utt2spk_dict.readlines():
+                    utt, spk = line.strip().split('\t')
+                    if utt not in utt2spk.keys():
+                        utt2spk[utt] = spk
+        with open(
+            os.path.join(self.exp_dir, self.cfg.preprocess.utt2spk), "w"
+        ) as utt2spk_file:
+            for utt, spk in utt2spk.items():
+                utt2spk_file.write(utt+'\t'+spk+'\n')
+        print(
+            "utterance and speaker mapper have been dumped to {}".format(
+                os.path.join(self.exp_dir, self.cfg.preprocess.utt2spk)
+            )
+        )
+        return utt2spk
+
+
+
+    def _save_phone_symbols_file_to_exp_path(self):
+        phone_symbols_file = os.path.join(self.cfg.preprocess.processed_dir, 
+                                          self.cfg.dataset[0], 
+                                          self.cfg.preprocess.symbols_dict)
+        phone_symbols_file_to_exp_path = os.path.join(self.exp_dir, self.cfg.preprocess.symbols_dict)
+        shutil.copy(phone_symbols_file, phone_symbols_file_to_exp_path)    
+        print(
+            "phone symbols been dumped to {}".format(
+                os.path.join(self.exp_dir, self.cfg.preprocess.symbols_dict)
+            )
+        )      
