@@ -1,6 +1,6 @@
 {
-    "base_config": "config/vits.json",
-    "model_type": "VITSSVC",
+    "base_config": "config/vitssvc.json",
+    "model_type": "VitsSVC",
     "dataset": [
         // "m4singer",
         "opencpop",
@@ -32,42 +32,48 @@
         "hop_size": 512,
         // win_length in sovits
         "win_size": 2048,
-
-        "use_text": false,
-        "use_phone": false,
+        "segment_size": 8192,
+        "n_mel": 100,
+        "sample_rate": 44100,
 
         // Config for features extraction
         "extract_mel": true,
         "extract_pitch": true,
-        "extract_energy": true,
         "pitch_extractor": "parselmouth",
+        "extract_energy": false,
         "extract_uv": true,
+        "extract_linear_spec": true,
+        "extract_audio": true,
+        // contentvec
         "extract_contentvec_feature": true,
         "contentvec_sample_rate": 16000,
         "contentvec_batch_size": 1,
+        "contentvec_frameshift": 0.02,
+        // whisper
+        "extract_whisper_feature": true,
+        "whisper_sample_rate": 16000,
+        "whisper_frameshift": 0.01,
+        "whisper_downsample_rate": 2,
         // Fill in the content-based pretrained model's path
         "contentvec_file": "pretrained/contentvec/checkpoint_best_legacy_500.pt",
+        "wenet_model_path": "pretrained/wenet/20220506_u2pp_conformer_exp/final.pt",
+        "wenet_config": "pretrained/wenet/20220506_u2pp_conformer_exp/train.yaml",
+        "whisper_model": "medium",
+        "whisper_model_path": "pretrained/whisper/medium.pt",
         // Config for features usage
         "use_mel": true,
         "use_frame_pitch": true,
         "use_uv": true,
-        "uv_dir": "uvs", // directory name of extracted unvoiced features
         "use_spkid": true,
         "use_contentvec": true,
-        "n_mel": 100,
-        "sample_rate": 24000,
-        
-        // min_max_norm_mel
-        // "mel_min_max_norm": true,
-        // "mel_min_max_stats_dir": "mel_min_max_stats",
-        // "use_min_max_norm_mel": true,
+        "use_whisper": true,
+        "use_text": false,
+        "use_phone": false,
 
         // Extract content features using dataloader
         "pin_memory": true,
         "num_workers": 8,
         "content_feature_batch_size": 16,
-        // Default config for content vector
-        "contentvec_frameshift": 0.02,
         // Meta file
         "train_file": "train.json",
         "valid_file": "test.json",
@@ -77,16 +83,27 @@
     "model": {
         "condition_encoder": {
             // Config for features usage
+            "merge_mode": "add",
+            "input_melody_dim": 1,
+            "use_log_f0": true,
+            "n_bins_melody": 256,
+            //# Quantization (0 for not quantization)
+            "output_melody_dim": 192,
+
             "use_contentvec": true,
-            "use_whisper": false,
+            "use_whisper": true,
             "use_mert": false,
             "use_wenet": false,
             "whisper_dim": 1024,
             "contentvec_dim": 256,
-            "wenet_dim": 512,
-            "use_singer_encoder": false,
-            "pitch_min": 50,
-            "pitch_max": 1100,
+            "content_encoder_dim": 192,
+            "output_singer_dim": 192,
+            "singer_table_size": 512,
+            "output_content_dim": 192,
+            "use_spkid": true,
+            
+            "pitch_max": 1100.0,
+            "pitch_min": 50.0,
         },
         "vits": {
             "inter_channels": 192,
@@ -101,27 +118,30 @@
             "n_layers_q": 3,
             "gin_channels": 256,
             "n_speakers": 512,
+            "use_spectral_norm": false,
         },
         "generator": "hifigan",
-        "hifigan": {
-            "resblock": "1",
-            "resblock_kernel_sizes": [
-              3,
-              7,
-              11
-            ],
-            "upsample_rates": [
-              8,8,2,2,2
-            ],
-            "upsample_kernel_sizes": [
-              16,16,4,4,4
-            ],
-            "upsample_initial_channel": 512,
-            "resblock_dilation_sizes": [
-                [1,3,5],
-                [1,3,5],
-                [1,3,5]
-            ]
+        "generator_config": {
+            "hifigan": {
+                "resblock": "1",
+                "resblock_kernel_sizes": [
+                    3,
+                    7,
+                    11
+                ],
+                "upsample_rates": [
+                    8,8,2,2,2
+                ],
+                "upsample_kernel_sizes": [
+                    16,16,4,4,4
+                ],
+                "upsample_initial_channel": 512,
+                "resblock_dilation_sizes": [
+                    [1,3,5],
+                    [1,3,5],
+                    [1,3,5]
+                ]
+            },
         },
     },
     "train": {
