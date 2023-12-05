@@ -55,16 +55,6 @@ def load_audio_torch(wave_file, fs):
 
     return audio, fs
 
-def save_torch_audio(process_dir, feature_dir, item, wav_torch, fs, overrides=True):
-    if wav_torch.shape != 2:
-        wav_torch = wav_torch.unsqueeze(0)
-        
-    process_dir = os.path.join(process_dir, feature_dir)
-    os.makedirs(process_dir, exist_ok=True)
-    out_path = os.path.join(process_dir, item + ".wav")
-    
-    torchaudio.save(out_path, wav_torch, fs)
-        
 
 def _stft(y, cfg):
     return librosa.stft(
