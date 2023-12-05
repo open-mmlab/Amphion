@@ -143,7 +143,12 @@ class SVCDataset(BaseDataset):
         sample["target_len"] = end - start
 
         for k in sample.keys():
-            if k not in ["spk_id", "target_len", "audio_len", "audio"]:
+            if k == "audio":
+                # audio should be clipped in hop_size scale
+                sample[k] = sample[k][start * self.cfg.preprocess.hop_size:end * self.cfg.preprocess.hop_size]
+            elif k == "audio_len":
+                sample[k] = (end - start) * self.cfg.preprocess.hop_size
+            elif k not in ["spk_id", "target_len"]:
                 sample[k] = sample[k][start:end]
 
         return sample
