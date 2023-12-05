@@ -27,9 +27,10 @@ def hifitts_statistics(data_dir):
         with open(distribution_info, 'r', encoding='utf-8') as file:
             for line in file:
                 entry = json.loads(line)
+                text_normalized = entry.get("text_normalized")
                 audio_path = entry.get("audio_filepath")
                 book = audio_path.split("/")[-2]
-                distribution2books2utts[distribution][book].append(audio_path)
+                distribution2books2utts[distribution][book].append((text_normalized, audio_path))
 
     unique_speakers = list(set(speakers))
     unique_speakers.sort()
@@ -80,7 +81,7 @@ def main(output_path, dataset_path):
         speaker = distribution.split("_")[0]
         book_names = list(books2utts.keys())
         for chosen_book in tqdm(book_names, desc=f"chosen_book"):
-            for utt_path in tqdm(books2utts[chosen_book], desc=f"utterance"):
+            for text, utt_path in tqdm(books2utts[chosen_book], desc=f"utterance"):
                 chosen_uid = utt_path.split("/")[-1].split(".")[0]
                 res = {
                     "Dataset":"hifitts",
@@ -88,6 +89,7 @@ def main(output_path, dataset_path):
                     "Uid": "{}#{}#{}#{}".format(
                             distribution, speaker, chosen_book, chosen_uid
                         ),
+                    "Text": text
                 }
 
                 res["Path"] = os.path.join(hifitts_path, utt_path)
