@@ -28,6 +28,7 @@ from preprocessors import (
     custom,
     vocalist,
     ljspeech_vocoder,
+    hifitts
 )
 
 
@@ -86,6 +87,10 @@ def preprocess_dataset(
         cocoeval.main(output_path, dataset_path)
     if dataset == "vocalist":
         vocalist.main(output_path, dataset_path)
+    if dataset == "hifitts":
+        hifitts.main(output_path, dataset_path)
+    else:
+        print('The processor for {} is not found'.format(dataset))
 
 
 def prepare_align(dataset, dataset_path, cfg, output_path):

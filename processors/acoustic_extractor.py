@@ -6,10 +6,12 @@
 import os
 import torch
 import numpy as np
+import torchaudio
 
 import json
 from tqdm import tqdm
 from sklearn.preprocessing import StandardScaler
+from utils.audio import save_torch_audio
 from utils.io import save_feature, save_txt
 from utils.util import has_existed
 from utils.tokenizer import extract_encodec_token
@@ -107,6 +109,12 @@ def __extract_utt_acoustic_features(dataset_output, cfg, utt):
         wav_path = os.path.join(
             dataset_output, cfg.preprocess.raw_data, utt["Singer"], uid + ".wav"
         )
+        if not os.path.exists(wav_path):
+            wav_path = os.path.join(
+                dataset_output, cfg.preprocess.raw_data, utt["Singer"], uid + ".flac"
+            )
+            
+        assert os.path.exists(wav_path)
 
     with torch.no_grad():
         # Load audio data into tensor with sample rate of the config file
@@ -203,7 +211,12 @@ def __extract_utt_acoustic_features(dataset_output, cfg, utt):
                 save_feature(dataset_output, cfg.preprocess.uv_dir, uid, uv)
 
         if cfg.preprocess.extract_audio:
-            save_feature(dataset_output, cfg.preprocess.audio_dir, uid, wav)
+            save_torch_audio(dataset_output, 
+                             cfg.preprocess.audio_dir, 
+                             uid, 
+                             wav_torch, 
+                             cfg.preprocess.sample_rate)
+
 
         if cfg.preprocess.extract_label:
             if cfg.preprocess.is_mu_law:
@@ -783,10 +796,10 @@ def copy_acoustic_features(metadata, dataset_dir, src_dataset_dir, cfg):
             )
             for utt_info in tqdm(metadata):
                 src_audio_path = os.path.join(
-                    src_dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".npy"
+                    src_dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".wav"
                 )
                 dst_audio_path = os.path.join(
-                    dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".npy"
+                    dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".wav"
                 )
                 # create soft-links
                 if not os.path.exists(dst_audio_path):
