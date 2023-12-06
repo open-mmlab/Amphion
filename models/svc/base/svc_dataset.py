@@ -130,12 +130,7 @@ class SVCDataset(BaseDataset):
                 'content_vector_feat': (seq_len, dim)
             }
         """
-        # for k in sample.keys():
-        #     if type(sample[k]) in [torch.Tensor, np.ndarray]:
-        #         print(k, sample[k].shape)
-        #     else:
-        #         print(k, sample[k])
-        # exit()
+
         if sample["target_len"] <= max_seq_len:
             return sample
 

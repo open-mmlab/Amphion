@@ -1,4 +1,9 @@
-# adapted from https://github.com/svc-develop-team/so-vits-svc under AGPL-3.0 license
+# Copyright (c) 2023 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
+# This code is modified from https://github.com/svc-develop-team/so-vits-svc/blob/4.1-Stable/models.py
 import copy
 import torch
 from torch import nn
@@ -68,9 +73,6 @@ class ContentEncoder(nn.Module):
     # condition_encoder ver.
     def forward(self, x, x_mask, noice_scale=1):
         x = self.enc_(x * x_mask, x_mask)
-    # def forward(self, x, x_mask, f0=None, noice_scale=1):
-    #     x = x + self.f0_emb(f0).transpose(1, 2)
-    #     x = self.enc_(x * x_mask, x_mask)
         stats = self.proj(x) * x_mask
         m, logs = torch.split(stats, self.out_channels, dim=1)
         z = (m + torch.randn_like(m) * torch.exp(logs) * noice_scale) * x_mask
@@ -114,9 +116,6 @@ class SynthesizerTrn(nn.Module):
         self.condition_encoder = ConditionEncoder(self.cfg.model.condition_encoder)
         
         self.emb_g = nn.Embedding(self.n_speakers, self.gin_channels)
-        self.emb_uv = nn.Embedding(2, self.hidden_channels)
-
-        self.pre = nn.Conv1d(self.ssl_dim, self.hidden_channels, kernel_size=5, padding=2)
 
         self.enc_p = ContentEncoder(
             self.inter_channels,
@@ -168,31 +167,26 @@ class SynthesizerTrn(nn.Module):
         )
         
     def forward(self, data):
-        # c, f0, uv, spec, g=None, c_lengths=None, spec_lengths=None, vol = None
-        
-        # data:
-        # spk_id torch.Size([1, 1])
-        # target_len torch.Size([1])
-        # mask torch.Size([1, 328, 1])
-        # mel torch.Size([1, 328, 100])
-        # linear torch.Size([1, 328, 1025])
-        # frame_pitch torch.Size([1, 328])
-        # frame_uv torch.Size([1, 328])
-        # audio torch.Size([1, 168418])
-        # audio_len torch.Size([1])
-        # contentvec_feat torch.Size([1, 328, 256])
-        
-        # original:
-        # c torch.Size([1, 768, 467])
-        # f0 torch.Size([1, 467])
-        # uv torch.Size([1, 467])
-        # spec torch.Size([1, 1025, 467])
-        # g torch.Size([1, 1])
-        # spk torch.Size([1, 1])
-        # c_lengths torch.Size([1])
-        # spec_lengths torch.Size([1])
-        # lengths value tensor([467], device='cuda:0')
-        # vol None
+        """VitsSVC forward function.
+
+        Args:
+            data (dict): condition data & audio data, including:
+            B: batch size, T: target length
+            {
+                "spk_id": [B, singer_table_size]
+                "target_len": [B]
+                "mask": [B, T, 1]
+                "mel": [B, T, n_mel]
+                "linear": [B, T, n_fft // 2 + 1]
+                "frame_pitch": [B, T]
+                "frame_uv": [B, T]
+                "audio": [B, audio_len]
+                "audio_len": [B]
+                "contentvec_feat": [B, T, contentvec_dim]
+                "whisper_feat": [B, T, whisper_dim]
+                ...
+            }
+        """
         
         # TODO: elegantly handle the dimensions
         c = data['contentvec_feat'].transpose(1, 2)
@@ -203,21 +197,15 @@ class SynthesizerTrn(nn.Module):
         
         c_lengths = data['target_len']
         spec_lengths = data['target_len']
-        uv = data['frame_uv']
         f0 = data['frame_pitch']
 
-        # ssl prenet
         x_mask = torch.unsqueeze(sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
-        # x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1,2)
-        # z_ptemp, m_p, logs_p, _ = self.enc_p(x, x_mask, f0=f0_to_coarse(f0, self.n_bins, self.f0_min, self.f0_max))
         # condition_encoder ver.
         x = self.condition_encoder(data).transpose(1,2)
-        z_ptemp, m_p, logs_p, _ = self.enc_p(x, x_mask)
-        # print("x", x.shape)
-        # print("x_con", x_con.shape)
-        # exit()
         
-        # encoder
+        # prior encoder
+        z_ptemp, m_p, logs_p, _ = self.enc_p(x, x_mask)
+        # posterior encoder
         z, m_q, logs_q, spec_mask = self.enc_q(spec, spec_lengths, g=g)
 
         # flow
@@ -230,9 +218,6 @@ class SynthesizerTrn(nn.Module):
             _,_,_,_,o = self.dec(z_slice)
         else:
             o = self.dec(z_slice)
-
-        # print("o", o.shape)
-        # exit()
         
         outputs = {
             "y_hat": o,
@@ -253,7 +238,6 @@ class SynthesizerTrn(nn.Module):
         # c, f0, uv, g
         c = data['contentvec_feat'].transpose(1, 2)
         f0 = data['frame_pitch']
-        uv = data['frame_uv']
         g = data['spk_id']
         
         if c.device == torch.device("cuda"):
@@ -263,29 +247,17 @@ class SynthesizerTrn(nn.Module):
 
         c_lengths = (torch.ones(c.size(0)) * c.size(-1)).to(c.device)
 
-        # if self.character_mix and len(g) > 1:   # [N, S]  *  [S, B, 1, H]
-        #     g = g.reshape((g.shape[0], g.shape[1], 1, 1, 1))  # [N, S, B, 1, 1]
-        #     g = g * self.speaker_map  # [N, S, B, 1, H]
-        #     g = torch.sum(g, dim=1) # [N, 1, B, 1, H]
-        #     g = g.transpose(0, -1).transpose(0, -2).squeeze(0) # [B, H, N]
-        # else:
-        #     if g.dim() == 1:
-        #         g = g.unsqueeze(0)
-        #     g = self.emb_g(g).transpose(1, 2)
         if g.dim() == 1:
             g = g.unsqueeze(0)
         g = self.emb_g(g).transpose(1, 2)
         
         x_mask = torch.unsqueeze(sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
-        # x = self.pre(c) * x_mask + self.emb_uv(uv.long()).transpose(1, 2)
-
-        # z_p, m_p, logs_p, c_mask = self.enc_p(x, x_mask, f0=f0_to_coarse(f0, self.n_bins, self.f0_min, self.f0_max), noice_scale=noise_scale)
         # condition_encoder ver.
         x = self.condition_encoder(data).transpose(1,2)
+        
         z_p, m_p, logs_p, c_mask = self.enc_p(x, x_mask, noice_scale=noise_scale)
         z = self.flow(z_p, c_mask, g=g, reverse=True)
-        # o = self.dec(z * c_mask, g=g, f0=f0)
-        # o = self.dec(z * c_mask, g=g)
+
         if self.dec_name == 'nsfhifigan':
             o = self.dec(z * c_mask, f0=f0)
         elif self.dec_name == 'apnet':

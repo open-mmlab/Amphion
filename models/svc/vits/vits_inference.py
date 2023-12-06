@@ -1,3 +1,8 @@
+# Copyright (c) 2023 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 import json
 import os
 import time
@@ -24,9 +29,6 @@ class VitsInference(SVCInference):
         )
         self.model = net_g
         return net_g
-
-    # def _build_test_dataset(sefl): ?WTF
-    #     return SVCTestDataset, SVCTestCollator
 
     def build_save_dir(self, dataset, speaker):
         save_dir = os.path.join(
@@ -79,18 +81,6 @@ class VitsInference(SVCInference):
                 noise_scale=noise_scale
             )
 
-            # masks = outputs["mask"]
-
-            # for idx in range(audios.size(0)):
-            #     audio = audios[idx, 0, :].data.cpu().float()
-            #     mask = masks[idx, :, :]
-            #     audio_length = (
-            #         mask.sum([0, 1]).long() * self.cfg.preprocess.hop_size
-            #     )
-            #     audio_length = audio_length.cpu().numpy()
-            #     audio = audio[:audio_length]
-            #     pred_res.append(audio)
-            # pred_res = audio
             pred_res.extend(audios)
 
         return pred_res
