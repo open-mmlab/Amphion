@@ -62,7 +62,19 @@
             "use_spkid": true
         },
         "vits": {
-            
+            "filter_channels": 256,
+            "gin_channels": 256,
+            "hidden_channels": 192,
+            "inter_channels": 192,
+            "kernel_size": 3,
+            "n_flow_layer": 4,
+            "n_heads": 2,
+            "n_layers": 6,
+            "n_layers_q": 3,
+            "n_speakers": 512,
+            "p_dropout": 0.1,
+            "ssl_dim": 256,
+            "use_spectral_norm": false,
         },
         "generator": "hifigan",
         "generator_config": {

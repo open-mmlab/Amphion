@@ -46,7 +46,7 @@ Specify the dataset paths in  `exp_config.json`. Note that you can change the `d
 
 ### Content-based Pretrained Models Download
 
-By default, we utilize ContentVec to extract content features. How to download them is detailed [here](../../../pretrained/README.md).
+By default, we utilize ContentVec and Whisper to extract content features. How to download them is detailed [here](../../../pretrained/README.md).
 
 ### Configuration
 
@@ -67,7 +67,7 @@ Specify the dataset path and the output path for saving the processed data and t
 Run the `run.sh` as the preproces stage (set  `--stage 1`).
 
 ```bash
-sh egs/svc/VITSSVC/run.sh --stage 1
+sh egs/svc/VitsSVC/run.sh --stage 1
 ```
 
 > **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "1"`.
@@ -94,7 +94,7 @@ We provide the default hyparameters in the `exp_config.json`. They can work on s
 Run the `run.sh` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/svc/[YourExptName]`.
 
 ```bash
-sh egs/svc/VITSSVC/run.sh --stage 2 --name [YourExptName]
+sh egs/svc/VitsSVC/run.sh --stage 2 --name [YourExptName]
 ```
 
 > **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "0,1,2,3"`.
@@ -116,7 +116,7 @@ For inference/conversion, you need to specify the following configurations when 
 For example, if you want to make `opencpop_female1` sing the songs in the `[Your Audios Folder]`, just run:
 
 ```bash
-sh egs/svc/VITSSVC/run.sh --stage 3 --gpu "0" \
+sh egs/svc/VitsSVC/run.sh --stage 3 --gpu "0" \
 	--infer_expt_dir Amphion/ckpts/svc/[YourExptName] \
 	--infer_output_dir Amphion/ckpts/svc/[YourExptName]/result \
 	--infer_source_audio_dir [Your Audios Folder] \

@@ -2,19 +2,19 @@
     "base_config": "config/vitssvc.json",
     "model_type": "VitsSVC",
     "dataset": [
-        // "m4singer",
+        "m4singer",
         "opencpop",
-        // "opensinger",
-        // "svcc",
-        // "vctk"
+        "opensinger",
+        "svcc",
+        "vctk"
     ],
     "dataset_path": {
         // TODO: Fill in your dataset path
-        // "m4singer": "[M4Singer dataset path]",
-        "opencpop": "/home/wangyuancheng.p/zja/Amphion/egs/datasets/opencpop",
-        // "opensinger": "[OpenSinger dataset path]",
-        // "svcc": "[SVCC dataset path]",
-        // "vctk": "[VCTK dataset path]"
+        "m4singer": "[M4Singer dataset path]",
+        "opencpop": "[Opencpop dataset path]",
+        "opensinger": "[OpenSinger dataset path]",
+        "svcc": "[SVCC dataset path]",
+        "vctk": "[VCTK dataset path]"
     },
     // TODO: Fill in the output log path. The default value is "Amphion/ckpts/svc"
     "log_dir": "ckpts/svc",
@@ -146,6 +146,7 @@
     },
     "train": {
         "batch_size": 32,
+        "learning_rate": 2e-4,
         "gradient_accumulation_step": 1,
         "max_epoch": -1, // -1 means no limit
         "save_checkpoint_stride": [
