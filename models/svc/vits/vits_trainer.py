@@ -330,7 +330,7 @@ class VitsSVCTrainer(TTSTrainer):
         total_loss = 0
         training_stats = {}
 
-        # Train Discriminator
+        ## Train Discriminator
         # Generator output
         outputs_g = self.model["generator"](batch)
 
@@ -352,7 +352,7 @@ class VitsSVCTrainer(TTSTrainer):
 
         # Discriminator output
         outputs_d = self.model["discriminator"](y, outputs_g["y_hat"].detach())
-        ##  Discriminator loss
+        #  Discriminator loss
         loss_d = self.criterion["discriminator"](
             outputs_d["y_d_hat_r"], outputs_d["y_d_hat_g"]
         )
