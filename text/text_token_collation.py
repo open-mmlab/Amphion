@@ -117,7 +117,6 @@ class phoneIDCollation:
     def get_phone_id_sequence(self, cfg, phones_seq):
         if cfg.preprocess.phone_extractor == "lexicon":
             phones_seq = " ".join(phones_seq)
-            phones_seq = "{" + phones_seq + "}"
             sequence = text_to_sequence(phones_seq, cfg.preprocess.text_cleaners)
         else:
             sequence, seq_len = self.text_token_colloator(phones_seq)
