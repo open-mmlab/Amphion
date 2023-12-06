@@ -146,6 +146,7 @@ class FastSpeech2Inference(TTSInference):
         phon_id_collator = phoneIDCollation(
             self.cfg, symbols_dict_file=phone_symbol_file
         )
+        phone_seq = ["{"] + phone_seq + ["}"]
         phone_id_seq = phon_id_collator.get_phone_id_sequence(self.cfg, phone_seq)
 
         # convert phone sequence to phone id sequence
