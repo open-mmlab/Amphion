@@ -22,52 +22,51 @@ from models.vocoders.gan.generator.apnet import APNet
 from modules.encoder.condition_encoder import ConditionEncoder
 
 
-
 def slice_pitch_segments(x, ids_str, segment_size=4):
-  ret = torch.zeros_like(x[:, :segment_size])
-  for i in range(x.size(0)):
-    idx_str = ids_str[i]
-    idx_end = idx_str + segment_size
-    ret[i] = x[i, idx_str:idx_end]
-  return ret
+    ret = torch.zeros_like(x[:, :segment_size])
+    for i in range(x.size(0)):
+        idx_str = ids_str[i]
+        idx_end = idx_str + segment_size
+        ret[i] = x[i, idx_str:idx_end]
+    return ret
+
 
 def rand_slice_segments_with_pitch(x, pitch, x_lengths=None, segment_size=4):
-  b, d, t = x.size()
-  if x_lengths is None:
-    x_lengths = t
-  ids_str_max = x_lengths - segment_size + 1
-  ids_str = (torch.rand([b]).to(device=x.device) * ids_str_max).to(dtype=torch.long)
-  ret = slice_segments(x, ids_str, segment_size)
-  ret_pitch = slice_pitch_segments(pitch, ids_str, segment_size)
-  return ret, ret_pitch, ids_str
+    b, d, t = x.size()
+    if x_lengths is None:
+        x_lengths = t
+    ids_str_max = x_lengths - segment_size + 1
+    ids_str = (torch.rand([b]).to(device=x.device) * ids_str_max).to(dtype=torch.long)
+    ret = slice_segments(x, ids_str, segment_size)
+    ret_pitch = slice_pitch_segments(pitch, ids_str, segment_size)
+    return ret, ret_pitch, ids_str
+
 
 class ContentEncoder(nn.Module):
-    def __init__(self,
-                 out_channels,
-                 hidden_channels,
-                 kernel_size,
-                 n_layers,
-                 gin_channels=0,
-                 filter_channels=None,
-                 n_heads=None,
-                 p_dropout=None):
+    def __init__(
+        self,
+        out_channels,
+        hidden_channels,
+        kernel_size,
+        n_layers,
+        gin_channels=0,
+        filter_channels=None,
+        n_heads=None,
+        p_dropout=None,
+    ):
         super().__init__()
         self.out_channels = out_channels
         self.hidden_channels = hidden_channels
         self.kernel_size = kernel_size
         self.n_layers = n_layers
         self.gin_channels = gin_channels
-        
+
         self.f0_emb = nn.Embedding(256, hidden_channels)
 
         self.enc_ = Encoder(
-            hidden_channels,
-            filter_channels,
-            n_heads,
-            n_layers,
-            kernel_size,
-            p_dropout)
-        
+            hidden_channels, filter_channels, n_heads, n_layers, kernel_size, p_dropout
+        )
+
         self.proj = nn.Conv1d(hidden_channels, out_channels * 2, 1)
 
     # condition_encoder ver.
@@ -79,16 +78,13 @@ class ContentEncoder(nn.Module):
 
         return z, m, logs, x_mask
 
+
 class SynthesizerTrn(nn.Module):
     """
     Synthesizer for Training
     """
 
-    def __init__(self,
-                 spec_channels,
-                 segment_size,
-                 cfg):
-
+    def __init__(self, spec_channels, segment_size, cfg):
         super().__init__()
         self.spec_channels = spec_channels
         self.segment_size = segment_size
@@ -104,17 +100,17 @@ class SynthesizerTrn(nn.Module):
         self.n_flow_layer = cfg.model.vits.n_flow_layer
         self.gin_channels = cfg.model.vits.gin_channels
         self.n_speakers = cfg.model.vits.n_speakers
-        
+
         # f0
         self.n_bins = cfg.preprocess.pitch_bin
         self.f0_min = cfg.preprocess.f0_min
         self.f0_max = cfg.preprocess.f0_max
-        
+
         # TODO: sort out the config
         self.cfg.model.condition_encoder.f0_min = self.cfg.preprocess.f0_min
         self.cfg.model.condition_encoder.f0_max = self.cfg.preprocess.f0_max
         self.condition_encoder = ConditionEncoder(self.cfg.model.condition_encoder)
-        
+
         self.emb_g = nn.Embedding(self.n_speakers, self.gin_channels)
 
         self.enc_p = ContentEncoder(
@@ -124,48 +120,54 @@ class SynthesizerTrn(nn.Module):
             n_heads=self.n_heads,
             n_layers=self.n_layers,
             kernel_size=self.kernel_size,
-            p_dropout=self.p_dropout
+            p_dropout=self.p_dropout,
         )
 
-        assert cfg.model.generator in ['bigvgan', 'hifigan', 'melgan', 'nsfhifigan', 'apnet']
+        assert cfg.model.generator in [
+            "bigvgan",
+            "hifigan",
+            "melgan",
+            "nsfhifigan",
+            "apnet",
+        ]
         self.dec_name = cfg.model.generator
         temp_cfg = copy.deepcopy(cfg)
         temp_cfg.preprocess.n_mel = self.inter_channels
-        if cfg.model.generator == 'bigvgan':
+        if cfg.model.generator == "bigvgan":
             temp_cfg.model.bigvgan = cfg.model.generator_config.bigvgan
             self.dec = BigVGAN(temp_cfg)
-        elif cfg.model.generator == 'hifigan':
+        elif cfg.model.generator == "hifigan":
             temp_cfg.model.hifigan = cfg.model.generator_config.hifigan
             self.dec = HiFiGAN(temp_cfg)
-        elif cfg.model.generator == 'melgan':
+        elif cfg.model.generator == "melgan":
             temp_cfg.model.melgan = cfg.model.generator_config.melgan
             self.dec = MelGAN(temp_cfg)
-        elif cfg.model.generator == 'nsfhifigan':
+        elif cfg.model.generator == "nsfhifigan":
             temp_cfg.model.nsfhifigan = cfg.model.generator_config.nsfhifigan
-            self.dec = NSFHiFiGAN(temp_cfg) # TODO: nsf need f0
-        elif cfg.model.generator == 'apnet':
+            self.dec = NSFHiFiGAN(temp_cfg)  # TODO: nsf need f0
+        elif cfg.model.generator == "apnet":
             temp_cfg.model.apnet = cfg.model.generator_config.apnet
             self.dec = APNet(temp_cfg)
-        
+
         self.enc_q = PosteriorEncoder(
-            self.spec_channels, 
-            self.inter_channels, 
-            self.hidden_channels, 
-            5, 
-            1, 
-            16, 
-            gin_channels=self.gin_channels
-        )
-        
-        self.flow = ResidualCouplingBlock(
-            self.inter_channels, 
-            self.hidden_channels, 
-            5, 
-            1, 
-            self.n_flow_layer, 
+            self.spec_channels,
+            self.inter_channels,
+            self.hidden_channels,
+            5,
+            1,
+            16,
             gin_channels=self.gin_channels,
         )
-        
+
+        self.flow = ResidualCouplingBlock(
+            self.inter_channels,
+            self.hidden_channels,
+            5,
+            1,
+            self.n_flow_layer,
+            gin_channels=self.gin_channels,
+        )
+
     def forward(self, data):
         """VitsSVC forward function.
 
@@ -187,22 +189,22 @@ class SynthesizerTrn(nn.Module):
                 ...
             }
         """
-        
+
         # TODO: elegantly handle the dimensions
-        c = data['contentvec_feat'].transpose(1, 2)
-        spec = data['linear'].transpose(1, 2)
-        
-        g = data['spk_id']
-        g = self.emb_g(g).transpose(1,2)
-        
-        c_lengths = data['target_len']
-        spec_lengths = data['target_len']
-        f0 = data['frame_pitch']
+        c = data["contentvec_feat"].transpose(1, 2)
+        spec = data["linear"].transpose(1, 2)
+
+        g = data["spk_id"]
+        g = self.emb_g(g).transpose(1, 2)
+
+        c_lengths = data["target_len"]
+        spec_lengths = data["target_len"]
+        f0 = data["frame_pitch"]
 
         x_mask = torch.unsqueeze(sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
         # condition_encoder ver.
-        x = self.condition_encoder(data).transpose(1,2)
-        
+        x = self.condition_encoder(data).transpose(1, 2)
+
         # prior encoder
         z_ptemp, m_p, logs_p, _ = self.enc_p(x, x_mask)
         # posterior encoder
@@ -210,20 +212,22 @@ class SynthesizerTrn(nn.Module):
 
         # flow
         z_p = self.flow(z, spec_mask, g=g)
-        z_slice, pitch_slice, ids_slice = rand_slice_segments_with_pitch(z, f0, spec_lengths, self.segment_size)
+        z_slice, pitch_slice, ids_slice = rand_slice_segments_with_pitch(
+            z, f0, spec_lengths, self.segment_size
+        )
 
-        if self.dec_name == 'nsfhifigan':
+        if self.dec_name == "nsfhifigan":
             o = self.dec(z_slice, f0=f0)
-        elif self.dec_name == 'apnet':
-            _,_,_,_,o = self.dec(z_slice)
+        elif self.dec_name == "apnet":
+            _, _, _, _, o = self.dec(z_slice)
         else:
             o = self.dec(z_slice)
-        
+
         outputs = {
             "y_hat": o,
             "ids_slice": ids_slice,
             "x_mask": x_mask,
-            "z_mask": data['mask'].transpose(1,2),
+            "z_mask": data["mask"].transpose(1, 2),
             "z": z,
             "z_p": z_p,
             "m_p": m_p,
@@ -236,10 +240,10 @@ class SynthesizerTrn(nn.Module):
     @torch.no_grad()
     def infer(self, data, noise_scale=0.35, seed=52468):
         # c, f0, uv, g
-        c = data['contentvec_feat'].transpose(1, 2)
-        f0 = data['frame_pitch']
-        g = data['spk_id']
-        
+        c = data["contentvec_feat"].transpose(1, 2)
+        f0 = data["frame_pitch"]
+        g = data["spk_id"]
+
         if c.device == torch.device("cuda"):
             torch.cuda.manual_seed_all(seed)
         else:
@@ -250,18 +254,18 @@ class SynthesizerTrn(nn.Module):
         if g.dim() == 1:
             g = g.unsqueeze(0)
         g = self.emb_g(g).transpose(1, 2)
-        
+
         x_mask = torch.unsqueeze(sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
         # condition_encoder ver.
-        x = self.condition_encoder(data).transpose(1,2)
-        
+        x = self.condition_encoder(data).transpose(1, 2)
+
         z_p, m_p, logs_p, c_mask = self.enc_p(x, x_mask, noice_scale=noise_scale)
         z = self.flow(z_p, c_mask, g=g, reverse=True)
 
-        if self.dec_name == 'nsfhifigan':
+        if self.dec_name == "nsfhifigan":
             o = self.dec(z * c_mask, f0=f0)
-        elif self.dec_name == 'apnet':
-            _,_,_,_,o = self.dec(z * c_mask)
+        elif self.dec_name == "apnet":
+            _, _, _, _, o = self.dec(z * c_mask)
         else:
             o = self.dec(z * c_mask)
-        return o,f0
+        return o, f0

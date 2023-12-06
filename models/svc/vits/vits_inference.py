@@ -17,6 +17,7 @@ from models.svc.base.svc_dataset import SVCTestDataset, SVCTestCollator
 from utils.io import save_audio
 from utils.audio_slicer import is_silence
 
+
 class VitsInference(SVCInference):
     def __init__(self, args=None, cfg=None, infer_type="from_dataset"):
         SVCInference.__init__(self, args, cfg)
@@ -25,7 +26,7 @@ class VitsInference(SVCInference):
         net_g = SynthesizerTrn(
             self.cfg.preprocess.n_fft // 2 + 1,
             self.cfg.preprocess.segment_size // self.cfg.preprocess.hop_size,
-            self.cfg
+            self.cfg,
         )
         self.model = net_g
         return net_g

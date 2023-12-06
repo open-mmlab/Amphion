@@ -19,6 +19,7 @@ from models.vocoders.gan.discriminator.mpd import (
     MultiPeriodDiscriminator_vits as MultiPeriodDiscriminator,
 )
 
+
 class VitsSVCTrainer(TTSTrainer):
     def __init__(self, args, cfg):
         self.args = args
@@ -29,7 +30,6 @@ class VitsSVCTrainer(TTSTrainer):
             self.singers = self._build_singer_lut()
         TTSTrainer.__init__(self, args, cfg)
 
-    ### Following are methods only for VITS ###
     def _build_model(self):
         net_g = SynthesizerTrn(
             self.cfg.preprocess.n_fft // 2 + 1,
@@ -42,11 +42,9 @@ class VitsSVCTrainer(TTSTrainer):
 
         return model
 
-    # Keep legacy unchanged
     def _build_dataset(self):
         return SVCDataset, SVCCollator
 
-    # Keep legacy unchanged
     def _build_optimizer(self):
         optimizer_g = torch.optim.AdamW(
             self.model["generator"].parameters(),
@@ -64,7 +62,6 @@ class VitsSVCTrainer(TTSTrainer):
         
         return optimizer
 
-    # Keep legacy unchanged
     def _build_scheduler(self):
         scheduler_g = ExponentialLR(
             self.optimizer["optimizer_g"],
@@ -80,7 +77,6 @@ class VitsSVCTrainer(TTSTrainer):
         scheduler = {"scheduler_g": scheduler_g, "scheduler_d": scheduler_d}
         return scheduler
 
-    # Keep legacy unchanged
     def _build_criterion(self):
         class GeneratorLoss(nn.Module):
             def __init__(self, cfg):
@@ -114,12 +110,6 @@ class VitsSVCTrainer(TTSTrainer):
                 z_p, logs_q: [b, h, t_t]
                 m_p, logs_p: [b, h, t_t]
                 """
-                # print("z_p", z_p.shape)
-                # print("m_p", m_p.shape)
-                # print("logs_q", logs_q.shape)
-                # print("logs_p", logs_p.shape)
-                # print("z_mask", z_mask.shape)
-                
                 z_p = z_p.float()
                 logs_q = logs_q.float()
                 m_p = m_p.float()
@@ -140,10 +130,6 @@ class VitsSVCTrainer(TTSTrainer):
                 y_hat_mel,
             ):
                 loss_g = {}
-
-                # duration loss
-                # loss_dur = torch.sum(outputs_g["l_length"].float())
-                # loss_g["loss_dur"] = loss_dur
 
                 # mel loss
                 loss_mel = self.l1_loss(y_mel, y_hat_mel) * self.cfg.train.c_mel
@@ -169,7 +155,6 @@ class VitsSVCTrainer(TTSTrainer):
                 # gan loss
                 loss_gen, losses_gen = self.generator_loss(outputs_d["y_d_hat_g"])
                 loss_g["loss_gen"] = loss_gen
-                # loss_g["losses_gen"] = losses_gen
                 loss_g["loss_gen_all"] = (
                     loss_mel + loss_kl + loss_fm + loss_gen
                 )
@@ -232,7 +217,6 @@ class VitsSVCTrainer(TTSTrainer):
             for key, value in audios.items():
                 self.sw.add_audio(key, value, self.global_step, audio_sampling_rate)
 
-    # Keep legacy unchanged
     def write_valid_summary(
         self, losses, stats, images={}, audios={}, audio_sampling_rate=24000, tag="val"
     ):
@@ -260,7 +244,6 @@ class VitsSVCTrainer(TTSTrainer):
         }
         return state_dict
 
-    # Keep legacy unchanged
     def get_state_dict(self):
         state_dict = {
             "generator": self.model["generator"].state_dict(),
@@ -275,7 +258,6 @@ class VitsSVCTrainer(TTSTrainer):
         }
         return state_dict
 
-    # Keep legacy unchanged
     def load_model(self, checkpoint):
         self.step = checkpoint["step"]
         self.epoch = checkpoint["epoch"]
@@ -324,7 +306,6 @@ class VitsSVCTrainer(TTSTrainer):
         valid_losses.update(loss_d)
 
         ##  Generator
-        # y_d_hat_r, y_d_hat_g, fmap_r, fmap_g
         outputs_d = self.model["discriminator"](y, outputs_g["y_hat"])
         loss_g = self.criterion["generator"](outputs_g, outputs_d, y_mel, y_hat_mel)
         valid_losses.update(loss_g)
@@ -349,28 +330,10 @@ class VitsSVCTrainer(TTSTrainer):
         total_loss = 0
         training_stats = {}
 
-        # for k, v in batch.items():
-        #     if isinstance(v, torch.Tensor):
-        #         print(k, v.shape)
-        #     else:
-        #         print(k, v)
-        
-        # spk_id torch.Size([1, 1])
-        # target_len torch.Size([1])
-        # mask torch.Size([1, 328, 1])
-        # mel torch.Size([1, 328, 100])
-        # linear torch.Size([1, 328, 1025])
-        # frame_pitch torch.Size([1, 328])
-        # frame_uv torch.Size([1, 328])
-        # audio torch.Size([1, 168418])
-        # audio_len torch.Size([1])
-        # contentvec_feat torch.Size([1, 328, 256])
-
         # Train Discriminator
         # Generator output
         outputs_g = self.model["generator"](batch)
 
-        # print("y_mel")
         y_mel = slice_segments(
             batch["mel"].transpose(1, 2),
             outputs_g["ids_slice"],
@@ -379,7 +342,7 @@ class VitsSVCTrainer(TTSTrainer):
         y_hat_mel = mel_spectrogram_torch(
             outputs_g["y_hat"].squeeze(1), self.cfg.preprocess
         )
-        # print("y")
+
         y = slice_segments(
             # [1, 168418] -> [1, 1, 168418]
             batch["audio"].unsqueeze(1),
@@ -396,36 +359,18 @@ class VitsSVCTrainer(TTSTrainer):
         train_losses.update(loss_d)
 
         # BP and Grad Updated
-        # self.optimizer["optimizer_d"].zero_grad()
-        # self.scaler.scale(loss_d["loss_disc_all"]).backward()
         self.optimizer["optimizer_d"].zero_grad()
         self.accelerator.backward(loss_d["loss_disc_all"])
         self.optimizer["optimizer_d"].step()
-        # self.scaler.unscale_(self.optimizer["optimizer_d"])
-        # grad_norm_d = clip_grad_value_(self.model["discriminator"].parameters(), None)
-        # self.scaler.step(self.optimizer["optimizer_d"])
 
         ## Train Generator
-        # y_d_hat_r, y_d_hat_g, fmap_r, fmap_g
         outputs_d = self.model["discriminator"](y, outputs_g["y_hat"])
-        # print("outputs_g", outputs_g.shape)
-        # print("outputs_d", outputs_d.shape)
-        # print("batch[\"mel\"]", batch["mel"].transpose(1, 2).shape)
-        # print("outputs_g[\"y_hat\"].squeeze(1)", outputs_g["y_hat"].squeeze(1).shape)
-        # print("y_mel", y_mel.shape)
-        # print("y_hat_mel", y_hat_mel.shape)
-        # exit()
         loss_g = self.criterion["generator"](outputs_g, outputs_d, y_mel, y_hat_mel)
         train_losses.update(loss_g)
 
         # BP and Grad Updated
         self.optimizer["optimizer_g"].zero_grad()
-        # self.scaler.scale(loss_g["loss_gen_all"]).backward()
         self.accelerator.backward(loss_g["loss_gen_all"])
-        # self.scaler.unscale_(self.optimizer["optimizer_g"])
-        # grad_norm_g = clip_grad_value_(self.model["generator"].parameters(), None)
-        # self.scaler.step(self.optimizer["optimizer_g"])
-        # self.scaler.update()
         self.optimizer["optimizer_g"].step()
 
         for item in train_losses:
@@ -439,7 +384,6 @@ class VitsSVCTrainer(TTSTrainer):
             training_stats,
         )
 
-    ### Following are methods that can be used directly in child classes ###
     def _train_epoch(self):
         r"""Training epoch. Should return average loss of a batch (sample) over
         one epoch. See ``train_loop`` for usage.
@@ -460,13 +404,9 @@ class VitsSVCTrainer(TTSTrainer):
             # Do training step and BP
             with self.accelerator.accumulate(self.model):
                 total_loss, train_losses, training_stats = self._train_step(batch)
-                # self.accelerator.backward(loss)
-                # self.optimizer.step()
-                # self.optimizer.zero_grad()
             self.batch_count += 1
 
             # Update info for each step
-            # TODO: step means BP counts or batch counts?
             if self.batch_count % self.cfg.train.gradient_accumulation_step == 0:
                 epoch_sum_loss += total_loss
                 for key, value in train_losses.items():
@@ -507,7 +447,7 @@ class VitsSVCTrainer(TTSTrainer):
             )
 
         return epoch_sum_loss, epoch_losses
-    
+
     def _build_singer_lut(self):
         resumed_singer_path = None
         if self.args.resume_from_ckpt_path and self.args.resume_from_ckpt_path != "":
