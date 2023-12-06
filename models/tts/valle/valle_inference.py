@@ -41,8 +41,10 @@ class VALLEInference(TTSInference):
 
     def inference_one_clip(self, text, text_prompt, audio_file, save_name="pred"):
         # get phone symbol file
-        phone_symbol_file = os.path.join(self.exp_dir, self.cfg.preprocess.symbols_dict)
-        assert os.path.exists(phone_symbol_file)
+        phone_symbol_file = None
+        if self.cfg.preprocess.phone_extractor != 'lexicon':
+            phone_symbol_file = os.path.join(self.exp_dir, self.cfg.preprocess.symbols_dict)
+            assert os.path.exists(phone_symbol_file)
         # convert text to phone sequence    
         phone_extractor = phoneExtractor(self.cfg)
         # convert phone sequence to phone id sequence

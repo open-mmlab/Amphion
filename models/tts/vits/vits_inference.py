@@ -23,7 +23,6 @@ class VitsInference(TTSInference):
             
     def _build_model(self):
         net_g = SynthesizerTrn(
-            # symbols_len,
             self.cfg.model.text_token_num,
             self.cfg.preprocess.n_fft // 2 + 1,
             self.cfg.preprocess.segment_size // self.cfg.preprocess.hop_size,
@@ -107,8 +106,10 @@ class VitsInference(TTSInference):
 
             
         # get phone symbol file
-        phone_symbol_file = os.path.join(self.exp_dir, self.cfg.preprocess.symbols_dict)
-        assert os.path.exists(phone_symbol_file)
+        phone_symbol_file = None
+        if self.cfg.preprocess.phone_extractor != 'lexicon':
+            phone_symbol_file = os.path.join(self.exp_dir, self.cfg.preprocess.symbols_dict)
+            assert os.path.exists(phone_symbol_file)
         # convert text to phone sequence    
         phone_extractor = phoneExtractor(self.cfg)
         phone_seq = phone_extractor.extract_phone(text) # phone_seq: list
@@ -121,6 +122,7 @@ class VitsInference(TTSInference):
         phone_id_seq = torch.from_numpy(phone_id_seq)
         
         # get speaker id if multi-speaker training and use speaker id
+        speaker_id = None
         if self.cfg.preprocess.use_spkid and self.cfg.train.multi_speaker_training:
             spk2id_file = os.path.join(self.exp_dir, self.cfg.preprocess.spk2id)
             with open(spk2id_file, 'r') as f:
@@ -133,7 +135,8 @@ class VitsInference(TTSInference):
         with torch.no_grad():
             x_tst = phone_id_seq.to(self.device).unsqueeze(0)
             x_tst_lengths = torch.LongTensor([phone_id_seq.size(0)]).to(self.device)
-            speaker_id = speaker_id.to(self.device)
+            if speaker_id is not None:
+                speaker_id = speaker_id.to(self.device)
             outputs = self.model.infer(
                 x_tst,
                 x_tst_lengths,
