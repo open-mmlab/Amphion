@@ -154,6 +154,7 @@ class FastSpeech2Inference(TTSInference):
         phone_id_seq = torch.from_numpy(phone_id_seq)
 
         # get speaker id if multi-speaker training and use speaker id
+        speaker_id = None
         if self.cfg.preprocess.use_spkid and self.cfg.train.multi_speaker_training:
             spk2id_file = os.path.join(self.exp_dir, self.cfg.preprocess.spk2id)
             with open(spk2id_file, "r") as f:
@@ -166,7 +167,8 @@ class FastSpeech2Inference(TTSInference):
         with torch.no_grad():
             x_tst = phone_id_seq.to(self.device).unsqueeze(0)
             x_tst_lengths = torch.LongTensor([phone_id_seq.size(0)]).to(self.device)
-            speaker_id = speaker_id.to(self.device)
+            if speaker_id is not None:
+                speaker_id = speaker_id.to(self.device)
 
             data = {}
             data["texts"] = x_tst
