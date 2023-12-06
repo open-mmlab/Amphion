@@ -59,7 +59,8 @@
       "use_log_scale_energy": false,
       "use_spkid": false,
       "align_mel_duration": true,
-      "text_cleaners": ["english_cleaners"]
+      "text_cleaners": ["english_cleaners"],
+      "phone_extractor": "lexicon", // "espeak, pypinyin, pypinyin_initials_finals, lexicon (only for language=en-us right now)"
       },
     "model": {
       // Settings for transformer
