@@ -166,7 +166,8 @@ class FastSpeech2Inference(TTSInference):
         with torch.no_grad():
             x_tst = phone_id_seq.to(self.device).unsqueeze(0)
             x_tst_lengths = torch.LongTensor([phone_id_seq.size(0)]).to(self.device)
-            speaker_id = speaker_id.to(self.device)
+            if speaker_id is not None:
+                speaker_id = speaker_id.to(self.device)
 
             data = {}
             data["texts"] = x_tst
