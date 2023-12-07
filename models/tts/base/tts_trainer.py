@@ -204,14 +204,13 @@ class TTSTrainer(BaseTrainer):
 
         
     def _accelerator_prepare(self):
-        if not self.cfg.train.use_dynamic_batchsize:
-            (
-                self.train_dataloader,
-                self.valid_dataloader,
-            ) = self.accelerator.prepare(
-                self.train_dataloader,
-                self.valid_dataloader,
-            )
+        (
+            self.train_dataloader,
+            self.valid_dataloader,
+        ) = self.accelerator.prepare(
+            self.train_dataloader,
+            self.valid_dataloader,
+        )
         
         if isinstance(self.model, dict):
             for key in self.model.keys():

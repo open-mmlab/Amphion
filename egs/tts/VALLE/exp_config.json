@@ -25,8 +25,5 @@
         "batch_size": 4,
         "train_stage": 1, // 0: train all modules, For VALL_E, support 1: AR Decoder 2: NAR Decoder(s)
         "max_epoch": 20, // "Number of epochs to train."
-        "use_dynamic_batchsize": false, // If use dynamic batch size
-        "max_tokens": 4000, // If use dynamic batch size
-        "max_sentences": 10 // If use dynamic batch size
     }
 }
