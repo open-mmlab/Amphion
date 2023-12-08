@@ -310,3 +310,32 @@ class VALLETrainer(TTSTrainer):
         self.accelerator.wait_for_everyone()
 
         return train_loader, valid_loader
+
+    def _accelerator_prepare(self):
+        if (not self.cfg.train.use_dynamic_batchsize):
+            (
+                self.train_dataloader,
+                self.valid_dataloader,
+            ) = self.accelerator.prepare(
+                self.train_dataloader,
+                self.valid_dataloader,
+            )
+        
+        if isinstance(self.model, dict):
+            for key in self.model.keys():
+                self.model[key] = self.accelerator.prepare(self.model[key])
+        else:
+            self.model = self.accelerator.prepare(self.model)
+        
+        if isinstance(self.optimizer, dict):
+            for key in self.optimizer.keys():
+                self.optimizer[key] = self.accelerator.prepare(self.optimizer[key])
+        else:
+            self.optimizer = self.accelerator.prepare(self.optimizer)
+
+        if isinstance(self.scheduler, dict):
+            for key in self.scheduler.keys():
+                self.scheduler[key] = self.accelerator.prepare(self.scheduler[key])
+        else:
+            self.scheduler = self.accelerator.prepare(self.scheduler)        
+    
