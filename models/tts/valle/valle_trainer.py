@@ -6,10 +6,12 @@
 import argparse
 from tqdm import tqdm
 import torch
+import numpy as np
+from torch.utils.data import DataLoader
 from torch.nn.parallel import DistributedDataParallel
 from optimizer.optimizers import Eve, ScaledAdam
 from schedulers.scheduler import NoamScheduler, Eden
-from models.tts.valle.valle_dataset import VALLEDataset, VALLECollator
+from models.tts.valle.valle_dataset import VALLEDataset, VALLECollator, VariableSampler, batch_by_size
 from models.tts.base import TTSTrainer
 from models.tts.valle.valle import VALLE
 
@@ -264,3 +266,47 @@ class VALLETrainer(TTSTrainer):
                 default="1",
                 help="0: train all modules, 1: AR Decoder, 2: NAR Decoder",
             )
+
+    def _build_dataloader(self):
+        if not self.cfg.train.use_dynamic_batchsize:
+            return super()._build_dataloader()
+        Dataset, Collator = self._build_dataset()
+        train_dataset = Dataset(self.cfg, self.cfg.dataset[0], is_valid=False)
+        train_collate = Collator(self.cfg)
+        batch_sampler = batch_by_size(train_dataset.num_frame_indices,
+                                      train_dataset.get_num_frames,
+                                      max_tokens=self.cfg.train.max_tokens * self.accelerator.num_processes,
+                                      max_sentences=self.cfg.train.max_sentences * self.accelerator.num_processes,
+                                      required_batch_size_multiple=self.accelerator.num_processes)
+        np.random.seed(1234)
+        np.random.shuffle(batch_sampler)
+        print(batch_sampler[:1])
+        batches = [x[self.accelerator.local_process_index::self.accelerator.num_processes] for x in batch_sampler if len(x) % self.accelerator.num_processes == 0]
+
+        train_loader = DataLoader(
+            train_dataset,
+            collate_fn=train_collate,
+            num_workers=self.cfg.train.dataloader.num_worker,
+            batch_sampler=VariableSampler(batches, drop_last=False, use_random_sampler=True),
+            pin_memory=False,
+        )
+        self.accelerator.wait_for_everyone()
+
+        valid_dataset = Dataset(self.cfg, self.cfg.dataset[0], is_valid=True)
+        valid_collate = Collator(self.cfg)
+        batch_sampler = batch_by_size(valid_dataset.num_frame_indices,
+                                      valid_dataset.get_num_frames,
+                                      max_tokens=self.cfg.train.max_tokens * self.accelerator.num_processes,
+                                      max_sentences=self.cfg.train.max_sentences * self.accelerator.num_processes,
+                                      required_batch_size_multiple=self.accelerator.num_processes)
+        batches = [x[self.accelerator.local_process_index::self.accelerator.num_processes] for x in batch_sampler if len(x) % self.accelerator.num_processes == 0]
+        valid_loader = DataLoader(
+            valid_dataset,
+            collate_fn=valid_collate,
+            num_workers=self.cfg.train.dataloader.num_worker,
+            batch_sampler=VariableSampler(batches, drop_last=False),
+            pin_memory=False,
+        )
+        self.accelerator.wait_for_everyone()
+
+        return train_loader, valid_loader

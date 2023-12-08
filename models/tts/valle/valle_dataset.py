@@ -13,6 +13,12 @@ from models.tts.base.tts_dataset import (
     TTSTestCollator,
 )
 
+from torch.utils.data.sampler import (
+    BatchSampler,
+    RandomSampler,
+    SequentialSampler,
+)
+
 from utils.tokenizer import tokenize_audio
 
 class VALLEDataset(TTSDataset):
@@ -43,7 +49,12 @@ class VALLEDataset(TTSDataset):
                     uid + ".npy",
                 )
 
-    
+        self.all_num_frames = []
+        for i in range(len(self.metadata)):
+            self.all_num_frames.append(self.metadata[i]["Duration"])
+        self.num_frame_sorted = np.array(sorted(self.all_num_frames))
+        self.num_frame_indices = np.array(sorted(range(len(self.all_num_frames)), key=lambda k: self.all_num_frames[k]))
+
     def __len__(self):
         return super().__len__()
 
@@ -82,6 +93,10 @@ class VALLEDataset(TTSDataset):
 
         return single_feature
 
+    def get_num_frames(self, index):
+        utt_info = self.metadata[index]
+        return int(utt_info['Duration'] * 75)
+    
 class VALLECollator(TTSCollator):
     def __init__(self, cfg):
         super().__init__(cfg)
@@ -195,3 +210,85 @@ class VALLETestCollator(TTSTestCollator):
                 )
 
         return packed_batch_features
+
+def _is_batch_full(batch, num_tokens, max_tokens, max_sentences):
+    if len(batch) == 0:
+        return 0
+    if len(batch) == max_sentences:
+        return 1
+    if num_tokens > max_tokens:
+        return 1
+    return 0
+
+
+def batch_by_size(indices, num_tokens_fn, max_tokens=None, max_sentences=None, required_batch_size_multiple=1):
+    """
+    Yield mini-batches of indices bucketed by size. Batches may contain
+    sequences of different lengths.
+
+    Args:
+        indices (List[int]): ordered list of dataset indices
+        num_tokens_fn (callable): function that returns the number of tokens at
+            a given index
+        max_tokens (int, optional): max number of tokens in each batch
+            (default: None).
+        max_sentences (int, optional): max number of sentences in each
+            batch (default: None).
+        required_batch_size_multiple (int, optional): require batch size to
+            be a multiple of N (default: 1).
+    """
+    bsz_mult = required_batch_size_multiple
+
+
+    sample_len = 0
+    sample_lens = []
+    batch = []
+    batches = []
+    for i in range(len(indices)):
+        idx = indices[i]
+        num_tokens = num_tokens_fn(idx)
+        sample_lens.append(num_tokens)
+        sample_len = max(sample_len, num_tokens)
+
+        assert sample_len <= max_tokens, (
+            "sentence at index {} of size {} exceeds max_tokens "
+            "limit of {}!".format(idx, sample_len, max_tokens)
+        )
+        num_tokens = (len(batch) + 1) * sample_len
+
+        if _is_batch_full(batch, num_tokens, max_tokens, max_sentences):
+            mod_len = max(
+                bsz_mult * (len(batch) // bsz_mult),
+                len(batch) % bsz_mult,
+            )
+            batches.append(batch[:mod_len])
+            batch = batch[mod_len:]
+            sample_lens = sample_lens[mod_len:]
+            sample_len = max(sample_lens) if len(sample_lens) > 0 else 0
+        batch.append(idx)
+    if len(batch) > 0:
+        batches.append(batch)
+    return batches
+
+
+class VariableSampler(BatchSampler):
+    def __init__(self, sampler, drop_last: bool, use_random_sampler=False):
+            
+        self.data_list = sampler
+        if use_random_sampler:
+            self.sampler = RandomSampler(sampler)
+        else:
+            self.sampler = SequentialSampler(sampler)
+            
+        super().__init__(self.sampler, 1, drop_last)
+            
+    def __iter__(self):
+            
+        for batch_ids in self.data_list:
+            yield batch_ids
+            
+    def __len__(self):
+        if self.drop_last:
+            return len(self.sampler) // self.batch_size
+        else:
+            return (len(self.sampler) + self.batch_size - 1) // self.batch_size
