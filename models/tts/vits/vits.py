@@ -12,7 +12,6 @@ from torch.nn import functional as F
 from utils.util import *
 from modules.flow.modules import *
 from modules.base.base_module import *
-from modules import monotonic_align
 from modules.transformer.attentions import Encoder
 from modules.duration_predictor.standard_duration_predictor import DurationPredictor
 from modules.duration_predictor.stochastic_duration_predictor import (
@@ -20,6 +19,10 @@ from modules.duration_predictor.stochastic_duration_predictor import (
 )
 from models.vocoders.gan.generator.hifigan import HiFiGAN_vits as Generator
 
+try:
+    from modules import monotonic_align
+except ImportError:
+    print("Monotonic align not found. Please make sure you have compiled it.")
 
 class TextEncoder(nn.Module):
     def __init__(
