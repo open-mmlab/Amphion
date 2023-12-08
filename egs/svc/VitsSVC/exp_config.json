@@ -120,29 +120,7 @@
             "n_speakers": 512,
             "use_spectral_norm": false,
         },
-        "generator": "hifigan",
-        "generator_config": {
-            "hifigan": {
-                "resblock": "1",
-                "resblock_kernel_sizes": [
-                    3,
-                    7,
-                    11
-                ],
-                "upsample_rates": [
-                    8,8,2,2,2
-                ],
-                "upsample_kernel_sizes": [
-                    16,16,4,4,4
-                ],
-                "upsample_initial_channel": 512,
-                "resblock_dilation_sizes": [
-                    [1,3,5],
-                    [1,3,5],
-                    [1,3,5]
-                ]
-            },
-        },
+        "generator": "nsfhifigan",
     },
     "train": {
         "batch_size": 32,

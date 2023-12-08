@@ -217,7 +217,7 @@ class SynthesizerTrn(nn.Module):
         )
 
         if self.dec_name == "nsfhifigan":
-            o = self.dec(z_slice, f0=f0)
+            o = self.dec(z_slice, f0=f0.float())
         elif self.dec_name == "apnet":
             _, _, _, _, o = self.dec(z_slice)
         else:
