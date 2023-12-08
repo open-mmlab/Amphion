@@ -38,10 +38,10 @@
         "ddp": false,
         "train_stage": 1, // 0: train all modules, For VALL_E, support 1: AR Decoder 2: NAR Decoder(s)
         "max_epoch": 20, 
-        "optimizer": "ScaledAdam", 
-        "scheduler": "Eden",
-        "warmup_steps": 200, // number of steps that affects how rapidly the learning rate decreases
-        "base_lr": 0.05, // base learning rate."
+        "optimizer": "AdamW", 
+        "scheduler": "cosine",
+        "warmup_steps": 16000, // number of steps that affects how rapidly the learning rate decreases
+        "base_lr": 1e-4, // base learning rate."
         "valid_interval": 1000,
         "log_epoch_step": 1000,
         "save_checkpoint_stride": [

@@ -204,7 +204,7 @@ class TTSTrainer(BaseTrainer):
 
         
     def _accelerator_prepare(self):
-        if not self.cfg.train.use_dynamic_batchsize:
+        if (self.model_type == "VALLE") and (not self.cfg.train.use_dynamic_batchsize):
             (
                 self.train_dataloader,
                 self.valid_dataloader,
