@@ -130,6 +130,7 @@ class SVCDataset(BaseDataset):
                 'content_vector_feat': (seq_len, dim)
             }
         """
+
         if sample["target_len"] <= max_seq_len:
             return sample
 
@@ -137,7 +138,12 @@ class SVCDataset(BaseDataset):
         sample["target_len"] = end - start
 
         for k in sample.keys():
-            if k not in ["spk_id", "target_len"]:
+            if k == "audio":
+                # audio should be clipped in hop_size scale
+                sample[k] = sample[k][start * self.cfg.preprocess.hop_size:end * self.cfg.preprocess.hop_size]
+            elif k == "audio_len":
+                sample[k] = (end - start) * self.cfg.preprocess.hop_size
+            elif k not in ["spk_id", "target_len"]:
                 sample[k] = sample[k][start:end]
 
         return sample
@@ -168,11 +174,11 @@ class SVCTestDataset(BaseTestDataset):
         self.target_dataset = target_singer.replace(
             "_{}".format(self.target_singer), ""
         )
-
-        self.target_mel_extrema = load_mel_extrema(cfg.preprocess, self.target_dataset)
-        self.target_mel_extrema = torch.as_tensor(
-            self.target_mel_extrema[0]
-        ), torch.as_tensor(self.target_mel_extrema[1])
+        if cfg.preprocess.mel_min_max_norm:
+            self.target_mel_extrema = load_mel_extrema(cfg.preprocess, self.target_dataset)
+            self.target_mel_extrema = torch.as_tensor(
+                self.target_mel_extrema[0]
+            ), torch.as_tensor(self.target_mel_extrema[1])
 
         ######### Load source acoustic features #########
         if cfg.preprocess.use_spkid:

@@ -29,6 +29,6 @@ Until now, Amphion SVC has supported the following features and models:
   - Transformer-based models:
     - **[TransformerSVC](TransformerSVC)**: Encoder-only and Non-autoregressive Transformer Architecture.
   - VAE- and Flow-based models:
-    - **[VitsSVC]()** (👨‍💻 developing): It is designed as a [VITS](https://arxiv.org/abs/2106.06103)-like model whose textual input is replaced by the content features, which is similar to [so-vits-svc](https://github.com/svc-develop-team/so-vits-svc).
+    - **[VitsSVC](VitsSVC)**: It is designed as a [VITS](https://arxiv.org/abs/2106.06103)-like model whose textual input is replaced by the content features, which is similar to [so-vits-svc](https://github.com/svc-develop-team/so-vits-svc).
 - **Waveform Synthesizers (Vocoders)**:
   - The supported vocoders can be seen in [Amphion Vocoder Recipe](../vocoder/README.md).

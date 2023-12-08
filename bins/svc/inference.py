@@ -14,6 +14,7 @@ import time
 from models.svc.diffusion.diffusion_inference import DiffusionInference
 from models.svc.comosvc.comosvc_inference import ComoSVCInference
 from models.svc.transformer.transformer_inference import TransformerInference
+from models.svc.vits.vits_inference import VitsInference
 from utils.util import load_config
 from utils.audio_slicer import split_audio, merge_segments_encodec
 from processors import acoustic_extractor, content_extractor
@@ -24,6 +25,7 @@ def build_inference(args, cfg, infer_type="from_dataset"):
         "DiffWaveNetSVC": DiffusionInference,
         "DiffComoSVC": ComoSVCInference,
         "TransformerSVC": TransformerInference,
+        "VitsSVC": VitsInference,
     }
 
     inference_class = supported_inference[cfg.model_type]
@@ -48,9 +50,10 @@ def prepare_for_audio_file(args, cfg, num_workers=1):
     acoustic_extractor.extract_utt_acoustic_features_serial(
         metadata, temp_audio_dir, cfg
     )
-    acoustic_extractor.cal_mel_min_max(
-        dataset=audio_name, output_path=preprocess_path, cfg=cfg, metadata=metadata
-    )
+    if cfg.preprocess.use_min_max_norm_mel == True:
+        acoustic_extractor.cal_mel_min_max(
+            dataset=audio_name, output_path=preprocess_path, cfg=cfg, metadata=metadata
+        )
     acoustic_extractor.cal_pitch_statistics_svc(
         dataset=audio_name, output_path=preprocess_path, cfg=cfg, metadata=metadata
     )
