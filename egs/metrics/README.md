@@ -63,6 +63,7 @@ sh egs/metrics/run.sh \
 	--generated_folder [Your path to the generated audios] \
 	--dump_folder [Your path to dump the objective results] \
 	--metrics [The metrics you need] \
+	--fs [Optional. To calculate all metrics in the specified sampling rate]
 ```
 
 As for the metrics, an example is provided below:

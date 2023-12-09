@@ -12,7 +12,7 @@ export PYTHONPATH=$work_dir
 export PYTHONIOENCODING=UTF-8
 
 ######## Parse the Given Parameters from the Commond ###########
-options=$(getopt -o c:n:s --long gpu:,reference_folder:,generated_folder:,dump_folder:,metrics: -- "$@")
+options=$(getopt -o c:n:s --long gpu:,reference_folder:,generated_folder:,dump_folder:,metrics:,fs: -- "$@")
 eval set -- "$options"
 
 while true; do
@@ -25,6 +25,8 @@ while true; do
     --dump_folder) shift; dump_dir=$1 ; shift ;;
     # Metrics to Compute
     --metrics) shift; metrics=$1 ; shift ;;
+    # Sampling Rate
+    --fs) shift; fs=$1 ; shift ;;
 
     --) shift ; break ;;
     *) echo "Invalid option: $1" exit 1 ;;
@@ -33,8 +35,8 @@ done
 
 ######## Calculate Objective Metrics ###########
 CUDA_VISIBLE_DEVICES=$gpu python "$work_dir"/bins/calc_metrics.py \
-    --ref_dir $ref_dir
-    --deg_dir $deg_dir
-    --dump_dir $dump_dir
-    --metrics $metrics
-    --fs 
+    --ref_dir $ref_dir \
+    --deg_dir $deg_dir \
+    --dump_dir $dump_dir \
+    --metrics $metrics \
+    --fs $fs \

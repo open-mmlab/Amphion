@@ -12,7 +12,7 @@ export PYTHONPATH=$work_dir
 export PYTHONIOENCODING=UTF-8
 
 ######## Parse the Given Parameters from the Commond ###########
-options=$(getopt -o c:n:s --long gpu:,config:,name:,stage:,resume:,checkpoint:,resume_type:,infer_mode:,infer_datasets:,infer_feature_dir:,infer_audio_dir:,infer_expt_dir:,infer_output_dir: -- "$@")
+options=$(getopt -o c:n:s --long gpu:,config:,name:,stage:,checkpoint:,resume_type:,main_process_port:,infer_mode:,infer_datasets:,infer_feature_dir:,infer_audio_dir:,infer_expt_dir:,infer_output_dir: -- "$@")
 eval set -- "$options"
 
 while true; do
@@ -26,12 +26,12 @@ while true; do
     # Visible GPU machines. The default value is "0".
     --gpu) shift; gpu=$1 ; shift ;;
 
-    # [Only for Training] Resume configuration
-    --resume) shift; resume=$1 ; shift ;;
     # [Only for Training] The specific checkpoint path that you want to resume from.
-    --checkpoint) shift; cehckpoint=$1 ; shift ;;
+    --checkpoint) shift; checkpoint=$1 ; shift ;;
     # [Only for Training] `resume` for loading all the things (including model weights, optimizer, scheduler, and random states). `finetune` for loading only the model weights.
     --resume_type) shift; resume_type=$1 ; shift ;;
+    # [Only for Traiing] `main_process_port` for multi gpu training
+    --main_process_port) shift; main_process_port=$1 ; shift ;;
 
     # [Only for Inference] The inference mode
     --infer_mode) shift; infer_mode=$1 ; shift ;;
@@ -67,6 +67,11 @@ if [ -z "$gpu" ]; then
     gpu="0"
 fi
 
+if [ -z "$main_process_port" ]; then
+    main_process_port=29500
+fi
+echo "Main Process Port: $main_process_port"
+
 ######## Features Extraction ###########
 if [ $running_stage -eq 1 ]; then
     CUDA_VISIBLE_DEVICES=$gpu python "${work_dir}"/bins/vocoder/preprocess.py \
@@ -82,21 +87,14 @@ if [ $running_stage -eq 2 ]; then
     fi
     echo "Exprimental Name: $exp_name"
 
-    if [ "$resume" = true ]; then
-        echo "Automatically resume from the experimental dir..."
-        CUDA_VISIBLE_DEVICES="$gpu" accelerate launch "${work_dir}"/bins/vocoder/train.py \
-            --config "$exp_config" \
-            --exp_name "$exp_name" \
-            --log_level info \
-            --resume
-    else
-        CUDA_VISIBLE_DEVICES=$gpu accelerate launch "${work_dir}"/bins/vocoder/train.py \
-            --config "$exp_config" \
-            --exp_name "$exp_name" \
-            --log_level info \
-            --checkpoint "$checkpoint" \
-            --resume_type "$resume_type"
-    fi
+    CUDA_VISIBLE_DEVICES=$gpu accelerate launch \
+        --main_process_port "$main_process_port" \
+        "${work_dir}"/bins/vocoder/train.py \
+        --config "$exp_config" \
+        --exp_name "$exp_name" \
+        --log_level info \
+        --checkpoint "$checkpoint" \
+        --resume_type "$resume_type"
 fi
 
 ######## Inference/Conversion ###########
