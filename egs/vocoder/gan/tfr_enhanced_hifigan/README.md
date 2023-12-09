@@ -98,6 +98,17 @@ sh egs/vocoder/gan/tfr_enhanced_hifigan/run.sh --stage 2 --name [YourExptName]
 
 > **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "0,1,2,3"`.
 
+If you want to resume or finetune from a pretrained model, run:
+
+```bash
+sh egs/vocoder/gan/tfr_enhanced_hifigan/run.sh --stage 2 \
+	--name [YourExptName] \
+	--resume_type ["resume" for resuming training and "finetune" for loading parameters only] \
+	--checkpoint Amphion/ckpts/vocoder/[YourExptName]/checkpoint \
+```
+
+> **NOTE:** For multi-gpu training, the `main_process_port` is set as `29500` in default. You can change it when running `run.sh` by specifying such as `--main_process_port 29501`.
+
 ## 4. Inference
 
 ### Pretrained Vocoder Download

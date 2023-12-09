@@ -282,6 +282,19 @@ def extract_utt_acoustic_features_vocoder(dataset_output, cfg, utt):
                 uv = pitch != 0
                 save_feature(dataset_output, cfg.preprocess.uv_dir, uid, uv)
 
+        if cfg.preprocess.extract_amplitude_phase:
+            from utils.mel import amplitude_phase_spectrum
+
+            log_amplitude, phase, real, imaginary = amplitude_phase_spectrum(
+                wav_torch.unsqueeze(0), cfg.preprocess
+            )
+            save_feature(
+                dataset_output, cfg.preprocess.log_amplitude_dir, uid, log_amplitude
+            )
+            save_feature(dataset_output, cfg.preprocess.phase_dir, uid, phase)
+            save_feature(dataset_output, cfg.preprocess.real_dir, uid, real)
+            save_feature(dataset_output, cfg.preprocess.imaginary_dir, uid, imaginary)
+
         if cfg.preprocess.extract_audio:
             save_feature(dataset_output, cfg.preprocess.audio_dir, uid, wav)
 
