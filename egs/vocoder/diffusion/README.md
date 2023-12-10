@@ -1,4 +1,4 @@
-# Amphion GAN-based Vocoder Recipe
+# Amphion Diffusion-based Vocoder Recipe
 
 ## Supported Model Architectures
 
@@ -10,7 +10,7 @@ Diffusion-based Vocoders utilize the diffusion process for audio generation, as 
 </div>
 <br>
 
-Until now, Amphion GAN-based Vocoder has supported the following models and training strategies.
+Until now, Amphion Diffusion-based Vocoder has supported the following models and training strategies.
 
 - **Models**
     - [DiffWave](https://arxiv.org/pdf/2009.09761)
@@ -94,7 +94,7 @@ Specify the dataset path and the output path for saving the processed data and t
 Run the `run.sh` as the preproces stage (set  `--stage 1`).
 
 ```bash
-sh egs/vocoder/gan/{vocoder_name}/run.sh --stage 1
+sh egs/vocoder/diffusion/{vocoder_name}/run.sh --stage 1
 ```
 
 > **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "1"`.
@@ -126,7 +126,7 @@ We provide the default hyparameters in the `exp_config_base.json`. They can work
 Run the `run.sh` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/vocoder/[YourExptName]`.
 
 ```bash
-sh egs/vocoder/gan/{vocoder_name}/run.sh --stage 2 --name [YourExptName]
+sh egs/vocoder/diffusion/{vocoder_name}/run.sh --stage 2 --name [YourExptName]
 ```
 
 > **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "0,1,2,3"`.
@@ -134,7 +134,7 @@ sh egs/vocoder/gan/{vocoder_name}/run.sh --stage 2 --name [YourExptName]
 If you want to resume or finetune from a pretrained model, run:
 
 ```bash
-sh egs/vocoder/gan/{vocoder_name}/run.sh --stage 2 \
+sh egs/vocoder/diffusion/{vocoder_name}/run.sh --stage 2 \
 	--name [YourExptName] \
 	--resume_type ["resume" for resuming training and "finetune" for loading parameters only] \
 	--checkpoint Amphion/ckpts/vocoder/[YourExptName]/checkpoint \
@@ -149,7 +149,7 @@ sh egs/vocoder/gan/{vocoder_name}/run.sh --stage 2 \
 Run the `run.sh` as the training stage (set  `--stage 3`), we provide three different inference modes, including `infer_from_dataset`, `infer_from_feature`, `and infer_from_audio`. 
 
 ```bash
-sh egs/vocoder/gan/{vocoder_name}/run.sh --stage 3 \
+sh egs/vocoder/diffusion/{vocoder_name}/run.sh --stage 3 \
 	--infer_mode [Your chosen inference mode] \
 	--infer_datasets [Datasets you want to inference, needed when infer_from_dataset] \
 	--infer_feature_dir [Your path to your predicted acoustic features, needed when infer_from_feature] \
@@ -163,7 +163,7 @@ sh egs/vocoder/gan/{vocoder_name}/run.sh --stage 3 \
 Run the `run.sh` with specified datasets, here is an example.
 
 ```bash
-sh egs/vocoder/gan/{vocoder_name}/run.sh --stage 3 \
+sh egs/vocoder/diffusion/{vocoder_name}/run.sh --stage 3 \
 	--infer_mode infer_from_dataset \
 	--infer_datasets "libritts vctk ljspeech" \
 	--infer_expt_dir Amphion/ckpts/vocoder/[YourExptName] \
@@ -179,15 +179,12 @@ If you want to inference from your generated acoustic features, you should first
  ┃ ┣ mels
  ┃ ┃ ┣ sample1.npy
  ┃ ┃ ┣ sample2.npy
- ┃ ┣ f0s (required if you use NSF-HiFiGAN)
- ┃ ┃ ┣ sample1.npy
- ┃ ┃ ┣ sample2.npy
 ```
 
 Then run the `run.sh` with specificed folder direction, here is an example.
 
 ```bash
-sh egs/vocoder/gan/{vocoder_name}/run.sh --stage 3 \
+sh egs/vocoder/diffusion/{vocoder_name}/run.sh --stage 3 \
 	--infer_mode infer_from_feature \
 	--infer_feature_dir [Your path to your predicted acoustic features] \
 	--infer_expt_dir Amphion/ckpts/vocoder/[YourExptName] \
@@ -207,7 +204,7 @@ If you want to inference from audios for quick analysis synthesis, you should fi
 Then run the `run.sh` with specificed folder direction, here is an example.
 
 ```bash
-sh egs/vocoder/gan/{vocoder_name}/run.sh --stage 3 \
+sh egs/vocoder/diffusion/{vocoder_name}/run.sh --stage 3 \
 	--infer_mode infer_from_audio \
 	--infer_audio_dir [Your path to your audio files] \
 	--infer_expt_dir Amphion/ckpts/vocoder/[YourExptName] \
