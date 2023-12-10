@@ -270,8 +270,10 @@ class VALLETrainer(TTSTrainer):
     def _build_dataloader(self):
         if not self.cfg.train.use_dynamic_batchsize:
             return super()._build_dataloader()
+        if len(self.cfg.dataset) > 1:
+            raise Exception("use_dynamic_batchsize only supports single dataset now.")
         Dataset, Collator = self._build_dataset()
-        train_dataset = Dataset(self.cfg, self.cfg.dataset[0], is_valid=False)
+        train_dataset = Dataset(self.cfg, self.cfg.dataset[0], is_valid=False)   #TODO: support use_dynamic_batchsize for more than one datasets.
         train_collate = Collator(self.cfg)
         batch_sampler = batch_by_size(train_dataset.num_frame_indices,
                                       train_dataset.get_num_frames,

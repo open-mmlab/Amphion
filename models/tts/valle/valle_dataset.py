@@ -95,7 +95,7 @@ class VALLEDataset(TTSDataset):
 
     def get_num_frames(self, index):
         utt_info = self.metadata[index]
-        return int(utt_info['Duration'] * 75)
+        return int(utt_info['Duration'] * (self.cfg.preprocess.sampling_rate // self.cfg.preprocess.codec_hop_size))
     
 class VALLECollator(TTSCollator):
     def __init__(self, cfg):
