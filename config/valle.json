@@ -17,7 +17,8 @@
         "symbols_dict": "symbols.dict",
         "min_duration": 0.5, // the duration lowerbound to filter the audio with duration < min_duration
         "max_duration": 14, //  the duration uperbound to filter the audio with duration > max_duration.              
-        "sampling_rate": 24000, 
+        "sample_rate": 24000, 
+        "codec_hop_size": 320
     },
     "model": {
         "text_token_num": 512,
@@ -38,10 +39,10 @@
         "ddp": false,
         "train_stage": 1, // 0: train all modules, For VALL_E, support 1: AR Decoder 2: NAR Decoder(s)
         "max_epoch": 20, 
-        "optimizer": "ScaledAdam", 
-        "scheduler": "Eden",
-        "warmup_steps": 200, // number of steps that affects how rapidly the learning rate decreases
-        "base_lr": 0.05, // base learning rate."
+        "optimizer": "AdamW", 
+        "scheduler": "cosine",
+        "warmup_steps": 16000, // number of steps that affects how rapidly the learning rate decreases
+        "base_lr": 1e-4, // base learning rate."
         "valid_interval": 1000,
         "log_epoch_step": 1000,
         "save_checkpoint_stride": [
