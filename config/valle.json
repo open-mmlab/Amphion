@@ -17,7 +17,7 @@
         "symbols_dict": "symbols.dict",
         "min_duration": 0.5, // the duration lowerbound to filter the audio with duration < min_duration
         "max_duration": 14, //  the duration uperbound to filter the audio with duration > max_duration.              
-        "sampling_rate": 24000,
+        "sample_rate": 24000, 
         "codec_hop_size": 320
     },
     "model": {
