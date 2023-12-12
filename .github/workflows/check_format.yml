@@ -3,7 +3,7 @@ name: Check Format
 on: [push, pull_request]
 
 jobs:
-  black check:
+  CheckCodeFormat:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
