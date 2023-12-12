@@ -15,7 +15,7 @@
       "extract_energy": true,
       "energy_extract_mode": "from_tacotron_stft",
       "extract_duration": true,
-      "use_phone": true,
+      "use_phone": false,
       "pitch_norm": true,
       "energy_norm": true,
       "pitch_remove_outlier": true,
@@ -47,6 +47,7 @@
       "mert_dir": "mert",
       "spk2id":"spk2id.json",
       "utt2spk":"utt2spk",
+      "valid_file": "test.json",
 
       // Features used for model training
       "use_mel": true,

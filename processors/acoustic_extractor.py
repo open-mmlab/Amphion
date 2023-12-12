@@ -18,6 +18,11 @@ from utils.dsp import compress, audio_to_label
 from utils.data_utils import remove_outlier
 from preprocessors.metadata import replace_augment_name
 from scipy.interpolate import interp1d
+from utils.mel import (
+    extract_mel_features,
+    extract_linear_features,
+    extract_mel_features_tts,
+)
 
 ZERO = 1e-12
 
@@ -124,16 +129,12 @@ def __extract_utt_acoustic_features(dataset_output, cfg, utt):
             wav_torch = torch.from_numpy(wav).to(wav_torch.device)
 
         if cfg.preprocess.extract_linear_spec:
-            from utils.mel import extract_linear_features
-
             linear = extract_linear_features(wav_torch.unsqueeze(0), cfg.preprocess)
             save_feature(
                 dataset_output, cfg.preprocess.linear_dir, uid, linear.cpu().numpy()
             )
 
         if cfg.preprocess.extract_mel:
-            from utils.mel import extract_mel_features
-
             if cfg.preprocess.mel_extract_mode == "taco":
                 _stft = TacotronSTFT(
                     sampling_rate=cfg.preprocess.sample_rate,
