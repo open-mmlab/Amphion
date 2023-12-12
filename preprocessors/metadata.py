@@ -32,14 +32,14 @@ def cal_metadata(cfg, dataset_types):
         all_utterances = list()
         duration = dict()
         total_duration = 0.0
-        for data_type in dataset_types:
-            metadata = os.path.join(save_dir, "{}.json".format(data_type))
+        for dataset_type in dataset_types:
+            metadata = os.path.join(save_dir, "{}.json".format(dataset_type))
             
             # Sort the metadata as the duration order
             with open(metadata, "r", encoding="utf-8") as f:
                 utterances = json.load(f)      
             utterances = sorted(utterances, key=lambda x: x["Duration"])   
-            utterances_dict[data_type] = utterances
+            utterances_dict[dataset_type] = utterances
             all_utterances.extend(utterances)
 
             # Write back the sorted metadata
@@ -47,8 +47,8 @@ def cal_metadata(cfg, dataset_types):
                 json.dump(utterances, f, indent=4, ensure_ascii=False)
 
             # Get the total duration and singer names for train and test utterances
-            duration[data_type] = sum(utt["Duration"] for utt in utterances)
-            total_duration += duration[data_type]
+            duration[dataset_type] = sum(utt["Duration"] for utt in utterances)
+            total_duration += duration[dataset_type]
 
         
 
@@ -83,10 +83,10 @@ def cal_metadata(cfg, dataset_types):
             }
         }
         
-        for data_type in dataset_types:
-            meta_info[data_type] = {
-                    "size": len(utterances_dict[data_type]),
-                    "hours": round(duration[data_type] / 3600, 4),
+        for dataset_type in dataset_types:
+            meta_info[dataset_type] = {
+                    "size": len(utterances_dict[dataset_type]),
+                    "hours": round(duration[dataset_type] / 3600, 4),
                 }
         
         meta_info["singers"] = {"size": len(singer_lut)}
@@ -94,10 +94,10 @@ def cal_metadata(cfg, dataset_types):
         # Use Counter to count the minutes for each singer
         total_singer2mins = Counter()
         training_singer2mins = Counter()
-        for data_type in dataset_types:
-            for utt in utterances_dict[data_type]:
+        for dataset_type in dataset_types:
+            for utt in utterances_dict[dataset_type]:
                 k = f"{replace_augment_name(utt['Dataset'])}_{utt['Singer']}"
-                if data_type == 'train':
+                if dataset_type == 'train':
                     training_singer2mins[k] += utt["Duration"] / 60
                 total_singer2mins[k] += utt["Duration"] / 60
                         
