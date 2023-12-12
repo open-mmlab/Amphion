@@ -10,6 +10,7 @@ from .resample import *
 # This code is adopted from BigVGAN under the MIT License
 # https://github.com/NVIDIA/BigVGAN
 
+
 class Activation1d(nn.Module):
     def __init__(
         self,

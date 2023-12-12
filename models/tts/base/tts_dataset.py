@@ -10,13 +10,13 @@ import numpy as np
 import torch
 from torch.nn.utils.rnn import pad_sequence
 
-from models.base.base_dataset import ( 
+from models.base.base_dataset import (
     BaseDataset,
     BaseCollator,
     BaseTestDataset,
-    BaseTestCollator
+    BaseTestCollator,
 )
-    
+
 from processors.content_extractor import (
     ContentvecExtractor,
     WenetExtractor,
@@ -27,14 +27,12 @@ from processors.content_extractor import (
 class TTSDataset(BaseDataset):
     def __init__(self, args, cfg, is_valid=False):
         super().__init__(args, cfg, is_valid)
-    
 
     def __getitem__(self, index):
         single_feature = super().__getitem__(index)
         return single_feature
 
     def __len__(self):
-        
         return super().__len__()
 
 
@@ -52,21 +50,21 @@ class TTSCollator(BaseCollator):
 class TTSTestDataset(BaseTestDataset):
     def __init__(self, args, cfg):
         self.cfg = cfg
-        
+
         # inference from test list file
         if args.test_list_file is not None:
             # construst metadata
             self.metadata = []
-            
+
             with open(args.test_list_file, "r") as fin:
                 for idx, line in enumerate(fin.readlines()):
                     utt_info = {}
-                    
+
                     utt_info["Dataset"] = "test"
                     utt_info["Text"] = line.strip()
                     utt_info["Uid"] = str(idx)
                     self.metadata.append(utt_info)
-                    
+
         else:
             assert args.testing_set
             self.metafile_path = os.path.join(
@@ -75,7 +73,6 @@ class TTSTestDataset(BaseTestDataset):
                 "{}.json".format(args.testing_set),
             )
             self.metadata = self.get_metadata()
-
 
     def __getitem__(self, index):
         single_feature = {}

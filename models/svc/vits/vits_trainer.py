@@ -59,7 +59,7 @@ class VitsSVCTrainer(TTSTrainer):
             eps=self.cfg.train.AdamW.eps,
         )
         optimizer = {"optimizer_g": optimizer_g, "optimizer_d": optimizer_d}
-        
+
         return optimizer
 
     def _build_scheduler(self):
@@ -155,9 +155,7 @@ class VitsSVCTrainer(TTSTrainer):
                 # gan loss
                 loss_gen, losses_gen = self.generator_loss(outputs_d["y_d_hat_g"])
                 loss_g["loss_gen"] = loss_gen
-                loss_g["loss_gen_all"] = (
-                    loss_mel + loss_kl + loss_fm + loss_gen
-                )
+                loss_g["loss_gen_all"] = loss_mel + loss_kl + loss_fm + loss_gen
 
                 return loss_g
 

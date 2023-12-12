@@ -19,6 +19,7 @@ LRELU_SLOPE = 0.1
 # The AMPBlock Module is adopted from BigVGAN under the MIT License
 # https://github.com/NVIDIA/BigVGAN
 
+
 class AMPBlock1(torch.nn.Module):
     def __init__(
         self, cfg, channels, kernel_size=3, dilation=(1, 3, 5), activation=None
@@ -289,14 +290,10 @@ class BigVGAN(torch.nn.Module):
                 )
 
         # Conv post for result
-        if (
-            cfg.model.bigvgan.activation == "snake"
-        ):  
+        if cfg.model.bigvgan.activation == "snake":
             activation_post = Snake(ch, alpha_logscale=cfg.model.bigvgan.snake_logscale)
             self.activation_post = Activation1d(activation=activation_post)
-        elif (
-            cfg.model.bigvgan.activation == "snakebeta"
-        ):  
+        elif cfg.model.bigvgan.activation == "snakebeta":
             activation_post = SnakeBeta(
                 ch, alpha_logscale=cfg.model.bigvgan.snake_logscale
             )

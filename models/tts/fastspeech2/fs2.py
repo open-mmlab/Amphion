@@ -412,7 +412,7 @@ class FastSpeech2(nn.Module):
             if mel_lens is not None
             else None
         )
-        
+
         output = self.encoder(texts, src_masks)
 
         if self.speaker_emb is not None:

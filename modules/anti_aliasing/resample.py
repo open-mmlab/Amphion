@@ -13,6 +13,7 @@ from .filter import *
 # This code is adopted from BigVGAN under the MIT License
 # https://github.com/NVIDIA/BigVGAN
 
+
 class UpSample1d(nn.Module):
     def __init__(self, ratio=2, kernel_size=None):
         super().__init__()

@@ -139,12 +139,13 @@ def build_parser():
     )
     return parser
 
+
 def main():
     # Parse arguments
     parser = build_parser()
     VALLEInference.add_arguments(parser)
     args = parser.parse_args()
-    
+
     # Parse config
     cfg = load_config(args.config)
 
