@@ -66,7 +66,17 @@ def save_audio(path, waveform, fs, add_silence=False, turn_up=False, volume_peak
         waveform = torch.mean(waveform, dim=0, keepdim=True)
     torchaudio.save(path, waveform, fs, encoding="PCM_S", bits_per_sample=16)
 
-
+def save_torch_audio(process_dir, feature_dir, item, wav_torch, fs, overrides=True):
+    if wav_torch.shape != 2:
+        wav_torch = wav_torch.unsqueeze(0)
+        
+    process_dir = os.path.join(process_dir, feature_dir)
+    os.makedirs(process_dir, exist_ok=True)
+    out_path = os.path.join(process_dir, item + ".wav")
+    
+    torchaudio.save(out_path, wav_torch, fs)
+        
+        
 async def async_load_audio(path, sample_rate: int = 24000):
     r"""
     Args:
