@@ -26,24 +26,30 @@ def cal_metadata(cfg):
         save_dir = os.path.join(cfg.preprocess.processed_dir, dataset)
         assert os.path.exists(save_dir)
 
-        # 'train.json' and 'test.json' of target dataset
+        # 'train.json' and 'test.json' and 'valid.json' of target dataset
         train_metadata = os.path.join(save_dir, "train.json")
         test_metadata = os.path.join(save_dir, "test.json")
+        valid_metadata = os.path.join(save_dir, "valid.json")
 
         # Sort the metadata as the duration order
         with open(train_metadata, "r", encoding="utf-8") as f:
             train_utterances = json.load(f)
         with open(test_metadata, "r", encoding="utf-8") as f:
             test_utterances = json.load(f)
+        with open(valid_metadata, "r", encoding="utf-8") as f:
+            valid_utterances = json.load(f)
 
         train_utterances = sorted(train_utterances, key=lambda x: x["Duration"])
         test_utterances = sorted(test_utterances, key=lambda x: x["Duration"])
+        valid_utterances = sorted(valid_utterances, key=lambda x: x["Duration"])
 
         # Write back the sorted metadata
         with open(train_metadata, "w") as f:
             json.dump(train_utterances, f, indent=4, ensure_ascii=False)
         with open(test_metadata, "w") as f:
             json.dump(test_utterances, f, indent=4, ensure_ascii=False)
+        with open(valid_metadata, "w") as f:
+            json.dump(valid_utterances, f, indent=4, ensure_ascii=False)
 
         # Paths of metadata needed to be generated
         singer_dict_file = os.path.join(save_dir, cfg.preprocess.spk2id)
@@ -52,15 +58,16 @@ def cal_metadata(cfg):
         # Get the total duration and singer names for train and test utterances
         train_total_duration = sum(utt["Duration"] for utt in train_utterances)
         test_total_duration = sum(utt["Duration"] for utt in test_utterances)
+        valid_total_duration = sum(utt["Duration"] for utt in valid_utterances)
 
         singer_names = set(
             f"{replace_augment_name(utt['Dataset'])}_{utt['Singer']}"
-            for utt in train_utterances + test_utterances
+            for utt in train_utterances + test_utterances + valid_utterances
         )
 
         # Write the utt2singer file and sort the singer names
         with open(utt2singer_file, "w", encoding="utf-8") as f:
-            for utt in train_utterances + test_utterances:
+            for utt in train_utterances + test_utterances + valid_utterances:
                 f.write(
                     f"{utt['Dataset']}_{utt['Uid']}\t{replace_augment_name(utt['Dataset'])}_{utt['Singer']}\n"
                 )
@@ -75,9 +82,10 @@ def cal_metadata(cfg):
         meta_info = {
             "dataset": dataset,
             "statistics": {
-                "size": len(train_utterances) + len(test_utterances),
+                "size": len(train_utterances) + len(test_utterances) + len(valid_utterances),
                 "hours": round(train_total_duration / 3600, 4)
-                + round(test_total_duration / 3600, 4),
+                + round(test_total_duration / 3600, 4)
+                + round(valid_total_duration / 3600, 4),
             },
             "train": {
                 "size": len(train_utterances),
@@ -86,6 +94,10 @@ def cal_metadata(cfg):
             "test": {
                 "size": len(test_utterances),
                 "hours": round(test_total_duration / 3600, 4),
+            },
+            "valid": {
+                "size": len(valid_utterances),
+                "hours": round(valid_total_duration / 3600, 4),
             },
             "singers": {"size": len(singer_lut)},
         }
@@ -97,6 +109,9 @@ def cal_metadata(cfg):
             training_singer2mins[k] += utt["Duration"] / 60
             total_singer2mins[k] += utt["Duration"] / 60
         for utt in test_utterances:
+            k = f"{replace_augment_name(utt['Dataset'])}_{utt['Singer']}"
+            total_singer2mins[k] += utt["Duration"] / 60
+        for utt in valid_utterances:
             k = f"{replace_augment_name(utt['Dataset'])}_{utt['Singer']}"
             total_singer2mins[k] += utt["Duration"] / 60
 
