@@ -14,4 +14,4 @@ Until now, Amphion TTS supports the following models or architectures,
 - **[NaturalSpeech2](NaturalSpeech2)** (👨‍💻 developing): An architecture for TTS that utilizes a latent diffusion model to generate natural-sounding voices.
 
 ## Amphion TTS Demo
-Here are some [TTS samples](https://openhlt.github.io/Amphion_TTS_Demo/) from Amphion (👨‍💻 developing).
+Here are some [TTS samples](https://openhlt.github.io/Amphion_TTS_Demo/) from Amphion.
