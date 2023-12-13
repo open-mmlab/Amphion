@@ -128,7 +128,7 @@ def preprocess(cfg, args):
         print("Preprocess {}...".format(dataset))
 
         if args.prepare_alignment:
-            ## Prepare alignment with MFA
+            # Prepare alignment with MFA
             print("Prepare alignment {}...".format(dataset))
             prepare_align(
                 dataset, cfg.dataset_path[dataset], cfg.preprocess, output_path
@@ -160,8 +160,6 @@ def preprocess(cfg, args):
     # Dump metadata of datasets (singers, train/test durations, etc.)
     cal_metadata(cfg)
 
-    
-    
     # Prepare the acoustic features
     for dataset in cfg.dataset:
         # Skip augmented datasets which do not need to extract acoustic features
