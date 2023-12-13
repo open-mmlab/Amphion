@@ -121,7 +121,7 @@ sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
     --infer_text "This is a clip of generated speech with the given text from a TTS model."
 ```
 
-We will release a pre-trained VITS model trained on LJSpeech. So you can download the pre-trained model and generate speech following the above inference instruction.
+We released a pre-trained Amphion VITS model trained on LJSpeech. So you can download the pre-trained model [here](https://huggingface.co/amphion/vits-ljspeech) and generate speech following the above inference instruction.
 
 
 ```bibtex
