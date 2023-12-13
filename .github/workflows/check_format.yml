@@ -9,4 +9,4 @@ jobs:
       - uses: actions/checkout@v3
       - uses: psf/black@stable
         with:
-          options: "--check --diff"
+          options: "--check --diff --color"
