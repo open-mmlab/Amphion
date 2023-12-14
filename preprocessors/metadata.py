@@ -8,7 +8,7 @@ import json
 from tqdm import tqdm
 
 
-def cal_metadata(cfg, dataset_types):
+def cal_metadata(cfg, dataset_types=["train", "test"]):
     """
     Dump metadata (singers.json, meta_info.json, utt2singer) for singer dataset or multi-datasets.
     """
