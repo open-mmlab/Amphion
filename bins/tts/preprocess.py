@@ -231,7 +231,6 @@ def preprocess(cfg, args):
         print("Extracting content features for {}...".format(dataset))
         extract_content_features(dataset, output_path, cfg, args.num_workers)
 
-    
     # Prepare the phenome squences
     if cfg.preprocess.extract_phone:
         for dataset in cfg.dataset:
