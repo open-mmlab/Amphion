@@ -47,6 +47,15 @@ def save_txt(process_dir, feature_dir, item, feature, overrides=True):
 
 
 def save_audio(path, waveform, fs, add_silence=False, turn_up=False, volume_peak=0.9):
+    ''' Save audio to path with processing  (turn up volume, add silence)   
+    Args:
+        path (str): path to save audio
+        waveform (numpy array): waveform to save
+        fs (int): sampling rate
+        add_silence (bool, optional): whether to add silence to beginning and end. Defaults to False.
+        turn_up (bool, optional): whether to turn up volume. Defaults to False.
+        volume_peak (float, optional): volume peak. Defaults to 0.9.
+    '''
     if turn_up:
         # continue to turn up to volume_peak
         ratio = volume_peak / max(waveform.max(), abs(waveform.min()))
@@ -66,7 +75,26 @@ def save_audio(path, waveform, fs, add_silence=False, turn_up=False, volume_peak
         waveform = torch.mean(waveform, dim=0, keepdim=True)
     torchaudio.save(path, waveform, fs, encoding="PCM_S", bits_per_sample=16)
 
-
+def save_torch_audio(process_dir, feature_dir, item, wav_torch, fs, overrides=True):
+    ''' Save torch audio to path without processing 
+    Args:
+        process_dir (str): directory to store features
+        feature_dir (_type_): directory to store one type of features (mel, energy, ...)
+        item (str): uid
+        wav_torch (tensor): feature tensor
+        fs (int): sampling rate
+        overrides (bool, optional): whether to override existing files. Defaults to True.
+    '''
+    if wav_torch.shape != 2:
+        wav_torch = wav_torch.unsqueeze(0)
+        
+    process_dir = os.path.join(process_dir, feature_dir)
+    os.makedirs(process_dir, exist_ok=True)
+    out_path = os.path.join(process_dir, item + ".wav")
+    
+    torchaudio.save(out_path, wav_torch, fs)
+        
+        
 async def async_load_audio(path, sample_rate: int = 24000):
     r"""
     Args:
