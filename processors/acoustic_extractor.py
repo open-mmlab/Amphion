@@ -215,7 +215,6 @@ def __extract_utt_acoustic_features(dataset_output, cfg, utt):
         if cfg.preprocess.extract_acoustic_token:
             if cfg.preprocess.acoustic_token_extractor == "Encodec":
                 codes = extract_encodec_token(wav_path)
-
                 save_feature(
                     dataset_output, cfg.preprocess.acoustic_token_dir, uid, codes
                 )

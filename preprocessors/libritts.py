@@ -63,6 +63,7 @@ def main(output_path, dataset_path):
     os.makedirs(save_dir, exist_ok=True)
     train_output_file = os.path.join(save_dir, "train.json")
     test_output_file = os.path.join(save_dir, "test.json")
+    valid_output_file = os.path.join(save_dir, "valid.json")
     singer_dict_file = os.path.join(save_dir, "singers.json")
     utt2singer_file = os.path.join(save_dir, "utt2singer")
     if has_existed(train_output_file):
@@ -79,12 +80,15 @@ def main(output_path, dataset_path):
     # We select pharases of standard spekaer as test songs
     train = []
     test = []
+    valid = []
 
     train_index_count = 0
     test_index_count = 0
+    valid_index_count = 0
 
     train_total_duration = 0
     test_total_duration = 0
+    valid_total_duration = 0
 
     for distribution, speakers2pharases2utts in tqdm(
         distribution2speakers2pharases2utts.items()
@@ -107,27 +111,49 @@ def main(output_path, dataset_path):
                     res["Path"] = os.path.join(libritts_path, res["Path"])
                     assert os.path.exists(res["Path"])
 
+                    text_file_path = os.path.join(
+                        libritts_path,
+                        distribution,
+                        speaker,
+                        chosen_pharase,
+                        chosen_uid + ".normalized.txt",
+                    )
+                    with open(text_file_path, "r") as f:
+                        lines = f.readlines()
+                        assert len(lines) == 1
+                        text = lines[0].strip()
+                        res["Text"] = text
+
                     waveform, sample_rate = torchaudio.load(res["Path"])
                     duration = waveform.size(-1) / sample_rate
                     res["Duration"] = duration
 
-                    if not "train" in distribution:
+                    if "test" in distribution:
                         res["index"] = test_index_count
                         test_total_duration += duration
                         test.append(res)
                         test_index_count += 1
-                    else:
+                    elif "train" in distribution:
                         res["index"] = train_index_count
                         train_total_duration += duration
                         train.append(res)
                         train_index_count += 1
+                    elif "dev" in distribution:
+                        res["index"] = valid_index_count
+                        valid_total_duration += duration
+                        valid.append(res)
+                        valid_index_count += 1
 
                     utt2singer.write("{}\t{}\n".format(res["Uid"], res["Singer"]))
 
-    print("#Train = {}, #Test = {}".format(len(train), len(test)))
     print(
-        "#Train hours= {}, #Test hours= {}".format(
-            train_total_duration / 3600, test_total_duration / 3600
+        "#Train = {}, #Test = {}, #Valid = {}".format(len(train), len(test), len(valid))
+    )
+    print(
+        "#Train hours= {}, #Test hours= {}, #Valid hours= {}".format(
+            train_total_duration / 3600,
+            test_total_duration / 3600,
+            valid_total_duration / 3600,
         )
     )
 
@@ -136,6 +162,8 @@ def main(output_path, dataset_path):
         json.dump(train, f, indent=4, ensure_ascii=False)
     with open(test_output_file, "w") as f:
         json.dump(test, f, indent=4, ensure_ascii=False)
+    with open(valid_output_file, "w") as f:
+        json.dump(valid, f, indent=4, ensure_ascii=False)
 
     # Save singers.json
     singer_lut = {name: i for i, name in enumerate(unique_speakers)}
