@@ -72,7 +72,6 @@ def extract_content_features(dataset, output_path, cfg, dataset_types, num_worke
     )
 
 
-
 def extract_phonme_sequences(dataset, output_path, cfg, dataset_types):
     """Extract phoneme features of utterances in the dataset
 
@@ -224,7 +223,6 @@ def preprocess(cfg, args):
         for dataset in cfg.dataset:
             print("Extracting phoneme sequence for {}...".format(dataset))
             extract_phonme_sequences(dataset, output_path, cfg, dataset_types)
-
 
 
 def main():
