@@ -11,20 +11,25 @@ from torch.utils.data import DataLoader
 from torch.nn.parallel import DistributedDataParallel
 from optimizer.optimizers import Eve, ScaledAdam
 from schedulers.scheduler import NoamScheduler, Eden
-from models.tts.valle.valle_dataset import VALLEDataset, VALLECollator, VariableSampler, batch_by_size
+from models.tts.valle.valle_dataset import (
+    VALLEDataset,
+    VALLECollator,
+    VariableSampler,
+    batch_by_size,
+)
 from models.tts.base import TTSTrainer
 from models.tts.valle.valle import VALLE
+
 
 class VALLETrainer(TTSTrainer):
     def __init__(self, args, cfg):
         TTSTrainer.__init__(self, args, cfg)
 
     def _build_model(self):
-        
         model = VALLE(self.cfg.model)
-        
+
         return model
-    
+
     def _build_dataset(self):
         return VALLEDataset, VALLECollator
 
@@ -36,9 +41,8 @@ class VALLETrainer(TTSTrainer):
                 model = self.model
             model_parameters = model.stage_parameters(self.args.train_stage)
         else:
-            model_parameters = self.model.parameters()   
+            model_parameters = self.model.parameters()
 
-                                        
         if self.cfg.train.optimizer == "ScaledAdam":
             parameters_names = []
             if self.args.train_stage != 0:
@@ -52,10 +56,7 @@ class VALLETrainer(TTSTrainer):
                 )
             else:
                 parameters_names.append(
-                    [
-                        name_param_pair[0]
-                        for name_param_pair in model.named_parameters()
-                    ]
+                    [name_param_pair[0] for name_param_pair in model.named_parameters()]
                 )
 
             optimizer = ScaledAdam(
@@ -91,12 +92,14 @@ class VALLETrainer(TTSTrainer):
             )
         else:
             raise NotImplementedError()
-        
+
         return optimizer
-        
+
     def _build_scheduler(self):
         if self.cfg.train.scheduler.lower() == "eden":
-            scheduler = Eden(self.optimizer, 5000, 4, warmup_batches=self.cfg.train.warmup_steps)
+            scheduler = Eden(
+                self.optimizer, 5000, 4, warmup_batches=self.cfg.train.warmup_steps
+            )
         elif self.cfg.train.scheduler.lower() == "noam":
             scheduler = NoamScheduler(
                 self.cfg.train.base_lr,
@@ -113,7 +116,7 @@ class VALLETrainer(TTSTrainer):
         else:
             raise NotImplementedError(f"{self.cfg.train.scheduler}")
 
-        return scheduler      
+        return scheduler
 
     def _train_epoch(self):
         r"""Training epoch. Should return average loss of a batch (sample) over
@@ -138,14 +141,13 @@ class VALLETrainer(TTSTrainer):
             smoothing=0.04,
             disable=not self.accelerator.is_main_process,
         ):
-
             # Do training step and BP
             with self.accelerator.accumulate(self.model):
                 total_loss, train_losses = self._train_step(batch)
-                self.accelerator.backward(total_loss)  
+                self.accelerator.backward(total_loss)
                 self.optimizer.step()
-                self.optimizer.zero_grad()   
-            self.batch_count += 1  
+                self.optimizer.zero_grad()
+            self.batch_count += 1
 
             if self.batch_count % self.cfg.train.gradient_accumulation_step == 0:
                 if self.cfg.train.optimizer not in ["ScaledAdam", "Eve"]:
@@ -156,9 +158,9 @@ class VALLETrainer(TTSTrainer):
                         self.scheduler.step_batch(self.step)
                     else:
                         self.scheduler.step()
-                                        
+
                 epoch_sum_loss += total_loss.detach().cpu().item()
-                
+
                 if isinstance(train_losses, dict):
                     for key, value in train_losses.items():
                         if key not in epoch_losses.keys():
@@ -177,23 +179,21 @@ class VALLETrainer(TTSTrainer):
                         {"Step/Train Loss": loss},
                         step=self.step,
                     )
-                                        
+
                 self.accelerator.log(
                     {"Step/lr": self.scheduler.get_last_lr()[0]},
                     step=self.step,
                 )
-                
+
                 # print loss every log_epoch_step steps
                 # if epoch_step % self.cfg.train.log_epoch_step == 0:
                 #     for key, loss in train_losses.items():
                 #         self.logger.info("Step/Train {}: {:.6f}".format(key, loss))
                 #         print("Step/Train {}: {:.6f}".format(key, loss))
-                    
 
                 self.step += 1
                 epoch_step += 1
-              
-                
+
         self.accelerator.wait_for_everyone()
 
         epoch_sum_loss = (
@@ -210,8 +210,7 @@ class VALLETrainer(TTSTrainer):
             )
 
         return epoch_sum_loss, epoch_losses
-               
-    
+
     def _train_step(self, batch, is_training=True):
         text_tokens = batch["phone_seq"].to(self.device)
         text_tokens_lens = batch["phone_len"].to(self.device)
@@ -220,52 +219,51 @@ class VALLETrainer(TTSTrainer):
         audio_features = batch["acoustic_token"].to(self.device)
         audio_features_lens = batch["target_len"].to(self.device)
         assert audio_features.ndim == 3
-  
-                
+
         with torch.set_grad_enabled(is_training):
             loss, losses = self.model(
                 x=text_tokens,
                 x_lens=text_tokens_lens,
                 y=audio_features,
                 y_lens=audio_features_lens,
-                train_stage=self.args.train_stage
+                train_stage=self.args.train_stage,
             )
-            
+
         assert loss.requires_grad == is_training
 
         loss_dict = {}
         frames_sum = (audio_features_lens).sum()
-        
+
         avg_loss = loss / frames_sum
-        
-        loss_dict['loss'] = avg_loss.detach().cpu().item()
+
+        loss_dict["loss"] = avg_loss.detach().cpu().item()
         for l in losses:
             loss_dict[l] = losses[l].detach().cpu().item() / frames_sum.item()
-        
+
         return avg_loss, loss_dict
-    
+
     def _valid_step(self, batch):
         valid_losses = {}
         total_loss = 0
         valid_stats = {}
-        
+
         total_loss, valid_losses = self._train_step(
             batch=batch,
             is_training=False,
         )
         assert total_loss.requires_grad is False
-        
+
         total_loss = total_loss.detach().cpu().item()
-        
+
         return total_loss, valid_losses, valid_stats
 
     def add_arguments(parser: argparse.ArgumentParser):
-            parser.add_argument(
-                "--train_stage",
-                type=int,
-                default="1",
-                help="0: train all modules, 1: AR Decoder, 2: NAR Decoder",
-            )
+        parser.add_argument(
+            "--train_stage",
+            type=int,
+            default="1",
+            help="0: train all modules, 1: AR Decoder, 2: NAR Decoder",
+        )
 
     def _build_dataloader(self):
         if not self.cfg.train.use_dynamic_batchsize:
@@ -273,35 +271,51 @@ class VALLETrainer(TTSTrainer):
         if len(self.cfg.dataset) > 1:
             raise Exception("use_dynamic_batchsize only supports single dataset now.")
         Dataset, Collator = self._build_dataset()
-        train_dataset = Dataset(self.cfg, self.cfg.dataset[0], is_valid=False)   #TODO: support use_dynamic_batchsize for more than one datasets.
+        train_dataset = Dataset(
+            self.cfg, self.cfg.dataset[0], is_valid=False
+        )  # TODO: support use_dynamic_batchsize for more than one datasets.
         train_collate = Collator(self.cfg)
-        batch_sampler = batch_by_size(train_dataset.num_frame_indices,
-                                      train_dataset.get_num_frames,
-                                      max_tokens=self.cfg.train.max_tokens * self.accelerator.num_processes,
-                                      max_sentences=self.cfg.train.max_sentences * self.accelerator.num_processes,
-                                      required_batch_size_multiple=self.accelerator.num_processes)
+        batch_sampler = batch_by_size(
+            train_dataset.num_frame_indices,
+            train_dataset.get_num_frames,
+            max_tokens=self.cfg.train.max_tokens * self.accelerator.num_processes,
+            max_sentences=self.cfg.train.max_sentences * self.accelerator.num_processes,
+            required_batch_size_multiple=self.accelerator.num_processes,
+        )
         np.random.seed(1234)
         np.random.shuffle(batch_sampler)
         print(batch_sampler[:1])
-        batches = [x[self.accelerator.local_process_index::self.accelerator.num_processes] for x in batch_sampler if len(x) % self.accelerator.num_processes == 0]
+        batches = [
+            x[self.accelerator.local_process_index :: self.accelerator.num_processes]
+            for x in batch_sampler
+            if len(x) % self.accelerator.num_processes == 0
+        ]
 
         train_loader = DataLoader(
             train_dataset,
             collate_fn=train_collate,
             num_workers=self.cfg.train.dataloader.num_worker,
-            batch_sampler=VariableSampler(batches, drop_last=False, use_random_sampler=True),
+            batch_sampler=VariableSampler(
+                batches, drop_last=False, use_random_sampler=True
+            ),
             pin_memory=False,
         )
         self.accelerator.wait_for_everyone()
 
         valid_dataset = Dataset(self.cfg, self.cfg.dataset[0], is_valid=True)
         valid_collate = Collator(self.cfg)
-        batch_sampler = batch_by_size(valid_dataset.num_frame_indices,
-                                      valid_dataset.get_num_frames,
-                                      max_tokens=self.cfg.train.max_tokens * self.accelerator.num_processes,
-                                      max_sentences=self.cfg.train.max_sentences * self.accelerator.num_processes,
-                                      required_batch_size_multiple=self.accelerator.num_processes)
-        batches = [x[self.accelerator.local_process_index::self.accelerator.num_processes] for x in batch_sampler if len(x) % self.accelerator.num_processes == 0]
+        batch_sampler = batch_by_size(
+            valid_dataset.num_frame_indices,
+            valid_dataset.get_num_frames,
+            max_tokens=self.cfg.train.max_tokens * self.accelerator.num_processes,
+            max_sentences=self.cfg.train.max_sentences * self.accelerator.num_processes,
+            required_batch_size_multiple=self.accelerator.num_processes,
+        )
+        batches = [
+            x[self.accelerator.local_process_index :: self.accelerator.num_processes]
+            for x in batch_sampler
+            if len(x) % self.accelerator.num_processes == 0
+        ]
         valid_loader = DataLoader(
             valid_dataset,
             collate_fn=valid_collate,
@@ -314,7 +328,7 @@ class VALLETrainer(TTSTrainer):
         return train_loader, valid_loader
 
     def _accelerator_prepare(self):
-        if (not self.cfg.train.use_dynamic_batchsize):
+        if not self.cfg.train.use_dynamic_batchsize:
             (
                 self.train_dataloader,
                 self.valid_dataloader,
@@ -322,13 +336,13 @@ class VALLETrainer(TTSTrainer):
                 self.train_dataloader,
                 self.valid_dataloader,
             )
-        
+
         if isinstance(self.model, dict):
             for key in self.model.keys():
                 self.model[key] = self.accelerator.prepare(self.model[key])
         else:
             self.model = self.accelerator.prepare(self.model)
-        
+
         if isinstance(self.optimizer, dict):
             for key in self.optimizer.keys():
                 self.optimizer[key] = self.accelerator.prepare(self.optimizer[key])
@@ -339,5 +353,4 @@ class VALLETrainer(TTSTrainer):
             for key in self.scheduler.keys():
                 self.scheduler[key] = self.accelerator.prepare(self.scheduler[key])
         else:
-            self.scheduler = self.accelerator.prepare(self.scheduler)        
-    
+            self.scheduler = self.accelerator.prepare(self.scheduler)

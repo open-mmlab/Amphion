@@ -21,6 +21,7 @@ from torch.utils.data.sampler import (
 
 from utils.tokenizer import tokenize_audio
 
+
 class VALLEDataset(TTSDataset):
     def __init__(self, cfg, dataset, is_valid=False):
         super().__init__(cfg, dataset, is_valid=is_valid)
@@ -45,7 +46,7 @@ class VALLEDataset(TTSDataset):
                 self.utt2acousticToken_path[utt] = os.path.join(
                     cfg.preprocess.processed_dir,
                     dataset,
-                    cfg.preprocess.acoustic_token_dir,   # code
+                    cfg.preprocess.acoustic_token_dir,  # code
                     uid + ".npy",
                 )
 
@@ -53,7 +54,11 @@ class VALLEDataset(TTSDataset):
         for i in range(len(self.metadata)):
             self.all_num_frames.append(self.metadata[i]["Duration"])
         self.num_frame_sorted = np.array(sorted(self.all_num_frames))
-        self.num_frame_indices = np.array(sorted(range(len(self.all_num_frames)), key=lambda k: self.all_num_frames[k]))
+        self.num_frame_indices = np.array(
+            sorted(
+                range(len(self.all_num_frames)), key=lambda k: self.all_num_frames[k]
+            )
+        )
 
     def __len__(self):
         return super().__len__()
@@ -63,8 +68,11 @@ class VALLEDataset(TTSDataset):
         with open(self.metafile_path, "r", encoding="utf-8") as f:
             metadata = json.load(f)
         for utt_info in metadata:
-            duration = utt_info['Duration']
-            if duration >= self.cfg.preprocess.max_duration or duration <= self.cfg.preprocess.min_duration:
+            duration = utt_info["Duration"]
+            if (
+                duration >= self.cfg.preprocess.max_duration
+                or duration <= self.cfg.preprocess.min_duration
+            ):
                 continue
             metadata_filter.append(utt_info)
 
@@ -72,12 +80,11 @@ class VALLEDataset(TTSDataset):
 
     def get_dur(self, idx):
         utt_info = self.metadata[idx]
-        return utt_info['Duration']
-
+        return utt_info["Duration"]
 
     def __getitem__(self, index):
         single_feature = super().__getitem__(index)
-        
+
         utt_info = self.metadata[index]
         dataset = utt_info["Dataset"]
         uid = utt_info["Uid"]
@@ -90,23 +97,27 @@ class VALLEDataset(TTSDataset):
                 single_feature["target_len"] = acoustic_token.shape[0]
             single_feature["acoustic_token"] = acoustic_token  # [T, 8]
 
-
         return single_feature
 
     def get_num_frames(self, index):
         utt_info = self.metadata[index]
-        return int(utt_info['Duration'] * (self.cfg.preprocess.sample_rate // self.cfg.preprocess.codec_hop_size))
-    
+        return int(
+            utt_info["Duration"]
+            * (self.cfg.preprocess.sample_rate // self.cfg.preprocess.codec_hop_size)
+        )
+
+
 class VALLECollator(TTSCollator):
     def __init__(self, cfg):
         super().__init__(cfg)
-        
+
     def __call__(self, batch):
         parsed_batch_features = super().__call__(batch)
         return parsed_batch_features
 
+
 class VALLETestDataset(TTSTestDataset):
-    def __init__(self,args, cfg):
+    def __init__(self, args, cfg):
         super().__init__(args, cfg)
 
         # prepare data
@@ -117,11 +128,13 @@ class VALLETestDataset(TTSTestDataset):
                 dataset = utt_info["Dataset"]
                 uid = utt_info["Uid"]
                 utt = "{}_{}".format(dataset, uid)
-                
+
                 # extract acoustic token
-                audio_file = utt_info["Audio_pormpt_path"] 
+                audio_file = utt_info["Audio_pormpt_path"]
                 encoded_frames = tokenize_audio(self.audio_tokenizer, audio_file)
-                audio_prompt_token = encoded_frames[0][0].transpose(2, 1).squeeze(0).cpu().numpy()
+                audio_prompt_token = (
+                    encoded_frames[0][0].transpose(2, 1).squeeze(0).cpu().numpy()
+                )
                 self.utt2acousticToken[utt] = audio_prompt_token
 
     def __getitem__(self, index):
@@ -132,7 +145,7 @@ class VALLETestDataset(TTSTestDataset):
         utt = "{}_{}".format(dataset, uid)
 
         single_feature = dict()
-        
+
         # acoustic token
         if self.cfg.preprocess.use_acoustic_token:
             acoustic_token = self.utt2acousticToken[utt]
@@ -157,8 +170,8 @@ class VALLETestDataset(TTSTestDataset):
     def __len__(self):
         return len(self.metadata)
 
-class VALLETestCollator(TTSTestCollator):
 
+class VALLETestCollator(TTSTestCollator):
     def __init__(self, cfg):
         self.cfg = cfg
 
@@ -211,6 +224,7 @@ class VALLETestCollator(TTSTestCollator):
 
         return packed_batch_features
 
+
 def _is_batch_full(batch, num_tokens, max_tokens, max_sentences):
     if len(batch) == 0:
         return 0
@@ -221,7 +235,13 @@ def _is_batch_full(batch, num_tokens, max_tokens, max_sentences):
     return 0
 
 
-def batch_by_size(indices, num_tokens_fn, max_tokens=None, max_sentences=None, required_batch_size_multiple=1):
+def batch_by_size(
+    indices,
+    num_tokens_fn,
+    max_tokens=None,
+    max_sentences=None,
+    required_batch_size_multiple=1,
+):
     """
     Yield mini-batches of indices bucketed by size. Batches may contain
     sequences of different lengths.
@@ -239,7 +259,6 @@ def batch_by_size(indices, num_tokens_fn, max_tokens=None, max_sentences=None, r
     """
     bsz_mult = required_batch_size_multiple
 
-
     sample_len = 0
     sample_lens = []
     batch = []
@@ -250,9 +269,10 @@ def batch_by_size(indices, num_tokens_fn, max_tokens=None, max_sentences=None, r
         sample_lens.append(num_tokens)
         sample_len = max(sample_len, num_tokens)
 
-        assert sample_len <= max_tokens, (
-            "sentence at index {} of size {} exceeds max_tokens "
-            "limit of {}!".format(idx, sample_len, max_tokens)
+        assert (
+            sample_len <= max_tokens
+        ), "sentence at index {} of size {} exceeds max_tokens " "limit of {}!".format(
+            idx, sample_len, max_tokens
         )
         num_tokens = (len(batch) + 1) * sample_len
 
@@ -273,20 +293,18 @@ def batch_by_size(indices, num_tokens_fn, max_tokens=None, max_sentences=None, r
 
 class VariableSampler(BatchSampler):
     def __init__(self, sampler, drop_last: bool, use_random_sampler=False):
-            
         self.data_list = sampler
         if use_random_sampler:
             self.sampler = RandomSampler(sampler)
         else:
             self.sampler = SequentialSampler(sampler)
-            
+
         super().__init__(self.sampler, 1, drop_last)
-            
+
     def __iter__(self):
-            
         for batch_ids in self.data_list:
             yield batch_ids
-            
+
     def __len__(self):
         if self.drop_last:
             return len(self.sampler) // self.batch_size

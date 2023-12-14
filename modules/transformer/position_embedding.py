@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import math
 
+
 class SinePositionalEmbedding(nn.Module):
     def __init__(
         self,
@@ -38,9 +39,7 @@ class SinePositionalEmbedding(nn.Module):
                 x.size(1) - 1, -1, -1.0, dtype=torch.float32
             ).unsqueeze(1)
         else:
-            position = torch.arange(
-                0, x.size(1), dtype=torch.float32
-            ).unsqueeze(1)
+            position = torch.arange(0, x.size(1), dtype=torch.float32).unsqueeze(1)
         div_term = torch.exp(
             torch.arange(0, self.dim_model, 2, dtype=torch.float32)
             * -(math.log(10000.0) / self.dim_model)

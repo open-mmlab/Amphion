@@ -99,9 +99,11 @@ class ISTFT(nn.Module):
         y = y / window_envelope
 
         return y
-    
+
+
 # The ASP and PSP Module are adopted from APNet under the MIT License
 # https://github.com/YangAi520/APNet/blob/main/models.py
+
 
 class ASPResBlock(torch.nn.Module):
     def __init__(self, cfg, channels, kernel_size=3, dilation=(1, 3, 5)):

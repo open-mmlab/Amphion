@@ -21,7 +21,7 @@ from scipy.interpolate import interp1d
 
 ZERO = 1e-12
 
-            
+
 def extract_utt_acoustic_features_parallel(metadata, dataset_output, cfg, n_workers=1):
     """Extract acoustic features from utterances using muliprocess
 
@@ -215,7 +215,10 @@ def __extract_utt_acoustic_features(dataset_output, cfg, utt):
         if cfg.preprocess.extract_acoustic_token:
             if cfg.preprocess.acoustic_token_extractor == "Encodec":
                 codes = extract_encodec_token(wav_path)
-                save_feature(dataset_output, cfg.preprocess.acoustic_token_dir, uid, codes)
+
+                save_feature(
+                    dataset_output, cfg.preprocess.acoustic_token_dir, uid, codes
+                )
             
 # TODO: refactor extract_utt_acoustic_features_task function due to many duplicated code
 def extract_utt_acoustic_features_tts(dataset_output, cfg, utt):

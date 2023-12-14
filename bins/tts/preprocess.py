@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import faulthandler
+
 faulthandler.enable()
 
 import os
@@ -16,7 +17,12 @@ from multiprocessing import cpu_count
 from utils.util import load_config
 from preprocessors.processor import preprocess_dataset, prepare_align
 from preprocessors.metadata import cal_metadata
-from processors import acoustic_extractor, content_extractor, data_augment, phone_extractor
+from processors import (
+    acoustic_extractor,
+    content_extractor,
+    data_augment,
+    phone_extractor,
+)
 
 
 def extract_acoustic_features(dataset, output_path, cfg, n_workers=1):
@@ -30,13 +36,13 @@ def extract_acoustic_features(dataset, output_path, cfg, n_workers=1):
     """
     # types = ["train", "test"] if "eval" not in dataset else ["test"]
     types = list()
-    types.append((cfg.preprocess.train_file).split('.')[0])
-    types.append((cfg.preprocess.valid_file).split('.')[0])
-    if 'test' not in types: 
-        types.append('test') 
+    types.append((cfg.preprocess.train_file).split(".")[0])
+    types.append((cfg.preprocess.valid_file).split(".")[0])
+    if "test" not in types:
+        types.append("test")
     if "eval" in dataset:
         types = ["test"]
-    print('types: ', types)
+    print("types: ", types)
     metadata = []
     for dataset_type in types:
         dataset_output = os.path.join(output_path, dataset)
@@ -63,13 +69,13 @@ def extract_content_features(dataset, output_path, cfg, num_workers=1):
     # types = ["train", "test"] if "eval" not in dataset else ["test"]
 
     types = list()
-    types.append((cfg.preprocess.train_file).split('.')[0])
-    types.append((cfg.preprocess.valid_file).split('.')[0])
-    if 'test' not in types: 
-        types.append('test') 
+    types.append((cfg.preprocess.train_file).split(".")[0])
+    types.append((cfg.preprocess.valid_file).split(".")[0])
+    if "test" not in types:
+        types.append("test")
     if "eval" in dataset:
         types = ["test"]
-            
+
     metadata = []
     for dataset_type in types:
         dataset_output = os.path.join(output_path, dataset)
@@ -81,6 +87,7 @@ def extract_content_features(dataset, output_path, cfg, num_workers=1):
     content_extractor.extract_utt_content_features_dataloader(
         cfg, metadata, num_workers
     )
+
 
 def extract_phonme_sequences(dataset, output_path, cfg):
     """Extract phoneme features of utterances in the dataset
@@ -94,23 +101,21 @@ def extract_phonme_sequences(dataset, output_path, cfg):
     # types = ["train", "test"] if "eval" not in dataset else ["test"]
 
     types = list()
-    types.append((cfg.preprocess.train_file).split('.')[0])
-    types.append((cfg.preprocess.valid_file).split('.')[0])
-    if 'test' not in types: 
-        types.append('test') 
+    types.append((cfg.preprocess.train_file).split(".")[0])
+    types.append((cfg.preprocess.valid_file).split(".")[0])
+    if "test" not in types:
+        types.append("test")
     if "eval" in dataset:
         types = ["test"]
-            
+
     metadata = []
     for dataset_type in types:
         dataset_output = os.path.join(output_path, dataset)
         dataset_file = os.path.join(dataset_output, "{}.json".format(dataset_type))
         with open(dataset_file, "r") as f:
             metadata.extend(json.load(f))
-    phone_extractor.extract_utt_phone_sequence(
-        cfg, metadata
-    )
-    
+    phone_extractor.extract_utt_phone_sequence(cfg, metadata)
+
 
 def preprocess(cfg, args):
     """Proprocess raw data of single or multiple datasets (in cfg.dataset)
@@ -133,7 +138,7 @@ def preprocess(cfg, args):
             prepare_align(
                 dataset, cfg.dataset_path[dataset], cfg.preprocess, output_path
             )
-            
+
         preprocess_dataset(
             dataset,
             cfg.dataset_path[dataset],
@@ -232,7 +237,8 @@ def preprocess(cfg, args):
         for dataset in cfg.dataset:
             print("Extracting phoneme sequence for {}...".format(dataset))
             extract_phonme_sequences(dataset, output_path, cfg)
-            
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(

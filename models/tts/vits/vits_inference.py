@@ -19,8 +19,7 @@ from text.text_token_collation import phoneIDCollation
 class VitsInference(TTSInference):
     def __init__(self, args=None, cfg=None):
         TTSInference.__init__(self, args, cfg)
-        
-            
+
     def _build_model(self):
         net_g = SynthesizerTrn(
             self.cfg.model.text_token_num,
@@ -69,9 +68,11 @@ class VitsInference(TTSInference):
             for i, batch_data in enumerate(
                 self.test_dataloader if n_batch == 1 else tqdm(self.test_dataloader)
             ):
-
                 spk_id = None
-                if self.cfg.preprocess.use_spkid and self.cfg.train.multi_speaker_training:
+                if (
+                    self.cfg.preprocess.use_spkid
+                    and self.cfg.train.multi_speaker_training
+                ):
                     spk_id = batch_data["spk_id"]
 
                 outputs = self.model.infer(
@@ -101,37 +102,37 @@ class VitsInference(TTSInference):
     def inference_for_single_utterance(
         self, noise_scale=0.667, noise_scale_w=0.8, length_scale=1
     ):
-        
         text = self.args.text
 
-            
         # get phone symbol file
         phone_symbol_file = None
-        if self.cfg.preprocess.phone_extractor != 'lexicon':
-            phone_symbol_file = os.path.join(self.exp_dir, self.cfg.preprocess.symbols_dict)
+        if self.cfg.preprocess.phone_extractor != "lexicon":
+            phone_symbol_file = os.path.join(
+                self.exp_dir, self.cfg.preprocess.symbols_dict
+            )
             assert os.path.exists(phone_symbol_file)
-        # convert text to phone sequence    
+        # convert text to phone sequence
         phone_extractor = phoneExtractor(self.cfg)
-        phone_seq = phone_extractor.extract_phone(text) # phone_seq: list
+        phone_seq = phone_extractor.extract_phone(text)  # phone_seq: list
         # convert phone sequence to phone id sequence
-        phon_id_collator = phoneIDCollation(self.cfg, symbols_dict_file=phone_symbol_file)
+        phon_id_collator = phoneIDCollation(
+            self.cfg, symbols_dict_file=phone_symbol_file
+        )
         phone_id_seq = phon_id_collator.get_phone_id_sequence(self.cfg, phone_seq)
-                    
+
         # convert phone sequence to phone id sequence
         phone_id_seq = np.array(phone_id_seq)
         phone_id_seq = torch.from_numpy(phone_id_seq)
-        
+
         # get speaker id if multi-speaker training and use speaker id
         speaker_id = None
         if self.cfg.preprocess.use_spkid and self.cfg.train.multi_speaker_training:
             spk2id_file = os.path.join(self.exp_dir, self.cfg.preprocess.spk2id)
-            with open(spk2id_file, 'r') as f:
+            with open(spk2id_file, "r") as f:
                 spk2id = json.load(f)
                 speaker_id = spk2id[self.args.speaker_name]
-                speaker_id = torch.from_numpy(
-                    np.array([speaker_id], dtype=np.int32)
-                )
-                
+                speaker_id = torch.from_numpy(np.array([speaker_id], dtype=np.int32))
+
         with torch.no_grad():
             x_tst = phone_id_seq.to(self.device).unsqueeze(0)
             x_tst_lengths = torch.LongTensor([phone_id_seq.size(0)]).to(self.device)

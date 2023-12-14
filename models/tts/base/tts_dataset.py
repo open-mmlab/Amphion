@@ -14,13 +14,13 @@ from text import text_to_sequence
 from text.text_token_collation import phoneIDCollation
 from processors.acoustic_extractor import cal_normalized_mel
 
-from models.base.base_dataset import ( 
+from models.base.base_dataset import (
     BaseDataset,
     BaseCollator,
     BaseTestDataset,
-    BaseTestCollator
+    BaseTestCollator,
 )
-    
+
 from processors.content_extractor import (
     ContentvecExtractor,
     WenetExtractor,
@@ -290,7 +290,6 @@ class TTSDataset(BaseDataset):
         return single_feature
 
     def __len__(self):
-        
         return super().__len__()
 
     def get_metadata(self):
@@ -310,21 +309,21 @@ class TTSCollator(BaseCollator):
 class TTSTestDataset(BaseTestDataset):
     def __init__(self, args, cfg):
         self.cfg = cfg
-        
+
         # inference from test list file
         if args.test_list_file is not None:
             # construst metadata
             self.metadata = []
-            
+
             with open(args.test_list_file, "r") as fin:
                 for idx, line in enumerate(fin.readlines()):
                     utt_info = {}
-                    
+
                     utt_info["Dataset"] = "test"
                     utt_info["Text"] = line.strip()
                     utt_info["Uid"] = str(idx)
                     self.metadata.append(utt_info)
-                    
+
         else:
             assert args.testing_set
             self.metafile_path = os.path.join(
@@ -333,7 +332,6 @@ class TTSTestDataset(BaseTestDataset):
                 "{}.json".format(args.testing_set),
             )
             self.metadata = self.get_metadata()
-
 
     def __getitem__(self, index):
         single_feature = {}

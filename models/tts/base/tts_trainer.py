@@ -23,6 +23,7 @@ from schedulers.scheduler import Eden
 from models.base.base_sampler import build_samplers
 from models.base.new_trainer import BaseTrainer
 
+
 class TTSTrainer(BaseTrainer):
     r"""The base trainer for all TTS models. It inherits from BaseTrainer and implements
     ``build_criterion``, ``_build_dataset`` and ``_build_singer_lut`` methods. You can inherit from this
@@ -67,7 +68,7 @@ class TTSTrainer(BaseTrainer):
                 self.max_epoch if self.max_epoch < float("inf") else "Unlimited"
             )
         )
-            
+
         # Check values
         if self.accelerator.is_main_process:
             self.__check_basic_configs()
@@ -100,10 +101,9 @@ class TTSTrainer(BaseTrainer):
             self.logger.info(f"Building dataset done in {(end - start) / 1e6:.2f}ms")
 
         # save phone table to exp dir. Should be done before building model due to loading phone table in model
-        if cfg.preprocess.use_phone and cfg.preprocess.phone_extractor != 'lexicon':
+        if cfg.preprocess.use_phone and cfg.preprocess.phone_extractor != "lexicon":
             self._save_phone_symbols_file_to_exp_path()
-                          
-            
+
         # setup model
         with self.accelerator.main_process_first():
             self.logger.info("Building model...")
@@ -115,7 +115,7 @@ class TTSTrainer(BaseTrainer):
             self.logger.info(
                 f"Model parameters: {self.__count_parameters(self.model)/1e6:.2f}M"
             )
-            
+
         # optimizer & scheduler
         with self.accelerator.main_process_first():
             self.logger.info("Building optimizer and scheduler...")
@@ -149,25 +149,28 @@ class TTSTrainer(BaseTrainer):
         # save config file path
         self.config_save_path = os.path.join(self.exp_dir, "args.json")
         self.device = self.accelerator.device
-        
+
         if cfg.preprocess.use_spkid and cfg.train.multi_speaker_training:
             self.speakers = self._build_speaker_lut()
             self.utt2spk_dict = self._build_utt2spk_dict()
-              
 
         # Only for TTS tasks
         self.task_type = "TTS"
         self.logger.info("Task type: {}".format(self.task_type))
-        
+
     def _check_resume(self):
         # if args.resume:
-        if self.args.resume or (self.cfg.model_type == 'VALLE' and self.args.train_stage == 2):
-            if (self.cfg.model_type == 'VALLE' and self.args.train_stage == 2):
-                self.args.resume_type = 'finetune'
-                    
+        if self.args.resume or (
+            self.cfg.model_type == "VALLE" and self.args.train_stage == 2
+        ):
+            if self.cfg.model_type == "VALLE" and self.args.train_stage == 2:
+                self.args.resume_type = "finetune"
+
             self.logger.info("Resuming from checkpoint...")
             start = time.monotonic_ns()
-            self.ckpt_path = self._load_model(self.checkpoint_dir, self.args.checkpoint_path, self.args.resume_type)
+            self.ckpt_path = self._load_model(
+                self.checkpoint_dir, self.args.checkpoint_path, self.args.resume_type
+            )
             end = time.monotonic_ns()
             self.logger.info(
                 f"Resuming from checkpoint done in {(end - start) / 1e6:.2f}ms"
@@ -179,7 +182,7 @@ class TTSTrainer(BaseTrainer):
         self.checkpoint_dir = os.path.join(self.exp_dir, "checkpoint")
         if self.accelerator.is_main_process:
             os.makedirs(self.checkpoint_dir, exist_ok=True)
-        self.logger.debug(f"Checkpoint directory: {self.checkpoint_dir}")        
+        self.logger.debug(f"Checkpoint directory: {self.checkpoint_dir}")
 
     def _init_accelerator(self):
         self.exp_dir = os.path.join(
@@ -194,7 +197,7 @@ class TTSTrainer(BaseTrainer):
             gradient_accumulation_steps=self.cfg.train.gradient_accumulation_step,
             log_with=self.cfg.train.tracker,
             project_config=project_config,
-            kwargs_handlers=[kwargs]
+            kwargs_handlers=[kwargs],
         )
         if self.accelerator.is_main_process:
             os.makedirs(project_config.project_dir, exist_ok=True)
@@ -202,7 +205,6 @@ class TTSTrainer(BaseTrainer):
         with self.accelerator.main_process_first():
             self.accelerator.init_trackers(self.args.exp_name)
 
-        
     def _accelerator_prepare(self):
         (
             self.train_dataloader,
@@ -211,13 +213,13 @@ class TTSTrainer(BaseTrainer):
             self.train_dataloader,
             self.valid_dataloader,
         )
-        
+
         if isinstance(self.model, dict):
             for key in self.model.keys():
                 self.model[key] = self.accelerator.prepare(self.model[key])
         else:
             self.model = self.accelerator.prepare(self.model)
-        
+
         if isinstance(self.optimizer, dict):
             for key in self.optimizer.keys():
                 self.optimizer[key] = self.accelerator.prepare(self.optimizer[key])
@@ -228,8 +230,8 @@ class TTSTrainer(BaseTrainer):
             for key in self.scheduler.keys():
                 self.scheduler[key] = self.accelerator.prepare(self.scheduler[key])
         else:
-            self.scheduler = self.accelerator.prepare(self.scheduler)        
-    
+            self.scheduler = self.accelerator.prepare(self.scheduler)
+
     ### Following are methods only for TTS tasks ###
     def _build_dataset(self):
         pass
@@ -294,25 +296,21 @@ class TTSTrainer(BaseTrainer):
             ls = [str(i) for i in Path(checkpoint_dir).glob("*")]
             ls.sort(key=lambda x: int(x.split("_")[-3].split("-")[-1]), reverse=True)
             checkpoint_path = ls[0]
-        self.logger.info("Load model from {}".format(checkpoint_path))  
-        print("Load model from {}".format(checkpoint_path))          
+        self.logger.info("Load model from {}".format(checkpoint_path))
+        print("Load model from {}".format(checkpoint_path))
         if resume_type == "resume":
             self.accelerator.load_state(checkpoint_path)
             self.epoch = int(checkpoint_path.split("_")[-3].split("-")[-1]) + 1
             self.step = int(checkpoint_path.split("_")[-2].split("-")[-1]) + 1
         elif resume_type == "finetune":
             self.model.load_state_dict(
-                torch.load(
-                    os.path.join(checkpoint_path, 
-                                 "pytorch_model.bin"
-                                 )
-                    )
-                )
+                torch.load(os.path.join(checkpoint_path, "pytorch_model.bin"))
+            )
             self.model.cuda(self.accelerator.device)
             self.logger.info("Load model weights for finetune SUCCESS!")
         else:
             raise ValueError("Unsupported resume type: {}".format(resume_type))
-        
+
         return checkpoint_path
 
     ### THIS IS MAIN ENTRY ###
@@ -326,7 +324,7 @@ class TTSTrainer(BaseTrainer):
 
         # self.optimizer.zero_grad()
         # Wait to ensure good to go
-        
+
         self.accelerator.wait_for_everyone()
         while self.epoch < self.max_epoch:
             self.logger.info("\n")
@@ -426,10 +424,12 @@ class TTSTrainer(BaseTrainer):
         # Finish training and save final checkpoint
         self.accelerator.wait_for_everyone()
         if self.accelerator.is_main_process:
-            path = os.path.join(self.checkpoint_dir,
-                                "final_epoch-{:04d}_step-{:07d}_loss-{:.6f}".format(
-                                    self.epoch, self.step, valid_total_loss
-                                ))
+            path = os.path.join(
+                self.checkpoint_dir,
+                "final_epoch-{:04d}_step-{:07d}_loss-{:.6f}".format(
+                    self.epoch, self.step, valid_total_loss
+                ),
+            )
             self.accelerator.save_state(
                 os.path.join(
                     self.checkpoint_dir,
@@ -437,7 +437,7 @@ class TTSTrainer(BaseTrainer):
                         self.epoch, self.step, valid_total_loss
                     ),
                 )
-            )            
+            )
 
             json.dump(
                 self.checkpoints_path,
@@ -472,7 +472,6 @@ class TTSTrainer(BaseTrainer):
             smoothing=0.04,
             disable=not self.accelerator.is_main_process,
         ):
-
             # Do training step and BP
             with self.accelerator.accumulate(self.model):
                 total_loss, train_losses, _ = self._train_step(batch)
@@ -489,9 +488,9 @@ class TTSTrainer(BaseTrainer):
                         self.scheduler.step_batch(self.step)
                     else:
                         self.scheduler.step()
-                                        
+
                 epoch_sum_loss += total_loss
-                
+
                 if isinstance(train_losses, dict):
                     for key, value in train_losses.items():
                         epoch_losses[key] += value
@@ -572,7 +571,6 @@ class TTSTrainer(BaseTrainer):
     def _inference(self):
         pass
 
-
     def _is_valid_pattern(self, directory_name):
         directory_name = str(directory_name)
         pattern = r"^epoch-\d{4}_step-\d{7}_loss-\d{1}\.\d{6}"
@@ -611,7 +609,6 @@ class TTSTrainer(BaseTrainer):
                 f"Invalid gradient_accumulation_step value: {self.cfg.train.gradient_accumulation_step}. It should be positive."
             )
         # TODO: check other values
-        
 
     @staticmethod
     def __count_parameters(model):
@@ -622,7 +619,7 @@ class TTSTrainer(BaseTrainer):
         else:
             model_param = sum(p.numel() for p in model.parameters())
         return model_param
-    
+
     def _build_speaker_lut(self):
         # combine speakers
         if not os.path.exists(os.path.join(self.exp_dir, self.cfg.preprocess.spk2id)):
@@ -662,7 +659,7 @@ class TTSTrainer(BaseTrainer):
                 os.path.join(self.exp_dir, self.cfg.preprocess.utt2spk), "r"
             ) as utt2spk_file:
                 for line in utt2spk_file.readlines():
-                    utt, spk = line.strip().split('\t')
+                    utt, spk = line.strip().split("\t")
                     utt2spk[utt] = spk
         for dataset in self.cfg.dataset:
             utt2spk_dict_path = os.path.join(
@@ -670,14 +667,14 @@ class TTSTrainer(BaseTrainer):
             )
             with open(utt2spk_dict_path, "r") as utt2spk_dict:
                 for line in utt2spk_dict.readlines():
-                    utt, spk = line.strip().split('\t')
+                    utt, spk = line.strip().split("\t")
                     if utt not in utt2spk.keys():
                         utt2spk[utt] = spk
         with open(
             os.path.join(self.exp_dir, self.cfg.preprocess.utt2spk), "w"
         ) as utt2spk_file:
             for utt, spk in utt2spk.items():
-                utt2spk_file.write(utt+'\t'+spk+'\n')
+                utt2spk_file.write(utt + "\t" + spk + "\n")
         print(
             "utterance and speaker mapper have been dumped to {}".format(
                 os.path.join(self.exp_dir, self.cfg.preprocess.utt2spk)
@@ -685,16 +682,18 @@ class TTSTrainer(BaseTrainer):
         )
         return utt2spk
 
-
-
     def _save_phone_symbols_file_to_exp_path(self):
-        phone_symbols_file = os.path.join(self.cfg.preprocess.processed_dir, 
-                                          self.cfg.dataset[0], 
-                                          self.cfg.preprocess.symbols_dict)
-        phone_symbols_file_to_exp_path = os.path.join(self.exp_dir, self.cfg.preprocess.symbols_dict)
-        shutil.copy(phone_symbols_file, phone_symbols_file_to_exp_path)    
+        phone_symbols_file = os.path.join(
+            self.cfg.preprocess.processed_dir,
+            self.cfg.dataset[0],
+            self.cfg.preprocess.symbols_dict,
+        )
+        phone_symbols_file_to_exp_path = os.path.join(
+            self.exp_dir, self.cfg.preprocess.symbols_dict
+        )
+        shutil.copy(phone_symbols_file, phone_symbols_file_to_exp_path)
         print(
             "phone symbols been dumped to {}".format(
                 os.path.join(self.exp_dir, self.cfg.preprocess.symbols_dict)
             )
-        )      
+        )

@@ -24,6 +24,7 @@ try:
 except ImportError:
     print("Monotonic align not found. Please make sure you have compiled it.")
 
+
 class TextEncoder(nn.Module):
     def __init__(
         self,
@@ -245,7 +246,6 @@ class SynthesizerTrn(nn.Module):
 
         if n_speakers >= 1:
             self.emb_g = nn.Embedding(n_speakers, gin_channels)
-            
 
     def forward(self, data):
         x = data["phone_seq"]

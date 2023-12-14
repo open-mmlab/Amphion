@@ -154,8 +154,10 @@ class ResBlock2(nn.Module):
         for l in self.convs:
             remove_weight_norm(l)
 
+
 # This NSF Module is adopted from Xin Wang's NSF under the MIT License
 # https://github.com/nii-yamagishilab/project-NN-Pytorch-scripts
+
 
 class SourceModuleHnNSF(nn.Module):
     def __init__(
