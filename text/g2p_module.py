@@ -188,6 +188,7 @@ class LexiconModule:
                     lexicon[word.lower()] = phones
         self.lexicon = lexicon
         self.language = language
+        self.lang2g2p = {'en-us':G2p()}
 
     def g2p_conversion(self, text):
         phone = None
@@ -205,7 +206,7 @@ class LexiconModule:
     def preprocess_english(self, text):
         text = text.rstrip(punctuation)
 
-        g2p = G2p()
+        g2p = self.lang2g2p['en-us']
         phones = []
         words = re.split(r"([,;.\-\?\!\s+])", text)
         for w in words:
