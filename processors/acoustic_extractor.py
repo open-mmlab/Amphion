@@ -10,7 +10,7 @@ import numpy as np
 import json
 from tqdm import tqdm
 from sklearn.preprocessing import StandardScaler
-from utils.io import save_feature, save_txt
+from utils.io import save_feature, save_txt, save_torch_audio
 from utils.util import has_existed
 from utils.tokenizer import extract_encodec_token
 from utils.stft import TacotronSTFT
@@ -217,9 +217,146 @@ def __extract_utt_acoustic_features(dataset_output, cfg, utt):
                 codes = extract_encodec_token(wav_path)
                 save_feature(dataset_output, cfg.preprocess.acoustic_token_dir, uid, codes)
             
-
+# TODO: refactor extract_utt_acoustic_features_task function due to many duplicated code
 def extract_utt_acoustic_features_tts(dataset_output, cfg, utt):
-    __extract_utt_acoustic_features(dataset_output, cfg, utt)
+    """Extract acoustic features from utterances (in single process)
+
+    Args:
+        dataset_output (str): directory to store acoustic features
+        cfg (dict): dictionary that stores configurations
+        utt (dict): utterance info including dataset, singer, uid:{singer}_{song}_{index},
+                    path to utternace, duration, utternace index
+
+    """
+    from utils import audio, f0, world, duration
+
+    uid = utt["Uid"]
+    wav_path = utt["Path"]
+    if os.path.exists(os.path.join(dataset_output, cfg.preprocess.raw_data)):
+        wav_path = os.path.join(
+            dataset_output, cfg.preprocess.raw_data, utt["Singer"], uid + ".wav"
+        )
+        if not os.path.exists(wav_path):
+            wav_path = os.path.join(
+                dataset_output, cfg.preprocess.raw_data, utt["Singer"], uid + ".flac"
+            )
+            
+        assert os.path.exists(wav_path)
+
+    with torch.no_grad():
+        # Load audio data into tensor with sample rate of the config file
+        wav_torch, _ = audio.load_audio_torch(wav_path, cfg.preprocess.sample_rate)
+        wav = wav_torch.cpu().numpy()
+
+        # extract features
+        if cfg.preprocess.extract_duration:
+            durations, phones, start, end = duration.get_duration(
+                utt, wav, cfg.preprocess
+            )
+            save_feature(dataset_output, cfg.preprocess.duration_dir, uid, durations)
+            save_txt(dataset_output, cfg.preprocess.lab_dir, uid, phones)
+            wav = wav[start:end].astype(np.float32)
+            wav_torch = torch.from_numpy(wav).to(wav_torch.device)
+
+        if cfg.preprocess.extract_linear_spec:
+            from utils.mel import extract_linear_features
+
+            linear = extract_linear_features(wav_torch.unsqueeze(0), cfg.preprocess)
+            save_feature(
+                dataset_output, cfg.preprocess.linear_dir, uid, linear.cpu().numpy()
+            )
+
+        if cfg.preprocess.extract_mel:
+            from utils.mel import extract_mel_features
+
+            if cfg.preprocess.mel_extract_mode == "taco":
+                _stft = TacotronSTFT(
+                    sampling_rate=cfg.preprocess.sample_rate,
+                    win_length=cfg.preprocess.win_size,
+                    hop_length=cfg.preprocess.hop_size,
+                    filter_length=cfg.preprocess.n_fft,
+                    n_mel_channels=cfg.preprocess.n_mel,
+                    mel_fmin=cfg.preprocess.fmin,
+                    mel_fmax=cfg.preprocess.fmax,
+                )
+                mel = extract_mel_features(
+                    wav_torch.unsqueeze(0), cfg.preprocess, taco=True, _stft=_stft
+                )
+                if cfg.preprocess.extract_duration:
+                    mel = mel[:, : sum(durations)]
+            else:
+                mel = extract_mel_features(wav_torch.unsqueeze(0), cfg.preprocess)
+            save_feature(dataset_output, cfg.preprocess.mel_dir, uid, mel.cpu().numpy())
+
+        if cfg.preprocess.extract_energy:
+            if (
+                cfg.preprocess.energy_extract_mode == "from_mel"
+                and cfg.preprocess.extract_mel
+            ):
+                energy = (mel.exp() ** 2).sum(0).sqrt().cpu().numpy()
+            elif cfg.preprocess.energy_extract_mode == "from_waveform":
+                energy = audio.energy(wav, cfg.preprocess)
+            elif cfg.preprocess.energy_extract_mode == "from_tacotron_stft":
+                _stft = TacotronSTFT(
+                    sampling_rate=cfg.preprocess.sample_rate,
+                    win_length=cfg.preprocess.win_size,
+                    hop_length=cfg.preprocess.hop_size,
+                    filter_length=cfg.preprocess.n_fft,
+                    n_mel_channels=cfg.preprocess.n_mel,
+                    mel_fmin=cfg.preprocess.fmin,
+                    mel_fmax=cfg.preprocess.fmax,
+                )
+                _, energy = audio.get_energy_from_tacotron(wav, _stft)
+            else:
+                assert cfg.preprocess.energy_extract_mode in [
+                    "from_mel",
+                    "from_waveform",
+                    "from_tacotron_stft",
+                ], f"{cfg.preprocess.energy_extract_mode} not in supported energy_extract_mode [from_mel, from_waveform, from_tacotron_stft]"
+            if cfg.preprocess.extract_duration:
+                energy = energy[: sum(durations)]
+                phone_energy = avg_phone_feature(energy, durations)
+                save_feature(
+                    dataset_output, cfg.preprocess.phone_energy_dir, uid, phone_energy
+                )
+
+            save_feature(dataset_output, cfg.preprocess.energy_dir, uid, energy)
+
+        if cfg.preprocess.extract_pitch:
+            pitch = f0.get_f0(wav, cfg.preprocess)
+            if cfg.preprocess.extract_duration:
+                pitch = pitch[: sum(durations)]
+                phone_pitch = avg_phone_feature(pitch, durations, interpolation=True)
+                save_feature(
+                    dataset_output, cfg.preprocess.phone_pitch_dir, uid, phone_pitch
+                )
+            save_feature(dataset_output, cfg.preprocess.pitch_dir, uid, pitch)
+
+            if cfg.preprocess.extract_uv:
+                assert isinstance(pitch, np.ndarray)
+                uv = pitch != 0
+                save_feature(dataset_output, cfg.preprocess.uv_dir, uid, uv)
+
+        if cfg.preprocess.extract_audio:
+            save_torch_audio(dataset_output, 
+                             cfg.preprocess.audio_dir, 
+                             uid, 
+                             wav_torch, 
+                             cfg.preprocess.sample_rate)
+
+
+        if cfg.preprocess.extract_label:
+            if cfg.preprocess.is_mu_law:
+                # compress audio
+                wav = compress(wav, cfg.preprocess.bits)
+            label = audio_to_label(wav, cfg.preprocess.bits)
+            save_feature(dataset_output, cfg.preprocess.label_dir, uid, label)
+
+        if cfg.preprocess.extract_acoustic_token:
+            if cfg.preprocess.acoustic_token_extractor == "Encodec":
+                codes = extract_encodec_token(wav_path)
+                save_feature(dataset_output, cfg.preprocess.acoustic_token_dir, uid, codes)
+            
 
 
 def extract_utt_acoustic_features_svc(dataset_output, cfg, utt):
@@ -794,13 +931,23 @@ def copy_acoustic_features(metadata, dataset_dir, src_dataset_dir, cfg):
                     src_dataset_dir, dataset_dir
                 )
             )
-            for utt_info in tqdm(metadata):
-                src_audio_path = os.path.join(
-                    src_dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".npy"
-                )
-                dst_audio_path = os.path.join(
-                    dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".npy"
-                )
+            for utt_info in tqdm(metadata):     
+                if cfg.task_type == "tts":          
+                    src_audio_path = os.path.join(
+                        src_dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".wav"
+                    )
+                else:          
+                    src_audio_path = os.path.join(
+                        src_dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".npy"
+                    )
+                if cfg.task_type == "tts":
+                    dst_audio_path = os.path.join(
+                        dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".wav"
+                    )
+                else: 
+                    dst_audio_path = os.path.join(
+                        dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".npy"
+                    )
                 # create soft-links
                 if not os.path.exists(dst_audio_path):
                     os.symlink(src_audio_path, dst_audio_path)

@@ -123,12 +123,12 @@ def preprocess(cfg, args):
     output_path = cfg.preprocess.processed_dir
     os.makedirs(output_path, exist_ok=True)
 
-    ## Split train and test sets
+    # Split train and test sets
     for dataset in cfg.dataset:
         print("Preprocess {}...".format(dataset))
 
         if args.prepare_alignment:
-            ## Prepare alignment with MFA
+            # Prepare alignment with MFA
             print("Prepare alignment {}...".format(dataset))
             prepare_align(
                 dataset, cfg.dataset_path[dataset], cfg.preprocess, output_path
@@ -160,7 +160,7 @@ def preprocess(cfg, args):
     # Dump metadata of datasets (singers, train/test durations, etc.)
     cal_metadata(cfg)
 
-    ## Prepare the acoustic features
+    # Prepare the acoustic features
     for dataset in cfg.dataset:
         # Skip augmented datasets which do not need to extract acoustic features
         # We will copy acoustic features from the original dataset later
@@ -226,6 +226,7 @@ def preprocess(cfg, args):
         print("Extracting content features for {}...".format(dataset))
         extract_content_features(dataset, output_path, cfg, args.num_workers)
 
+    
     # Prepare the phenome squences
     if cfg.preprocess.extract_phone:
         for dataset in cfg.dataset:
