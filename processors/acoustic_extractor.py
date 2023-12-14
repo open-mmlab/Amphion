@@ -219,7 +219,8 @@ def __extract_utt_acoustic_features(dataset_output, cfg, utt):
                 save_feature(
                     dataset_output, cfg.preprocess.acoustic_token_dir, uid, codes
                 )
-            
+
+
 # TODO: refactor extract_utt_acoustic_features_task function due to many duplicated code
 def extract_utt_acoustic_features_tts(dataset_output, cfg, utt):
     """Extract acoustic features from utterances (in single process)
@@ -243,7 +244,7 @@ def extract_utt_acoustic_features_tts(dataset_output, cfg, utt):
             wav_path = os.path.join(
                 dataset_output, cfg.preprocess.raw_data, utt["Singer"], uid + ".flac"
             )
-            
+
         assert os.path.exists(wav_path)
 
     with torch.no_grad():
@@ -341,12 +342,13 @@ def extract_utt_acoustic_features_tts(dataset_output, cfg, utt):
                 save_feature(dataset_output, cfg.preprocess.uv_dir, uid, uv)
 
         if cfg.preprocess.extract_audio:
-            save_torch_audio(dataset_output, 
-                             cfg.preprocess.audio_dir, 
-                             uid, 
-                             wav_torch, 
-                             cfg.preprocess.sample_rate)
-
+            save_torch_audio(
+                dataset_output,
+                cfg.preprocess.audio_dir,
+                uid,
+                wav_torch,
+                cfg.preprocess.sample_rate,
+            )
 
         if cfg.preprocess.extract_label:
             if cfg.preprocess.is_mu_law:
@@ -358,8 +360,9 @@ def extract_utt_acoustic_features_tts(dataset_output, cfg, utt):
         if cfg.preprocess.extract_acoustic_token:
             if cfg.preprocess.acoustic_token_extractor == "Encodec":
                 codes = extract_encodec_token(wav_path)
-                save_feature(dataset_output, cfg.preprocess.acoustic_token_dir, uid, codes)
-            
+                save_feature(
+                    dataset_output, cfg.preprocess.acoustic_token_dir, uid, codes
+                )
 
 
 def extract_utt_acoustic_features_svc(dataset_output, cfg, utt):
@@ -934,20 +937,24 @@ def copy_acoustic_features(metadata, dataset_dir, src_dataset_dir, cfg):
                     src_dataset_dir, dataset_dir
                 )
             )
-            for utt_info in tqdm(metadata):     
-                if cfg.task_type == "tts":          
+            for utt_info in tqdm(metadata):
+                if cfg.task_type == "tts":
                     src_audio_path = os.path.join(
-                        src_dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".wav"
+                        src_dataset_dir,
+                        cfg.preprocess.audio_dir,
+                        utt_info["Uid"] + ".wav",
                     )
-                else:          
+                else:
                     src_audio_path = os.path.join(
-                        src_dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".npy"
+                        src_dataset_dir,
+                        cfg.preprocess.audio_dir,
+                        utt_info["Uid"] + ".npy",
                     )
                 if cfg.task_type == "tts":
                     dst_audio_path = os.path.join(
                         dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".wav"
                     )
-                else: 
+                else:
                     dst_audio_path = os.path.join(
                         dataset_dir, cfg.preprocess.audio_dir, utt_info["Uid"] + ".npy"
                     )
