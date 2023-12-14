@@ -22,14 +22,12 @@ from models.vocoders.gan.discriminator.mpd import (
 class VITSTrainer(TTSTrainer):
     def __init__(self, args, cfg):
         TTSTrainer.__init__(self, args, cfg)
-        
+
         if cfg.preprocess.use_spkid and cfg.train.multi_speaker_training:
             if cfg.model.n_speakers == 0:
                 cfg.model.n_speaker = len(self.speakers)
-            
-            
+
     def _build_model(self):
-        
         net_g = SynthesizerTrn(
             self.cfg.model.text_token_num,
             self.cfg.preprocess.n_fft // 2 + 1,

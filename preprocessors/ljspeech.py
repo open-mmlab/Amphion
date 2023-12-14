@@ -89,7 +89,9 @@ def get_uid2utt(ljspeech_path, dataset, cfg):
     return uid2utt, total_duration / 3600
 
 
-def split_dataset(lines, test_rate=0.05, valid_rate=0.05, test_size=None, valid_size=None):
+def split_dataset(
+    lines, test_rate=0.05, valid_rate=0.05, test_size=None, valid_size=None
+):
     if test_size == None:
         test_size = int(len(lines) * test_rate)
     if valid_size == None:
@@ -102,9 +104,9 @@ def split_dataset(lines, test_rate=0.05, valid_rate=0.05, test_size=None, valid_
 
     for line in lines[:test_size]:
         test_set.append(line)
-    for line in lines[test_size:test_size+valid_size]:
+    for line in lines[test_size : test_size + valid_size]:
         valid_set.append(line)
-    for line in lines[test_size+valid_size:]:
+    for line in lines[test_size + valid_size :]:
         train_set.append(line)
     return train_set, test_set, valid_set
 
@@ -176,7 +178,11 @@ def main(output_path, dataset_path, cfg):
     with open(singer_dict_file, "w") as f:
         json.dump(singer_lut, f, indent=4, ensure_ascii=False)
 
-    if has_existed(train_output_file) and has_existed(test_output_file) and has_existed(valid_output_file):
+    if (
+        has_existed(train_output_file)
+        and has_existed(test_output_file)
+        and has_existed(valid_output_file)
+    ):
         return
 
     meta_file = os.path.join(ljspeech_path, "metadata.csv")
@@ -201,7 +207,6 @@ def main(output_path, dataset_path, cfg):
         json.dump(res, f, indent=4, ensure_ascii=False)
 
     print("Test_hours= {}".format(hours))
-
 
     # Save valid
     os.makedirs(save_dir, exist_ok=True)

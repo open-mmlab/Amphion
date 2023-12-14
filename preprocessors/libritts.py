@@ -110,13 +110,19 @@ def main(output_path, dataset_path):
                     )
                     res["Path"] = os.path.join(libritts_path, res["Path"])
                     assert os.path.exists(res["Path"])
-                    
-                    text_file_path = os.path.join(libritts_path, distribution, speaker, chosen_pharase, chosen_uid+'.normalized.txt')
-                    with open(text_file_path, 'r') as f:
+
+                    text_file_path = os.path.join(
+                        libritts_path,
+                        distribution,
+                        speaker,
+                        chosen_pharase,
+                        chosen_uid + ".normalized.txt",
+                    )
+                    with open(text_file_path, "r") as f:
                         lines = f.readlines()
                         assert len(lines) == 1
                         text = lines[0].strip()
-                        res["Text"] = text                    
+                        res["Text"] = text
 
                     waveform, sample_rate = torchaudio.load(res["Path"])
                     duration = waveform.size(-1) / sample_rate
@@ -127,12 +133,12 @@ def main(output_path, dataset_path):
                         test_total_duration += duration
                         test.append(res)
                         test_index_count += 1
-                    elif 'train' in distribution:
+                    elif "train" in distribution:
                         res["index"] = train_index_count
                         train_total_duration += duration
                         train.append(res)
                         train_index_count += 1
-                    elif 'dev' in distribution:
+                    elif "dev" in distribution:
                         res["index"] = valid_index_count
                         valid_total_duration += duration
                         valid.append(res)
@@ -140,10 +146,14 @@ def main(output_path, dataset_path):
 
                     utt2singer.write("{}\t{}\n".format(res["Uid"], res["Singer"]))
 
-    print("#Train = {}, #Test = {}, #Valid = {}".format(len(train), len(test), len(valid)))
+    print(
+        "#Train = {}, #Test = {}, #Valid = {}".format(len(train), len(test), len(valid))
+    )
     print(
         "#Train hours= {}, #Test hours= {}, #Valid hours= {}".format(
-            train_total_duration / 3600, test_total_duration / 3600, valid_total_duration / 3600
+            train_total_duration / 3600,
+            test_total_duration / 3600,
+            valid_total_duration / 3600,
         )
     )
 

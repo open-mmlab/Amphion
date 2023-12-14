@@ -19,18 +19,15 @@ from modules.encoder import TokenEmbedding
 from modules.general import PromptedFeatures
 from modules.transformer import SinePositionalEmbedding
 from modules.norms import AdaptiveLayerNorm, LayerNorm
-from modules.transformer.transformer import (
-    TransformerEncoder, 
-    TransformerEncoderLayer
-)
+from modules.transformer.transformer import TransformerEncoder, TransformerEncoderLayer
+
 
 class VALLE(nn.Module):
-
     def __init__(
         self,
         cfg,
         decoder_cls=TransformerEncoder,
-        decoder_layer_cls=TransformerEncoderLayer
+        decoder_layer_cls=TransformerEncoderLayer,
     ):
         super().__init__()
         decoder_dim = cfg.decoder_dim
@@ -40,7 +37,7 @@ class VALLE(nn.Module):
         num_decoder_layers = cfg.num_decoder_layers
         nar_decoder_dim = int(decoder_dim * nar_scale_factor)
 
-        self.ar_text_embedding = TokenEmbedding(decoder_dim, cfg.text_token_num) 
+        self.ar_text_embedding = TokenEmbedding(decoder_dim, cfg.text_token_num)
         self.nar_text_embedding = TokenEmbedding(nar_decoder_dim, cfg.text_token_num)
 
         self.ar_audio_prepend_bos = cfg.prepend_bos
@@ -48,7 +45,7 @@ class VALLE(nn.Module):
             decoder_dim, cfg.audio_token_num + 1 + int(cfg.prepend_bos)
         )
         self.audio_token_num = cfg.audio_token_num
-        
+
         # PreNet of AR
         if cfg.add_prenet:
             self.ar_text_prenet = nn.Sequential(
@@ -127,12 +124,14 @@ class VALLE(nn.Module):
         assert num_quantizers >= 1
         if num_quantizers > 1:
             self.nar_audio_embeddings = nn.ModuleList(
-                [TokenEmbedding(nar_decoder_dim, cfg.audio_token_num + 1)] # Why the first layer is audio_token_num + 1?
+                [
+                    TokenEmbedding(nar_decoder_dim, cfg.audio_token_num + 1)
+                ]  # Why the first layer is audio_token_num + 1?
                 + [
                     TokenEmbedding(nar_decoder_dim, cfg.audio_token_num)
                     for i in range(num_quantizers - 1)
                 ]
-            )  
+            )
 
             if cfg.add_prenet:
                 self.nar_text_prenet = nn.Sequential(
@@ -208,17 +207,14 @@ class VALLE(nn.Module):
                 ]
             )
             self.nar_stage_embeddings = nn.ModuleList(
-                [
-                    TokenEmbedding(nar_decoder_dim, 1)
-                    for i in range(num_quantizers - 1)
-                ]
+                [TokenEmbedding(nar_decoder_dim, 1) for i in range(num_quantizers - 1)]
             )
 
             if cfg.share_embedding:
                 for j in range(0, num_quantizers - 2):
-                    self.nar_predict_layers[
-                        j
-                    ].weight = self.nar_audio_embeddings[j + 2].weight
+                    self.nar_predict_layers[j].weight = self.nar_audio_embeddings[
+                        j + 2
+                    ].weight
 
             self.nar_accuracy_metric = MulticlassAccuracy(
                 cfg.audio_token_num + 1,
@@ -227,7 +223,6 @@ class VALLE(nn.Module):
                 multidim_average="global",
                 ignore_index=cfg.audio_token_num,
             )
-                    
 
     def forward(
         self,
@@ -239,7 +234,6 @@ class VALLE(nn.Module):
         train_stage: int = 0,
         **kwargs,
     ) -> Tuple[torch.Tensor, Union[torch.Tensor, None]]:
-        
         """
         Args:
           x:
@@ -295,8 +289,8 @@ class VALLE(nn.Module):
             ar_xy_padding_mask = xy_padding_mask
         self.xy_padding_mask = xy_padding_mask
         self.ar_xy_padding_mask = ar_xy_padding_mask
-            
-        # AR Decoder 
+
+        # AR Decoder
         if train_stage in [0, 1]:
             ar_loss, ar_metrics = self._forward_ar_decoder(
                 text, x_lens.max(), y, y_lens.max(), targets, x_mask, y_mask, reduction
@@ -304,14 +298,21 @@ class VALLE(nn.Module):
             total_loss += ar_loss
             metrics["AR_Top100Acc"] = ar_metrics
 
-
         # NAR Decoder
         if self.ar_audio_prepend_bos:
             y = y[:, 1:]
-            
+
         if self.num_quantizers > 1 and train_stage in [0, 2]:
             nar_loss, nar_metrics = self._forward_nar_decoder(
-                text, x_lens, y, y_lens, codes, y_prompts_codes, x_mask, y_mask, reduction
+                text,
+                x_lens,
+                y,
+                y_lens,
+                codes,
+                y_prompts_codes,
+                x_mask,
+                y_mask,
+                reduction,
             )
             total_loss += nar_loss
             metrics["NAR_Top100Acc"] = nar_metrics
@@ -320,8 +321,6 @@ class VALLE(nn.Module):
             total_loss = total_loss / 2.0
 
         return total_loss, metrics
-
-
 
     def _forward_ar_decoder(
         self, x, x_len, y, y_lens, targets, x_mask, y_mask, reduction
@@ -381,7 +380,6 @@ class VALLE(nn.Module):
     def _forward_nar_decoder(
         self, x, x_lens, y, y_lens, codes, y_prompts_codes, x_mask, y_mask, reduction
     ):
-
         num_nar_layers = self.num_quantizers - 1
         nar_stage = self.rng.choices(
             [_k for _k in range(1, self.num_quantizers)],
@@ -396,7 +394,6 @@ class VALLE(nn.Module):
         y_emb, prefix_len = self._prepare_prompts(
             y, y_lens, codes, nar_stage, y_prompts_codes
         )
-
 
         y_len = y_lens.max()
         targets = codes[..., nar_stage] + self.audio_token_num * self.y_mask_int
@@ -420,21 +417,16 @@ class VALLE(nn.Module):
         )
         xy_dec = xy_dec[:, x_lens.max() + prefix_len :]
         if self.prefix_mode == 4:
-            prefix_len = 0 
-        logits = self.nar_predict_layers[nar_stage - 1](xy_dec).permute(
-            0, 2, 1
-        )
+            prefix_len = 0
+        logits = self.nar_predict_layers[nar_stage - 1](xy_dec).permute(0, 2, 1)
 
         total_length = (y_lens).sum().type(torch.float32)
-        nar_loss = (
-            F.cross_entropy(
-                logits,
-                targets,
-                ignore_index=self.audio_token_num,
-                reduction=reduction,
-            )
-            * (total_length / (total_length - prefix_len * x.shape[0]))
-        )
+        nar_loss = F.cross_entropy(
+            logits,
+            targets,
+            ignore_index=self.audio_token_num,
+            reduction=reduction,
+        ) * (total_length / (total_length - prefix_len * x.shape[0]))
         nar_metrics = (
             self.nar_accuracy_metric(
                 F.pad(
@@ -510,15 +502,13 @@ class VALLE(nn.Module):
                 value=True,
             )
             y_attn_mask = F.pad(
-                torch.triu(
-                    torch.ones(y_len, y_len, dtype=torch.bool), diagonal=1
-                ),
+                torch.triu(torch.ones(y_len, y_len, dtype=torch.bool), diagonal=1),
                 (x_len, 0),
                 value=False,
             )
-            xy_attn_mask = torch.concat(
-                [x_attn_mask_pad, y_attn_mask], dim=0
-            ).to(y.device)
+            xy_attn_mask = torch.concat([x_attn_mask_pad, y_attn_mask], dim=0).to(
+                y.device
+            )
 
             xy_dec, _ = self.ar_decoder(
                 (xy_pos, None),
@@ -535,9 +525,7 @@ class VALLE(nn.Module):
                 or (y.shape[1] - prompts.shape[1]) > x_lens.max() * 16
             ):
                 if prompts.shape[1] == y.shape[1]:
-                    raise SyntaxError(
-                        "well trained model shouldn't reach here."
-                    )
+                    raise SyntaxError("well trained model shouldn't reach here.")
 
                 break
 
@@ -548,11 +536,9 @@ class VALLE(nn.Module):
             return torch.stack(codes, dim=-1)
 
         # Non-AR Decoders
-        y_emb = self.nar_audio_embeddings[0](
-            y[:, int(self.ar_audio_prepend_bos) :]
-        )
+        y_emb = self.nar_audio_embeddings[0](y[:, int(self.ar_audio_prepend_bos) :])
 
-        if self.prefix_mode in [2, 4]:  
+        if self.prefix_mode in [2, 4]:
             enrolled_len = enroll_x_lens.max().item()
             # SOS + Synthesis Text + EOS
             text = torch.concat(
@@ -589,15 +575,11 @@ class VALLE(nn.Module):
                 codes.append(samples)
 
                 if i < self.num_quantizers - 2:
-                    y_emb[:, :prefix_len] += embedding_layer(
-                        prompts[..., i + 1]
-                    )
+                    y_emb[:, :prefix_len] += embedding_layer(prompts[..., i + 1])
                     y_emb[:, prefix_len:] += embedding_layer(samples)
         else:
             for j in range(1, self.num_quantizers):
-                y_emb[:, :prefix_len] += self.nar_audio_embeddings[j](
-                    prompts[..., j]
-                )
+                y_emb[:, :prefix_len] += self.nar_audio_embeddings[j](prompts[..., j])
 
             for i, (predict_layer, embedding_layer) in enumerate(
                 zip(
@@ -689,15 +671,11 @@ class VALLE(nn.Module):
                 codes.append(samples)
 
                 if i < 6:
-                    y_emb[:, :prefix_len] += embedding_layer(
-                        prompts[..., i + 1]
-                    )
+                    y_emb[:, :prefix_len] += embedding_layer(prompts[..., i + 1])
                     y_emb[:, prefix_len:] += embedding_layer(samples)
         else:
             for j in range(1, 8):
-                y_emb[:, :prefix_len] += self.nar_audio_embeddings[j](
-                    prompts[..., j]
-                )
+                y_emb[:, :prefix_len] += self.nar_audio_embeddings[j](prompts[..., j])
 
             for i, (predict_layer, embedding_layer) in enumerate(
                 zip(
@@ -781,13 +759,9 @@ class VALLE(nn.Module):
             y_prompts = self.nar_audio_embeddings[0](y[:, :prefix_len])
             y_emb = self.nar_audio_embeddings[0](y[:, prefix_len:])
             for j in range(1, self.num_quantizers):
-                y_prompts += self.nar_audio_embeddings[j](
-                    codes[:, :prefix_len, j]
-                )
+                y_prompts += self.nar_audio_embeddings[j](codes[:, :prefix_len, j])
                 if j < nar_stage:
-                    y_emb += self.nar_audio_embeddings[j](
-                        codes[:, prefix_len:, j]
-                    )
+                    y_emb += self.nar_audio_embeddings[j](codes[:, prefix_len:, j])
             y_emb = torch.concat([y_prompts, y_emb], axis=1)
         elif self.prefix_mode in [2, 4]:
             if self.prefix_mode == 2:
@@ -800,9 +774,7 @@ class VALLE(nn.Module):
                     y_prompts_codes.append(
                         torch.clone(codes[b, start : start + prefix_len])
                     )
-                    codes[
-                        b, start : start + prefix_len, nar_stage
-                    ] = NUM_AUDIO_TOKENS
+                    codes[b, start : start + prefix_len, nar_stage] = NUM_AUDIO_TOKENS
                 y_prompts_codes = torch.stack(y_prompts_codes, dim=0)
             else:
                 prefix_len = y_prompts_codes.shape[1]
@@ -810,9 +782,7 @@ class VALLE(nn.Module):
             y_prompts = self.nar_audio_embeddings[0](y_prompts_codes[..., 0])
             y_emb = self.nar_audio_embeddings[0](y)
             for j in range(1, self.num_quantizers):
-                y_prompts += self.nar_audio_embeddings[j](
-                    y_prompts_codes[..., j]
-                )
+                y_prompts += self.nar_audio_embeddings[j](y_prompts_codes[..., j])
                 if j < nar_stage:
                     y_emb += self.nar_audio_embeddings[j](codes[..., j])
             y_emb = torch.concat([y_prompts, y_emb], axis=1)
