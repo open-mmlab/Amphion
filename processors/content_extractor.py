@@ -191,11 +191,16 @@ class WhisperExtractor(BaseExtractor):
         # load whisper checkpoint
         print("Loading Whisper Model...")
 
-        download_root = (
-            self.cfg.preprocess.whisper_model_path
-            if "whisper_model_path" in self.cfg.preprocess
-            else None
-        )
+        if "whisper_model_path" in self.cfg.preprocess:
+            if os.path.isfile(self.cfg.preprocess.whisper_model_path):
+                # "pretrained/whisper/medium.pt"
+                download_root = os.path.dirname(self.cfg.preprocess.whisper_model_path)
+            elif os.path.isdir(self.cfg.preprocess.whisper_model_path):
+                # "pretrained/whisper"
+                download_root = self.cfg.preprocess.whisper_model_path
+        else:
+            download_root = None
+
         model = whisper.load_model(
             self.cfg.preprocess.whisper_model, self.device, download_root
         )
