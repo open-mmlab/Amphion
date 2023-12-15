@@ -422,13 +422,18 @@ def extract_utt_content_features_dataloader(cfg, metadata, num_workers):
     dataset_name = metadata[0]["Dataset"]
     with torch.no_grad():
         if cfg.preprocess.extract_whisper_feature:
-            feat_dir = os.path.join(cfg.preprocess.processed_dir, dataset_name, "whisper")
+            feat_dir = os.path.join(
+                cfg.preprocess.processed_dir, dataset_name, "whisper"
+            )
             os.makedirs(feat_dir, exist_ok=True)
             feat_files_num = len(os.listdir(feat_dir))
 
             if feat_files_num != len(metadata):
                 whisper_waveforms = FFmpegDataset(
-                    cfg, dataset_name, cfg.preprocess.whisper_sample_rate, metadata=metadata
+                    cfg,
+                    dataset_name,
+                    cfg.preprocess.whisper_sample_rate,
+                    metadata=metadata,
                 )
                 data_loader = DataLoader(
                     whisper_waveforms,
@@ -479,7 +484,9 @@ def extract_utt_content_features_dataloader(cfg, metadata, num_workers):
                 for batch_idx, items in enumerate(tqdm(data_loader)):
                     _metadata, wavs, lens = items
 
-                    batch_content_features = extractor.extract_content_features(wavs, lens)
+                    batch_content_features = extractor.extract_content_features(
+                        wavs, lens
+                    )
                     for index, utt in enumerate(_metadata):
                         extractor.save_feature(utt, batch_content_features[index])
 
@@ -490,7 +497,10 @@ def extract_utt_content_features_dataloader(cfg, metadata, num_workers):
 
             if feat_files_num != len(metadata):
                 wenet_waveforms = TorchaudioDataset(
-                    cfg, dataset_name, cfg.preprocess.wenet_sample_rate, metadata=metadata
+                    cfg,
+                    dataset_name,
+                    cfg.preprocess.wenet_sample_rate,
+                    metadata=metadata,
                 )
                 data_loader = DataLoader(
                     wenet_waveforms,
@@ -520,7 +530,10 @@ def extract_utt_content_features_dataloader(cfg, metadata, num_workers):
 
             if feat_files_num != len(metadata):
                 mert_waveforms = TorchaudioDataset(
-                    cfg, dataset_name, cfg.preprocess.mert_sample_rate, metadata=metadata
+                    cfg,
+                    dataset_name,
+                    cfg.preprocess.mert_sample_rate,
+                    metadata=metadata,
                 )
                 data_loader = DataLoader(
                     mert_waveforms,
