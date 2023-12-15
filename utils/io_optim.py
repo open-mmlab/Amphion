@@ -9,8 +9,8 @@ import json
 import os
 import numpy as np
 import librosa
+import whisper
 from torch.nn.utils.rnn import pad_sequence
-from modules import whisper_extractor as whisper
 
 
 class TorchaudioDataset(torch.utils.data.Dataset):
@@ -101,7 +101,7 @@ class FFmpegDataset(TorchaudioDataset):
         wav_path = utt_info["Path"]
 
         # wav: (T,)
-        wav = whisper.load_audio(wav_path)  # sr = 16000
+        wav = whisper.load_audio(wav_path, sr=16000)  # sr = 16000
         # convert to torch tensor
         wav = torch.from_numpy(wav)
         # record the length of wav without padding
