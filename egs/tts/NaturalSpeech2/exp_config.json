@@ -1,5 +1,5 @@
 {
-    "base_config": "egs/tts/Naturalspeech2/exp_config_base.json",
+    "base_config": "egs/tts/NaturalSpeech2/exp_config_base.json",
     "dataset": [
       "LibriTTS"
     ],

@@ -148,6 +148,7 @@ def main():
     VALLEInference.add_arguments(parser)
     NS2Inference.add_arguments(parser)
     args = parser.parse_args()
+    print(args)
 
     # Parse config
     cfg = load_config(args.config)

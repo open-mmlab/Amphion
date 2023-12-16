@@ -41,7 +41,7 @@ class NS2Inference:
         return encodec_model
 
     def get_ref_code(self):
-        ref_wav_path = self.args.audio_prompt
+        ref_wav_path = self.args.ref_audio
         ref_wav, sr = torchaudio.load(ref_wav_path)
         ref_wav = convert_audio(ref_wav, sr, self.codec.sample_rate, self.codec.channels)
         ref_wav = ref_wav.unsqueeze(0).to(device=self.args.device)
@@ -67,7 +67,7 @@ class NS2Inference:
         phone_id = torch.from_numpy(phone_id).unsqueeze(0).to(device=self.args.device)
         print(phone_id)
 
-        x0, prior_out = self.model.inference(ref_code, phone_id, ref_mask, 200)
+        x0, prior_out = self.model.inference(ref_code, phone_id, ref_mask, self.args.inference_step)
         print(prior_out["dur_pred"])
         print(prior_out["dur_pred_round"])
         print(torch.sum(prior_out["dur_pred_round"]))
@@ -80,17 +80,23 @@ class NS2Inference:
         os.makedirs(self.args.output_dir, exist_ok=True)
 
         sf.write("{}/{}.wav".format(self.args.output_dir, self.args.text.replace(" ", "_", 100)), rec_wav[0,0].detach().cpu().numpy(), samplerate=24000)
-
+ 
     def add_arguments(parser: argparse.ArgumentParser):
         parser.add_argument(
-            "--audio_prompt",
+            "--ref_audio",
             type=str,
             default="",
-            help="Path of audio prompt",
+            help="Reference audio path",
         )
         parser.add_argument(
-            "--deivce",
+            "--device",
             type=str,
             default="cuda",
+        )
+        parser.add_argument(
+            "--inference_step",
+            type=int,
+            default=200,
+            help="Total inference steps for the diffusion model",
         )
     
