@@ -10,6 +10,7 @@ import torch
 from models.tts.fastspeech2.fs2_trainer import FastSpeech2Trainer
 from models.tts.vits.vits_trainer import VITSTrainer
 from models.tts.valle.valle_trainer import VALLETrainer
+from models.tts.naturalspeech2.ns2_trainer import NS2Trainer
 from utils.util import load_config
 
 
@@ -18,6 +19,7 @@ def build_trainer(args, cfg):
         "FastSpeech2": FastSpeech2Trainer,
         "VITS": VITSTrainer,
         "VALLE": VALLETrainer,
+        "NaturalSpeech2": NS2Trainer,
     }
 
     trainer_class = supported_trainer[cfg.model_type]
