@@ -263,7 +263,7 @@ class SynthesizerTrn(nn.Module):
         z = self.flow(z_p, c_mask, g=g, reverse=True)
 
         if self.dec_name == "nsfhifigan":
-            o = self.dec(z * c_mask, f0=f0)
+            o = self.dec(z * c_mask, f0=f0.float())
         elif self.dec_name == "apnet":
             _, _, _, _, o = self.dec(z * c_mask)
         else:
