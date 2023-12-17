@@ -22,8 +22,9 @@ except Exception:
     pass
 
 
-# This code is modified from 
+# This code is modified from
 # https://github.com/lifeiteng/vall-e/blob/9c69096d603ce13174fb5cb025f185e2e9b36ac7/valle/data/tokenizer.py
+
 
 class PypinyinBackend:
     """PypinyinBackend for Chinese. Most codes is referenced from espnet.
@@ -50,9 +51,7 @@ class PypinyinBackend:
             phones = []
             if self.backend == "pypinyin":
                 for n, py in enumerate(
-                    pinyin(
-                        _text, style=Style.TONE3, neutral_tone_with_five=True
-                    )
+                    pinyin(_text, style=Style.TONE3, neutral_tone_with_five=True)
                 ):
                     if all([c in self.punctuation_marks for c in py[0]]):
                         if len(phones):
@@ -64,9 +63,7 @@ class PypinyinBackend:
                         phones.extend([py[0], separator.syllable])
             elif self.backend == "pypinyin_initials_finals":
                 for n, py in enumerate(
-                    pinyin(
-                        _text, style=Style.TONE3, neutral_tone_with_five=True
-                    )
+                    pinyin(_text, style=Style.TONE3, neutral_tone_with_five=True)
                 ):
                     if all([c in self.punctuation_marks for c in py[0]]):
                         if len(phones):
@@ -77,10 +74,7 @@ class PypinyinBackend:
                         if py[0][-1].isalnum():
                             initial = get_initials(py[0], strict=False)
                             if py[0][-1].isdigit():
-                                final = (
-                                    get_finals(py[0][:-1], strict=False)
-                                    + py[0][-1]
-                                )
+                                final = get_finals(py[0][:-1], strict=False) + py[0][-1]
                             else:
                                 final = get_finals(py[0], strict=False)
                             phones.extend(
@@ -116,16 +110,28 @@ class G2PModule:
         language_switch: LanguageSwitch = "keep-flags",
         words_mismatch: WordMismatch = "ignore",
     ) -> None:
-        
         self.backend = self._initialize_backend(
-            backend, language, punctuation_marks, preserve_punctuation,
-            with_stress, tie, language_switch, words_mismatch
+            backend,
+            language,
+            punctuation_marks,
+            preserve_punctuation,
+            with_stress,
+            tie,
+            language_switch,
+            words_mismatch,
         )
         self.separator = separator
 
     def _initialize_backend(
-        self, backend, language, punctuation_marks, preserve_punctuation,
-        with_stress, tie, language_switch, words_mismatch
+        self,
+        backend,
+        language,
+        punctuation_marks,
+        preserve_punctuation,
+        with_stress,
+        tie,
+        language_switch,
+        words_mismatch,
     ):
         if backend == "espeak":
             return EspeakBackend(
@@ -150,14 +156,12 @@ class G2PModule:
         for word in phonemized.split(self.separator.word):
             pp = re.findall(r"\w+|[^\w\s]", word, re.UNICODE)
             fields.extend(
-                [p for p in pp if p != self.separator.phone]
-                + [self.separator.word]
+                [p for p in pp if p != self.separator.phone] + [self.separator.word]
             )
         assert len("".join(fields[:-1])) == len(phonemized) - phonemized.count(
             self.separator.phone
         )
         return fields[:-1]
-    
 
     def phonemization(self, text, strip=True) -> List[List[str]]:
         if isinstance(text, str):
@@ -171,12 +175,11 @@ class G2PModule:
 
     def g2p_conversion(self, text: str) -> List[str]:
         phonemes = self.phonemization([text.strip()])
-        return phonemes[0] 
+        return phonemes[0]
 
 
 class LexiconModule:
     def __init__(self, lex_path, language="en-us") -> None:
-        
         # todo: check lexicon derivation, merge with G2PModule?
         lexicon = {}
         with open(lex_path) as f:
@@ -188,24 +191,24 @@ class LexiconModule:
                     lexicon[word.lower()] = phones
         self.lexicon = lexicon
         self.language = language
+        self.lang2g2p = {"en-us": G2p()}
 
     def g2p_conversion(self, text):
         phone = None
-        
+
         # todo: preprocess with other languages
-        if self.language == 'en-us':
-            phone =  self.preprocess_english(text)
+        if self.language == "en-us":
+            phone = self.preprocess_english(text)
         else:
-            print('No support to', self.language)
+            print("No support to", self.language)
             raise
-        
+
         return phone
-            
 
     def preprocess_english(self, text):
         text = text.rstrip(punctuation)
 
-        g2p = G2p()
+        g2p = self.lang2g2p["en-us"]
         phones = []
         words = re.split(r"([,;.\-\?\!\s+])", text)
         for w in words:
@@ -216,6 +219,5 @@ class LexiconModule:
         phones = "}{".join(phones)
         phones = re.sub(r"\{[^\w\s]?\}", "{sp}", phones)
         phones = phones.replace("}{", " ")
-        
-        
+
         return phones

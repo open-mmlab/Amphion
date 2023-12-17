@@ -6,6 +6,8 @@
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
+from torch.nn import Conv1d, ConvTranspose1d, AvgPool1d, Conv2d
+from torch.nn.utils import weight_norm, spectral_norm
 from modules.vocoder_blocks import *
 
 LRELU_SLOPE = 0.1
@@ -97,9 +99,11 @@ class ISTFT(nn.Module):
         y = y / window_envelope
 
         return y
-    
+
+
 # The ASP and PSP Module are adopted from APNet under the MIT License
 # https://github.com/YangAi520/APNet/blob/main/models.py
+
 
 class ASPResBlock(torch.nn.Module):
     def __init__(self, cfg, channels, kernel_size=3, dilation=(1, 3, 5)):

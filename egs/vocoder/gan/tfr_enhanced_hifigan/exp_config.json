@@ -96,7 +96,7 @@
     }
   },
   "train": {
-    "batch_size": 16,
+    "batch_size": 32,
     "adamw": {
       "lr": 2.0e-4,
       "adam_b1": 0.8,

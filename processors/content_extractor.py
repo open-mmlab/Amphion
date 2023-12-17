@@ -21,7 +21,7 @@ from utils.io_optim import (
     FFmpegDataset,
     collate_batch,
 )
-from modules import whisper_extractor as whisper
+import whisper
 from modules.wenet_extractor.utils.init_model import init_model
 from modules.wenet_extractor.utils.checkpoint import load_checkpoint
 
@@ -185,18 +185,24 @@ class WhisperExtractor(BaseExtractor):
     def __init__(self, config):
         super(WhisperExtractor, self).__init__(config)
         self.extractor_type = "whisper"
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def load_model(self):
         # load whisper checkpoint
         print("Loading Whisper Model...")
 
-        checkpoint_file = (
-            self.cfg.preprocess.whisper_model_path
-            if "whisper_model_path" in self.cfg.preprocess
-            else None
-        )
+        if "whisper_model_path" in self.cfg.preprocess:
+            if os.path.isfile(self.cfg.preprocess.whisper_model_path):
+                # "pretrained/whisper/medium.pt"
+                download_root = os.path.dirname(self.cfg.preprocess.whisper_model_path)
+            elif os.path.isdir(self.cfg.preprocess.whisper_model_path):
+                # "pretrained/whisper"
+                download_root = self.cfg.preprocess.whisper_model_path
+        else:
+            download_root = None
+
         model = whisper.load_model(
-            self.cfg.preprocess.whisper_model, checkpoint_file=checkpoint_file
+            self.cfg.preprocess.whisper_model, self.device, download_root
         )
         if torch.cuda.is_available():
             print("Using GPU...\n")
@@ -215,7 +221,7 @@ class WhisperExtractor(BaseExtractor):
         # wavs: (batch, max_len)
         wavs = whisper.pad_or_trim(wavs)
         # batch_mel: (batch, 80, 3000)
-        batch_mel = whisper.log_mel_spectrogram(wavs).to(self.model.device)
+        batch_mel = whisper.log_mel_spectrogram(wavs, device=self.model.device)
         with torch.no_grad():
             # (batch, 1500, 1024)
             features = self.model.embed_audio(batch_mel)
@@ -366,15 +372,13 @@ class MertExtractor(BaseExtractor):
 
         print("Loading MERT Model: ...", self.cfg.preprocess.mert_model)
 
-        local_mert_path = "/mnt/workspace/fangzihao/acce/Amphion/pretrained/MERT"
-
         model_name = self.cfg.preprocess.mert_model
-        model = AutoModel.from_pretrained(local_mert_path, trust_remote_code=True)
+        model = AutoModel.from_pretrained(model_name, trust_remote_code=True)
 
         if torch.cuda.is_available():
             model = model.cuda()
         preprocessor = Wav2Vec2FeatureExtractor.from_pretrained(
-            local_mert_path, trust_remote_code=True
+            model_name, trust_remote_code=True
         )
 
         self.model = model
@@ -416,125 +420,138 @@ class MertExtractor(BaseExtractor):
 
 def extract_utt_content_features_dataloader(cfg, metadata, num_workers):
     dataset_name = metadata[0]["Dataset"]
-
-    if cfg.preprocess.extract_whisper_feature:
-        feat_dir = os.path.join(cfg.preprocess.processed_dir, dataset_name, "whisper")
-        os.makedirs(feat_dir, exist_ok=True)
-        feat_files_num = len(os.listdir(feat_dir))
-
-        if feat_files_num != len(metadata):
-            whisper_waveforms = FFmpegDataset(
-                cfg, dataset_name, cfg.preprocess.whisper_sample_rate, metadata=metadata
+    with torch.no_grad():
+        if cfg.preprocess.extract_whisper_feature:
+            feat_dir = os.path.join(
+                cfg.preprocess.processed_dir, dataset_name, "whisper"
             )
-            data_loader = DataLoader(
-                whisper_waveforms,
-                num_workers=num_workers,
-                shuffle=False,
-                pin_memory=cfg.preprocess.pin_memory,
-                batch_size=cfg.preprocess.content_feature_batch_size,
-                collate_fn=collate_batch,
-                drop_last=False,
-            )
-            extractor = WhisperExtractor(cfg)
-            extractor.load_model()
-            for batch_idx, items in enumerate(tqdm(data_loader)):
-                _metadata, wavs, lens = items
+            os.makedirs(feat_dir, exist_ok=True)
+            feat_files_num = len(os.listdir(feat_dir))
 
-                batch_content_features = extractor.extract_content_features(
-                    wavs,
-                    lens,
+            if feat_files_num != len(metadata):
+                whisper_waveforms = FFmpegDataset(
+                    cfg,
+                    dataset_name,
+                    cfg.preprocess.whisper_sample_rate,
+                    metadata=metadata,
                 )
-                for index, utt in enumerate(_metadata):
-                    extractor.save_feature(utt, batch_content_features[index])
-
-    if cfg.preprocess.extract_contentvec_feature:
-        feat_dir = os.path.join(
-            cfg.preprocess.processed_dir, dataset_name, "contentvec"
-        )
-        os.makedirs(feat_dir, exist_ok=True)
-        feat_files_num = len(os.listdir(feat_dir))
-
-        if feat_files_num != len(metadata):
-            contentvec_waveforms = LibrosaDataset(
-                cfg,
-                dataset_name,
-                cfg.preprocess.contentvec_sample_rate,
-                metadata=metadata,
-            )
-            data_loader = DataLoader(
-                contentvec_waveforms,
-                num_workers=num_workers,
-                shuffle=False,
-                pin_memory=cfg.preprocess.pin_memory,
-                batch_size=cfg.preprocess.content_feature_batch_size,
-                collate_fn=collate_batch,
-                drop_last=False,
-            )
-            extractor = ContentvecExtractor(cfg)
-            extractor.load_model()
-            for batch_idx, items in enumerate(tqdm(data_loader)):
-                _metadata, wavs, lens = items
-
-                batch_content_features = extractor.extract_content_features(wavs, lens)
-                for index, utt in enumerate(_metadata):
-                    extractor.save_feature(utt, batch_content_features[index])
-
-    if cfg.preprocess.extract_wenet_feature:
-        feat_dir = os.path.join(cfg.preprocess.processed_dir, dataset_name, "wenet")
-        os.makedirs(feat_dir, exist_ok=True)
-        feat_files_num = len(os.listdir(feat_dir))
-
-        if feat_files_num != len(metadata):
-            wenet_waveforms = TorchaudioDataset(
-                cfg, dataset_name, cfg.preprocess.wenet_sample_rate, metadata=metadata
-            )
-            data_loader = DataLoader(
-                wenet_waveforms,
-                num_workers=num_workers,
-                shuffle=False,
-                pin_memory=cfg.preprocess.pin_memory,
-                batch_size=cfg.preprocess.content_feature_batch_size,
-                collate_fn=collate_batch,
-                drop_last=False,
-            )
-            extractor = WenetExtractor(cfg)
-            extractor.load_model()
-            for batch_idx, items in enumerate(tqdm(data_loader)):
-                _metadata, wavs, lens = items
-
-                batch_content_features = extractor.extract_content_features(
-                    wavs,
-                    lens,
+                data_loader = DataLoader(
+                    whisper_waveforms,
+                    num_workers=num_workers,
+                    shuffle=False,
+                    pin_memory=cfg.preprocess.pin_memory,
+                    batch_size=cfg.preprocess.content_feature_batch_size,
+                    collate_fn=collate_batch,
+                    drop_last=False,
                 )
-                for index, utt in enumerate(_metadata):
-                    extractor.save_feature(utt, batch_content_features[index])
+                extractor = WhisperExtractor(cfg)
+                extractor.load_model()
+                for batch_idx, items in enumerate(tqdm(data_loader)):
+                    _metadata, wavs, lens = items
 
-    if cfg.preprocess.extract_mert_feature:
-        feat_dir = os.path.join(cfg.preprocess.processed_dir, dataset_name, "mert")
-        os.makedirs(feat_dir, exist_ok=True)
-        feat_files_num = len(os.listdir(feat_dir))
+                    batch_content_features = extractor.extract_content_features(
+                        wavs,
+                        lens,
+                    )
+                    for index, utt in enumerate(_metadata):
+                        extractor.save_feature(utt, batch_content_features[index])
 
-        if feat_files_num != len(metadata):
-            mert_waveforms = TorchaudioDataset(
-                cfg, dataset_name, cfg.preprocess.mert_sample_rate, metadata=metadata
+        if cfg.preprocess.extract_contentvec_feature:
+            feat_dir = os.path.join(
+                cfg.preprocess.processed_dir, dataset_name, "contentvec"
             )
-            data_loader = DataLoader(
-                mert_waveforms,
-                num_workers=num_workers,
-                shuffle=False,
-                pin_memory=cfg.preprocess.pin_memory,
-                batch_size=cfg.preprocess.content_feature_batch_size,
-                collate_fn=collate_batch,
-                drop_last=False,
-            )
-            extractor = MertExtractor(cfg)
-            extractor.load_model()
-            for batch_idx, items in enumerate(tqdm(data_loader)):
-                _metadata, wavs, lens = items
+            os.makedirs(feat_dir, exist_ok=True)
+            feat_files_num = len(os.listdir(feat_dir))
 
-                batch_content_features = extractor.extract_content_features(
-                    wavs,
-                    lens,
+            if feat_files_num != len(metadata):
+                contentvec_waveforms = LibrosaDataset(
+                    cfg,
+                    dataset_name,
+                    cfg.preprocess.contentvec_sample_rate,
+                    metadata=metadata,
                 )
-                for index, utt in enumerate(_metadata):
-                    extractor.save_feature(utt, batch_content_features[index])
+                data_loader = DataLoader(
+                    contentvec_waveforms,
+                    num_workers=num_workers,
+                    shuffle=False,
+                    pin_memory=cfg.preprocess.pin_memory,
+                    batch_size=cfg.preprocess.content_feature_batch_size,
+                    collate_fn=collate_batch,
+                    drop_last=False,
+                )
+                extractor = ContentvecExtractor(cfg)
+                extractor.load_model()
+                for batch_idx, items in enumerate(tqdm(data_loader)):
+                    _metadata, wavs, lens = items
+
+                    batch_content_features = extractor.extract_content_features(
+                        wavs, lens
+                    )
+                    for index, utt in enumerate(_metadata):
+                        extractor.save_feature(utt, batch_content_features[index])
+
+        if cfg.preprocess.extract_wenet_feature:
+            feat_dir = os.path.join(cfg.preprocess.processed_dir, dataset_name, "wenet")
+            os.makedirs(feat_dir, exist_ok=True)
+            feat_files_num = len(os.listdir(feat_dir))
+
+            if feat_files_num != len(metadata):
+                wenet_waveforms = TorchaudioDataset(
+                    cfg,
+                    dataset_name,
+                    cfg.preprocess.wenet_sample_rate,
+                    metadata=metadata,
+                )
+                data_loader = DataLoader(
+                    wenet_waveforms,
+                    num_workers=num_workers,
+                    shuffle=False,
+                    pin_memory=cfg.preprocess.pin_memory,
+                    batch_size=cfg.preprocess.content_feature_batch_size,
+                    collate_fn=collate_batch,
+                    drop_last=False,
+                )
+                extractor = WenetExtractor(cfg)
+                extractor.load_model()
+                for batch_idx, items in enumerate(tqdm(data_loader)):
+                    _metadata, wavs, lens = items
+
+                    batch_content_features = extractor.extract_content_features(
+                        wavs,
+                        lens,
+                    )
+                    for index, utt in enumerate(_metadata):
+                        extractor.save_feature(utt, batch_content_features[index])
+
+        if cfg.preprocess.extract_mert_feature:
+            feat_dir = os.path.join(cfg.preprocess.processed_dir, dataset_name, "mert")
+            os.makedirs(feat_dir, exist_ok=True)
+            feat_files_num = len(os.listdir(feat_dir))
+
+            if feat_files_num != len(metadata):
+                mert_waveforms = TorchaudioDataset(
+                    cfg,
+                    dataset_name,
+                    cfg.preprocess.mert_sample_rate,
+                    metadata=metadata,
+                )
+                data_loader = DataLoader(
+                    mert_waveforms,
+                    num_workers=num_workers,
+                    shuffle=False,
+                    pin_memory=cfg.preprocess.pin_memory,
+                    batch_size=cfg.preprocess.content_feature_batch_size,
+                    collate_fn=collate_batch,
+                    drop_last=False,
+                )
+                extractor = MertExtractor(cfg)
+                extractor.load_model()
+                for batch_idx, items in enumerate(tqdm(data_loader)):
+                    _metadata, wavs, lens = items
+
+                    batch_content_features = extractor.extract_content_features(
+                        wavs,
+                        lens,
+                    )
+                    for index, utt in enumerate(_metadata):
+                        extractor.save_feature(utt, batch_content_features[index])

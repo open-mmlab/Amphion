@@ -16,6 +16,7 @@ from torch.nn.utils import weight_norm
 # This code is adopted from MelGAN under the MIT License
 # https://github.com/descriptinc/melgan-neurips
 
+
 def weights_init(m):
     classname = m.__class__.__name__
     if classname.find("Conv") != -1:

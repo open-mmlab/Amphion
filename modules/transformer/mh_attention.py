@@ -90,9 +90,7 @@ class MultiheadAttention(Module):
         self.embed_dim = embed_dim
         self.kdim = kdim if kdim is not None else embed_dim
         self.vdim = vdim if vdim is not None else embed_dim
-        self._qkv_same_embed_dim = (
-            self.kdim == embed_dim and self.vdim == embed_dim
-        )
+        self._qkv_same_embed_dim = self.kdim == embed_dim and self.vdim == embed_dim
 
         self.num_heads = num_heads
         self.dropout = dropout
@@ -103,12 +101,8 @@ class MultiheadAttention(Module):
         ), "embed_dim must be divisible by num_heads"
 
         if add_bias_kv:
-            self.bias_k = Parameter(
-                torch.empty((1, 1, embed_dim), **factory_kwargs)
-            )
-            self.bias_v = Parameter(
-                torch.empty((1, 1, embed_dim), **factory_kwargs)
-            )
+            self.bias_k = Parameter(torch.empty((1, 1, embed_dim), **factory_kwargs))
+            self.bias_v = Parameter(torch.empty((1, 1, embed_dim), **factory_kwargs))
         else:
             self.bias_k = self.bias_v = None
 
@@ -264,20 +258,18 @@ class MultiheadAttention(Module):
                 )
         why_not_fast_path = ""
         if not is_batched:
-            why_not_fast_path = f"input not batched; expected query.dim() of 3 but got {query.dim()}"
+            why_not_fast_path = (
+                f"input not batched; expected query.dim() of 3 but got {query.dim()}"
+            )
         elif query is not key or key is not value:
             # When lifting this restriction, don't forget to either
             # enforce that the dtypes all match or test cases where
             # they don't!
             why_not_fast_path = "non-self attention was used (query, key, and value are not the same Tensor)"
-        elif (
-            self.in_proj_bias is not None
-            and query.dtype != self.in_proj_bias.dtype
-        ):
+        elif self.in_proj_bias is not None and query.dtype != self.in_proj_bias.dtype:
             why_not_fast_path = f"dtypes of query ({query.dtype}) and self.in_proj_bias ({self.in_proj_bias.dtype}) don't match"
         elif (
-            self.in_proj_weight is not None
-            and query.dtype != self.in_proj_weight.dtype
+            self.in_proj_weight is not None and query.dtype != self.in_proj_weight.dtype
         ):
             # this case will fail anyway, but at least they'll get a useful error message.
             why_not_fast_path = f"dtypes of query ({query.dtype}) and self.in_proj_weight ({self.in_proj_weight.dtype}) don't match"
@@ -326,9 +318,7 @@ class MultiheadAttention(Module):
                     for x in tensor_args
                 ]
             ):
-                why_not_fast_path = (
-                    "some Tensor argument is neither CUDA nor CPU"
-                )
+                why_not_fast_path = "some Tensor argument is neither CUDA nor CPU"
             elif torch.is_grad_enabled() and any(
                 [x is not None and x.requires_grad for x in tensor_args]
             ):
@@ -347,9 +337,7 @@ class MultiheadAttention(Module):
                     self.in_proj_bias,
                     self.out_proj.weight,
                     self.out_proj.bias,
-                    key_padding_mask
-                    if key_padding_mask is not None
-                    else attn_mask,
+                    key_padding_mask if key_padding_mask is not None else attn_mask,
                     need_weights,
                     average_attn_weights,
                     1
@@ -374,9 +362,7 @@ class MultiheadAttention(Module):
                     query, key = [x.transpose(1, 0) for x in (query, key)]
                     value = key
             else:
-                query, key, value = [
-                    x.transpose(1, 0) for x in (query, key, value)
-                ]
+                query, key, value = [x.transpose(1, 0) for x in (query, key, value)]
 
         if not self._qkv_same_embed_dim:
             attn_output, attn_output_weights = F.multi_head_attention_forward(

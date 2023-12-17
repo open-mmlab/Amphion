@@ -8,6 +8,7 @@
 import torch
 import torch.nn as nn
 
+
 class TokenEmbedding(nn.Module):
     def __init__(self, dim_model: int, vocab_size: int, dropout: float = 0.0):
         super().__init__()

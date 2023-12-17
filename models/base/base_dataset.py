@@ -26,31 +26,28 @@ class BaseDataset(torch.utils.data.Dataset):
 
         # self.data_root = processed_data_dir
         self.cfg = cfg
-        
+
         processed_data_dir = os.path.join(cfg.preprocess.processed_dir, dataset)
         meta_file = cfg.preprocess.valid_file if is_valid else cfg.preprocess.train_file
         self.metafile_path = os.path.join(processed_data_dir, meta_file)
         self.metadata = self.get_metadata()
 
-        
-
-        '''
+        """
         load spk2id and utt2spk from json file
             spk2id: {spk1: 0, spk2: 1, ...}
             utt2spk: {dataset_uid: spk1, ...}
-        '''
+        """
         if cfg.preprocess.use_spkid:
             spk2id_path = os.path.join(processed_data_dir, cfg.preprocess.spk2id)
             with open(spk2id_path, "r") as f:
                 self.spk2id = json.load(f)
-            
+
             utt2spk_path = os.path.join(processed_data_dir, cfg.preprocess.utt2spk)
             self.utt2spk = dict()
             with open(utt2spk_path, "r") as f:
                 for line in f.readlines():
-                    utt, spk = line.strip().split('\t')
+                    utt, spk = line.strip().split("\t")
                     self.utt2spk[utt] = spk
-        
 
         if cfg.preprocess.use_uv:
             self.utt2uv_path = {}
@@ -173,22 +170,20 @@ class BaseDataset(torch.utils.data.Dataset):
                     sequence = text_to_sequence(text, cfg.preprocess.text_cleaners)
                 elif cfg.preprocess.use_phone:
                     # load phoneme squence from phone file
-                    phone_path = os.path.join(processed_data_dir, 
-                                            cfg.preprocess.phone_dir,
-                                            uid+'.phone'
-                                            )
-                    with open(phone_path, 'r') as fin:
+                    phone_path = os.path.join(
+                        processed_data_dir, cfg.preprocess.phone_dir, uid + ".phone"
+                    )
+                    with open(phone_path, "r") as fin:
                         phones = fin.readlines()
                         assert len(phones) == 1
                         phones = phones[0].strip()
-                    phones_seq = phones.split(' ')
+                    phones_seq = phones.split(" ")
 
                     phon_id_collator = phoneIDCollation(cfg, dataset=dataset)
                     sequence = phon_id_collator.get_phone_id_sequence(cfg, phones_seq)
 
                 self.utt2seq[utt] = sequence
 
-        
     def get_metadata(self):
         with open(self.metafile_path, "r", encoding="utf-8") as f:
             metadata = json.load(f)
@@ -328,7 +323,6 @@ class BaseCollator(object):
 class BaseTestDataset(torch.utils.data.Dataset):
     def __init__(self, cfg, args):
         raise NotImplementedError
-          
 
     def get_metadata(self):
         raise NotImplementedError

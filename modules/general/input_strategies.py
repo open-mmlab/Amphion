@@ -4,7 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 
-# This code is modified from 
+# This code is modified from
 # https://github.com/lifeiteng/vall-e/blob/9c69096d603ce13174fb5cb025f185e2e9b36ac7/valle/data/input_strategies.py
 import random
 from collections import defaultdict
@@ -27,9 +27,7 @@ class PromptedFeatures:
         self.features = features
 
     def to(self, device):
-        return PromptedFeatures(
-            self.prompts.to(device), self.features.to(device)
-        )
+        return PromptedFeatures(self.prompts.to(device), self.features.to(device))
 
     def sum(self):
         return self.features.sum()
@@ -44,7 +42,6 @@ class PromptedFeatures:
 
 
 class PromptedPrecomputedFeatures(PrecomputedFeatures):
-    
     def __init__(
         self,
         dataset: str,
@@ -55,12 +52,12 @@ class PromptedPrecomputedFeatures(PrecomputedFeatures):
         super().__init__(num_workers, executor_type)
         self.utt2neighbors = self._create_utt2neighbors(dataset, cuts)
 
-    def __call__(
-        self, cuts: CutSet
-    ) -> Tuple[PromptedFeatures, PromptedFeatures]:
+    def __call__(self, cuts: CutSet) -> Tuple[PromptedFeatures, PromptedFeatures]:
         features, features_lens = self._collate_features(cuts)
         prompts, prompts_lens = self._collate_prompts(cuts)
-        return PromptedFeatures(prompts, features), PromptedFeatures(prompts_lens, features_lens)
+        return PromptedFeatures(prompts, features), PromptedFeatures(
+            prompts_lens, features_lens
+        )
 
     def _create_utt2neighbors(self, dataset, cuts):
         utt2neighbors = defaultdict(lambda: [])
@@ -85,7 +82,9 @@ class PromptedPrecomputedFeatures(PrecomputedFeatures):
                 utt2neighbors[sorted_uttids[0]].append(utt2cut[sorted_uttids[0]])
                 continue
 
-            utt2prevutt = dict(zip(sorted_uttids, [sorted_uttids[1]] + sorted_uttids[:-1]))
+            utt2prevutt = dict(
+                zip(sorted_uttids, [sorted_uttids[1]] + sorted_uttids[:-1])
+            )
             utt2postutt = dict(zip(sorted_uttids[:-1], sorted_uttids[1:]))
             for utt in sorted_uttids:
                 if utt in utt2prevutt:
@@ -110,7 +109,8 @@ class PromptedPrecomputedFeatures(PrecomputedFeatures):
 
     def _collate_features(self, cuts):
         return collate_features(
-            cuts, executor=_get_executor(self.num_workers, executor_type=self._executor_type)
+            cuts,
+            executor=_get_executor(self.num_workers, executor_type=self._executor_type),
         )
 
     def _collate_prompts(self, cuts):
@@ -125,5 +125,6 @@ class PromptedPrecomputedFeatures(PrecomputedFeatures):
         ).truncate(max_duration=mini_duration, offset_type="random", preserve_id=False)
 
         return collate_features(
-            prompts_cuts, executor=_get_executor(self.num_workers, executor_type=self._executor_type)
+            prompts_cuts,
+            executor=_get_executor(self.num_workers, executor_type=self._executor_type),
         )

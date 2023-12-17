@@ -3,7 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-# This code is modified from 
+# This code is modified from
 # https://github.com/lifeiteng/vall-e/blob/9c69096d603ce13174fb5cb025f185e2e9b36ac7/valle/data/tokenizer.py
 
 import re
@@ -13,7 +13,6 @@ import torch
 import torchaudio
 from encodec import EncodecModel
 from encodec.utils import convert_audio
-
 
 
 class AudioTokenizer:
@@ -69,7 +68,6 @@ class AudioTokenizer:
         return self.codec.decode(frames)
 
 
-
 def tokenize_audio(tokenizer: AudioTokenizer, audio_path: str):
     """
     Tokenize the audio waveform using the given AudioTokenizer.
@@ -86,7 +84,7 @@ def tokenize_audio(tokenizer: AudioTokenizer, audio_path: str):
         RuntimeError: If there's an error processing the audio data.
     """
     # try:
-        # Load and preprocess the audio waveform
+    # Load and preprocess the audio waveform
     wav, sr = torchaudio.load(audio_path)
     wav = convert_audio(wav, sr, tokenizer.sample_rate, tokenizer.channels)
     wav = wav.unsqueeze(0)
@@ -100,7 +98,6 @@ def tokenize_audio(tokenizer: AudioTokenizer, audio_path: str):
     #     raise FileNotFoundError(f"Audio file not found at {audio_path}")
     # except Exception as e:
     #     raise RuntimeError(f"Error processing audio data: {e}")
-
 
 
 def remove_encodec_weight_norm(model):
@@ -145,7 +142,9 @@ def extract_encodec_token(wav_path):
         wav = wav.cuda()
     with torch.no_grad():
         encoded_frames = model.encode(wav)
-        codes_ = torch.cat([encoded[0] for encoded in encoded_frames], dim=-1)  # [B, n_q, T]
-        codes = codes_.cpu().numpy()[0,:,:].T # [T, 8]
-        
+        codes_ = torch.cat(
+            [encoded[0] for encoded in encoded_frames], dim=-1
+        )  # [B, n_q, T]
+        codes = codes_.cpu().numpy()[0, :, :].T  # [T, 8]
+
         return codes

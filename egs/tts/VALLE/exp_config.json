@@ -14,7 +14,8 @@
         "use_phone": true,
         "use_acoustic_token": true,
         "processed_dir": "Amphion/data/",
-        "sampling_rate": "24000", // "Audio sampling rate."  
+        "sample_rate": 24000, // "Audio sampling rate." 
+        "codec_hop_size": "320", // "Audio codec hop size." 
         "valid_file": "test.json", 
     },
     "model": {
@@ -25,5 +26,8 @@
         "batch_size": 4,
         "train_stage": 1, // 0: train all modules, For VALL_E, support 1: AR Decoder 2: NAR Decoder(s)
         "max_epoch": 20, // "Number of epochs to train."
+        "use_dynamic_batchsize": true, // If use dynamic batch size
+        "max_tokens": 4000, // If use dynamic batch size
+        "max_sentences": 10 // If use dynamic batch size
     }
 }

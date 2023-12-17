@@ -34,14 +34,12 @@ class TTSInference(object):
         if self.args.acoustics_dir is not None:
             self.exp_dir = self.args.acoustics_dir
         elif self.args.checkpoint_path is not None:
-            self.exp_dir = os.path.dirname(
-                os.path.dirname(self.args.checkpoint_path))
-            
+            self.exp_dir = os.path.dirname(os.path.dirname(self.args.checkpoint_path))
+
         # Init accelerator
         self.accelerator = accelerate.Accelerator()
         self.accelerator.wait_for_everyone()
         self.device = self.accelerator.device
-        
 
         # Get logger
         with self.accelerator.main_process_first():
@@ -193,7 +191,7 @@ class TTSInference(object):
                 tmp_file = os.path.join(out_dir, f"{uid}.pt")
                 if os.path.exists(tmp_file):
                     os.remove(tmp_file)
-        print('Saved to: ', out_dir)
+        print("Saved to: ", out_dir)
 
     @torch.inference_mode()
     def inference_for_batches(self):

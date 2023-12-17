@@ -77,10 +77,7 @@ class VitsInference(SVCInference):
             for k, v in batch_data.items():
                 batch_data[k] = v.to(device)
 
-            audios, f0 = self.model.infer(
-                batch_data,
-                noise_scale=noise_scale
-            )
+            audios, f0 = self.model.infer(batch_data, noise_scale=noise_scale)
 
             pred_res.extend(audios)
 

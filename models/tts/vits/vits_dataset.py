@@ -9,10 +9,10 @@ import numpy as np
 from text import text_to_sequence
 from text.text_token_collation import phoneIDCollation
 from models.tts.base.tts_dataset import (
-    TTSDataset, 
+    TTSDataset,
     TTSCollator,
     TTSTestDataset,
-    TTSTestCollator
+    TTSTestCollator,
 )
 
 
@@ -44,16 +44,18 @@ class VITSTestDataset(TTSTestDataset):
         super().__init__(args, cfg)
 
         if cfg.preprocess.use_spkid:
-            processed_data_dir = os.path.join(cfg.preprocess.processed_dir, args.dataset)
+            processed_data_dir = os.path.join(
+                cfg.preprocess.processed_dir, args.dataset
+            )
             spk2id_path = os.path.join(processed_data_dir, cfg.preprocess.spk2id)
             with open(spk2id_path, "r") as f:
                 self.spk2id = json.load(f)
-            
+
             utt2spk_path = os.path.join(processed_data_dir, cfg.preprocess.utt2spk)
             self.utt2spk = dict()
             with open(utt2spk_path, "r") as f:
                 for line in f.readlines():
-                    utt, spk = line.strip().split('\t')
+                    utt, spk = line.strip().split("\t")
                     self.utt2spk[utt] = spk
 
         if cfg.preprocess.use_text or cfg.preprocess.use_phone:
@@ -68,16 +70,15 @@ class VITSTestDataset(TTSTestDataset):
                     sequence = text_to_sequence(text, cfg.preprocess.text_cleaners)
                 elif cfg.preprocess.use_phone:
                     # load phoneme squence from phone file
-                    phone_path = os.path.join(processed_data_dir, 
-                                            cfg.preprocess.phone_dir,
-                                            uid+'.phone'
-                                            )
-                    with open(phone_path, 'r') as fin:
+                    phone_path = os.path.join(
+                        processed_data_dir, cfg.preprocess.phone_dir, uid + ".phone"
+                    )
+                    with open(phone_path, "r") as fin:
                         phones = fin.readlines()
                         assert len(phones) == 1
                         phones = phones[0].strip()
-                    phones_seq = phones.split(' ')
-                    
+                    phones_seq = phones.split(" ")
+
                     phon_id_collator = phoneIDCollation(cfg, dataset=dataset)
                     sequence = phon_id_collator.get_phone_id_sequence(cfg, phones_seq)
 
@@ -91,12 +92,12 @@ class VITSTestDataset(TTSTestDataset):
         utt = "{}_{}".format(dataset, uid)
 
         single_feature = dict()
-        
+
         if self.cfg.preprocess.use_spkid:
             single_feature["spk_id"] = np.array(
                 [self.spk2id[self.utt2spk[utt]]], dtype=np.int32
             )
-            
+
         if self.cfg.preprocess.use_phone or self.cfg.preprocess.use_text:
             single_feature["phone_seq"] = np.array(self.utt2seq[utt])
             single_feature["phone_len"] = len(self.utt2seq[utt])

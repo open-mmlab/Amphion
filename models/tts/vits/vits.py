@@ -245,7 +245,6 @@ class SynthesizerTrn(nn.Module):
 
         if n_speakers >= 1:
             self.emb_g = nn.Embedding(n_speakers, gin_channels)
-            
 
     def forward(self, data):
         x = data["phone_seq"]

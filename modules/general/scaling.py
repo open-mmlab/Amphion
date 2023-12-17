@@ -10,6 +10,7 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
+
 class Transpose(nn.Identity):
     """(N, T, D) -> (N, D, T)"""
 
@@ -76,9 +77,9 @@ def _compute_scale_factor(
     else:
         # below_threshold is 0 if x_abs_mean > min_abs, can be at most max_factor if
         # x_abs)_mean , min_abs.
-        below_threshold = (
-            (min_abs - x_abs_mean) * (gain_factor / min_abs)
-        ).clamp(min=0, max=max_factor)
+        below_threshold = ((min_abs - x_abs_mean) * (gain_factor / min_abs)).clamp(
+            min=0, max=max_factor
+        )
 
     above_threshold = ((x_abs_mean - max_abs) * (gain_factor / max_abs)).clamp(
         min=0, max=max_factor
@@ -114,8 +115,7 @@ def _compute_sign_factor(
         # 0 if self.proportion_positive <= max_positive, else can be
         # as large as -max_factor.
         factor2 = (
-            (proportion_positive - max_positive)
-            * (gain_factor / (1.0 - max_positive))
+            (proportion_positive - max_positive) * (gain_factor / (1.0 - max_positive))
         ).clamp_(min=0, max=max_factor)
     sign_factor = factor1 - factor2
     # require min_positive != 0 or max_positive != 1:
@@ -183,9 +183,7 @@ class RandomClampFunction(torch.autograd.Function):
         return ans
 
     @staticmethod
-    def backward(
-        ctx, ans_grad: Tensor
-    ) -> Tuple[Tensor, None, None, None, None]:
+    def backward(ctx, ans_grad: Tensor) -> Tuple[Tensor, None, None, None, None]:
         (is_same,) = ctx.saved_tensors
         x_grad = ans_grad * is_same.to(ans_grad.dtype)
         reflect = ctx.reflect
@@ -234,9 +232,7 @@ class RandomGradFunction(torch.autograd.Function):
     def backward(ctx, ans_grad: Tensor) -> Tuple[Tensor, None]:
         if ans_grad.dtype == torch.float16:
             return (
-                random_cast_to_half(
-                    ans_grad.to(torch.float32), min_abs=ctx.min_abs
-                ),
+                random_cast_to_half(ans_grad.to(torch.float32), min_abs=ctx.min_abs),
                 None,
             )
         else:
@@ -254,11 +250,7 @@ class RandomGrad(torch.nn.Module):
         self.min_abs = min_abs
 
     def forward(self, x: Tensor):
-        if (
-            torch.jit.is_scripting()
-            or not self.training
-            or torch.jit.is_tracing()
-        ):
+        if torch.jit.is_scripting() or not self.training or torch.jit.is_tracing():
             return x
         else:
             return RandomGradFunction.apply(x, self.min_abs)
@@ -325,9 +317,9 @@ class MaxEigLimiterFunction(torch.autograd.Function):
             x = x_orig.transpose(ctx.channel_dim, -1).reshape(-1, num_channels)
             new_direction.requires_grad = False
             x = x - x.mean(dim=0)
-            x_var = (x ** 2).mean()
+            x_var = (x**2).mean()
             x_residual = x - coeffs * new_direction
-            x_residual_var = (x_residual ** 2).mean()
+            x_residual_var = (x_residual**2).mean()
             # `variance_proportion` is the proportion of the variance accounted for
             # by the top eigen-direction.  This is to be minimized.
             variance_proportion = (x_var - x_residual_var) / (x_var + 1.0e-20)
@@ -404,7 +396,7 @@ class BasicNorm(torch.nn.Module):
             # region if it happens to exit it.
             eps = eps.clamp(min=self.eps_min, max=self.eps_max)
         scales = (
-            torch.mean(x ** 2, dim=self.channel_dim, keepdim=True) + eps.exp()
+            torch.mean(x**2, dim=self.channel_dim, keepdim=True) + eps.exp()
         ) ** -0.5
         return x * scales
 
@@ -428,9 +420,7 @@ def ScaledLinear(*args, initial_scale: float = 1.0, **kwargs) -> nn.Linear:
     with torch.no_grad():
         ans.weight[:] *= initial_scale
         if ans.bias is not None:
-            torch.nn.init.uniform_(
-                ans.bias, -0.1 * initial_scale, 0.1 * initial_scale
-            )
+            torch.nn.init.uniform_(ans.bias, -0.1 * initial_scale, 0.1 * initial_scale)
     return ans
 
 
@@ -459,9 +449,7 @@ def ScaledConv1d(
     with torch.no_grad():
         ans.weight[:] *= initial_scale
         if ans.bias is not None:
-            torch.nn.init.uniform_(
-                ans.bias, -0.1 * initial_scale, 0.1 * initial_scale
-            )
+            torch.nn.init.uniform_(ans.bias, -0.1 * initial_scale, 0.1 * initial_scale)
     return ans
 
 
@@ -693,11 +681,7 @@ class ActivationBalancer(torch.nn.Module):
         self.register_buffer("count", torch.tensor(0, dtype=torch.int64))
 
     def forward(self, x: Tensor) -> Tensor:
-        if (
-            torch.jit.is_scripting()
-            or not x.requires_grad
-            or torch.jit.is_tracing()
-        ):
+        if torch.jit.is_scripting() or not x.requires_grad or torch.jit.is_tracing():
             return _no_op(x)
 
         count = self.cpu_count
@@ -815,11 +799,9 @@ def _whitening_metric(x: Tensor, num_groups: int):
     # the following expression is what we'd get if we took the matrix product
     # of each covariance and measured the mean of its trace, i.e.
     # the same as _diag(torch.matmul(x_covar, x_covar)).mean().
-    x_covarsq_mean_diag = (x_covar ** 2).sum() / (
-        num_groups * channels_per_group
-    )
+    x_covarsq_mean_diag = (x_covar**2).sum() / (num_groups * channels_per_group)
     # this metric will be >= 1.0; the larger it is, the less 'white' the data was.
-    metric = x_covarsq_mean_diag / (x_covar_mean_diag ** 2 + 1.0e-20)
+    metric = x_covarsq_mean_diag / (x_covar_mean_diag**2 + 1.0e-20)
     return metric
 
 
@@ -857,8 +839,7 @@ class WhiteningPenaltyFunction(torch.autograd.Function):
                 (metric - ctx.whitening_limit).relu().backward()
                 penalty_grad = x_detached.grad
                 scale = ctx.grad_scale * (
-                    x_grad.to(torch.float32).norm()
-                    / (penalty_grad.norm() + 1.0e-20)
+                    x_grad.to(torch.float32).norm() / (penalty_grad.norm() + 1.0e-20)
                 )
                 penalty_grad = penalty_grad * scale
         return x_grad + penalty_grad.to(x_grad.dtype), None, None, None
@@ -923,11 +904,7 @@ class Whiten(nn.Module):
         you use the returned value, or the graph will be freed
         and nothing will happen in backprop.
         """
-        if (
-            not x.requires_grad
-            or random.random() > self.prob
-            or self.grad_scale == 0
-        ):
+        if not x.requires_grad or random.random() > self.prob or self.grad_scale == 0:
             return _no_op(x)
         else:
             if hasattr(self, "min_prob") and random.random() < 0.25:
@@ -1049,27 +1026,21 @@ class MaxEig(torch.nn.Module):
             orig_x = x
             x = x.to(torch.float32)
             with torch.no_grad():
-                x = x.transpose(self.channel_dim, -1).reshape(
-                    -1, self.num_channels
-                )
+                x = x.transpose(self.channel_dim, -1).reshape(-1, self.num_channels)
                 x = x - x.mean(dim=0)
                 new_direction, coeffs = self._find_direction_coeffs(
                     x, self.max_eig_direction
                 )
-                x_var = (x ** 2).mean()
+                x_var = (x**2).mean()
                 x_residual = x - coeffs * new_direction
-                x_residual_var = (x_residual ** 2).mean()
+                x_residual_var = (x_residual**2).mean()
 
                 # `variance_proportion` is the proportion of the variance accounted for
                 # by the top eigen-direction.
-                variance_proportion = (x_var - x_residual_var) / (
-                    x_var + 1.0e-20
-                )
+                variance_proportion = (x_var - x_residual_var) / (x_var + 1.0e-20)
 
                 # ensure new direction is nonzero even if x == 0, by including `direction`.
-                self._set_direction(
-                    0.1 * self.max_eig_direction + new_direction
-                )
+                self._set_direction(0.1 * self.max_eig_direction + new_direction)
 
             if random.random() < 0.01 or __name__ == "__main__":
                 logging.info(
@@ -1081,9 +1052,7 @@ class MaxEig(torch.nn.Module):
                 # reach here, only near the beginning of training if we are
                 # starting to diverge, should this constraint be active.
                 cur_prob = self.cur_prob
-                self.cur_prob = (
-                    1.0  # next time, do the update with probability 1.0.
-                )
+                self.cur_prob = 1.0  # next time, do the update with probability 1.0.
                 return MaxEigLimiterFunction.apply(
                     orig_x, coeffs, new_direction, self.channel_dim, self.scale
                 )
@@ -1132,9 +1101,7 @@ class MaxEig(torch.nn.Module):
         # `coeffs` are the coefficients of `prev_direction` in x.
         # actually represent the coeffs up to a constant positive factor.
         coeffs = (x * prev_direction).sum(dim=1, keepdim=True) + 1.0e-10
-        cur_direction = (x * coeffs).sum(dim=0) / (
-            (coeffs ** 2).sum() + 1.0e-20
-        )
+        cur_direction = (x * coeffs).sum(dim=0) / ((coeffs**2).sum() + 1.0e-20)
         return cur_direction, coeffs
 
 
@@ -1174,9 +1141,9 @@ class DoubleSwishFunction(torch.autograd.Function):
             # floors), should be expectation-preserving.
             floor = -0.043637
             ceil = 1.2
-            d_scaled = (deriv - floor) * (
-                255.0 / (ceil - floor)
-            ) + torch.rand_like(deriv)
+            d_scaled = (deriv - floor) * (255.0 / (ceil - floor)) + torch.rand_like(
+                deriv
+            )
             if __name__ == "__main__":
                 # for self-testing only.
                 assert d_scaled.min() >= 0.0
@@ -1279,9 +1246,7 @@ def _test_whiten():
 def _test_activation_balancer_sign():
     probs = torch.arange(0, 1, 0.01)
     N = 1000
-    x = 1.0 * (
-        (2.0 * (torch.rand(probs.numel(), N) < probs.unsqueeze(-1))) - 1.0
-    )
+    x = 1.0 * ((2.0 * (torch.rand(probs.numel(), N) < probs.unsqueeze(-1))) - 1.0)
     x = x.detach()
     x.requires_grad = True
     m = ActivationBalancer(
@@ -1305,9 +1270,7 @@ def _test_activation_balancer_sign():
 def _test_activation_balancer_magnitude():
     magnitudes = torch.arange(0, 1, 0.01)
     N = 1000
-    x = torch.sign(torch.randn(magnitudes.numel(), N)) * magnitudes.unsqueeze(
-        -1
-    )
+    x = torch.sign(torch.randn(magnitudes.numel(), N)) * magnitudes.unsqueeze(-1)
     x = x.detach()
     x.requires_grad = True
     m = ActivationBalancer(
@@ -1339,8 +1302,8 @@ def _test_basic_norm():
     y = m(x)
 
     assert y.shape == x.shape
-    x_rms = (x ** 2).mean().sqrt()
-    y_rms = (y ** 2).mean().sqrt()
+    x_rms = (x**2).mean().sqrt()
+    y_rms = (y**2).mean().sqrt()
     print("x rms = ", x_rms)
     print("y rms = ", y_rms)
     assert y_rms < x_rms

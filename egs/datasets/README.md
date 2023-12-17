@@ -163,7 +163,7 @@ The official LibriTTS dataset can be download [here](https://www.openslr.org/60/
 
 ## LJSpeech
 
-The official LibriTTS dataset can be download [here](https://keithito.com/LJ-Speech-Dataset/). The file structure tree is like:
+The official LJSpeech dataset can be download [here](https://keithito.com/LJ-Speech-Dataset/). The file structure tree is like:
 
 ```plaintext
 [LJSpeech dataset path]

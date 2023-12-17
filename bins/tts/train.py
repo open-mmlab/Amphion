@@ -63,14 +63,14 @@ def main():
         type=str,
         default="resume",
         help="Resume training or finetuning.",
-    )    
+    )
     parser.add_argument(
         "--checkpoint_path",
         type=str,
         default=None,
         help="Checkpoint for resume training or finetuning.",
-    )        
-    
+    )
+
     VALLETrainer.add_arguments(parser)
     args = parser.parse_args()
     cfg = load_config(args.config)
