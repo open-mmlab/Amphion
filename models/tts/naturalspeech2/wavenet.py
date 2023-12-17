@@ -4,6 +4,7 @@ import numpy as np
 import torch.nn.functional as F
 import math
 
+
 class FiLM(nn.Module):
     def __init__(self, in_dim, cond_dim):
         super().__init__()
@@ -13,7 +14,7 @@ class FiLM(nn.Module):
 
         nn.init.xavier_uniform_(self.gain.weight)
         nn.init.constant_(self.gain.bias, 1)
-        
+
         nn.init.xavier_uniform_(self.bias.weight)
         nn.init.constant_(self.bias.bias, 0)
 
@@ -31,15 +32,18 @@ class Mish(nn.Module):
     def forward(self, x):
         return x * torch.tanh(F.softplus(x))
 
+
 def Conv1d(*args, **kwargs):
     layer = nn.Conv1d(*args, **kwargs)
     nn.init.kaiming_normal_(layer.weight)
     return layer
 
+
 def Linear(*args, **kwargs):
     layer = nn.Linear(*args, **kwargs)
     layer.weight.data.normal_(0.0, 0.02)
     return layer
+
 
 class SinusoidalPosEmb(nn.Module):
     def __init__(self, dim):
@@ -55,6 +59,7 @@ class SinusoidalPosEmb(nn.Module):
         emb = torch.cat((emb.sin(), emb.cos()), dim=-1)
         return emb
 
+
 class ResidualBlock(nn.Module):
     def __init__(self, hidden_dim, attn_head, dilation, drop_out, has_cattn=False):
         super().__init__()
@@ -65,40 +70,43 @@ class ResidualBlock(nn.Module):
         self.attn_head = attn_head
         self.drop_out = drop_out
 
-        self.dilated_conv = Conv1d(hidden_dim, 2 * hidden_dim, 3, padding=dilation, dilation=dilation)
+        self.dilated_conv = Conv1d(
+            hidden_dim, 2 * hidden_dim, 3, padding=dilation, dilation=dilation
+        )
         self.diffusion_proj = Linear(hidden_dim, hidden_dim)
 
         self.cond_proj = Conv1d(hidden_dim, hidden_dim * 2, 1)
         self.out_proj = Conv1d(hidden_dim, hidden_dim * 2, 1)
 
         if self.has_cattn:
-            self.attn = nn.MultiheadAttention(hidden_dim, attn_head, 0.1, batch_first=True)
+            self.attn = nn.MultiheadAttention(
+                hidden_dim, attn_head, 0.1, batch_first=True
+            )
             self.film = FiLM(hidden_dim * 2, hidden_dim)
 
             self.ln = nn.LayerNorm(hidden_dim)
-        
+
         self.dropout = nn.Dropout(self.drop_out)
 
     def forward(self, x, x_mask, cond, diffusion_step, spk_query_emb):
-
         diffusion_step = self.diffusion_proj(diffusion_step).unsqueeze(-1)  # (B, d, 1)
-        cond = self.cond_proj(cond)   # (B, 2*d, T)
+        cond = self.cond_proj(cond)  # (B, 2*d, T)
 
         y = x + diffusion_step
         if x_mask != None:
-            y = y * x_mask.to(y.dtype)[:, None, :]   # (B, 2*d, T)
+            y = y * x_mask.to(y.dtype)[:, None, :]  # (B, 2*d, T)
 
         if self.has_cattn:
             y_ = y.transpose(1, 2)
             y_ = self.ln(y_)
 
-            y_, _ = self.attn(y_, spk_query_emb, spk_query_emb)   # (B, T, d)
+            y_, _ = self.attn(y_, spk_query_emb, spk_query_emb)  # (B, T, d)
 
-        y = self.dilated_conv(y) + cond   # (B, 2*d, T)
+        y = self.dilated_conv(y) + cond  # (B, 2*d, T)
 
         if self.has_cattn:
-            y = self.film(y.transpose(1, 2), y_)   # (B, T, 2*d)
-            y = y.transpose(1, 2)   # (B, 2*d, T)
+            y = self.film(y.transpose(1, 2), y_)  # (B, T, 2*d)
+            y = y.transpose(1, 2)  # (B, 2*d, T)
 
         gate, filter_ = torch.chunk(y, 2, dim=1)
         y = torch.sigmoid(gate) * torch.tanh(filter_)
@@ -108,7 +116,7 @@ class ResidualBlock(nn.Module):
         residual, skip = torch.chunk(y, 2, dim=1)
 
         if x_mask != None:
-            residual = residual * x_mask.to(y.dtype)[:, None, :] 
+            residual = residual * x_mask.to(y.dtype)[:, None, :]
             skip = skip * x_mask.to(y.dtype)[:, None, :]
 
         return (x + residual) / math.sqrt(2.0), skip
@@ -134,15 +142,20 @@ class WaveNet(nn.Module):
         self.mlp = nn.Sequential(
             Linear(self.hidden_dim, self.hidden_dim * 4),
             Mish(),
-            Linear(self.hidden_dim * 4, self.hidden_dim)
+            Linear(self.hidden_dim * 4, self.hidden_dim),
         )
 
         self.cond_ln = nn.LayerNorm(self.hidden_dim)
 
         self.layers = nn.ModuleList(
             [
-                ResidualBlock(self.hidden_dim, self.attn_head, 2 ** (i % self.dilation_cycle), self.drop_out,
-                              has_cattn=(i % self.cross_attn_per_layer == 0))
+                ResidualBlock(
+                    self.hidden_dim,
+                    self.attn_head,
+                    2 ** (i % self.dilation_cycle),
+                    self.drop_out,
+                    has_cattn=(i % self.cross_attn_per_layer == 0),
+                )
                 for i in range(self.num_layers)
             ]
         )
@@ -172,7 +185,9 @@ class WaveNet(nn.Module):
 
         skip = []
         for _, layer in enumerate(self.layers):
-            x_input, skip_connection = layer(x_input, x_mask, cond_input, diffusion_step, spk_query_emb)
+            x_input, skip_connection = layer(
+                x_input, x_mask, cond_input, diffusion_step, spk_query_emb
+            )
             skip.append(skip_connection)
 
         x_input = torch.sum(torch.stack(skip), dim=0) / math.sqrt(self.num_layers)
@@ -181,7 +196,6 @@ class WaveNet(nn.Module):
 
         x_out = F.relu(x_out)
 
-        x_out = self.out_proj(x_out)   # (B, 128, T)
+        x_out = self.out_proj(x_out)  # (B, 128, T)
 
         return x_out
-

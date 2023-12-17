@@ -20,7 +20,7 @@ def build_inference(args, cfg):
         "FastSpeech2": FastSpeech2Inference,
         "VITS": VitsInference,
         "VALLE": VALLEInference,
-        "NaturalSpeech2": NS2Inference
+        "NaturalSpeech2": NS2Inference,
     }
 
     inference_class = supported_inference[cfg.model_type]

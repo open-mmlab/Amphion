@@ -18,7 +18,6 @@ import pickle
 
 class NS2Dataset(torch.utils.data.Dataset):
     def __init__(self, cfg, dataset, is_valid=False):
-
         assert isinstance(dataset, str)
 
         processed_data_dir = os.path.join(cfg.preprocess.processed_dir, dataset)
@@ -45,7 +44,7 @@ class NS2Dataset(torch.utils.data.Dataset):
                 self.utt2melspec_path[utt] = os.path.join(
                     cfg.preprocess.processed_dir,
                     dataset,
-                    cfg.preprocess.melspec_dir,   # mel
+                    cfg.preprocess.melspec_dir,  # mel
                     utt_info["speaker"],
                     uid + ".npy",
                 )
@@ -61,7 +60,7 @@ class NS2Dataset(torch.utils.data.Dataset):
                 self.utt2code_path[utt] = os.path.join(
                     cfg.preprocess.processed_dir,
                     dataset,
-                    cfg.preprocess.code_dir,   # code
+                    cfg.preprocess.code_dir,  # code
                     utt_info["speaker"],
                     uid + ".npy",
                 )
@@ -87,7 +86,7 @@ class NS2Dataset(torch.utils.data.Dataset):
                 self.utt2pitch_path[utt] = os.path.join(
                     cfg.preprocess.processed_dir,
                     dataset,
-                    cfg.preprocess.pitch_dir,   # pitch
+                    cfg.preprocess.pitch_dir,  # pitch
                     utt_info["speaker"],
                     uid + ".npy",
                 )
@@ -103,7 +102,7 @@ class NS2Dataset(torch.utils.data.Dataset):
                 self.utt2duration_path[utt] = os.path.join(
                     cfg.preprocess.processed_dir,
                     dataset,
-                    cfg.preprocess.duration_dir,   # duration
+                    cfg.preprocess.duration_dir,  # duration
                     utt_info["speaker"],
                     uid + ".npy",
                 )
@@ -127,7 +126,7 @@ class NS2Dataset(torch.utils.data.Dataset):
                 utt = "{}_{}".format(dataset, uid)
 
                 self.utt2len[utt] = utt_info["num_frames"]
-        
+
         # for cross reference
         if cfg.preprocess.use_cross_reference:
             self.spkid2utt = {}
@@ -147,8 +146,11 @@ class NS2Dataset(torch.utils.data.Dataset):
         for i in range(len(self.metadata)):
             self.all_num_frames.append(self.metadata[i]["num_frames"])
         self.num_frame_sorted = np.array(sorted(self.all_num_frames))
-        self.num_frame_indices = np.array(sorted(range(len(self.all_num_frames)), key=lambda k: self.all_num_frames[k]))
-
+        self.num_frame_indices = np.array(
+            sorted(
+                range(len(self.all_num_frames)), key=lambda k: self.all_num_frames[k]
+            )
+        )
 
     def __len__(self):
         return len(self.metadata)
@@ -157,7 +159,6 @@ class NS2Dataset(torch.utils.data.Dataset):
         return self.metadata[0]["Dataset"]
 
     def get_metadata(self):
-
         with open(self.metafile_path, "r", encoding="utf-8") as f:
             metadata = json.load(f)
 
@@ -166,7 +167,7 @@ class NS2Dataset(torch.utils.data.Dataset):
         return metadata
 
     def get_phone_map(self):
-        symbols = valid_symbols + ["sp", "spn", "sil"] + ['<s>', '</s>']
+        symbols = valid_symbols + ["sp", "spn", "sil"] + ["<s>", "</s>"]
         phone2id = {s: i for i, s in enumerate(symbols)}
         id2phone = {i: s for s, i in phone2id.items()}
         return phone2id, id2phone
@@ -191,15 +192,22 @@ class NS2Dataset(torch.utils.data.Dataset):
             with open(metadata_uid_path, "rb") as f:
                 metadata_uid = pickle.load(f)
             # code
-            code = metadata_uid['code']
+            code = metadata_uid["code"]
             # frame_nums
             frame_nums = code.shape[1]
             # pitch
-            pitch = metadata_uid['pitch']
+            pitch = metadata_uid["pitch"]
             # duration
-            duration = metadata_uid['duration']
+            duration = metadata_uid["duration"]
             # phone_id
-            phone_id = np.array([*map(self.phone2id.get, self.utt2phone[utt].replace("{","").replace("}","").split())])
+            phone_id = np.array(
+                [
+                    *map(
+                        self.phone2id.get,
+                        self.utt2phone[utt].replace("{", "").replace("}", "").split(),
+                    )
+                ]
+            )
 
         else:
             # code
@@ -211,10 +219,19 @@ class NS2Dataset(torch.utils.data.Dataset):
             # duration
             duration = np.load(self.utt2duration_path[utt])
             # phone_id
-            phone_id = np.array([*map(self.phone2id.get, self.utt2phone[utt].replace("{","").replace("}","").split())])
+            phone_id = np.array(
+                [
+                    *map(
+                        self.phone2id.get,
+                        self.utt2phone[utt].replace("{", "").replace("}", "").split(),
+                    )
+                ]
+            )
 
         # align length
-        code, pitch, duration, phone_id, frame_nums = self.align_length(code, pitch, duration, phone_id, frame_nums)
+        code, pitch, duration, phone_id, frame_nums = self.align_length(
+            code, pitch, duration, phone_id, frame_nums
+        )
 
         # spkid
         spkid = self.utt2spkid[utt]
@@ -241,21 +258,23 @@ class NS2Dataset(torch.utils.data.Dataset):
             ref_phone_id_frame.extend([ref_phone_id[i] for _ in range(ref_duration[i])])
         ref_phone_id_frame = np.array(ref_phone_id_frame)
 
-        single_feature.update({
-            "code": code,
-            "frame_nums": frame_nums,
-            "pitch": pitch,
-            "duration": duration,
-            "phone_id": phone_id,
-            "phone_id_frame": phone_id_frame,
-            "ref_code": ref_code,
-            "ref_frame_nums": ref_frame_nums,
-            "ref_pitch": ref_pitch,
-            "ref_duration": ref_duration,
-            "ref_phone_id": ref_phone_id,
-            "ref_phone_id_frame": ref_phone_id_frame,
-            "spkid": spkid
-        })
+        single_feature.update(
+            {
+                "code": code,
+                "frame_nums": frame_nums,
+                "pitch": pitch,
+                "duration": duration,
+                "phone_id": phone_id,
+                "phone_id_frame": phone_id_frame,
+                "ref_code": ref_code,
+                "ref_frame_nums": ref_frame_nums,
+                "ref_pitch": ref_pitch,
+                "ref_duration": ref_duration,
+                "ref_phone_id": ref_phone_id,
+                "ref_phone_id_frame": ref_phone_id_frame,
+                "spkid": spkid,
+            }
+        )
 
         return single_feature
 
@@ -269,7 +288,7 @@ class NS2Dataset(torch.utils.data.Dataset):
         pitch_len = len(pitch)
         dur_sum = sum(duration)
         min_len = min(code_len, dur_sum)
-        code = code[:,:min_len]
+        code = code[:, :min_len]
         if pitch_len >= min_len:
             pitch = pitch[:min_len]
         else:
@@ -284,7 +303,9 @@ class NS2Dataset(torch.utils.data.Dataset):
 
     def get_target_and_reference(self, code, pitch, duration, phone_id, frame_nums):
         phone_nums = len(phone_id)
-        clip_phone_nums = np.random.randint(int(phone_nums * 0.1), int(phone_nums * 0.5) + 1)
+        clip_phone_nums = np.random.randint(
+            int(phone_nums * 0.1), int(phone_nums * 0.5) + 1
+        )
         clip_phone_nums = max(clip_phone_nums, 1)
         assert clip_phone_nums < phone_nums and clip_phone_nums >= 1
         if self.cfg.preprocess.clip_mode == "mid":
@@ -297,31 +318,39 @@ class NS2Dataset(torch.utils.data.Dataset):
         else:
             assert self.cfg.preprocess.clip_mode in ["mid", "start"]
         end_idx = start_idx + clip_phone_nums
-        start_frames = sum(duration[: start_idx])
-        end_frames = sum(duration[: end_idx])
+        start_frames = sum(duration[:start_idx])
+        end_frames = sum(duration[:end_idx])
 
-        new_code = np.concatenate((code[:, : start_frames], code[:, end_frames:]), axis=1)
-        ref_code = code[:, start_frames: end_frames]
+        new_code = np.concatenate(
+            (code[:, :start_frames], code[:, end_frames:]), axis=1
+        )
+        ref_code = code[:, start_frames:end_frames]
 
-        new_pitch = np.append(pitch[: start_frames], pitch[end_frames:])
-        ref_pitch = pitch[start_frames: end_frames]
+        new_pitch = np.append(pitch[:start_frames], pitch[end_frames:])
+        ref_pitch = pitch[start_frames:end_frames]
 
-        new_duration = np.append(duration[: start_idx], duration[end_idx:])
-        ref_duration = duration[start_idx: end_idx]
+        new_duration = np.append(duration[:start_idx], duration[end_idx:])
+        ref_duration = duration[start_idx:end_idx]
 
-        new_phone_id = np.append(phone_id[: start_idx], phone_id[end_idx:])
-        ref_phone_id = phone_id[start_idx: end_idx]
+        new_phone_id = np.append(phone_id[:start_idx], phone_id[end_idx:])
+        ref_phone_id = phone_id[start_idx:end_idx]
 
         new_frame_nums = frame_nums - (end_frames - start_frames)
         ref_frame_nums = end_frames - start_frames
 
         return {
-            "code": new_code, "ref_code": ref_code,
-            "pitch": new_pitch, "ref_pitch": ref_pitch,
-            "duration": new_duration, "ref_duration": ref_duration,
-            "phone_id": new_phone_id, "ref_phone_id": ref_phone_id,
-            "frame_nums": new_frame_nums, "ref_frame_nums": ref_frame_nums
+            "code": new_code,
+            "ref_code": ref_code,
+            "pitch": new_pitch,
+            "ref_pitch": ref_pitch,
+            "duration": new_duration,
+            "ref_duration": ref_duration,
+            "phone_id": new_phone_id,
+            "ref_phone_id": ref_phone_id,
+            "frame_nums": new_frame_nums,
+            "ref_frame_nums": ref_frame_nums,
         }
+
 
 class NS2Collator(BaseCollator):
     def __init__(self, cfg):
@@ -349,56 +378,58 @@ class NS2Collator(BaseCollator):
 
         for key in batch[0].keys():
             if key == "phone_id":
-                phone_ids = [
-                    torch.LongTensor(b['phone_id']) for b in batch
-                ]
-                phone_masks = [
-                    torch.ones(len(b["phone_id"])) for b in batch
-                ]
+                phone_ids = [torch.LongTensor(b["phone_id"]) for b in batch]
+                phone_masks = [torch.ones(len(b["phone_id"])) for b in batch]
                 packed_batch_features["phone_id"] = pad_sequence(
-                    phone_ids, batch_first=True, padding_value=0,
+                    phone_ids,
+                    batch_first=True,
+                    padding_value=0,
                 )
                 packed_batch_features["phone_mask"] = pad_sequence(
-                    phone_masks, batch_first=True, padding_value=0,
+                    phone_masks,
+                    batch_first=True,
+                    padding_value=0,
                 )
             elif key == "phone_id_frame":
-                phone_id_frames = [
-                    torch.LongTensor(b['phone_id_frame']) for b in batch
-                ]
-                masks = [
-                    torch.ones(len(b["phone_id_frame"])) for b in batch
-                ]
+                phone_id_frames = [torch.LongTensor(b["phone_id_frame"]) for b in batch]
+                masks = [torch.ones(len(b["phone_id_frame"])) for b in batch]
                 packed_batch_features["phone_id_frame"] = pad_sequence(
-                    phone_id_frames, batch_first=True, padding_value=0,
+                    phone_id_frames,
+                    batch_first=True,
+                    padding_value=0,
                 )
                 packed_batch_features["mask"] = pad_sequence(
-                    masks, batch_first=True, padding_value=0,
+                    masks,
+                    batch_first=True,
+                    padding_value=0,
                 )
             elif key == "ref_code":
                 ref_codes = [
-                    torch.from_numpy(b['ref_code']).transpose(0, 1) for b in batch
+                    torch.from_numpy(b["ref_code"]).transpose(0, 1) for b in batch
                 ]
-                ref_masks = [
-                    torch.ones(max(b['ref_code'].shape[1], 1)) for b in batch
-                ]
-                packed_batch_features['ref_code'] = pad_sequence(
-                    ref_codes, batch_first=True, padding_value=0,
+                ref_masks = [torch.ones(max(b["ref_code"].shape[1], 1)) for b in batch]
+                packed_batch_features["ref_code"] = pad_sequence(
+                    ref_codes,
+                    batch_first=True,
+                    padding_value=0,
                 ).transpose(1, 2)
-                packed_batch_features['ref_mask'] = pad_sequence(
-                    ref_masks, batch_first=True, padding_value=0,
+                packed_batch_features["ref_mask"] = pad_sequence(
+                    ref_masks,
+                    batch_first=True,
+                    padding_value=0,
                 )
             elif key == "code":
-                codes = [
-                    torch.from_numpy(b['code']).transpose(0, 1) for b in batch
-                ]
-                masks = [
-                    torch.ones(max(b['code'].shape[1], 1)) for b in batch
-                ]
-                packed_batch_features['code'] = pad_sequence(
-                    codes, batch_first=True, padding_value=0,
+                codes = [torch.from_numpy(b["code"]).transpose(0, 1) for b in batch]
+                masks = [torch.ones(max(b["code"].shape[1], 1)) for b in batch]
+                packed_batch_features["code"] = pad_sequence(
+                    codes,
+                    batch_first=True,
+                    padding_value=0,
                 ).transpose(1, 2)
-                packed_batch_features['mask'] = pad_sequence(
-                    masks, batch_first=True, padding_value=0,
+                packed_batch_features["mask"] = pad_sequence(
+                    masks,
+                    batch_first=True,
+                    padding_value=0,
                 )
             elif key == "pitch":
                 values = [torch.from_numpy(b[key]) for b in batch]
@@ -411,16 +442,19 @@ class NS2Collator(BaseCollator):
                     values, batch_first=True, padding_value=0
                 )
             elif key == "frame_nums":
-                packed_batch_features['frame_nums'] = torch.LongTensor([b['frame_nums'] for b in batch])
+                packed_batch_features["frame_nums"] = torch.LongTensor(
+                    [b["frame_nums"] for b in batch]
+                )
             elif key == "ref_frame_nums":
-                packed_batch_features['ref_frame_nums'] = torch.LongTensor([b['ref_frame_nums'] for b in batch])
+                packed_batch_features["ref_frame_nums"] = torch.LongTensor(
+                    [b["ref_frame_nums"] for b in batch]
+                )
             else:
                 pass
-        
+
         return packed_batch_features
 
 
-    
 def _is_batch_full(batch, num_tokens, max_tokens, max_sentences):
     if len(batch) == 0:
         return 0
@@ -431,7 +465,13 @@ def _is_batch_full(batch, num_tokens, max_tokens, max_sentences):
     return 0
 
 
-def batch_by_size(indices, num_tokens_fn, max_tokens=None, max_sentences=None, required_batch_size_multiple=1):
+def batch_by_size(
+    indices,
+    num_tokens_fn,
+    max_tokens=None,
+    max_sentences=None,
+    required_batch_size_multiple=1,
+):
     """
     Yield mini-batches of indices bucketed by size. Batches may contain
     sequences of different lengths.
@@ -449,7 +489,6 @@ def batch_by_size(indices, num_tokens_fn, max_tokens=None, max_sentences=None, r
     """
     bsz_mult = required_batch_size_multiple
 
-
     sample_len = 0
     sample_lens = []
     batch = []
@@ -460,9 +499,10 @@ def batch_by_size(indices, num_tokens_fn, max_tokens=None, max_sentences=None, r
         sample_lens.append(num_tokens)
         sample_len = max(sample_len, num_tokens)
 
-        assert sample_len <= max_tokens, (
-            "sentence at index {} of size {} exceeds max_tokens "
-            "limit of {}!".format(idx, sample_len, max_tokens)
+        assert (
+            sample_len <= max_tokens
+        ), "sentence at index {} of size {} exceeds max_tokens " "limit of {}!".format(
+            idx, sample_len, max_tokens
         )
         num_tokens = (len(batch) + 1) * sample_len
 

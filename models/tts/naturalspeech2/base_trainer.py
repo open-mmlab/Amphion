@@ -44,9 +44,11 @@ class TTSTrainer:
         with self.accelerator.main_process_first():
             if self.accelerator.is_main_process:
                 os.makedirs(os.path.join(self.exp_dir, "checkpoint"), exist_ok=True)
-                self.log_file = os.path.join(os.path.join(self.exp_dir, "checkpoint"), "train.log")
+                self.log_file = os.path.join(
+                    os.path.join(self.exp_dir, "checkpoint"), "train.log"
+                )
                 self.logger = Logger(self.log_file, level=self.args.log_level).logger
-        
+
         self.time_window = ValueWindow(50)
 
         if self.accelerator.is_main_process:
@@ -58,11 +60,11 @@ class TTSTrainer:
             self.logger.debug(f"Using {args.log_level.upper()} logging level.")
             self.logger.info(f"Experiment name: {args.exp_name}")
             self.logger.info(f"Experiment directory: {self.exp_dir}")
-            
+
         self.checkpoint_dir = os.path.join(self.exp_dir, "checkpoint")
         if self.accelerator.is_main_process:
             os.makedirs(self.checkpoint_dir, exist_ok=True)
-        
+
         if self.accelerator.is_main_process:
             self.logger.debug(f"Checkpoint directory: {self.checkpoint_dir}")
 
@@ -112,7 +114,9 @@ class TTSTrainer:
             self.train_dataloader, self.valid_dataloader = self._build_dataloader()
             end = time.monotonic_ns()
             if self.accelerator.is_main_process:
-                self.logger.info(f"Building dataset done in {(end - start) / 1e6:.2f}ms")
+                self.logger.info(
+                    f"Building dataset done in {(end - start) / 1e6:.2f}ms"
+                )
 
         # setup model
         with self.accelerator.main_process_first():
@@ -146,7 +150,10 @@ class TTSTrainer:
             if self.accelerator.is_main_process:
                 self.logger.info("Initializing accelerate...")
             start = time.monotonic_ns()
-            (self.train_dataloader, self.valid_dataloader,) = self.accelerator.prepare(
+            (
+                self.train_dataloader,
+                self.valid_dataloader,
+            ) = self.accelerator.prepare(
                 self.train_dataloader,
                 self.valid_dataloader,
             )
@@ -171,7 +178,9 @@ class TTSTrainer:
 
         end = time.monotonic_ns()
         if self.accelerator.is_main_process:
-            self.logger.info(f"Initializing accelerate done in {(end - start) / 1e6:.2f}ms")
+            self.logger.info(
+                f"Initializing accelerate done in {(end - start) / 1e6:.2f}ms"
+            )
 
         # create criterion
         with self.accelerator.main_process_first():
@@ -181,7 +190,9 @@ class TTSTrainer:
             self.criterion = self._build_criterion()
             end = time.monotonic_ns()
             if self.accelerator.is_main_process:
-                self.logger.info(f"Building criterion done in {(end - start) / 1e6:.2f}ms")
+                self.logger.info(
+                    f"Building criterion done in {(end - start) / 1e6:.2f}ms"
+                )
 
         # TODO: Resume from ckpt need test/debug
         with self.accelerator.main_process_first():
@@ -189,7 +200,11 @@ class TTSTrainer:
                 if self.accelerator.is_main_process:
                     self.logger.info("Resuming from checkpoint...")
                 start = time.monotonic_ns()
-                ckpt_path = self._load_model(self.checkpoint_dir, args.checkpoint_path, resume_type=args.resume_type)
+                ckpt_path = self._load_model(
+                    self.checkpoint_dir,
+                    args.checkpoint_path,
+                    resume_type=args.resume_type,
+                )
                 end = time.monotonic_ns()
                 if self.accelerator.is_main_process:
                     self.logger.info(
@@ -426,7 +441,6 @@ class TTSTrainer:
         epoch_step: int = 0
 
         for batch in self.train_dataloader:
-
             # Put the data to cuda device
             device = self.accelerator.device
             for k, v in batch.items():
@@ -452,7 +466,12 @@ class TTSTrainer:
                             step=self.step,
                         )
 
-                if self.accelerator.is_main_process and self.batch_count % (1 * self.cfg.train.gradient_accumulation_step) == 0:
+                if (
+                    self.accelerator.is_main_process
+                    and self.batch_count
+                    % (1 * self.cfg.train.gradient_accumulation_step)
+                    == 0
+                ):
                     self.echo_log(train_losses, mode="Training")
 
                 self.step += 1
@@ -477,7 +496,6 @@ class TTSTrainer:
         epoch_losses = dict()
 
         for batch in self.valid_dataloader:
-
             # Put the data to cuda device
             device = self.accelerator.device
             for k, v in batch.items():
