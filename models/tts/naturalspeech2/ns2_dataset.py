@@ -21,13 +21,11 @@ class NS2Dataset(torch.utils.data.Dataset):
         assert isinstance(dataset, str)
 
         processed_data_dir = os.path.join(cfg.preprocess.processed_dir, dataset)
-        # for example: /home/v-detaixin/LibriTTS/processed_data; train-full
 
         meta_file = cfg.preprocess.valid_file if is_valid else cfg.preprocess.train_file
         # train.json
 
         self.metafile_path = os.path.join(processed_data_dir, meta_file)
-        # /home/v-detaixin/LibriTTS/processed_data/train-full/train.json
 
         self.metadata = self.get_metadata()
 
