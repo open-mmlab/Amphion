@@ -33,7 +33,7 @@ Here is the Amphion v0.1 demo, whose voice, audio effects, and singing voice are
 
 ## 🚀 News
 
-- **2023/12/18**: Amphion v0.1 release. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2312.09911) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Amphion-pink)]([egs/svc/MultipleContentsSVC](https://huggingface.co/amphion)) [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](https://github.com/open-mmlab/Amphion/pull/39)
+- **2023/12/18**: Amphion v0.1 release. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2312.09911) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Amphion-pink)](https://huggingface.co/amphion) [![youtube](https://img.shields.io/badge/YouTube-Demo-red)](https://www.youtube.com/watch?v=1aw0HhcggvQ) [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](https://github.com/open-mmlab/Amphion/pull/39)
 - **2023/11/28**: Amphion alpha release. [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](https://github.com/open-mmlab/Amphion/pull/2)
 
 ## ⭐ Key Features
@@ -129,15 +129,3 @@ Amphion is under the [MIT License](LICENSE). It is free for both research and co
       volume={abs/2312.09911}
 }
 ```
-
-## 🎶 Origin Story of *Amphion*
-
-<br>
-<div align="center">
-<img src="imgs/Amphion.jpg" width="20%">
-<br>
-<a href="https://en.wikipedia.org/wiki/Amphion"><i>Amphion in Greek Mythology</i></a>
-</div>
-<br>
-
-The name *Amphion* is inspired by a legendary figure in Greek mythology, celebrated for his extraordinary musical prowess. As a co-founder of Thebes, Amphion's mesmerizing lyre playing was believed to magically assemble the city walls' stones. We chose this name to encapsulate the core essence of our project: revolutionizing the generation of music, audio, and speech by harnessing the power of innovative technology.
