@@ -1,3 +1,8 @@
+# Copyright (c) 2023 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 import json
 import os
 import random
@@ -24,11 +29,6 @@ from models.base.base_sampler import build_samplers
 
 
 class TTSTrainer:
-    r"""The base trainer for all TTS models. It inherits from BaseTrainer and implements
-    ``build_criterion``, ``_build_dataset`` and ``_build_singer_lut`` methods. You can inherit from this
-    class, and implement ``_build_model``, ``_forward_step``.
-    """
-
     def __init__(self, args=None, cfg=None):
         super().__init__()
 
