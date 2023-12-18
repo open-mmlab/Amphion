@@ -1,11 +1,11 @@
 {
     "base_config": "egs/tts/NaturalSpeech2/exp_config_base.json",
     "dataset": [
-      "LibriTTS"
+      "libritts"
     ],
     "preprocess": {
       // Specify the output root path to save the processed data 
-      "processed_dir": "[LibriTTS dataset path]",
+      "processed_dir": "data",
       "train_file": "train.json",
       "valid_file": "test.json",
       "read_metadata": true,

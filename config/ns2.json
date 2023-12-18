@@ -1,7 +1,7 @@
 {
     "base_config": "config/base.json",
     "model_type": "NaturalSpeech2",
-    "dataset": ["LibriTTS"],
+    "dataset": ["libritts"],
     "preprocess": {
         "use_mel": false,
         "use_code": true,

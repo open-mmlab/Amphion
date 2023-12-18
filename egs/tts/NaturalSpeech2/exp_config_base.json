@@ -2,7 +2,7 @@
     "base_config": "config/ns2.json",
     "model_type": "NaturalSpeech2",
     "dataset": [
-        "LibriTTS"
+        "libritts"
     ],
     "preprocess": {
         "use_mel": false,
