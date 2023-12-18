@@ -35,7 +35,6 @@ from accelerate.utils import ProjectConfiguration
 
 class NS2Trainer(TTSTrainer):
     def __init__(self, args, cfg):
-
         self.args = args
         self.cfg = cfg
 
@@ -355,7 +354,7 @@ class NS2Trainer(TTSTrainer):
     def _build_optimizer(self):
         optimizer = torch.optim.AdamW(
             filter(lambda p: p.requires_grad, self.model.parameters()),
-            **self.cfg.train.adam
+            **self.cfg.train.adam,
         )
         return optimizer
 
