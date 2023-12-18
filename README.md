@@ -62,7 +62,7 @@ Here is the Amphion v0.1 demo, whose voice, audio effects, and singing voice are
     - Flow-based vocoders: [WaveGlow](https://arxiv.org/abs/1811.00002).
     - Diffusion-based vocoders: [Diffwave](https://arxiv.org/abs/2009.09761).
     - Auto-regressive based vocoders: [WaveNet](https://arxiv.org/abs/1609.03499), [WaveRNN](https://arxiv.org/abs/1802.08435v1).
-- Amphion provides the official implementation of [Multi-Scale Constant-Q Transfrom Discriminator](https://arxiv.org/abs/2311.14957). It can be used to enhance any architecture GAN-based vocoders during training, and keep the inference stage (such as memory or speed) unchanged. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2311.14957) [![code](https://img.shields.io/badge/README-Code-red)](egs/vocoder/gan/tfr_enhanced_hifigan)
+- Amphion provides the official implementation of [Multi-Scale Constant-Q Transform Discriminator](https://arxiv.org/abs/2311.14957). It can be used to enhance any architecture GAN-based vocoders during training, and keep the inference stage (such as memory or speed) unchanged. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2311.14957) [![code](https://img.shields.io/badge/README-Code-red)](egs/vocoder/gan/tfr_enhanced_hifigan)
 
 ### Evaluation
 
