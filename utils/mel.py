@@ -232,14 +232,12 @@ def extract_mel_features_tts(
         spec = torch.matmul(mel_basis[str(cfg.fmax) + "_" + str(y.device)], spec)
         spec = spectral_normalize_torch(spec)
         spec = spec.squeeze(0)
+        spec = torch.matmul(mel_basis[str(cfg.fmax) + "_" + str(y.device)], spec)
+        spec = spectral_normalize_torch(spec)
     else:
         audio = torch.clip(y, -1, 1)
         audio = torch.autograd.Variable(audio, requires_grad=False)
         spec, energy = _stft.mel_spectrogram(audio)
-        spec = torch.squeeze(spec, 0)
-
-    spec = torch.matmul(mel_basis[str(cfg.fmax) + "_" + str(y.device)], spec)
-    spec = spectral_normalize_torch(spec)
 
     return spec.squeeze(0)
 

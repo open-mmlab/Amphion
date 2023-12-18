@@ -100,6 +100,7 @@ class FastSpeech2Inference(TTSInference):
             )
             os.remove(os.path.join(self.args.output_dir, f"{uid}.pt"))
 
+    @torch.inference_mode()
     def _inference_each_batch(self, batch_data):
         device = self.accelerator.device
         control_values = (
