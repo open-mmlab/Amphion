@@ -3,6 +3,7 @@
 <div>
     <a href="https://arxiv.org/abs/2312.09911"><img src="https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg"></a>
     <a href="https://huggingface.co/amphion"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Amphion-pink"></a>
+    <a href="https://openxlab.org.cn/usercenter/Amphion"><img src="https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg"></a>
     <a href="egs/tts/README.md"><img src="https://img.shields.io/badge/README-TTS-blue"></a>
     <a href="egs/svc/README.md"><img src="https://img.shields.io/badge/README-SVC-blue"></a>
     <a href="egs/tta/README.md"><img src="https://img.shields.io/badge/README-TTA-blue"></a>
@@ -62,7 +63,7 @@ Here is the Amphion v0.1 demo, whose voice, audio effects, and singing voice are
     - Flow-based vocoders: [WaveGlow](https://arxiv.org/abs/1811.00002).
     - Diffusion-based vocoders: [Diffwave](https://arxiv.org/abs/2009.09761).
     - Auto-regressive based vocoders: [WaveNet](https://arxiv.org/abs/1609.03499), [WaveRNN](https://arxiv.org/abs/1802.08435v1).
-- Amphion provides the official implementation of [Multi-Scale Constant-Q Transform Discriminator](https://arxiv.org/abs/2311.14957). It can be used to enhance any architecture GAN-based vocoders during training, and keep the inference stage (such as memory or speed) unchanged. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2311.14957) [![code](https://img.shields.io/badge/README-Code-red)](egs/vocoder/gan/tfr_enhanced_hifigan)
+- Amphion provides the official implementation of [Multi-Scale Constant-Q Transform Discriminator](https://arxiv.org/abs/2311.14957) (our ICASSP 2024 paper). It can be used to enhance any architecture GAN-based vocoders during training, and keep the inference stage (such as memory or speed) unchanged. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2311.14957) [![code](https://img.shields.io/badge/README-Code-red)](egs/vocoder/gan/tfr_enhanced_hifigan)
 
 ### Evaluation
 

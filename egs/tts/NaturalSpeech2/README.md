@@ -1,12 +1,14 @@
 # NaturalSpeech2 Recipe
 
+[![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/NaturalSpeech2)
+
 In this recipe, we will show how to train [NaturalSpeech2](https://arxiv.org/abs/2304.09116) using Amphion's infrastructure. NaturalSpeech2 is a zero-shot TTS architecture that predicts latent representations of a neural audio codec.
 
 There are three stages in total:
 
 1. Data processing
-3. Training
-4. Inference
+2. Training
+3. Inference
 
 > **NOTE:** You need to run every command of this recipe in the `Amphion` root path:
 > ```bash
