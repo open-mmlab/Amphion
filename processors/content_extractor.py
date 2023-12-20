@@ -199,7 +199,7 @@ class WhisperExtractor(BaseExtractor):
                 # "pretrained/whisper"
                 download_root = self.cfg.preprocess.whisper_model_path
             else:
-                # if the path is not exist, download the model to the path
+                # if the path does not exist, download the model to the path
                 download_root = self.cfg.preprocess.whisper_model_path
                 if download_root.endswith(".pt"):
                     download_root = os.path.dirname(download_root)
