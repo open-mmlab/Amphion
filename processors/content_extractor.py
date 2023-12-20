@@ -198,6 +198,11 @@ class WhisperExtractor(BaseExtractor):
             elif os.path.isdir(self.cfg.preprocess.whisper_model_path):
                 # "pretrained/whisper"
                 download_root = self.cfg.preprocess.whisper_model_path
+            else:
+                # if the path does not exist, download the model to the path
+                download_root = self.cfg.preprocess.whisper_model_path
+                if download_root.endswith(".pt"):
+                    download_root = os.path.dirname(download_root)
         else:
             download_root = None
 
