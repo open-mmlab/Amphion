@@ -51,6 +51,7 @@ supported_models = {
     "diffwave": DiffWave,
 }
 
+
 class DiffusionVocoderTrainer(VocoderTrainer):
     def __init__(self, args, cfg):
         super().__init__()
@@ -377,11 +378,7 @@ class DiffusionVocoderTrainer(VocoderTrainer):
             if self.batch_count % self.cfg.train.gradient_accumulation_step == 0:
                 self.accelerator.log(
                     {
-                        "Step/Learning Rate": self.optimizer.param_groups[
-                            0
-                        ][
-                            "lr"
-                        ],
+                        "Step/Learning Rate": self.optimizer.param_groups[0]["lr"],
                     },
                     step=self.step,
                 )
@@ -414,9 +411,11 @@ class DiffusionVocoderTrainer(VocoderTrainer):
 
         self.optimizer.zero_grad()
         N = audio_gt.shape[0]
-        t = torch.randint(0, len(self.cfg.model.diffwave.noise_schedule), [N], device=self.device)
+        t = torch.randint(
+            0, len(self.cfg.model.diffwave.noise_schedule), [N], device=self.device
+        )
         noise_scale = self.noise_level[t].unsqueeze(1)
-        noise_scale_sqrt = noise_scale ** 0.5
+        noise_scale_sqrt = noise_scale**0.5
         noise = torch.randn_like(audio_gt).to(self.device)
         noisy_audio = noise_scale_sqrt * audio_gt + (1.0 - noise_scale) ** 0.5 * noise
 
@@ -473,9 +472,11 @@ class DiffusionVocoderTrainer(VocoderTrainer):
             pitch_input = data["frame_pitch"]
 
         N = audio_gt.shape[0]
-        t = torch.randint(0, len(self.cfg.model.diffwave.noise_schedule), [N], device=self.device)
+        t = torch.randint(
+            0, len(self.cfg.model.diffwave.noise_schedule), [N], device=self.device
+        )
         noise_scale = self.noise_level[t].unsqueeze(1)
-        noise_scale_sqrt = noise_scale ** 0.5
+        noise_scale_sqrt = noise_scale**0.5
         noise = torch.randn_like(audio_gt)
         noisy_audio = noise_scale_sqrt * audio_gt + (1.0 - noise_scale) ** 0.5 * noise
 

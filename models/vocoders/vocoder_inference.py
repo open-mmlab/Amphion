@@ -270,7 +270,8 @@ class VocoderInference(object):
                     if not "audio" in str(i)
                 ]
                 ls.sort(
-                    key=lambda x: int(x.split("/")[-1].split("_")[0].split("-")[-1]), reverse=True
+                    key=lambda x: int(x.split("/")[-1].split("_")[0].split("-")[-1]),
+                    reverse=True,
                 )
                 checkpoint_path = ls[0]
             accelerate.load_checkpoint_and_dispatch(
@@ -318,9 +319,20 @@ class VocoderInference(object):
         """Inference via batches"""
         for i, batch in tqdm(enumerate(self.test_dataloader)):
             if self.cfg.preprocess.use_frame_pitch:
-                audio_pred = _vocoder_infer_funcs[self.cfg.model.generator](self.cfg, self.model, batch["mel"].transpose(-1, -2), f0s=batch["frame_pitch"].float(), device=next(self.model.parameters()).device)
+                audio_pred = _vocoder_infer_funcs[self.cfg.model.generator](
+                    self.cfg,
+                    self.model,
+                    batch["mel"].transpose(-1, -2),
+                    f0s=batch["frame_pitch"].float(),
+                    device=next(self.model.parameters()).device,
+                )
             else:
-                audio_pred = _vocoder_infer_funcs[self.cfg.model.generator](self.cfg, self.model, batch["mel"].transpose(-1, -2), device=next(self.model.parameters()).device)
+                audio_pred = _vocoder_infer_funcs[self.cfg.model.generator](
+                    self.cfg,
+                    self.model,
+                    batch["mel"].transpose(-1, -2),
+                    device=next(self.model.parameters()).device,
+                )
             audio_ls = audio_pred.chunk(self.test_batch_size)
             audio_gt_ls = batch["audio"].cpu().chunk(self.test_batch_size)
             length_ls = batch["target_len"].cpu().chunk(self.test_batch_size)

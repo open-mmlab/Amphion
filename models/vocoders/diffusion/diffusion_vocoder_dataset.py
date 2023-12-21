@@ -79,9 +79,12 @@ class DiffusionVocoderDataset(VocoderDataset):
                 aligned_frame_pitch = np.pad(
                     aligned_frame_pitch,
                     (
-                        (0,
-                        self.cfg.preprocess.cut_mel_frame * self.cfg.preprocess.hop_size
-                        - audio.shape[-1])
+                        (
+                            0,
+                            self.cfg.preprocess.cut_mel_frame
+                            * self.cfg.preprocess.hop_size
+                            - audio.shape[-1],
+                        )
                     ),
                     mode="constant",
                 )
@@ -105,20 +108,27 @@ class DiffusionVocoderDataset(VocoderDataset):
 
             assert "target_len" in single_feature.keys()
 
-            if audio.shape[-1] <= self.cfg.preprocess.cut_mel_frame * self.cfg.preprocess.hop_size:
+            if (
+                audio.shape[-1]
+                <= self.cfg.preprocess.cut_mel_frame * self.cfg.preprocess.hop_size
+            ):
                 audio = np.pad(
                     audio,
                     (
-                        (0,
-                        self.cfg.preprocess.cut_mel_frame * self.cfg.preprocess.hop_size
-                        - audio.shape[-1])
+                        (
+                            0,
+                            self.cfg.preprocess.cut_mel_frame
+                            * self.cfg.preprocess.hop_size
+                            - audio.shape[-1],
+                        )
                     ),
                     mode="constant",
                 )
             else:
                 if "start" not in single_feature.keys():
                     audio = audio[
-                        0 : self.cfg.preprocess.cut_mel_frame * self.cfg.preprocess.hop_size
+                        0 : self.cfg.preprocess.cut_mel_frame
+                        * self.cfg.preprocess.hop_size
                     ]
                 else:
                     audio = audio[

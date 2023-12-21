@@ -67,7 +67,7 @@ def synthesis_audios(cfg, model, mels, f0s=None, batch_size=None, fast_inference
                     device=device,
                     fast_inference=fast_inference,
                 ).squeeze(0)
-                
+
                 # calculate the audio length
                 audio_length = frame * model.cfg.preprocess.hop_size
                 audio = audio[:audio_length]

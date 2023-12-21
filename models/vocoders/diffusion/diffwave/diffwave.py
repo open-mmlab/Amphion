@@ -25,9 +25,11 @@ def Conv1d(*args, **kwargs):
 def silu(x):
     return x * torch.sigmoid(x)
 
+
 # This model code is adopted from DiffWave/model.py under the Apache License
 # https://github.com/lmnt-com/diffwave
 # Only the config-related varaible names are changed.
+
 
 class DiffusionEmbedding(nn.Module):
     def __init__(self, max_steps):
@@ -151,7 +153,9 @@ class DiffWave(nn.Module):
             ]
         )
         self.skip_projection = Conv1d(
-            self.cfg.model.diffwave.residual_channels, self.cfg.model.diffwave.residual_channels, 1
+            self.cfg.model.diffwave.residual_channels,
+            self.cfg.model.diffwave.residual_channels,
+            1,
         )
         self.output_projection = Conv1d(self.cfg.model.diffwave.residual_channels, 1, 1)
         nn.init.zeros_(self.output_projection.weight)
