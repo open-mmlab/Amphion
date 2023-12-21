@@ -15,7 +15,7 @@ The instructions about how to download them is displayed as follows.
 
 ## Amphion Singing BigVGAN
 
-We fine-tune the official BigVGAN pretrained model with over 120 hours singing voice data. The fine-tuned checkpoint can be downloaded [here](https://cuhko365-my.sharepoint.com/:f:/g/personal/222042021_link_cuhk_edu_cn/EtiHh5JZ0_xGlYbyLLSoqBgBe9kI5q3ROY-SvBqefae-IA?e=dk4Pqa). You need to download the `400000.pt` and `args.json` files into `Amphion/pretrained/bigvgan`:
+We fine-tune the official BigVGAN pretrained model with over 120 hours singing voice data. The fine-tuned checkpoint can be downloaded [here](https://huggingface.co/amphion/BigVGAN_singing_bigdata). You need to download the `400000.pt` and `args.json` files into `Amphion/pretrained/bigvgan`:
 
 ```
 Amphion
@@ -27,7 +27,7 @@ Amphion
 
 ## Amphion Speech HiFi-GAN
 
-We trained our HiFi-GAN pretrained model with 685 hours speech data. Which can be downloaded [here](https://cuhko365-my.sharepoint.com/:f:/g/personal/xueliumeng_cuhk_edu_cn/Ei24hGJO_PVBopjhKje1uzEBqfhV9h89HoLrOoy9K8tzGg?e=ka7MCO). You need to download the whole folder of `hifigan_speech` into `Amphion/pretrained/hifigan`.
+We trained our HiFi-GAN pretrained model with 685 hours speech data. Which can be downloaded [here](https://huggingface.co/amphion/hifigan_speech_bigdata). You need to download the whole folder of `hifigan_speech` into `Amphion/pretrained/hifigan`.
 
 ```
 Amphion
@@ -36,6 +36,20 @@ Amphion
  ┃ ┃ ┣ hifigan_speech
  ┃ ┃ ┃ ┣ log
  ┃ ┃ ┃ ┣ result
+ ┃ ┃ ┃ ┣ checkpoint
+ ┃ ┃ ┃ ┣ args.json
+```
+
+## Amphion DiffWave
+
+We trained our DiffWave pretrained model with 125 hours speech data and around 80 hours of singing voice data. Which can be downloaded [here](https://huggingface.co/amphion/diffwave). You need to download the whole folder of `diffwave` into `Amphion/pretrained/diffwave`.
+
+```
+Amphion
+ ┣ pretrained
+ ┃ ┣ diffwave
+ ┃ ┃ ┣ diffwave_speech
+ ┃ ┃ ┃ ┣ samples
  ┃ ┃ ┃ ┣ checkpoint
  ┃ ┃ ┃ ┣ args.json
 ```

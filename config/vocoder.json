@@ -74,7 +74,7 @@
       "drop_last": true
     },
     "dataloader": {
-      "num_worker": 4,
+      "num_worker": 16,
       "pin_memory": true
     },
     "tracker": [

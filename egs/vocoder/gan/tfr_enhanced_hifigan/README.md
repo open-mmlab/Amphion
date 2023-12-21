@@ -2,6 +2,7 @@
 
 [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2311.14957)
 [![demo](https://img.shields.io/badge/Vocoder-Demo-red)](https://vocodexelysium.github.io/MS-SB-CQTD/)
+[![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Models-pink)](https://huggingface.co/amphion/hifigan_speech_bigdata)
 
 <br>
 <div align="center">
