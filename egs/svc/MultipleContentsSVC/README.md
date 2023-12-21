@@ -18,36 +18,29 @@ This is the official implementation of the paper "[Leveraging Content-based Feat
 - The acoustic model is based on Bidirectional Non-Causal Dilated CNN (called `DiffWaveNetSVC` in Amphion), which is similar to [WaveNet](https://arxiv.org/pdf/1609.03499.pdf), [DiffWave](https://openreview.net/forum?id=a-xFK8Ymz5J), and [DiffSVC](https://ieeexplore.ieee.org/document/9688219).
 - The vocoder is [BigVGAN](https://github.com/NVIDIA/BigVGAN) architecture and we fine-tuned it in over 120 hours singing voice data.
 
-## 0. Before Getting Start
+## A Little Taste Before Getting Started
 
-### A Little Taste
+Before you delve into the code, we suggest exploring the interactive DEMO we've provided for a comprehensive overview. There are several ways you can engage with it:
 
-Before you get your hands dirty with the code, we strongly recommend you trying the interactive DEMO we've provided.
+1. **Online DEMO**
 
-#### a. Online DEMO
 |                         HuggingFace                          |                           OpenXLab                           |
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/singing_voice_conversion)<br />(Worldwide) | [![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/singing_voice_conversion)<br />(Suitable for Mainland China Users) |
 
-#### b. Run with the Extended Colab
-Thanks the work by [@camenduru](https://x.com/camenduru?s=20)!
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/camenduru/singing-voice-conversion-colab/blob/main/singing_voice_conversion_colab.ipynb)
-
-Remember to checkout [Colab repo](https://github.com/camenduru/singing-voice-conversion-colab) which is regularly updated with contributions from [@camenduru](https://x.com/camenduru?s=20) and the community for more detail.
-
-#### c. Run Local Gradio DEMO
-
-Thanks [Gradio](https://github.com/gradio-app/gradio) team for their great framework!
-
+2. **Run Local Gradio DEMO**
 
 |                       Run with Docker                        |               Duplicate Space with Private GPU               |
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/singing_voice_conversion?docker=true) | [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/singing_voice_conversion?duplicate=true) |
 
-------
+3. **Run with the Extended Colab**
 
-There are four stages in total:
+You can check out [this repo](https://github.com/camenduru/singing-voice-conversion-colab) to run it with Colab. Thanks to [@camenduru](https://x.com/camenduru?s=20) and the community for their support!
+
+## Usage Overview
+
+To train a `DiffWaveNetSVC` model, there are four stages in total:
 
 1. Data preparation
 2. Features extraction
@@ -179,7 +172,7 @@ sh egs/svc/MultipleContentsSVC/run.sh --stage 3 --gpu "0" \
 @article{zhang2023leveraging,
   title={Leveraging Content-based Features from Multiple Acoustic Models for Singing Voice Conversion},
   author={Zhang, Xueyao and Gu, Yicheng and Chen, Haopeng and Fang, Zihao and Zou, Lexiao and Xue, Liumeng and Wu, Zhizheng},
-  journal={Machine Learning for Audio Worshop, NeurIPS 2023},
+  journal={Machine Learning for Audio Workshop, NeurIPS 2023},
   year={2023}
 }
 ```
