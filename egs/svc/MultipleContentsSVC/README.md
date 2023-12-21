@@ -23,20 +23,20 @@ This is the official implementation of the paper "[Leveraging Content-based Feat
 Before you delve into the code, we suggest exploring the interactive DEMO we've provided for a comprehensive overview. There are several ways you can engage with it:
 
 1. **Online DEMO**
-
-|                         HuggingFace                          |                           OpenXLab                           |
-| :----------------------------------------------------------: | :----------------------------------------------------------: |
-| [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/singing_voice_conversion)<br />(Worldwide) | [![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/singing_voice_conversion)<br />(Suitable for Mainland China Users) |
+	
+	|                         HuggingFace                          |                           OpenXLab                           |
+	| :----------------------------------------------------------: | :----------------------------------------------------------: |
+	| [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/singing_voice_conversion)<br />(Worldwide) | [![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/singing_voice_conversion)<br />(Suitable for Mainland China Users) |
 
 2. **Run Local Gradio DEMO**
 
-|                       Run with Docker                        |               Duplicate Space with Private GPU               |
-| :----------------------------------------------------------: | :----------------------------------------------------------: |
-| [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/singing_voice_conversion?docker=true) | [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/singing_voice_conversion?duplicate=true) |
+	|                       Run with Docker                        |               Duplicate Space with Private GPU               |
+	| :----------------------------------------------------------: | :----------------------------------------------------------: |
+	| [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/singing_voice_conversion?docker=true) | [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/singing_voice_conversion?duplicate=true) |
 
 3. **Run with the Extended Colab**
 
-You can check out [this repo](https://github.com/camenduru/singing-voice-conversion-colab) to run it with Colab. Thanks to [@camenduru](https://x.com/camenduru?s=20) and the community for their support!
+	You can check out [this repo](https://github.com/camenduru/singing-voice-conversion-colab) to run it with Colab. Thanks to [@camenduru](https://x.com/camenduru?s=20) and the community for their support!
 
 ## Usage Overview
 
