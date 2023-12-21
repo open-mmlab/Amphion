@@ -3,6 +3,10 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+# This model code is adopted from DiffWave/model.py under the Apache License
+# https://github.com/lmnt-com/diffwave
+# Only the config-related varaible names are changed.
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -24,12 +28,6 @@ def Conv1d(*args, **kwargs):
 @torch.jit.script
 def silu(x):
     return x * torch.sigmoid(x)
-
-
-# This model code is adopted from DiffWave/model.py under the Apache License
-# https://github.com/lmnt-com/diffwave
-# Only the config-related varaible names are changed.
-
 
 class DiffusionEmbedding(nn.Module):
     def __init__(self, max_steps):
