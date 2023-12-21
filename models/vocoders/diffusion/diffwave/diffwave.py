@@ -29,6 +29,7 @@ def Conv1d(*args, **kwargs):
 def silu(x):
     return x * torch.sigmoid(x)
 
+
 class DiffusionEmbedding(nn.Module):
     def __init__(self, max_steps):
         super().__init__()
