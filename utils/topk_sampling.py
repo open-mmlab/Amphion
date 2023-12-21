@@ -52,7 +52,9 @@ def top_k_top_p_filtering(
         sorted_indices_to_remove[..., 0] = 0
 
         # Scatter sorted tensors back to original indexing
-        indices_to_remove = sorted_indices.scatter(1, sorted_indices, sorted_indices_to_remove)
+        indices_to_remove = sorted_indices.scatter(
+            1, sorted_indices, sorted_indices_to_remove
+        )
         logits[indices_to_remove] = filter_value
 
     return logits

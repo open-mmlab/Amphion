@@ -140,7 +140,11 @@ class SVCDataset(BaseDataset):
         for k in sample.keys():
             if k == "audio":
                 # audio should be clipped in hop_size scale
-                sample[k] = sample[k][start * self.cfg.preprocess.hop_size:end * self.cfg.preprocess.hop_size]
+                sample[k] = sample[k][
+                    start
+                    * self.cfg.preprocess.hop_size : end
+                    * self.cfg.preprocess.hop_size
+                ]
             elif k == "audio_len":
                 sample[k] = (end - start) * self.cfg.preprocess.hop_size
             elif k not in ["spk_id", "target_len"]:
@@ -175,7 +179,9 @@ class SVCTestDataset(BaseTestDataset):
             "_{}".format(self.target_singer), ""
         )
         if cfg.preprocess.mel_min_max_norm:
-            self.target_mel_extrema = load_mel_extrema(cfg.preprocess, self.target_dataset)
+            self.target_mel_extrema = load_mel_extrema(
+                cfg.preprocess, self.target_dataset
+            )
             self.target_mel_extrema = torch.as_tensor(
                 self.target_mel_extrema[0]
             ), torch.as_tensor(self.target_mel_extrema[1])

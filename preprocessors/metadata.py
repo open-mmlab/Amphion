@@ -8,7 +8,7 @@ import json
 from tqdm import tqdm
 
 
-def cal_metadata(cfg):
+def cal_metadata(cfg, dataset_types=["train", "test"]):
     """
     Dump metadata (singers.json, meta_info.json, utt2singer) for singer dataset or multi-datasets.
     """
@@ -26,41 +26,42 @@ def cal_metadata(cfg):
         save_dir = os.path.join(cfg.preprocess.processed_dir, dataset)
         assert os.path.exists(save_dir)
 
-        # 'train.json' and 'test.json' of target dataset
-        train_metadata = os.path.join(save_dir, "train.json")
-        test_metadata = os.path.join(save_dir, "test.json")
+        # 'train.json' and 'test.json' and 'valid.json' of target dataset
+        meta_info = dict()
+        utterances_dict = dict()
+        all_utterances = list()
+        duration = dict()
+        total_duration = 0.0
+        for dataset_type in dataset_types:
+            metadata = os.path.join(save_dir, "{}.json".format(dataset_type))
 
-        # Sort the metadata as the duration order
-        with open(train_metadata, "r", encoding="utf-8") as f:
-            train_utterances = json.load(f)
-        with open(test_metadata, "r", encoding="utf-8") as f:
-            test_utterances = json.load(f)
+            # Sort the metadata as the duration order
+            with open(metadata, "r", encoding="utf-8") as f:
+                utterances = json.load(f)
+            utterances = sorted(utterances, key=lambda x: x["Duration"])
+            utterances_dict[dataset_type] = utterances
+            all_utterances.extend(utterances)
 
-        train_utterances = sorted(train_utterances, key=lambda x: x["Duration"])
-        test_utterances = sorted(test_utterances, key=lambda x: x["Duration"])
+            # Write back the sorted metadata
+            with open(metadata, "w") as f:
+                json.dump(utterances, f, indent=4, ensure_ascii=False)
 
-        # Write back the sorted metadata
-        with open(train_metadata, "w") as f:
-            json.dump(train_utterances, f, indent=4, ensure_ascii=False)
-        with open(test_metadata, "w") as f:
-            json.dump(test_utterances, f, indent=4, ensure_ascii=False)
+            # Get the total duration and singer names for train and test utterances
+            duration[dataset_type] = sum(utt["Duration"] for utt in utterances)
+            total_duration += duration[dataset_type]
 
         # Paths of metadata needed to be generated
         singer_dict_file = os.path.join(save_dir, cfg.preprocess.spk2id)
         utt2singer_file = os.path.join(save_dir, cfg.preprocess.utt2spk)
 
-        # Get the total duration and singer names for train and test utterances
-        train_total_duration = sum(utt["Duration"] for utt in train_utterances)
-        test_total_duration = sum(utt["Duration"] for utt in test_utterances)
-
         singer_names = set(
             f"{replace_augment_name(utt['Dataset'])}_{utt['Singer']}"
-            for utt in train_utterances + test_utterances
+            for utt in all_utterances
         )
 
         # Write the utt2singer file and sort the singer names
         with open(utt2singer_file, "w", encoding="utf-8") as f:
-            for utt in train_utterances + test_utterances:
+            for utt in all_utterances:
                 f.write(
                     f"{utt['Dataset']}_{utt['Uid']}\t{replace_augment_name(utt['Dataset'])}_{utt['Singer']}\n"
                 )
@@ -75,30 +76,28 @@ def cal_metadata(cfg):
         meta_info = {
             "dataset": dataset,
             "statistics": {
-                "size": len(train_utterances) + len(test_utterances),
-                "hours": round(train_total_duration / 3600, 4)
-                + round(test_total_duration / 3600, 4),
+                "size": len(all_utterances),
+                "hours": round(total_duration / 3600, 4),
             },
-            "train": {
-                "size": len(train_utterances),
-                "hours": round(train_total_duration / 3600, 4),
-            },
-            "test": {
-                "size": len(test_utterances),
-                "hours": round(test_total_duration / 3600, 4),
-            },
-            "singers": {"size": len(singer_lut)},
         }
+
+        for dataset_type in dataset_types:
+            meta_info[dataset_type] = {
+                "size": len(utterances_dict[dataset_type]),
+                "hours": round(duration[dataset_type] / 3600, 4),
+            }
+
+        meta_info["singers"] = {"size": len(singer_lut)}
+
         # Use Counter to count the minutes for each singer
         total_singer2mins = Counter()
         training_singer2mins = Counter()
-        for utt in train_utterances:
-            k = f"{replace_augment_name(utt['Dataset'])}_{utt['Singer']}"
-            training_singer2mins[k] += utt["Duration"] / 60
-            total_singer2mins[k] += utt["Duration"] / 60
-        for utt in test_utterances:
-            k = f"{replace_augment_name(utt['Dataset'])}_{utt['Singer']}"
-            total_singer2mins[k] += utt["Duration"] / 60
+        for dataset_type in dataset_types:
+            for utt in utterances_dict[dataset_type]:
+                k = f"{replace_augment_name(utt['Dataset'])}_{utt['Singer']}"
+                if dataset_type == "train":
+                    training_singer2mins[k] += utt["Duration"] / 60
+                total_singer2mins[k] += utt["Duration"] / 60
 
         training_singer2mins = dict(
             sorted(training_singer2mins.items(), key=lambda x: x[1], reverse=True)
@@ -116,7 +115,7 @@ def cal_metadata(cfg):
             json.dump(meta_info, f, indent=4, ensure_ascii=False)
 
         for singer, min in training_singer2mins.items():
-            print(f"Singer {singer}: {min} mins for training")
+            print(f"Speaker/Singer {singer}: {min} mins for training")
         print("-" * 10, "\n")
 
 

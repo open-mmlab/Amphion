@@ -11,7 +11,8 @@ from typing import List, Optional, Tuple, Union
 def calc_lr(step, dim_embed, warmup_steps):
     return dim_embed ** (-0.5) * min(step ** (-0.5), step * warmup_steps ** (-1.5))
 
-# The function is modified from 
+
+# The function is modified from
 # https://github.com/lifeiteng/vall-e/blob/9c69096d603ce13174fb5cb025f185e2e9b36ac7/valle/modules/scheduler.py
 class NoamScheduler(torch.optim.lr_scheduler._LRScheduler):
     def __init__(
@@ -23,7 +24,6 @@ class NoamScheduler(torch.optim.lr_scheduler._LRScheduler):
         last_epoch: int = -1,
         verbose: bool = False,
     ) -> None:
-
         self.dim_embed = dim_embed
         self.base_lr = base_lr
         self.warmup_steps = warmup_steps

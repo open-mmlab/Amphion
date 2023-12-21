@@ -685,4 +685,3 @@ def make_pad_mask(lengths: torch.Tensor, max_len: int = 0) -> torch.Tensor:
     expaned_lengths = seq_range.unsqueeze(0).expand(n, max_len)
 
     return expaned_lengths >= lengths.unsqueeze(-1)
-

@@ -1,5 +1,11 @@
 # Text-to-Audio with Latent Diffusion Model
 
+[![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2304.00830)
+[![demo](https://img.shields.io/badge/SVC-Demo-red)](https://audit-demo.github.io/)
+[![model](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Models-pink)](https://huggingface.co/amphion/text_to_audio)
+[![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/Text-to-Audio)
+[![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/Text-to-Audio)
+
 This is the quicktour for training a text-to-audio model with the popular and powerful generative model: [Latent Diffusion Model](https://arxiv.org/abs/2112.10752). Specially, this recipe is also the official implementation of the text-to-audio generation part of our NeurIPS 2023 paper "[AUDIT: Audio Editing by Following Instructions with Latent Diffusion Models](https://arxiv.org/abs/2304.00830)". You can check the last part of [AUDIT demos](https://audit-demo.github.io/) to see same text-to-audio examples.
 
 <br>

@@ -1,0 +1,118 @@
+{
+    "base_config": "config/ns2.json",
+    "model_type": "NaturalSpeech2",
+    "dataset": [
+        "libritts"
+    ],
+    "preprocess": {
+        "use_mel": false,
+        "use_code": true,
+        "use_spkid": true,
+        "use_pitch": true,
+        "use_duration": true,
+        "use_phone": true,
+        "use_len": true,
+        "use_cross_reference": true,
+        "train_file": "train.json",
+        "valid_file": "test.json",
+        "melspec_dir": "mel",
+        "code_dir": "code",
+        "pitch_dir": "pitch",
+        "duration_dir": "duration",
+        "metadata_dir": "metadata",
+        "read_metadata": true,
+        "clip_mode": "start"
+    },
+    "model": {
+        "latent_dim": 128,
+        "prior_encoder": {
+            "vocab_size": 100,
+            "pitch_min": 50,
+            "pitch_max": 1100,
+            "pitch_bins_num": 512,
+            "encoder": {
+                "encoder_layer": 6,
+                "encoder_hidden": 512,
+                "encoder_head": 8,
+                "conv_filter_size": 2048,
+                "conv_kernel_size": 9,
+                "encoder_dropout": 0.2,
+                "use_cln": true
+            },
+            "duration_predictor": {
+                "input_size": 512,
+                "filter_size": 512,
+                "kernel_size": 3,
+                "conv_layers": 30,
+                "cross_attn_per_layer": 3,
+                "attn_head": 8,
+                "drop_out": 0.5
+            },
+            "pitch_predictor": {
+                "input_size": 512,
+                "filter_size": 512,
+                "kernel_size": 5,
+                "conv_layers": 30,
+                "cross_attn_per_layer": 3,
+                "attn_head": 8,
+                "drop_out": 0.5
+            }
+        },
+        "diffusion": {
+            "wavenet": {
+                "input_size": 128,
+                "hidden_size": 512,
+                "out_size": 128,
+                "num_layers": 40,
+                "cross_attn_per_layer": 3,
+                "dilation_cycle": 2,
+                "attn_head": 8,
+                "drop_out": 0.2
+            },
+            "beta_min": 0.05,
+            "beta_max": 20,
+            "sigma": 1.0,
+            "noise_factor": 1.0,
+            "ode_solver": "euler",
+            "diffusion_type": "diffusion"
+        },
+        "prompt_encoder": {
+            "encoder_layer": 6,
+            "encoder_hidden": 512,
+            "encoder_head": 8,
+            "conv_filter_size": 2048,
+            "conv_kernel_size": 9,
+            "encoder_dropout": 0.2,
+            "use_cln": false
+        },
+        "query_emb": {
+            "query_token_num": 32,
+            "hidden_size": 512,
+            "head_num": 8
+        },
+        "inference_step": 500
+    },
+    "train": {
+        "use_dynamic_batchsize": true,
+        "max_tokens": 7500,
+        "max_sentences": 32,
+        "lr_warmup_steps": 5000,
+        "lr_scheduler": "cosine",
+        "num_train_steps": 800000,
+        "adam": {
+            "lr": 7.5e-5
+        },
+        "diff_ce_loss_lambda": 0.5,
+        "diff_noise_loss_lambda": 1.0,
+        "ddp": false,
+        "random_seed": 114,
+        "batch_size": 32,
+        "epochs": 5000,
+        "max_steps": 1000000,
+        "total_training_steps": 800000,
+        "save_summary_steps": 500,
+        "save_checkpoints_steps": 2000,
+        "valid_interval": 2000,
+        "keep_checkpoint_max": 100
+    }
+}

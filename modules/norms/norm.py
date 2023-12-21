@@ -13,8 +13,8 @@ from torch import Tensor, nn
 from torch.nn import functional as F
 
 from modules.general.scaling import ActivationBalancer
-from modules.general.scaling  import BasicNorm as _BasicNorm
-  
+from modules.general.scaling import BasicNorm as _BasicNorm
+
 
 _shape_t = Union[int, List[int], torch.Size]
 
@@ -36,8 +36,8 @@ class LayerNorm(nn.Module):
         factory_kwargs = {"device": device, "dtype": dtype}
         super(LayerNorm, self).__init__()
         if isinstance(normalized_shape, numbers.Integral):
-            normalized_shape = (normalized_shape,)  
-        self.normalized_shape = tuple(normalized_shape) 
+            normalized_shape = (normalized_shape,)
+        self.normalized_shape = tuple(normalized_shape)
         self.eps = eps
         self.elementwise_affine = elementwise_affine
         if self.elementwise_affine:
@@ -61,12 +61,15 @@ class LayerNorm(nn.Module):
     def forward(self, input: Tensor, embedding: Any = None) -> Tensor:
         if isinstance(input, tuple):
             input, embedding = input
-            output = F.layer_norm(input, self.normalized_shape, self.weight, self.bias, self.eps)
+            output = F.layer_norm(
+                input, self.normalized_shape, self.weight, self.bias, self.eps
+            )
             return output, embedding
 
         assert embedding is None
-        return F.layer_norm(input, self.normalized_shape, self.weight, self.bias, self.eps)
-
+        return F.layer_norm(
+            input, self.normalized_shape, self.weight, self.bias, self.eps
+        )
 
     def extra_repr(self) -> str:
         return (
@@ -168,4 +171,3 @@ class IdentityNorm(nn.Module):
 
         assert embedding is None
         return input
-

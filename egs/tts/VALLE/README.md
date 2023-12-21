@@ -127,7 +127,7 @@ sh egs/tts/VALLE/run.sh --stage 3 --gpu "0" \
 ```
 
 
-We will release a pre-trained VALL-E. So you can download the pre-trained model and generate speech following the above inference instruction.
+We released a pre-trained Amphion VALL-E model. So you can download the pre-trained model [here](https://huggingface.co/amphion/valle-libritts) and generate speech following the above inference instruction.
 
 ```bibtex
 @article{wang2023neural,

@@ -1,0 +1,39 @@
+{
+    "base_config": "egs/tts/NaturalSpeech2/exp_config_base.json",
+    "dataset": [
+      "libritts"
+    ],
+    "preprocess": {
+      // Specify the output root path to save the processed data 
+      "processed_dir": "data",
+      "train_file": "train.json",
+      "valid_file": "test.json",
+      "read_metadata": true,
+      "metadata_dir": "metadata"
+    },
+    // Specify the output root path to save model ckpts and logs
+    "log_dir": "ckpts/tts",
+    "train": {
+        // New trainer and Accelerator
+        "gradient_accumulation_step": 1,
+        "tracker": ["tensorboard"],
+        "max_epoch": 5000,
+        "save_checkpoint_stride": [1],
+        "keep_last": [1000],
+        "run_eval": [true],
+        "dataloader": {
+          "num_worker": 16,
+          "pin_memory": true
+        },
+        "adam": {
+            "lr": 1.0e-4
+        },
+        "use_dynamic_batchsize": true,
+        "batch_size": 8,
+        "max_tokens": 7500,
+        "max_sentences": 32,
+        "lr_warmup_steps": 5000,
+        "lr_scheduler": "cosine",
+        "num_train_steps": 800000
+    }
+  }

@@ -205,7 +205,7 @@ def build_parser():
     parser.add_argument(
         "--diffusion_inference_steps",
         type=int,
-        default=50,
+        default=1000,
         help="Number of inference steps. Only applicable to diffusion inference.",
     )
     return parser

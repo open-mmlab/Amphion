@@ -14,7 +14,7 @@ from torch.nn import functional as F
 from modules.norms import AdaptiveLayerNorm, LayerNorm, BalancedBasicNorm, IdentityNorm
 from modules.transformer import MultiheadAttention
 from modules.general.scaling import BalancedDoubleSwish
-  
+
 
 class TransformerEncoderLayer(nn.Module):
     __constants__ = ["batch_first", "norm_first"]
@@ -74,13 +74,9 @@ class TransformerEncoderLayer(nn.Module):
 
         norm1 = layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs)
         if layer_norm_cls == IdentityNorm:
-            norm2 = BalancedBasicNorm(
-                d_model, eps=layer_norm_eps, **factory_kwargs
-            )
+            norm2 = BalancedBasicNorm(d_model, eps=layer_norm_eps, **factory_kwargs)
         else:
-            norm2 = layer_norm_cls(
-                d_model, eps=layer_norm_eps, **factory_kwargs
-            )
+            norm2 = layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs)
 
         if adaptive_layer_norm:
             self.norm1 = AdaptiveLayerNorm(d_model, norm1)
@@ -163,9 +159,10 @@ class TransformerEncoderLayer(nn.Module):
         x = self.linear2(self.dropout(self.activation(self.linear1(x))))
         return self.dropout2(x)
 
+
 class TransformerEncoder(nn.Module):
     """TransformerEncoder is a stack of N encoder layers."""
-    
+
     def __init__(self, encoder_layer, num_layers, norm=None):
         super(TransformerEncoder, self).__init__()
         self.layers = _get_clones(encoder_layer, num_layers)
@@ -179,13 +176,14 @@ class TransformerEncoder(nn.Module):
         src_key_padding_mask: Optional[Tensor] = None,
         return_layer_states: bool = False,
     ) -> Tensor:
-        
         # Pass the input through the encoder layers
         output = src
         layer_states = [] if return_layer_states else None
 
         for mod in self.layers:
-            output = self._apply_module(mod, output, mask, src_key_padding_mask, layer_states)
+            output = self._apply_module(
+                mod, output, mask, src_key_padding_mask, layer_states
+            )
 
         if self.norm is not None:
             output = self.norm(output)
@@ -198,6 +196,7 @@ class TransformerEncoder(nn.Module):
         if layer_states is not None:
             layer_states.append(output)
         return output
+
 
 class TransformerDecoderLayer(nn.Module):
     __constants__ = ["batch_first", "norm_first"]
@@ -305,10 +304,7 @@ class TransformerDecoderLayer(nn.Module):
                 stage_embedding,
             )
             x = self.norm2(
-                x
-                + self._mha_block(
-                    x, memory, memory_mask, memory_key_padding_mask
-                ),
+                x + self._mha_block(x, memory, memory_mask, memory_key_padding_mask),
                 stage_embedding,
             )
             x = self.norm3(x + self._ff_block(x), stage_embedding)
@@ -362,22 +358,39 @@ class TransformerDecoderLayer(nn.Module):
         else:
             raise ValueError("Unsupported activation type")
 
-    def _init_norm_layers(self, d_model, layer_norm_cls, layer_norm_eps, adaptive_layer_norm, factory_kwargs):
+    def _init_norm_layers(
+        self,
+        d_model,
+        layer_norm_cls,
+        layer_norm_eps,
+        adaptive_layer_norm,
+        factory_kwargs,
+    ):
         if adaptive_layer_norm:
             return (
-                AdaptiveLayerNorm(d_model, layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs)),
-                AdaptiveLayerNorm(d_model, layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs)),
-                AdaptiveLayerNorm(d_model, layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs))
+                AdaptiveLayerNorm(
+                    d_model,
+                    layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs),
+                ),
+                AdaptiveLayerNorm(
+                    d_model,
+                    layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs),
+                ),
+                AdaptiveLayerNorm(
+                    d_model,
+                    layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs),
+                ),
             )
         else:
             return (
                 layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs),
                 layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs),
-                layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs) if layer_norm_cls != IdentityNorm 
-                else BalancedBasicNorm(d_model, eps=layer_norm_eps, **factory_kwargs)
+                layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs)
+                if layer_norm_cls != IdentityNorm
+                else BalancedBasicNorm(d_model, eps=layer_norm_eps, **factory_kwargs),
             )
-        
-        
+
+
 def _get_clones(module, N):
     return nn.ModuleList([copy.deepcopy(module) for i in range(N)])
 
@@ -388,9 +401,7 @@ def _get_activation_fn(activation: str) -> Callable[[Tensor], Tensor]:
     elif activation == "gelu":
         return F.gelu
 
-    raise RuntimeError(
-        "activation should be relu/gelu, not {}".format(activation)
-    )
+    raise RuntimeError("activation should be relu/gelu, not {}".format(activation))
 
 
 class Transpose(nn.Identity):

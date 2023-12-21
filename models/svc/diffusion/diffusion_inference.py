@@ -41,7 +41,7 @@ class DiffusionInference(SVCInference):
         self.pipeline = DiffusionInferencePipeline(
             self.model[1],
             self.scheduler,
-            cfg.inference.diffusion.scheduler_settings.num_inference_timesteps,
+            args.diffusion_inference_steps,
         )
 
     def _build_model(self):
