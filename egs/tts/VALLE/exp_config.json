@@ -15,7 +15,7 @@
         "use_acoustic_token": true,
         "processed_dir": "Amphion/data/",
         "sample_rate": 24000, // "Audio sampling rate." 
-        "codec_hop_size": "320", // "Audio codec hop size." 
+        "codec_hop_size": 320, // "Audio codec hop size." 
         "valid_file": "test.json", 
     },
     "model": {
