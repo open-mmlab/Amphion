@@ -30,7 +30,7 @@ sh egs/tts/NaturalSpeech2/run_train.sh
 ## 4. Inference
 
 ```bash
-sh egs/tts/NaturalSpeech2/run_inference.sh --text "[The text you want to generate]"
+bash egs/tts/NaturalSpeech2/run_inference.sh --text "[The text you want to generate]"
 ```
 
 We released a pre-trained Amphion NatrualSpeech2 model. So you can download the pre-trained model [here](https://huggingface.co/amphion/naturalspeech2_libritts) and generate speech following the above inference instruction.
