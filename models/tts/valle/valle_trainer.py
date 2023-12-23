@@ -19,6 +19,7 @@ from models.tts.valle.valle_dataset import (
 )
 from models.tts.base import TTSTrainer
 from models.tts.valle.valle import VALLE
+import diffusers
 
 
 class VALLETrainer(TTSTrainer):
@@ -108,10 +109,14 @@ class VALLETrainer(TTSTrainer):
                 warmup_steps=self.cfg.train.warmup_steps,
             )
         elif self.cfg.train.scheduler.lower() == "cosine":
-            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-                self.cfg.train.warmup_steps,
+            from diffusers.optimization import get_cosine_schedule_with_warmup
+
+            scheduler = get_cosine_schedule_with_warmup(
                 self.optimizer,
-                eta_min=self.cfg.train.base_lr,
+                num_warmup_steps=self.cfg.train.warmup_steps
+                * self.accelerator.num_processes,
+                num_training_steps=self.cfg.train.total_training_steps
+                * self.accelerator.num_processes,
             )
         else:
             raise NotImplementedError(f"{self.cfg.train.scheduler}")

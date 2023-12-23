@@ -42,6 +42,7 @@
         "optimizer": "AdamW", 
         "scheduler": "cosine",
         "warmup_steps": 16000, // number of steps that affects how rapidly the learning rate decreases
+        "total_training_steps": 800000,
         "base_lr": 1e-4, // base learning rate."
         "valid_interval": 1000,
         "log_epoch_step": 1000,
