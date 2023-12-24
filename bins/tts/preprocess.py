@@ -142,8 +142,8 @@ def preprocess(cfg, args):
     dataset_types.append((cfg.preprocess.valid_file).split(".")[0])
     if "test" not in dataset_types:
         dataset_types.append("test")
-    if "eval" in dataset:
-        dataset_types = ["test"]
+    #if "eval" in dataset:
+    #    dataset_types = ["test"]
 
     # Dump metadata of datasets (singers, train/test durations, etc.)
     cal_metadata(cfg, dataset_types)

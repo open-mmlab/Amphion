@@ -136,8 +136,9 @@ def prepare_align(dataset, dataset_path, cfg, output_path):
             wav_path = os.path.join(in_dir, "wavs", "{}.wav".format(base_name))
             if os.path.exists(wav_path):
                 os.makedirs(os.path.join(out_dir, speaker), exist_ok=True)
-                wav, _ = librosa.load(wav_path, sampling_rate)
-                wav = wav / max(abs(wav)) * max_wav_value
+                wav, _ = librosa.load(wav_path, sr=sampling_rate)
+                wav = wav / max(abs(wav)) * max_wav_value * 0.95
+                # todo: let's trim silence
 
                 wavfile.write(
                     os.path.join(out_dir, speaker, "{}.wav".format(base_name)),

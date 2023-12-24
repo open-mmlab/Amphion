@@ -13,7 +13,7 @@
   "preprocess": {
     // TODO: Fill in the output data path. The default value is "Amphion/data"
     "processed_dir": "data",
-    "sample_rate": 22050,
+    "sample_rate": 24000,
   },
   "train": {
     "batch_size": 16,

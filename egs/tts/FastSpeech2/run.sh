@@ -134,6 +134,8 @@ if [ $running_stage -eq 3 ]; then
     fi
 
 
+    # if you don't have a vocoder, you can download from https://huggingface.co/amphion/hifigan_speech_bigdata, 
+    # then link the hifigan_speech folder to pretrained/hifigan_speech
     CUDA_VISIBLE_DEVICES=$gpu accelerate launch "$work_dir"/bins/tts/inference.py \
         --config $exp_config \
         --acoustics_dir $infer_expt_dir \
@@ -143,7 +145,7 @@ if [ $running_stage -eq 3 ]; then
         --testing_set $infer_testing_set \
         --text "$infer_text" \
         --log_level debug \
-        --vocoder_dir /mntnfs/lee_data1/chenxi/processed_data/ljspeech/model_ckpt/hifigan/checkpoints
+        --vocoder_dir pretrained/hifigan_speech
 
 
 
