@@ -48,7 +48,8 @@ _vocoders = {
     "apnet": apnet.APNet,
 }
 
-_vocoder_infer_funcs = {
+# Forward call for generalized Inferencor
+_vocoder_forward_funcs = {
     # "world": world_inference.synthesis_audios,
     # "wavernn": wavernn_inference.synthesis_audios,
     # "wavenet": wavenet_inference.synthesis_audios,
@@ -58,6 +59,19 @@ _vocoder_infer_funcs = {
     "melgan": gan_vocoder_inference.vocoder_inference,
     "hifigan": gan_vocoder_inference.vocoder_inference,
     "apnet": gan_vocoder_inference.vocoder_inference,
+}
+
+# APIs for other tasks. e.g. SVC, TTS, TTA...
+_vocoder_infer_funcs = {
+    # "world": world_inference.synthesis_audios,
+    # "wavernn": wavernn_inference.synthesis_audios,
+    # "wavenet": wavenet_inference.synthesis_audios,
+    "diffwave": diffusion_vocoder_inference.synthesis_audios,
+    "nsfhifigan": gan_vocoder_inference.synthesis_audios,
+    "bigvgan": gan_vocoder_inference.synthesis_audios,
+    "melgan": gan_vocoder_inference.synthesis_audios,
+    "hifigan": gan_vocoder_inference.synthesis_audios,
+    "apnet": gan_vocoder_inference.synthesis_audios,
 }
 
 
@@ -319,7 +333,7 @@ class VocoderInference(object):
         """Inference via batches"""
         for i, batch in tqdm(enumerate(self.test_dataloader)):
             if self.cfg.preprocess.use_frame_pitch:
-                audio_pred = _vocoder_infer_funcs[self.cfg.model.generator](
+                audio_pred = _vocoder_forward_funcs[self.cfg.model.generator](
                     self.cfg,
                     self.model,
                     batch["mel"].transpose(-1, -2),
@@ -327,7 +341,7 @@ class VocoderInference(object):
                     device=next(self.model.parameters()).device,
                 )
             else:
-                audio_pred = _vocoder_infer_funcs[self.cfg.model.generator](
+                audio_pred = _vocoder_forward_funcs[self.cfg.model.generator](
                     self.cfg,
                     self.model,
                     batch["mel"].transpose(-1, -2),
