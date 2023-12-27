@@ -127,7 +127,7 @@ We provide the default hyparameters in the `exp_config.json`. They can work on s
     }
 ```
 
-### Run
+### Train From Scratch
 
 Run the `run.sh` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/svc/[YourExptName]`.
 
@@ -136,6 +136,8 @@ sh egs/svc/MultipleContentsSVC/run.sh --stage 2 --name [YourExptName]
 ```
 
 > **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "0,1,2,3"`.
+
+### Train From Existing Source
 
 ## 4. Inference/Conversion
 
