@@ -68,10 +68,6 @@ if [ -z "$gpu" ]; then
     gpu="0"
 fi
 
-if [ -z "$resume" ]; then
-    resume=false
-fi
-
 if [ -z "$resume_from_ckpt_path" ]; then
     resume_from_ckpt_path=""
 fi
@@ -97,14 +93,20 @@ if [ $running_stage -eq 2 ]; then
 
     if [ "$resume" = true ]; then
         echo "Resume from the existing experiment..."
+        CUDA_VISIBLE_DEVICES="$gpu" accelerate launch "${work_dir}"/bins/svc/train.py \
+            --config "$exp_config" \
+            --exp_name "$exp_name" \
+            --log_level info \
+            --resume \
+            --resume_from_ckpt_path "$resume_from_ckpt_path" \
+            --resume_type "$resume_type"
+    else
+        echo "Start a new experiment..."
+        CUDA_VISIBLE_DEVICES="$gpu" accelerate launch "${work_dir}"/bins/svc/train.py \
+            --config "$exp_config" \
+            --exp_name "$exp_name" \
+            --log_level info
     fi
-    CUDA_VISIBLE_DEVICES="$gpu" accelerate launch "${work_dir}"/bins/svc/train.py \
-        --config "$exp_config" \
-        --exp_name "$exp_name" \
-        --log_level info \
-        --resume \
-        --resume_from_ckpt_path "$resume_from_ckpt_path" \
-        --resume_type "$resume_type"
 fi
 
 ######## Inference/Conversion ###########
