@@ -68,6 +68,18 @@ if [ -z "$gpu" ]; then
     gpu="0"
 fi
 
+if [ -z "$resume" ]; then
+    resume=false
+fi
+
+if [ -z "$resume_from_ckpt_path"]; then
+    resume_from_ckpt_path=""
+fi
+
+if [ -z "$resume_type" ]; then
+    resume_type="resume"
+fi
+
 ######## Features Extraction ###########
 if [ $running_stage -eq 1 ]; then
     CUDA_VISIBLE_DEVICES=$gpu python "${work_dir}"/bins/svc/preprocess.py \
@@ -84,20 +96,15 @@ if [ $running_stage -eq 2 ]; then
     echo "Exprimental Name: $exp_name"
 
     if [ "$resume" = true ]; then
-        echo "Automatically resume from the experimental dir..."
-        CUDA_VISIBLE_DEVICES="$gpu" accelerate launch "${work_dir}"/bins/svc/train.py \
-            --config "$exp_config" \
-            --exp_name "$exp_name" \
-            --log_level info \
-            --resume
-    else
-        CUDA_VISIBLE_DEVICES=$gpu accelerate launch "${work_dir}"/bins/svc/train.py \
-            --config "$exp_config" \
-            --exp_name "$exp_name" \
-            --log_level info \
-            --resume_from_ckpt_path "$resume_from_ckpt_path" \
-            --resume_type "$resume_type"
+        echo "Resume from the existing experiment..."
     fi
+    CUDA_VISIBLE_DEVICES="$gpu" accelerate launch "${work_dir}"/bins/svc/train.py \
+        --config "$exp_config" \
+        --exp_name "$exp_name" \
+        --log_level info \
+        --resume \
+        --resume_from_ckpt_path "$resume_from_ckpt_path" \
+        --resume_type "$resume_type"
 fi
 
 ######## Inference/Conversion ###########
