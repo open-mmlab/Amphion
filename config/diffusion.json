@@ -3,7 +3,6 @@
     "base_config": "config/base.json",
     "model_type": "diffusion",
     "task_type": "svc",
-    "use_custom_dataset": false,
     "preprocess": {
         // data augmentations
         "use_pitch_shift": false,

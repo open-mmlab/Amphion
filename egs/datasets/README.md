@@ -5,6 +5,7 @@ Amphion support the following academic datasets (sort alphabetically):
 - [Datasets Format](#datasets-format)
   - [AudioCaps](#audiocaps)
   - [CSD](#csd)
+  - [CustomSVCDataset](#customsvcdataset)
   - [KiSing](#kising)
   - [LibriTTS](#libritts)
   - [LJSpeech](#ljspeech)
@@ -28,10 +29,10 @@ AudioCaps is a dataset of around 44K audio-caption pairs, where each audio clip 
 ```plaintext
 [AudioCaps dataset path]
 ┣ AudioCpas
-┃   ┣ wav
-┃   ┃   ┣ ---1_cCGK4M_0_10000.wav
-┃   ┃   ┣ ---lTs1dxhU_30000_40000.wav
-┃   ┃   ┣ ...
+┃ ┣ wav
+┃ ┃ ┣ ---1_cCGK4M_0_10000.wav
+┃ ┃ ┣ ---lTs1dxhU_30000_40000.wav
+┃ ┃ ┣ ...
 ```
 
 ## CSD
@@ -50,6 +51,23 @@ The official CSD dataset can be download [here](https://zenodo.org/records/47850
  ┃ ┣ en002b
  ┃ ┣ ...
  ┣ README
+```
+
+## CustomSVCDataset
+
+We support custom dataset for Singing Voice Conversion. Arrange your data in the following structure to construct your own dataset:
+
+```plaintext
+[Your Custom Dataset Path]
+ ┣ singer1
+ ┃ ┣ song1
+ ┃ ┃ ┣ utterance1.wav
+ ┃ ┃ ┣ utterance2.wav
+ ┃ ┃ ┣ ...
+ ┃ ┣ song2
+ ┃ ┣ ...
+ ┣ singer2
+ ┣ ...
 ```
 
 ## KiSing

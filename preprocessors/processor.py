@@ -42,7 +42,6 @@ def preprocess_dataset(
     """
     if is_custom_dataset:
         custom.main(output_path, dataset_path, dataset_name=dataset)
-        return
 
     if re.match("opencpop*", dataset):
         opencpop.main(dataset, output_path, dataset_path)
