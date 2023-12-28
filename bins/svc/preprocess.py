@@ -85,7 +85,7 @@ def preprocess(cfg, args):
             cfg.dataset_path[dataset],
             output_path,
             cfg.preprocess,
-            is_custom_dataset = dataset in cfg.use_custom_dataset,
+            is_custom_dataset=dataset in cfg.use_custom_dataset,
         )
 
     # Data augmentation: create new wav files with pitch shift, formant shift, equalizer, time stretch

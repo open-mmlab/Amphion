@@ -154,7 +154,11 @@ class BaseTrainer(object):
             if args.resume:
                 if args.resume_from_ckpt_path == "":
                     ## Automatically resume according to the current exprimental name
-                    self.logger.info("Automatically resuming from latest checkpoint in {}...".format(self.checkpoint_dir))
+                    self.logger.info(
+                        "Automatically resuming from latest checkpoint in {}...".format(
+                            self.checkpoint_dir
+                        )
+                    )
                     start = time.monotonic_ns()
                     ckpt_path = self.__load_model(
                         checkpoint_dir=self.checkpoint_dir, resume_type=args.resume_type
