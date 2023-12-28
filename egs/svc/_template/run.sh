@@ -72,7 +72,7 @@ if [ -z "$resume" ]; then
     resume=false
 fi
 
-if [ -z "$resume_from_ckpt_path"]; then
+if [ -z "$resume_from_ckpt_path" ]; then
     resume_from_ckpt_path=""
 fi
 
