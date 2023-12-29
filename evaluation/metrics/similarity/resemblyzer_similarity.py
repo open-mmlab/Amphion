@@ -13,7 +13,7 @@ from scipy.spatial.distance import cosine
 
 def load_wavs(directory):
     """Load all WAV files from the given directory."""
-    
+
     wavs = []
     wav_names = []
     for filename in os.listdir(directory):
