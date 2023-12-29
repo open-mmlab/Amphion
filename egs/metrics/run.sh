@@ -40,9 +40,6 @@ while true; do
   esac
 done
 
-######## Set CUDA_VISIBLE_DEVICES ###########
-export CUDA_VISIBLE_DEVICES=$gpu
-
 ######## Calculate Objective Metrics ###########
 CUDA_VISIBLE_DEVICES=$gpu python "$work_dir"/bins/calc_metrics.py \
     --ref_dir $ref_dir \

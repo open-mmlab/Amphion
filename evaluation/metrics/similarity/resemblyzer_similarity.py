@@ -12,7 +12,11 @@ from scipy.spatial.distance import cosine
 
 
 def load_wavs(directory):
-    """Load all WAV files from the given directory."""
+    """Load all WAV files from the given directory.
+
+    Args:
+        directory (str): Path to the directory containing WAV files.
+    """
 
     wavs = []
     wav_names = []
@@ -26,7 +30,12 @@ def load_wavs(directory):
 
 
 def calculate_cosine_similarity(embeddings1, embeddings2, names1, names2):
-    """Calculate cosine similarity between two sets of embeddings."""
+    """Calculate cosine similarity between two sets of embeddings.
+
+    Args:
+        embeddings1 & 2 (list): List of embeddings.
+        names1 & 2 (list): List of filenames.
+    """
 
     similarity_info = []
     for i, emb1 in enumerate(embeddings1):
@@ -39,7 +48,13 @@ def calculate_cosine_similarity(embeddings1, embeddings2, names1, names2):
 
 
 def extract_resemblyzer_similarity(target_path, reference_path, dump_dir):
-    """Extract similarity between utterances using resemblyzer."""
+    """Extract similarity between utterances using resemblyzer.
+
+    Args:
+        target_path (str): Path to the directory containing target utterances.
+        reference_path (str): Path to the directory containing reference utterances.
+        dump_dir (str): Path to the directory where similarity results are dumped.
+    """
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
