@@ -85,6 +85,7 @@ def preprocess(cfg, args):
             cfg.dataset_path[dataset],
             output_path,
             cfg.preprocess,
+            cfg.task_type,
             is_custom_dataset=dataset in cfg.use_custom_dataset,
         )
 
