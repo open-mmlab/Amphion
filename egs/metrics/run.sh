@@ -15,6 +15,13 @@ export PYTHONIOENCODING=UTF-8
 options=$(getopt -o c:n:s --long gpu:,reference_folder:,generated_folder:,dump_folder:,metrics:,fs: -- "$@")
 eval set -- "$options"
 
+gpu=$(nvidia-smi --query-gpu=index,memory.free --format=csv,noheader,nounits | awk '$2 > 1000 {print $1}' | head -n 1)
+
+# If no GPU is available, default to CPU
+if [ -z "$gpu" ]; then
+    gpu=-1
+fi
+
 while true; do
   case $1 in
     # Reference Audio Folder
@@ -32,6 +39,9 @@ while true; do
     *) echo "Invalid option: $1" exit 1 ;;
   esac
 done
+
+######## Set CUDA_VISIBLE_DEVICES ###########
+export CUDA_VISIBLE_DEVICES=$gpu
 
 ######## Calculate Objective Metrics ###########
 CUDA_VISIBLE_DEVICES=$gpu python "$work_dir"/bins/calc_metrics.py \
