@@ -68,14 +68,6 @@ if [ -z "$gpu" ]; then
     gpu="0"
 fi
 
-if [ -z "$resume_from_ckpt_path" ]; then
-    resume_from_ckpt_path=""
-fi
-
-if [ -z "$resume_type" ]; then
-    resume_type="resume"
-fi
-
 ######## Features Extraction ###########
 if [ $running_stage -eq 1 ]; then
     CUDA_VISIBLE_DEVICES=$gpu python "${work_dir}"/bins/svc/preprocess.py \
@@ -90,6 +82,15 @@ if [ $running_stage -eq 2 ]; then
         exit 1
     fi
     echo "Exprimental Name: $exp_name"
+
+    # add default value
+    if [ -z "$resume_from_ckpt_path" ]; then
+        resume_from_ckpt_path=""
+    fi
+
+    if [ -z "$resume_type" ]; then
+        resume_type="resume"
+    fi
 
     if [ "$resume" = true ]; then
         echo "Resume from the existing experiment..."
