@@ -152,40 +152,44 @@ class BaseTrainer(object):
         # Resume or Finetune
         with self.accelerator.main_process_first():
             if args.resume:
-                ## Automatically resume according to the current exprimental name
-                self.logger.info("Resuming from {}...".format(self.checkpoint_dir))
-                start = time.monotonic_ns()
-                ckpt_path = self.__load_model(
-                    checkpoint_dir=self.checkpoint_dir, resume_type=args.resume_type
-                )
-                end = time.monotonic_ns()
-                self.logger.info(
-                    f"Resuming from checkpoint done in {(end - start) / 1e6:.2f}ms"
-                )
-                self.checkpoints_path = json.load(
-                    open(os.path.join(ckpt_path, "ckpts.json"), "r")
-                )
-            elif args.resume_from_ckpt_path and args.resume_from_ckpt_path != "":
-                ## Resume from the given checkpoint path
-                if not os.path.exists(args.resume_from_ckpt_path):
-                    raise ValueError(
-                        "[Error] The resumed checkpoint path {} don't exist.".format(
-                            args.resume_from_ckpt_path
+                if args.resume_from_ckpt_path == "":
+                    ## Automatically resume according to the current exprimental name
+                    self.logger.info(
+                        "Automatically resuming from latest checkpoint in {}...".format(
+                            self.checkpoint_dir
                         )
                     )
-
-                self.logger.info(
-                    "Resuming from {}...".format(args.resume_from_ckpt_path)
-                )
-                start = time.monotonic_ns()
-                ckpt_path = self.__load_model(
-                    checkpoint_path=args.resume_from_ckpt_path,
-                    resume_type=args.resume_type,
-                )
-                end = time.monotonic_ns()
-                self.logger.info(
-                    f"Resuming from checkpoint done in {(end - start) / 1e6:.2f}ms"
-                )
+                    start = time.monotonic_ns()
+                    ckpt_path = self.__load_model(
+                        checkpoint_dir=self.checkpoint_dir, resume_type=args.resume_type
+                    )
+                    end = time.monotonic_ns()
+                    self.logger.info(
+                        f"Resuming from checkpoint done in {(end - start) / 1e6:.2f}ms"
+                    )
+                    self.checkpoints_path = json.load(
+                        open(os.path.join(ckpt_path, "ckpts.json"), "r")
+                    )
+                else:
+                    ## Resume from the given checkpoint path
+                    if not os.path.exists(args.resume_from_ckpt_path):
+                        raise ValueError(
+                            "[Error] The resumed checkpoint path {} don't exist.".format(
+                                args.resume_from_ckpt_path
+                            )
+                        )
+                    self.logger.info(
+                        "Resuming from {}...".format(args.resume_from_ckpt_path)
+                    )
+                    start = time.monotonic_ns()
+                    ckpt_path = self.__load_model(
+                        checkpoint_path=args.resume_from_ckpt_path,
+                        resume_type=args.resume_type,
+                    )
+                    end = time.monotonic_ns()
+                    self.logger.info(
+                        f"Resuming from checkpoint done in {(end - start) / 1e6:.2f}ms"
+                    )
 
         # save config file path
         self.config_save_path = os.path.join(self.exp_dir, "args.json")

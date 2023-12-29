@@ -83,20 +83,30 @@ if [ $running_stage -eq 2 ]; then
     fi
     echo "Exprimental Name: $exp_name"
 
+    # add default value
+    if [ -z "$resume_from_ckpt_path" ]; then
+        resume_from_ckpt_path=""
+    fi
+
+    if [ -z "$resume_type" ]; then
+        resume_type="resume"
+    fi
+
     if [ "$resume" = true ]; then
-        echo "Automatically resume from the experimental dir..."
+        echo "Resume from the existing experiment..."
         CUDA_VISIBLE_DEVICES="$gpu" accelerate launch "${work_dir}"/bins/svc/train.py \
             --config "$exp_config" \
             --exp_name "$exp_name" \
             --log_level info \
-            --resume
-    else
-        CUDA_VISIBLE_DEVICES=$gpu accelerate launch "${work_dir}"/bins/svc/train.py \
-            --config "$exp_config" \
-            --exp_name "$exp_name" \
-            --log_level info \
+            --resume \
             --resume_from_ckpt_path "$resume_from_ckpt_path" \
             --resume_type "$resume_type"
+    else
+        echo "Start a new experiment..."
+        CUDA_VISIBLE_DEVICES="$gpu" accelerate launch "${work_dir}"/bins/svc/train.py \
+            --config "$exp_config" \
+            --exp_name "$exp_name" \
+            --log_level info
     fi
 fi
 
