@@ -24,7 +24,9 @@ from evaluation.metrics.f0.v_uv_f1 import extract_f1_v_uv
 from evaluation.metrics.intelligibility.character_error_rate import extract_cer
 from evaluation.metrics.intelligibility.word_error_rate import extract_wer
 from evaluation.metrics.similarity.speaker_similarity import extract_speaker_similarity
-from evaluation.metrics.similarity.resemblyzer_similarity import extract_resemblyzer_similarity
+from evaluation.metrics.similarity.resemblyzer_similarity import (
+    extract_resemblyzer_similarity,
+)
 from evaluation.metrics.spectrogram.frechet_distance import extract_fad
 from evaluation.metrics.spectrogram.mel_cepstral_distortion import extract_mcd
 from evaluation.metrics.spectrogram.multi_resolution_stft_distance import extract_mstft
@@ -68,15 +70,17 @@ def calc_metric(ref_dir, deg_dir, dump_dir, metrics, fs=None):
             print("(1) RawNet3")
             print("(2) Resemblyzer")
             model_choice = input("Enter the number of your choice: ").strip()
-            
+
             if model_choice not in ["1", "2"]:
                 print("Invalid choice. Exiting the program.")
                 sys.exit(1)
-            
+
             if model_choice == "1":
                 result[metric] = str(METRIC_FUNC[metric](ref_dir, deg_dir))
             elif model_choice == "2":
-                similarity_score = extract_resemblyzer_similarity(deg_dir, ref_dir, dump_dir)
+                similarity_score = extract_resemblyzer_similarity(
+                    deg_dir, ref_dir, dump_dir
+                )
                 result[metric] = str(similarity_score)
             continue
 
