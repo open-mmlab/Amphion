@@ -134,3 +134,24 @@ def build_samplers(concat_dataset: Dataset, cfg, logger, loader_type):
         cfg.train.sampler.drop_last if not loader_type == "valid" else False,
     )
     return sampler, batch_sampler
+
+
+class VariableSampler(BatchSampler):
+    def __init__(self, sampler, drop_last: bool, use_random_sampler=False):
+        self.data_list = sampler
+        if use_random_sampler:
+            self.sampler = RandomSampler(sampler)
+        else:
+            self.sampler = SequentialSampler(sampler)
+
+        super().__init__(self.sampler, 1, drop_last)
+
+    def __iter__(self):
+        for batch_ids in self.data_list:
+            yield batch_ids
+
+    def __len__(self):
+        if self.drop_last:
+            return len(self.sampler) // self.batch_size
+        else:
+            return (len(self.sampler) + self.batch_size - 1) // self.batch_size
