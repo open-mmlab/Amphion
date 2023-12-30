@@ -18,7 +18,29 @@ This is the official implementation of the paper "[Leveraging Content-based Feat
 - The acoustic model is based on Bidirectional Non-Causal Dilated CNN (called `DiffWaveNetSVC` in Amphion), which is similar to [WaveNet](https://arxiv.org/pdf/1609.03499.pdf), [DiffWave](https://openreview.net/forum?id=a-xFK8Ymz5J), and [DiffSVC](https://ieeexplore.ieee.org/document/9688219).
 - The vocoder is [BigVGAN](https://github.com/NVIDIA/BigVGAN) architecture and we fine-tuned it in over 120 hours singing voice data.
 
-There are four stages in total:
+## A Little Taste Before Getting Started
+
+Before you delve into the code, we suggest exploring the interactive DEMO we've provided for a comprehensive overview. There are several ways you can engage with it:
+
+1. **Online DEMO**
+	
+	|                         HuggingFace                          |                           OpenXLab                           |
+	| :----------------------------------------------------------: | :----------------------------------------------------------: |
+	| [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/singing_voice_conversion)<br />(Worldwide) | [![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/singing_voice_conversion)<br />(Suitable for Mainland China Users) |
+
+2. **Run Local Gradio DEMO**
+
+	|                       Run with Docker                        |               Duplicate Space with Private GPU               |
+	| :----------------------------------------------------------: | :----------------------------------------------------------: |
+	| [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/singing_voice_conversion?docker=true) | [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/singing_voice_conversion?duplicate=true) |
+
+3. **Run with the Extended Colab**
+
+	You can check out [this repo](https://github.com/camenduru/singing-voice-conversion-colab) to run it with Colab. Thanks to [@camenduru](https://x.com/camenduru?s=20) and the community for their support!
+
+## Usage Overview
+
+To train a `DiffWaveNetSVC` model, there are four stages in total:
 
 1. Data preparation
 2. Features extraction
@@ -57,6 +79,35 @@ Specify the dataset paths in  `exp_config.json`. Note that you can change the `d
         "vctk": "[VCTK dataset path]"
     },
 ```
+
+### Custom Dataset
+
+We support custom dataset, see [here](../../datasets/README.md#customsvcdataset) for the file structure to follow.
+
+After constructing proper file structure, specify your dataset name in `dataset` and its path in `dataset_path`, also add its name in `use_custom_dataset`:
+
+```json
+    "dataset": [
+        "[Exisiting Dataset Name]",
+        //...
+        "[Your Custom Dataset Name]"
+    ],
+    "dataset_path": {
+        "[Exisiting Dataset Name]": "[Exisiting Dataset Path]",
+        //...
+        "[Your Custom Dataset Name]": "[Your Custom Dataset Path]"
+    },
+    "use_custom_dataset": [
+        "[Your Custom Dataset Name]"
+    ],
+```
+
+> **NOTE:** Custom dataset name does not have to be the same as the folder name. But it needs to satisfy these rules:
+> 1. It can not be the same as the exisiting dataset name.
+> 2. It can not contain any space or underline(`_`).
+> 3. It must be a valid folder name for operating system.
+> 
+> Some examples of valid custom dataset names are `mydataset`, `myDataset`, `my-dataset`, `mydataset1`, `my-dataset-1`, etc.
 
 ## 2. Features Extraction
 
@@ -105,13 +156,54 @@ We provide the default hyparameters in the `exp_config.json`. They can work on s
     }
 ```
 
-### Run
+### Train From Scratch
 
 Run the `run.sh` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/svc/[YourExptName]`.
 
 ```bash
 sh egs/svc/MultipleContentsSVC/run.sh --stage 2 --name [YourExptName]
 ```
+
+### Train From Existing Source
+
+We support training from existing source for various purposes. You can resume training the model from a checkpoint or fine-tune a model from another checkpoint.
+
+Setting `--resume true`, the training will resume from the **latest checkpoint** by default. For example, if you want to resume training from the latest checkpoint in `Amphion/ckpts/svc/[YourExptName]/checkpoint`, run:
+
+```bash
+sh egs/svc/MultipleContentsSVC/run.sh --stage 2 --name [YourExptName] \
+    --resume true
+```
+
+You can choose a **specific checkpoint** for retraining by `--resume_from_ckpt_path` argument. For example, if you want to fine-tune from the checkpoint `Amphion/ckpts/svc/[YourExptName]/checkpoint/[SpecificCheckpoint]`, run:
+
+```bash
+sh egs/svc/MultipleContentsSVC/run.sh --stage 2 --name [YourExptName] \
+    --resume true
+    --resume_from_ckpt_path "Amphion/ckpts/svc/[YourExptName]/checkpoint/[SpecificCheckpoint]" \
+```
+
+If you want to **fine-tune from another checkpoint**, just use `--resume_type` and set it to `"finetune"`. For example, If you want to fine-tune from the checkpoint `Amphion/ckpts/svc/[AnotherExperiment]/checkpoint/[SpecificCheckpoint]`, run:
+
+```bash
+sh egs/svc/MultipleContentsSVC/run.sh --stage 2 --name [YourExptName] \
+    --resume true
+    --resume_from_ckpt_path "Amphion/ckpts/svc/[AnotherExperiment]/checkpoint/[SpecificCheckpoint]" \
+    --resume_type "finetune"
+```
+
+> **NOTE:** The `--resume_type` is set as `"resume"` in default. It's not necessary to specify it when resuming training.
+> 
+> The difference between `"resume"` and `"finetune"` is that the `"finetune"` will **only** load the pretrained model weights from the checkpoint, while the `"resume"` will load all the training states (including optimizer, scheduler, etc.) from the checkpoint.
+
+Here are some example scenarios to better understand how to use these arguments:
+| Scenario | `--resume` | `--resume_from_ckpt_path` | `--resume_type` |
+| ------ | -------- | ----------------------- | ------------- |
+| You want to train from scratch | no | no | no |
+| The machine breaks down during training and you want to resume training from the latest checkpoint | `true` | no | no |
+| You find the latest model is overfitting and you want to re-train from the checkpoint before | `true` | `SpecificCheckpoint Path` | no |
+| You want to fine-tune a model from another checkpoint | `true` | `SpecificCheckpoint Path` | `"finetune"` |
+
 
 > **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "0,1,2,3"`.
 
@@ -137,8 +229,8 @@ For example, if you want to make `opencpop_female1` sing the songs in the `[Your
 
 ```bash
 sh egs/svc/MultipleContentsSVC/run.sh --stage 3 --gpu "0" \
-	--infer_expt_dir Amphion/ckpts/svc/[YourExptName] \
-	--infer_output_dir Amphion/ckpts/svc/[YourExptName]/result \
+	--infer_expt_dir ckpts/svc/[YourExptName] \
+	--infer_output_dir ckpts/svc/[YourExptName]/result \
 	--infer_source_audio_dir [Your Audios Folder] \
 	--infer_target_speaker "opencpop_female1" \
 	--infer_key_shift "autoshift"
@@ -150,7 +242,7 @@ sh egs/svc/MultipleContentsSVC/run.sh --stage 3 --gpu "0" \
 @article{zhang2023leveraging,
   title={Leveraging Content-based Features from Multiple Acoustic Models for Singing Voice Conversion},
   author={Zhang, Xueyao and Gu, Yicheng and Chen, Haopeng and Fang, Zihao and Zou, Lexiao and Xue, Liumeng and Wu, Zhizheng},
-  journal={Machine Learning for Audio Worshop, NeurIPS 2023},
+  journal={Machine Learning for Audio Workshop, NeurIPS 2023},
   year={2023}
 }
 ```

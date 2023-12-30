@@ -16,7 +16,7 @@ Neural vocoder generates audible waveforms from acoustic representations, which 
   - [APNet](https://arxiv.org/abs/2305.07952)
 - **Flow-based vocoders** (👨‍💻 developing):
   - [WaveGlow](https://arxiv.org/abs/1811.00002)
-- **Diffusion-based vocoders** (👨‍💻 developing):
+- **Diffusion-based vocoders**, which we have provided [**a unified recipe**](diffusion/README.md):
   - [Diffwave](https://arxiv.org/abs/2009.09761)
 - **Auto-regressive based vocoders** (👨‍💻 developing):
   - [WaveNet](https://arxiv.org/abs/1609.03499)

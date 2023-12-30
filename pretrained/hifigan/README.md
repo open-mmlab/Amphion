@@ -1,5 +1,7 @@
+[![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Models-pink)](https://huggingface.co/amphion/hifigan_speech_bigdata)
+
 # Download
 
-- [Link](https://cuhko365-my.sharepoint.com/:f:/g/personal/xueliumeng_cuhk_edu_cn/Ei24hGJO_PVBopjhKje1uzEBqfhV9h89HoLrOoy9K8tzGg?e=iDELHE)
+- [Link](https://huggingface.co/amphion/hifigan_speech_bigdata)
 - Model: `hifigan_speech`
 - Datasets: VCTK + LibriTTS + LJSpeech

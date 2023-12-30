@@ -3,6 +3,10 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+# This model code is adopted from DiffWave/model.py under the Apache License
+# https://github.com/lmnt-com/diffwave
+# Only the config-related varaible names are changed.
+
 import numpy as np
 import torch
 import torch.nn as nn
@@ -124,33 +128,35 @@ class DiffWave(nn.Module):
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
-        self.cfg.VOCODER.NOISE_SCHEDULE = np.linspace(
-            self.cfg.VOCODER.NOISE_SCHEDULE_FACTORS[0],
-            self.cfg.VOCODER.NOISE_SCHEDULE_FACTORS[1],
-            self.cfg.VOCODER.NOISE_SCHEDULE_FACTORS[2],
+        self.cfg.model.diffwave.noise_schedule = np.linspace(
+            self.cfg.model.diffwave.noise_schedule_factors[0],
+            self.cfg.model.diffwave.noise_schedule_factors[1],
+            self.cfg.model.diffwave.noise_schedule_factors[2],
         ).tolist()
-        self.input_projection = Conv1d(1, self.cfg.VOCODER.RESIDUAL_CHANNELS, 1)
+        self.input_projection = Conv1d(1, self.cfg.model.diffwave.residual_channels, 1)
         self.diffusion_embedding = DiffusionEmbedding(
-            len(self.cfg.VOCODER.NOISE_SCHEDULE)
+            len(self.cfg.model.diffwave.noise_schedule)
         )
         self.spectrogram_upsampler = SpectrogramUpsampler(
-            self.cfg.VOCODER.UPSAMPLE_FACTORS
+            self.cfg.model.diffwave.upsample_factors
         )
 
         self.residual_layers = nn.ModuleList(
             [
                 ResidualBlock(
-                    self.cfg.VOCODER.INPUT_DIM,
-                    self.cfg.VOCODER.RESIDUAL_CHANNELS,
-                    2 ** (i % self.cfg.VOCODER.DILATION_CYCLE_LENGTH),
+                    self.cfg.preprocess.n_mel,
+                    self.cfg.model.diffwave.residual_channels,
+                    2 ** (i % self.cfg.model.diffwave.dilation_cycle_length),
                 )
-                for i in range(self.cfg.VOCODER.RESIDUAL_LAYERS)
+                for i in range(self.cfg.model.diffwave.residual_layers)
             ]
         )
         self.skip_projection = Conv1d(
-            self.cfg.VOCODER.RESIDUAL_CHANNELS, self.cfg.VOCODER.RESIDUAL_CHANNELS, 1
+            self.cfg.model.diffwave.residual_channels,
+            self.cfg.model.diffwave.residual_channels,
+            1,
         )
-        self.output_projection = Conv1d(self.cfg.VOCODER.RESIDUAL_CHANNELS, 1, 1)
+        self.output_projection = Conv1d(self.cfg.model.diffwave.residual_channels, 1, 1)
         nn.init.zeros_(self.output_projection.weight)
 
     def forward(self, audio, diffusion_step, spectrogram):

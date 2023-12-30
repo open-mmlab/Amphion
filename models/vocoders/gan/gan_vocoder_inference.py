@@ -68,16 +68,9 @@ def synthesis_audios(cfg, model, mels, f0s=None, batch_size=None, fast_inference
                     fast_inference=fast_inference,
                 ).squeeze(0)
 
-                # # Apply fade_out to make the sound more natural
-                # fade_out = torch.linspace(
-                #     1, 0, steps=20 * model.cfg.preprocess.hop_size
-                # ).cpu()
-
                 # calculate the audio length
                 audio_length = frame * model.cfg.preprocess.hop_size
                 audio = audio[:audio_length]
-
-                # audio[-20 * model.cfg.preprocess.hop_size :] *= fade_out
 
                 audios.append(audio)
     else:
@@ -95,16 +88,9 @@ def synthesis_audios(cfg, model, mels, f0s=None, batch_size=None, fast_inference
                     fast_inference=fast_inference,
                 ).squeeze(0)
 
-                # # Apply fade_out to make the sound more natural
-                # fade_out = torch.linspace(
-                #     1, 0, steps=20 * model.cfg.preprocess.hop_size
-                # ).cpu()
-
                 # calculate the audio length
-                audio_length = frame * model.cfg.preprocess.hop_length
+                audio_length = frame * model.cfg.preprocess.hop_size
                 audio = audio[:audio_length]
-
-                # audio[-20 * model.cfg.preprocess.hop_size :] *= fade_out
 
                 audios.append(audio)
     return audios

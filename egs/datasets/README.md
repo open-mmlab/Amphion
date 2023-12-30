@@ -5,6 +5,7 @@ Amphion support the following academic datasets (sort alphabetically):
 - [Datasets Format](#datasets-format)
   - [AudioCaps](#audiocaps)
   - [CSD](#csd)
+  - [CustomSVCDataset](#customsvcdataset)
   - [KiSing](#kising)
   - [LibriTTS](#libritts)
   - [LJSpeech](#ljspeech)
@@ -23,20 +24,22 @@ The downloading link and the file structure tree of each dataset is displayed as
 
 ## AudioCaps
 
-AudioCaps is a dataset of around 44K audio-caption pairs, where each audio clip corresponds to a caption with rich semantic information. You can download the dataset [here](https://github.com/cdjkim/audiocaps). The file structure tree is like:
+AudioCaps is a dataset of around 44K audio-caption pairs, where each audio clip corresponds to a caption with rich semantic information.
+
+Download AudioCaps dataset [here](https://github.com/cdjkim/audiocaps). The file structure looks like below:
 
 ```plaintext
 [AudioCaps dataset path]
 ┣ AudioCpas
-┃   ┣ wav
-┃   ┃   ┣ ---1_cCGK4M_0_10000.wav
-┃   ┃   ┣ ---lTs1dxhU_30000_40000.wav
-┃   ┃   ┣ ...
+┃ ┣ wav
+┃ ┃ ┣ ---1_cCGK4M_0_10000.wav
+┃ ┃ ┣ ---lTs1dxhU_30000_40000.wav
+┃ ┃ ┣ ...
 ```
 
 ## CSD
 
-The official CSD dataset can be download [here](https://zenodo.org/records/4785016). The file structure tree is like:
+Download the official CSD dataset [here](https://zenodo.org/records/4785016). The file structure looks like below:
 
 ```plaintext
 [CSD dataset path]
@@ -52,9 +55,26 @@ The official CSD dataset can be download [here](https://zenodo.org/records/47850
  ┣ README
 ```
 
+## CustomSVCDataset
+
+We support custom dataset for Singing Voice Conversion. Organize your data in the following structure to construct your own dataset:
+
+```plaintext
+[Your Custom Dataset Path]
+ ┣ singer1
+ ┃ ┣ song1
+ ┃ ┃ ┣ utterance1.wav
+ ┃ ┃ ┣ utterance2.wav
+ ┃ ┃ ┣ ...
+ ┃ ┣ song2
+ ┃ ┣ ...
+ ┣ singer2
+ ┣ ...
+```
+
 ## KiSing
 
-The official KiSing dataset can be download [here](http://shijt.site/index.php/2021/05/16/kising-the-first-open-source-mandarin-singing-voice-synthesis-corpus/). The file structure tree is like:
+Download the official KiSing dataset [here](http://shijt.site/index.php/2021/05/16/kising-the-first-open-source-mandarin-singing-voice-synthesis-corpus/). The file structure looks like below:
 
 ```plaintext
 [KiSing dataset path]
@@ -66,7 +86,7 @@ The official KiSing dataset can be download [here](http://shijt.site/index.php/2
 
 ## LibriTTS
 
-The official LibriTTS dataset can be download [here](https://www.openslr.org/60/). The file structure tree is like:
+Download the official LibriTTS dataset [here](https://www.openslr.org/60/). The file structure looks like below:
 
 ```plaintext
 [LibriTTS dataset path]
@@ -163,7 +183,7 @@ The official LibriTTS dataset can be download [here](https://www.openslr.org/60/
 
 ## LJSpeech
 
-The official LJSpeech dataset can be download [here](https://keithito.com/LJ-Speech-Dataset/). The file structure tree is like:
+Download the official LJSpeech dataset [here](https://keithito.com/LJ-Speech-Dataset/). The file structure looks like below:
 
 ```plaintext
 [LJSpeech dataset path]
@@ -177,7 +197,7 @@ The official LJSpeech dataset can be download [here](https://keithito.com/LJ-Spe
 
 ## M4Singer
 
-The official M4Singer dataset can be downloaded [here](https://drive.google.com/file/d/1xC37E59EWRRFFLdG3aJkVqwtLDgtFNqW/view). The file structure tree is like:
+Download the official M4Singer dataset [here](https://drive.google.com/file/d/1xC37E59EWRRFFLdG3aJkVqwtLDgtFNqW/view). The file structure looks like below:
 
 ```plaintext
 [M4Singer dataset path]
@@ -196,7 +216,7 @@ The official M4Singer dataset can be downloaded [here](https://drive.google.com/
 
 ## NUS-48E
 
-The official NUS-48E dataset can be download [here](https://drive.google.com/drive/folders/12pP9uUl0HTVANU3IPLnumTJiRjPtVUMx). The file structure tree is like:
+Download the official NUS-48E dataset [here](https://drive.google.com/drive/folders/12pP9uUl0HTVANU3IPLnumTJiRjPtVUMx). The file structure looks like below:
 
 ```plaintext
 [NUS-48E dataset path]
@@ -216,7 +236,7 @@ The official NUS-48E dataset can be download [here](https://drive.google.com/dri
 
 ## Opencpop
 
-The official Opera dataset can be downloaded [here](https://wenet.org.cn/opencpop/). The file structure tree is like:
+Download the official Opencpop dataset [here](https://wenet.org.cn/opencpop/). The file structure looks like below:
 
 ```plaintext
 [Opencpop dataset path]
@@ -250,7 +270,7 @@ The official Opera dataset can be downloaded [here](https://wenet.org.cn/opencpo
 
 ## OpenSinger
 
-The official OpenSinger dataset can be downloaded [here](https://drive.google.com/file/d/1EofoZxvalgMjZqzUEuEdleHIZ6SHtNuK/view). The file structure tree is like:
+Download the official OpenSinger dataset [here](https://drive.google.com/file/d/1EofoZxvalgMjZqzUEuEdleHIZ6SHtNuK/view). The file structure looks like below:
 
 ```plaintext
 [OpenSinger dataset path]
@@ -269,7 +289,7 @@ The official OpenSinger dataset can be downloaded [here](https://drive.google.co
 
 ## Opera
 
-The official Opera dataset can be downloaded [here](http://isophonics.net/SingingVoiceDataset). The file structure tree is like:
+Download the official Opera dataset [here](http://isophonics.net/SingingVoiceDataset). The file structure looks like below:
 
 ```plaintext
 [Opera dataset path]
@@ -288,7 +308,7 @@ The official Opera dataset can be downloaded [here](http://isophonics.net/Singin
 
 ## PopBuTFy
 
-The official PopBuTFy dataset can be downloaded [here](https://github.com/MoonInTheRiver/NeuralSVB). The file structure tree is like:
+Download the official PopBuTFy dataset [here](https://github.com/MoonInTheRiver/NeuralSVB). The file structure looks like below:
 
 ```plaintext
 [PopBuTFy dataset path]
@@ -305,7 +325,7 @@ The official PopBuTFy dataset can be downloaded [here](https://github.com/MoonIn
 
 ## PopCS
 
-The official PopCS dataset can be downloaded [here](https://github.com/MoonInTheRiver/DiffSinger/blob/master/resources/apply_form.md). The file structure tree is like:
+Download the official PopCS dataset [here](https://github.com/MoonInTheRiver/DiffSinger/blob/master/resources/apply_form.md). The file structure looks like below:
 
 ```plaintext
 [PopCS dataset path]
@@ -322,7 +342,7 @@ The official PopCS dataset can be downloaded [here](https://github.com/MoonInThe
 
 ## PJS
 
-The official PJS dataset can be downloaded [here](https://sites.google.com/site/shinnosuketakamichi/research-topics/pjs_corpus). The file structure tree is like:
+Download the official PJS dataset [here](https://sites.google.com/site/shinnosuketakamichi/research-topics/pjs_corpus). The file structure looks like below:
 
 ```plaintext
 [PJS dataset path]
@@ -340,7 +360,7 @@ The official PJS dataset can be downloaded [here](https://sites.google.com/site/
 
 ## SVCC
 
-The official SVCC dataset can be downloaded [here](https://github.com/lesterphillip/SVCC23_FastSVC/tree/main/egs/generate_dataset). The file structure tree is like:
+Download the official SVCC dataset [here](https://github.com/lesterphillip/SVCC23_FastSVC/tree/main/egs/generate_dataset). The file structure looks like below:
 
 ```plaintext
 [SVCC dataset path]
@@ -357,7 +377,7 @@ The official SVCC dataset can be downloaded [here](https://github.com/lesterphil
 
 ## VCTK
 
-The official VCTK dataset can be downloaded [here](https://datashare.ed.ac.uk/handle/10283/3443). The file structure tree is like:
+Download the official VCTK dataset [here](https://datashare.ed.ac.uk/handle/10283/3443). The file structure looks like below:
 
 ```plaintext
 [VCTK dataset path]

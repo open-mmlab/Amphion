@@ -1,0 +1,26 @@
+{
+  "base_config": "egs/vocoder/diffusion/exp_config_base.json",
+  "preprocess": {
+    // acoustic features
+    "extract_mel": true,
+    "extract_audio": true,
+
+    // Features used for model training
+    "use_mel": true,
+    "use_audio": true,
+  },
+  "model": {
+    "generator": "diffwave",
+    "diffwave": {
+        "residual_channels": 64,
+        "residual_layers": 30,
+        "dilation_cycle_length": 10,
+        "noise_schedule_factors": [1.0e-4, 0.05, 50],
+        "inference_noise_schedule": [0.0001, 0.001, 0.01, 0.05, 0.2, 0.5],
+        "upsample_factors": [16, 16],
+    }
+  },
+  "inference": {
+    "batch_size": 1,
+  }
+}
