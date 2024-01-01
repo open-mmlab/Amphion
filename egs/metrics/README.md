@@ -38,7 +38,7 @@ We provide a recipe to demonstrate how to objectively evaluate your generated au
 
 If you want to calculate `RawNet3` based speaker similarity, you need to download the pretrained model first, as illustrated [here](../../pretrained/README.md).
 
-## 2. Aduio Data Preparation
+## 2. Audio Data Preparation
 
 Prepare reference audios and generated audios in two folders, the `ref_dir` contains the reference audio and the `gen_dir` contains the generated audio. Here is an example.
 
