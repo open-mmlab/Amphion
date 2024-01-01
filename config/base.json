@@ -9,7 +9,7 @@
   ],
   "task_type": "",
   "dataset": [],
-  "use_custom_dataset": false,
+  "use_custom_dataset": [],
   "preprocess": {
     "phone_extractor": "espeak", // "espeak, pypinyin, pypinyin_initials_finals, lexicon"
     // trim audio silence

@@ -80,6 +80,35 @@ Specify the dataset paths in  `exp_config.json`. Note that you can change the `d
     },
 ```
 
+### Custom Dataset
+
+We support custom dataset, see [here](../../datasets/README.md#customsvcdataset) for the file structure to follow.
+
+After constructing proper file structure, specify your dataset name in `dataset` and its path in `dataset_path`, also add its name in `use_custom_dataset`:
+
+```json
+    "dataset": [
+        "[Exisiting Dataset Name]",
+        //...
+        "[Your Custom Dataset Name]"
+    ],
+    "dataset_path": {
+        "[Exisiting Dataset Name]": "[Exisiting Dataset Path]",
+        //...
+        "[Your Custom Dataset Name]": "[Your Custom Dataset Path]"
+    },
+    "use_custom_dataset": [
+        "[Your Custom Dataset Name]"
+    ],
+```
+
+> **NOTE:** Custom dataset name does not have to be the same as the folder name. But it needs to satisfy these rules:
+> 1. It can not be the same as the exisiting dataset name.
+> 2. It can not contain any space or underline(`_`).
+> 3. It must be a valid folder name for operating system.
+> 
+> Some examples of valid custom dataset names are `mydataset`, `myDataset`, `my-dataset`, `mydataset1`, `my-dataset-1`, etc.
+
 ## 2. Features Extraction
 
 ### Content-based Pretrained Models Download
@@ -127,13 +156,54 @@ We provide the default hyparameters in the `exp_config.json`. They can work on s
     }
 ```
 
-### Run
+### Train From Scratch
 
 Run the `run.sh` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/svc/[YourExptName]`.
 
 ```bash
 sh egs/svc/MultipleContentsSVC/run.sh --stage 2 --name [YourExptName]
 ```
+
+### Train From Existing Source
+
+We support training from existing source for various purposes. You can resume training the model from a checkpoint or fine-tune a model from another checkpoint.
+
+Setting `--resume true`, the training will resume from the **latest checkpoint** by default. For example, if you want to resume training from the latest checkpoint in `Amphion/ckpts/svc/[YourExptName]/checkpoint`, run:
+
+```bash
+sh egs/svc/MultipleContentsSVC/run.sh --stage 2 --name [YourExptName] \
+    --resume true
+```
+
+You can choose a **specific checkpoint** for retraining by `--resume_from_ckpt_path` argument. For example, if you want to fine-tune from the checkpoint `Amphion/ckpts/svc/[YourExptName]/checkpoint/[SpecificCheckpoint]`, run:
+
+```bash
+sh egs/svc/MultipleContentsSVC/run.sh --stage 2 --name [YourExptName] \
+    --resume true
+    --resume_from_ckpt_path "Amphion/ckpts/svc/[YourExptName]/checkpoint/[SpecificCheckpoint]" \
+```
+
+If you want to **fine-tune from another checkpoint**, just use `--resume_type` and set it to `"finetune"`. For example, If you want to fine-tune from the checkpoint `Amphion/ckpts/svc/[AnotherExperiment]/checkpoint/[SpecificCheckpoint]`, run:
+
+```bash
+sh egs/svc/MultipleContentsSVC/run.sh --stage 2 --name [YourExptName] \
+    --resume true
+    --resume_from_ckpt_path "Amphion/ckpts/svc/[AnotherExperiment]/checkpoint/[SpecificCheckpoint]" \
+    --resume_type "finetune"
+```
+
+> **NOTE:** The `--resume_type` is set as `"resume"` in default. It's not necessary to specify it when resuming training.
+> 
+> The difference between `"resume"` and `"finetune"` is that the `"finetune"` will **only** load the pretrained model weights from the checkpoint, while the `"resume"` will load all the training states (including optimizer, scheduler, etc.) from the checkpoint.
+
+Here are some example scenarios to better understand how to use these arguments:
+| Scenario | `--resume` | `--resume_from_ckpt_path` | `--resume_type` |
+| ------ | -------- | ----------------------- | ------------- |
+| You want to train from scratch | no | no | no |
+| The machine breaks down during training and you want to resume training from the latest checkpoint | `true` | no | no |
+| You find the latest model is overfitting and you want to re-train from the checkpoint before | `true` | `SpecificCheckpoint Path` | no |
+| You want to fine-tune a model from another checkpoint | `true` | `SpecificCheckpoint Path` | `"finetune"` |
+
 
 > **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "0,1,2,3"`.
 
@@ -159,8 +229,8 @@ For example, if you want to make `opencpop_female1` sing the songs in the `[Your
 
 ```bash
 sh egs/svc/MultipleContentsSVC/run.sh --stage 3 --gpu "0" \
-	--infer_expt_dir Amphion/ckpts/svc/[YourExptName] \
-	--infer_output_dir Amphion/ckpts/svc/[YourExptName]/result \
+	--infer_expt_dir ckpts/svc/[YourExptName] \
+	--infer_output_dir ckpts/svc/[YourExptName]/result \
 	--infer_source_audio_dir [Your Audios Folder] \
 	--infer_target_speaker "opencpop_female1" \
 	--infer_key_shift "autoshift"

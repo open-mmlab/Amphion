@@ -16,6 +16,7 @@ from utils.util import has_existed
 def statistics(utterance_dir):
     singers = []
     songs = []
+    utts_all = []
     singers2songs = defaultdict(lambda: defaultdict(list))
 
     singer_infos = glob(utterance_dir + "/*")
@@ -32,6 +33,7 @@ def statistics(utterance_dir):
             songs.append(song)
 
             utts = glob(song_info + "/*.wav")
+            utts_all.extend(utts)
 
             for utt in utts:
                 uid = utt.split("/")[-1].split(".")[0]
@@ -44,7 +46,7 @@ def statistics(utterance_dir):
 
     print(
         "Statistics: {} singers, {} utterances ({} unique songs)".format(
-            len(unique_singers), len(songs), len(unique_songs)
+            len(unique_singers), len(utts_all), len(unique_songs)
         )
     )
     print("Singers: \n{}".format("\t".join(unique_singers)))

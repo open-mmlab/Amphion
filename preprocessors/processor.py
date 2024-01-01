@@ -25,14 +25,14 @@ from preprocessors import (
     ljspeech,
     coco,
     cocoeval,
-    custom,
+    customsvcdataset,
     vocalist,
     ljspeech_vocoder,
 )
 
 
 def preprocess_dataset(
-    dataset, dataset_path, output_path, cfg, is_custom_dataset=False
+    dataset, dataset_path, output_path, cfg, task_type, is_custom_dataset=False
 ):
     """Call specific function to handle specific dataset
     Args:
@@ -41,8 +41,12 @@ def preprocess_dataset(
         output_path (str): path to store preprocessing result files
     """
     if is_custom_dataset:
-        custom.main(output_path, dataset_path, dataset_name=dataset)
-        return
+        if task_type == "svc":
+            customsvcdataset.main(output_path, dataset_path, dataset_name=dataset)
+        else:
+            raise NotImplementedError(
+                "Custom dataset for {} task not implemented!".format(cfg.task_type)
+            )
 
     if re.match("opencpop*", dataset):
         opencpop.main(dataset, output_path, dataset_path)
