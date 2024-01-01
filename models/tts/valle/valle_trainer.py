@@ -14,9 +14,9 @@ from schedulers.scheduler import NoamScheduler, Eden
 from models.tts.valle.valle_dataset import (
     VALLEDataset,
     VALLECollator,
-    VariableSampler,
     batch_by_size,
 )
+from models.base.base_sampler import VariableSampler
 from models.tts.base import TTSTrainer
 from models.tts.valle.valle import VALLE
 import diffusers
