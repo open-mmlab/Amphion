@@ -286,10 +286,11 @@ def extract_utt_acoustic_features_tts(dataset_output, cfg, utt):
                 mel = extract_mel_features(
                     wav_torch.unsqueeze(0), cfg.preprocess, taco=True, _stft=_stft
                 )
-                if cfg.preprocess.extract_duration:
-                    mel = mel[:, : sum(durations)]
             else:
-                mel = extract_mel_features(wav_torch.unsqueeze(0), cfg.preprocess)
+                mel = extract_mel_features_tts(wav_torch.unsqueeze(0), cfg.preprocess)
+
+            if cfg.preprocess.extract_duration:
+                mel = mel[:, : sum(durations)]
             save_feature(dataset_output, cfg.preprocess.mel_dir, uid, mel.cpu().numpy())
 
         if cfg.preprocess.extract_energy:

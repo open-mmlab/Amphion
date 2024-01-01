@@ -49,17 +49,10 @@ class FastSpeech2Inference(TTSInference):
     @staticmethod
     def _parse_vocoder(vocoder_dir):
         r"""Parse vocoder config"""
-        vocoder_dir = os.path.abspath(vocoder_dir)
-        ckpt_list = [ckpt for ckpt in Path(vocoder_dir).glob("*.pt")]
-        # last step (different from the base *int(x.stem)*)
-        ckpt_list.sort(
-            key=lambda x: int(x.stem.split("_")[-2].split("-")[-1]), reverse=True
-        )
-        ckpt_path = str(ckpt_list[0])
         vocoder_cfg = load_config(
             os.path.join(vocoder_dir, "args.json"), lowercase=True
         )
-        return vocoder_cfg, ckpt_path
+        return vocoder_cfg, vocoder_dir
 
     @torch.inference_mode()
     def inference_for_batches(self):

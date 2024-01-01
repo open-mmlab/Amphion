@@ -13,7 +13,7 @@ from utils.util import Logger, ValueWindow
 from torch.utils.data import ConcatDataset, DataLoader
 from models.tts.base.tts_trainer import TTSTrainer
 from models.base.base_trainer import BaseTrainer
-from models.base.base_sampler import VariableSampler
+from models.tts.valle.valle_dataset import VariableSampler
 from models.tts.naturalspeech2.ns2_dataset import NS2Dataset, NS2Collator, batch_by_size
 from models.tts.naturalspeech2.ns2_loss import (
     log_pitch_loss,

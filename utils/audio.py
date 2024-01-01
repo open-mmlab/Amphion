@@ -28,18 +28,18 @@ def load_audio_torch(wave_file, fs):
     assert len(audio) > 2
 
     # Check the audio type (for soundfile loading backbone) - float, 8bit or 16bit
-    if np.issubdtype(audio.dtype, np.integer):
-        max_mag = -np.iinfo(audio.dtype).min
-    else:
-        max_mag = max(np.amax(audio), -np.amin(audio))
-        max_mag = (
-            (2**31) + 1
-            if max_mag > (2**15)
-            else ((2**15) + 1 if max_mag > 1.01 else 1.0)
-        )
+#    if np.issubdtype(audio.dtype, np.integer):
+#        max_mag = -np.iinfo(audio.dtype).min
+#    else:
+#        max_mag = max(np.amax(audio), -np.amin(audio))
+#        max_mag = (
+#            (2**31) + 1
+#            if max_mag > (2**15)
+#            else ((2**15) + 1 if max_mag > 1.01 else 1.0)
+#        )
 
     # Normalize the audio
-    audio = torch.FloatTensor(audio.astype(np.float32)) / max_mag
+    audio = torch.FloatTensor(audio.astype(np.float32))
 
     if (torch.isnan(audio) | torch.isinf(audio)).any():
         return [], sample_rate or fs or 48000

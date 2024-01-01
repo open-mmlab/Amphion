@@ -1050,10 +1050,7 @@ class GANVocoderTrainer(VocoderTrainer):
 
         for item in valid_losses:
             valid_losses[item] = valid_losses[item].item()
-        for item in valid_losses:
-            valid_losses[item] = valid_losses[item].item()
 
-        return total_loss.item(), valid_losses
         return total_loss.item(), valid_losses
 
     def _inference(self, eval_mel, eval_pitch=None, use_pitch=False):

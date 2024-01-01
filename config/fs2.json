@@ -7,13 +7,13 @@
       // acoustic features
       "extract_audio": true,
       "extract_mel": true,
-      "mel_extract_mode": "taco",
+      "mel_extract_mode": "raw",
       "mel_min_max_norm": false,
       "extract_pitch": true,
       "extract_uv": false,
       "pitch_extractor": "dio",
       "extract_energy": true,
-      "energy_extract_mode": "from_tacotron_stft",
+      "energy_extract_mode": "from_mel",
       "extract_duration": true,
       "use_phone": false,
       "pitch_norm": true,
@@ -22,17 +22,17 @@
       "energy_remove_outlier": true,
 
       // Default config 
-      "n_mel": 80,
+      "n_mel": 100,
       "win_size": 1024,  // todo
       "hop_size": 256,
-      "sample_rate": 22050,
+      "sample_rate": 24000,
       "n_fft": 1024, // todo
       "fmin": 0,
-      "fmax": 8000, // todo
+      "fmax": 12000, // todo
       "raw_data": "raw_data",
       "text_cleaners": ["english_cleaners"],
-      "f0_min": 71,    // ~C2
-      "f0_max": 800, //1100,    // ~C6(1100), ~G5(800)
+      "f0_min": 50,    // ~C2
+      "f0_max": 1100, //1100,    // ~C6(1100), ~G5(800)
       "pitch_bin": 256,
       "pitch_max": 1100.0,
       "pitch_min": 50.0,

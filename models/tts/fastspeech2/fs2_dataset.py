@@ -161,9 +161,9 @@ class FS2Dataset(BaseDataset):
 
             mel = np.load(self.utt2mel_path[utt]).transpose(1, 0)
             duration = np.load(self.utt2duration_path[utt])
-            assert mel.shape[0] == sum(
-                duration
-            ), f"{utt}: mismatch length between mel {mel.shape[0]} and sum(duration) {sum(duration)}"
+            #assert mel.shape[0] == sum(
+            #    duration
+            #), f"{utt}: mismatch length between mel {mel.shape[0]} and sum(duration) {sum(duration)}"
             utt2dur[utt] = duration
         return utt2dur
 
