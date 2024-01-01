@@ -73,7 +73,7 @@ Amphion provides a comprehensive objective evaluation of the generated audio. Th
 - **Energy Modeling**: Energy Root Mean Square Error, Energy Pearson Coefficients, etc.
 - **Intelligibility**: Character/Word Error Rate, which can be calculated based on [Whisper](https://github.com/openai/whisper) and more.
 - **Spectrogram Distortion**: Frechet Audio Distance (FAD), Mel Cepstral Distortion (MCD), Multi-Resolution STFT Distance (MSTFT), Perceptual Evaluation of Speech Quality (PESQ), Short Time Objective Intelligibility (STOI), etc.
-- **Speaker Similarity**: Cosine similarity, which can be calculated based on [RawNet3](https://github.com/Jungjee/RawNet), [WeSpeaker](https://github.com/wenet-e2e/wespeaker), and more.
+- **Speaker Similarity**: Cosine similarity, which can be calculated based on [RawNet3](https://github.com/Jungjee/RawNet), [Resemblyzer](https://github.com/resemble-ai/Resemblyzer), [WeSpeaker](https://github.com/wenet-e2e/wespeaker), and more.
 
 ### Datasets
 

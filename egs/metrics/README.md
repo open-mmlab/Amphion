@@ -25,6 +25,7 @@ Until now, Amphion Evaluation has supported the following objective metrics:
   - Scale Invariant Signal to Noise Ratio (SISNR)
 - **Speaker Similarity**:
   - Cosine similarity based on [Rawnet3](https://github.com/Jungjee/RawNet)
+  - Cosine similarity based on [Resemblyzer](https://github.com/resemble-ai/Resemblyzer)
   - Cosine similarity based on [WeSpeaker](https://github.com/wenet-e2e/wespeaker) (👨‍💻 developing)
 
 We provide a recipe to demonstrate how to objectively evaluate your generated audios. There are three steps in total:
@@ -74,21 +75,22 @@ As for the metrics, an example is provided below:
 
 All currently available metrics keywords are listed below:
 
-| Keys                  | Description                                |
-| --------------------- | ------------------------------------------ |
-| `fpc`                 | F0 Pearson Coefficients                    |
-| `f0_periodicity_rmse` | F0 Periodicity Root Mean Square Error      |
-| `f0rmse`              | F0 Root Mean Square Error                  |
-| `v_uv_f1`             | Voiced/Unvoiced F1 Score                   |
-| `energy_rmse`         | Energy Root Mean Square Error              |
-| `energy_pc`           | Energy Pearson Coefficients                |
-| `cer`                 | Character Error Rate                       |
-| `wer`                 | Word Error Rate                            |
-| `speaker_similarity`  | Cos Similarity based on RawNet3            |
-| `fad`                 | Frechet Audio Distance                     |
-| `mcd`                 | Mel Cepstral Distortion                    |
-| `mstft`               | Multi-Resolution STFT Distance             |
-| `pesq`                | Perceptual Evaluation of Speech Quality    |
-| `si_sdr`              | Scale Invariant Signal to Distortion Ratio |
-| `si_snr`              | Scale Invariant Signal to Noise Ratio      |
-| `stoi`                | Short Time Objective Intelligibility       |
+| Keys                      | Description                                |
+| ------------------------- | ------------------------------------------ |
+| `fpc`                     | F0 Pearson Coefficients                    |
+| `f0_periodicity_rmse`     | F0 Periodicity Root Mean Square Error      |
+| `f0rmse`                  | F0 Root Mean Square Error                  |
+| `v_uv_f1`                 | Voiced/Unvoiced F1 Score                   |
+| `energy_rmse`             | Energy Root Mean Square Error              |
+| `energy_pc`               | Energy Pearson Coefficients                |
+| `cer`                     | Character Error Rate                       |
+| `wer`                     | Word Error Rate                            |
+| `rawnet3_similarity`      | Cos Similarity based on RawNet3            |
+| `resemblyzer_similarity`  | Cos Similarity based on Resemblyzer        |
+| `fad`                     | Frechet Audio Distance                     |
+| `mcd`                     | Mel Cepstral Distortion                    |
+| `mstft`                   | Multi-Resolution STFT Distance             |
+| `pesq`                    | Perceptual Evaluation of Speech Quality    |
+| `si_sdr`                  | Scale Invariant Signal to Distortion Ratio |
+| `si_snr`                  | Scale Invariant Signal to Noise Ratio      |
+| `stoi`                    | Short Time Objective Intelligibility       |
