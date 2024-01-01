@@ -7,8 +7,8 @@ import os
 import torch
 import numpy as np
 import pandas as pd
+import torch.nn.functional as F
 from resemblyzer import VoiceEncoder, preprocess_wav
-from scipy.spatial.distance import cosine
 
 
 def load_wavs(directory):
@@ -40,7 +40,9 @@ def calculate_cosine_similarity(embeddings1, embeddings2, names1, names2):
     similarity_info = []
     for i, emb1 in enumerate(embeddings1):
         for j, emb2 in enumerate(embeddings2):
-            similarity = 1 - cosine(emb1, emb2)
+            emb1_tensor = torch.tensor(emb1).unsqueeze(0)
+            emb2_tensor = torch.tensor(emb2).unsqueeze(0)
+            similarity = F.cosine_similarity(emb1_tensor, emb2_tensor)
             similarity_info.append(
                 {"Reference": names2[j], "Target": names1[i], "Similarity": similarity}
             )
