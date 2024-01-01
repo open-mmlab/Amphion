@@ -70,9 +70,7 @@ def calc_metric(ref_dir, deg_dir, dump_dir, metrics, fs=None):
             result[metric] = str(METRIC_FUNC[metric](ref_dir, deg_dir))
             continue
         elif metric in ["resemblyzer_similarity"]:
-            result[metric] = str(
-                METRIC_FUNC[metric](deg_dir, ref_dir, dump_dir)
-            )
+            result[metric] = str(METRIC_FUNC[metric](deg_dir, ref_dir, dump_dir))
             continue
 
         audios_ref = []
