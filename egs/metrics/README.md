@@ -94,3 +94,50 @@ All currently available metrics keywords are listed below:
 | `si_sdr`                  | Scale Invariant Signal to Distortion Ratio |
 | `si_snr`                  | Scale Invariant Signal to Noise Ratio      |
 | `stoi`                    | Short Time Objective Intelligibility       |
+
+
+
+## 4. Additional Troubleshooting Info
+### FAD (Using Offline Models)
+If your system is unable to access huggingface.co from the command line, you might run into an error like "OSError: Can't load tokenizer for ...". To work around this, follow these steps to use local models:
+
+1. Download the `bert-base-uncased`, `roberta-base`, and `facebook/bart-base` models from `huggingface.co`. Ensure that the models are complete and uncorrupted. Place these directories within `Amphion/pretrained`.
+2. Inside the `Amphion/pretrained` directory, create a bash script with the content outlined below. This script will automatically update the tokenizer paths used by your system:
+  ```bash
+  #!/bin/bash
+
+  BERT_DIR="bert-base-uncased"
+  ROBERTA_DIR="roberta-base"
+  BART_DIR="facebook/bart-base"
+  PYTHON_SCRIPT="/home/pai/envs/amphion/lib/python3.9/site-packages/laion_clap/training/data.py"
+
+  update_tokenizer_path() {
+      local dir_name=$1
+      local tokenizer_variable=$2
+      local full_path
+
+      if [ -d "$dir_name" ]; then
+          full_path=$(realpath "$dir_name")
+          if [ -f "$PYTHON_SCRIPT" ]; then
+              sed -i "s|${tokenizer_variable}.from_pretrained(\".*\")|${tokenizer_variable}.from_pretrained(\"$full_path\")|" "$PYTHON_SCRIPT"
+              echo "Updated ${tokenizer_variable} path to $full_path."
+          else
+              echo "Error: The specified Python script does not exist."
+              exit 1
+          fi
+      else
+          echo "Error: The directory $dir_name does not exist in the current directory."
+          exit 1
+      fi
+  }
+
+  update_tokenizer_path "$BERT_DIR" "BertTokenizer"
+  update_tokenizer_path "$ROBERTA_DIR" "RobertaTokenizer"
+  update_tokenizer_path "$BART_DIR" "BartTokenizer"
+
+  echo "BERT, BART and RoBERTa Python script paths have been updated."
+
+  ```
+
+3. The script above is designed to modify the tokenizer paths in the `/home/pai/envs/amphion/lib/python3.9/site-packages/laion_clap/training/data.py` file located within your `amphion` environment. If your environment is named differently, please modify the path in the `PYTHON_SCRIPT` variable accordingly.
+4. Run the script. If it executes successfully, the tokenizer paths will be updated, allowing them to be loaded locally.
