@@ -97,11 +97,11 @@ All currently available metrics keywords are listed below:
 
 
 
-## 4. Additional Troubleshooting Info
+## Troubleshooting
 ### FAD (Using Offline Models)
 If your system is unable to access huggingface.co from the command line, you might run into an error like "OSError: Can't load tokenizer for ...". To work around this, follow these steps to use local models:
 
-1. Download the `bert-base-uncased`, `roberta-base`, and `facebook/bart-base` models from `huggingface.co`. Ensure that the models are complete and uncorrupted. Place these directories within `Amphion/pretrained`.
+1. Download the [bert-base-uncased](https://huggingface.co/bert-base-uncased), [roberta-base](https://huggingface.co/roberta-base), and [facebook/bart-base](https://huggingface.co/facebook/bart-base) models from `huggingface.co`. Ensure that the models are complete and uncorrupted. Place these directories within `Amphion/pretrained`.
 2. Inside the `Amphion/pretrained` directory, create a bash script with the content outlined below. This script will automatically update the tokenizer paths used by your system:
   ```bash
   #!/bin/bash
@@ -109,7 +109,7 @@ If your system is unable to access huggingface.co from the command line, you mig
   BERT_DIR="bert-base-uncased"
   ROBERTA_DIR="roberta-base"
   BART_DIR="facebook/bart-base"
-  PYTHON_SCRIPT="/home/pai/envs/amphion/lib/python3.9/site-packages/laion_clap/training/data.py"
+  PYTHON_SCRIPT="[YOUR ENV PATH]/lib/python3.9/site-packages/laion_clap/training/data.py"
 
   update_tokenizer_path() {
       local dir_name=$1
@@ -139,5 +139,5 @@ If your system is unable to access huggingface.co from the command line, you mig
 
   ```
 
-3. The script above is designed to modify the tokenizer paths in the `/home/pai/envs/amphion/lib/python3.9/site-packages/laion_clap/training/data.py` file located within your `amphion` environment. If your environment is named differently, please modify the path in the `PYTHON_SCRIPT` variable accordingly.
+3. The script provided is intended to adjust the tokenizer paths in the `data.py` file, found under `/lib/python3.9/site-packages/laion_clap/training/`, within your specific environment. For those utilizing conda, you can determine your environment path by running `conda info --envs`. Then, substitute `[YOUR ENV PATH]` in the script with this path. If your environment is configured differently, you'll need to update the `PYTHON_SCRIPT` variable to correctly point to the `data.py` file.
 4. Run the script. If it executes successfully, the tokenizer paths will be updated, allowing them to be loaded locally.
