@@ -99,9 +99,9 @@ All currently available metrics keywords are listed below:
 
 ## Troubleshooting
 ### FAD (Using Offline Models)
-If your system is unable to access huggingface.co from the command line, you might run into an error like "OSError: Can't load tokenizer for ...". To work around this, follow these steps to use local models:
+If your system is unable to access huggingface.co from the terminal, you might run into an error like "OSError: Can't load tokenizer for ...". To work around this, follow these steps to use local models:
 
-1. Download the [bert-base-uncased](https://huggingface.co/bert-base-uncased), [roberta-base](https://huggingface.co/roberta-base), and [facebook/bart-base](https://huggingface.co/facebook/bart-base) models from `huggingface.co`. Ensure that the models are complete and uncorrupted. Place these directories within `Amphion/pretrained`.
+1. Download the [bert-base-uncased](https://huggingface.co/bert-base-uncased), [roberta-base](https://huggingface.co/roberta-base), and [facebook/bart-base](https://huggingface.co/facebook/bart-base) models from `huggingface.co`. Ensure that the models are complete and uncorrupted. Place these directories within `Amphion/pretrained`. For a detailed file structure reference, see [This README](../../pretrained/README.md#optional-model-dependencies-for-evaluation) under `Amphion/pretrained`.
 2. Inside the `Amphion/pretrained` directory, create a bash script with the content outlined below. This script will automatically update the tokenizer paths used by your system:
   ```bash
   #!/bin/bash
