@@ -187,6 +187,8 @@ class ConditionEncoder(nn.Module):
         self.loudness_encoder = LoudnessEncoder(self.cfg)
         if cfg.use_spkid:
             self.singer_encoder = SingerEncoder(self.cfg)
+        if cfg.use_spkemb:
+            self.speaker_project = nn.Linear(self.cfg.spkemb_dim, self.cfg.content_encoder_dim)
 
     def forward(self, x):
         outputs = []
@@ -238,6 +240,11 @@ class ConditionEncoder(nn.Module):
             )
             singer_info = speaker_enc_out.expand(-1, seq_len, -1)
             outputs.append(singer_info)
+
+        if "spkemb" in x.keys():
+            speaker_embedding = self.speaker_project(x["spkemb"].unsqueeze(1))  # [b, 1, 384]
+            speaker_embedding = speaker_embedding.expand(-1, seq_len, -1)
+            outputs.append(speaker_embedding)
 
         encoder_output = None
         if self.merge_mode == "concat":
