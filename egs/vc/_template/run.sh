@@ -40,8 +40,8 @@ while true; do
     # [Only for Inference] The inference source (can be a json file or a dir). For example, the source_file can be "[Your path to save processed data]/[YourDataset]/test.json", and the source_audio_dir can be "$work_dir/source_audio" which includes several audio files (*.wav, *.mp3 or *.flac).
     --infer_source_file) shift; infer_source_file=$1 ; shift ;;
     --infer_source_audio_dir) shift; infer_source_audio_dir=$1 ; shift ;;
-    # [Only for Inference] Specify the target speaker you want to convert into. You can refer to "[Your path to save logs and checkpoints]/[Your Expt Name]/singers.json". In this singer look-up table, you can see the usable speaker names (all the keys of the dictionary). For example, for opencpop dataset, the speaker name would be "opencpop_female1".
-    --infer_target_speaker) shift; infer_target_speaker=$1 ; shift ;;
+    # [Only for Inference] Specify the audio file of the target speaker you want to convert into.
+    --infer_target_audio) shift; infer_target=$1 ; shift ;;
     # [Only for Inference] For advanced users, you can modify the trans_key parameters into an integer (which means the semitones you want to transpose). Its default value is "autoshift".
     --infer_key_shift) shift; infer_key_shift=$1 ; shift ;;
     # [Only for Inference] The vocoder dir. Its default value is Amphion/pretrained/bigvgan. See Amphion/pretrained/README.md to download the pretrained BigVGAN vocoders.
@@ -125,7 +125,7 @@ if [ $running_stage -eq 3 ]; then
     fi
 
     if [ -z "$infer_target_speaker" ]; then
-        echo "[Error] Please specify the target speaker. You can refer to "[Your path to save logs and checkpoints]/[Your Expt Name]/singers.json". In this singer look-up table, you can see the usable speaker names (all the keys of the dictionary). For example, for opencpop dataset, the speaker name would be "opencpop_female1""
+        echo "[Error] Please specify the target audio file."
         exit 1
     fi
 
@@ -138,11 +138,11 @@ if [ $running_stage -eq 3 ]; then
         echo "[Warning] You don't specify the infer_vocoder_dir. It is set $infer_vocoder_dir by default. Make sure that you have followed Amphoion/pretrained/README.md to download the pretrained BigVGAN vocoder checkpoint."
     fi
 
-    CUDA_VISIBLE_DEVICES=$gpu accelerate launch "$work_dir"/bins/svc/inference.py \
+    CUDA_VISIBLE_DEVICES=$gpu accelerate launch "$work_dir"/bins/vc/inference.py \
         --config $exp_config \
         --acoustics_dir $infer_expt_dir \
         --vocoder_dir $infer_vocoder_dir \
-        --target_singer $infer_target_speaker \
+        --target $infer_target \
         --trans_key $infer_key_shift \
         --source $infer_source \
         --output_dir $infer_output_dir  \
