@@ -103,6 +103,9 @@ We detail the instructions of different tasks in the following recipes:
 - [Vocoder](egs/vocoder/README.md)
 - [Evaluation](egs/metrics/README.md)
 
+## 👨‍💻 Contributing
+We appreciate all contributions to improve Amphion. Please refer to [CONTRIBUTING.md](.github/CONTRIBUTING.md) for the contributing guideline.
+
 ## 🙏 Acknowledgement
 
 
