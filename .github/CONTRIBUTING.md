@@ -1,6 +1,6 @@
 # Welcome to the Amphion Community!
 
-We greatly appreciate your interest in contributing to Amphion. Your involvement plays a pivotal role in our collective growth, and we are dedicated to nurturing a cooperative and inclusive space for all contributors. To ensure a respectful and productive atmosphere, all contributors must adhere to the Amphion [Code of Conduct](.github/CODE_OF_CONDUCT.md).
+We greatly appreciate your interest in contributing to Amphion. Your involvement plays a pivotal role in our collective growth, and we are dedicated to nurturing a cooperative and inclusive space for all contributors. To ensure a respectful and productive atmosphere, all contributors must adhere to the Amphion [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Contributions
 
@@ -20,7 +20,7 @@ All kinds of contributions are welcome, including but not limited to:
 4. **Test Your Changes**: Ensure compatibility and non-disruption of your updates.
 5. **Commit Your Changes**: Make small, focused commits with clear descriptions.
 6. **Update Your Fork**: Upload your modifications to your GitHub fork.
-7. **Open a Pull Request**: Suggest a pull request from your fork to the main Amphion repository with our [Pull Request Template](.github/pull_request_template.md). 
+7. **Open a Pull Request**: Suggest a pull request from your fork to the main Amphion repository with our [Pull Request Template](pull_request_template.md). 
 8. **Participate in Code Reviews**: Collaborate with reviewers and address their feedback.
 
 ## Coding Standards
