@@ -128,3 +128,87 @@ Amphion
  ┃ ┃ ┣ model.pt
 ```
 
+
+# (Optional) Model Dependencies for Evaluation
+When utilizing Amphion's Evaluation Pipelines, terminals without access to `huggingface.co` may encounter error messages such as "OSError: Can't load tokenizer for ...". To work around this, the dependant models for evaluation can be pre-prepared and stored here, at `Amphion/pretrained`, and follow [this README](../egs/metrics/README.md#troubleshooting) to configure your environment to load local models.
+
+The dependant models of Amphion's evaluation pipeline are as follows (sort alphabetically):
+
+- [Evaluation Pipeline Models Dependency](#optional-model-dependencies-for-evaluation)
+  - [bert-base-uncased](#bert-base-uncased)
+  - [facebook/bart-base](#facebookbart-base)
+  - [roberta-base](#roberta-base)
+
+The instructions about how to download them is displayed as follows.
+
+## bert-base-uncased
+
+To load `bert-base-uncased` locally, follow [this link](https://huggingface.co/bert-base-uncased) to download all files for `bert-base-uncased` model, and store them under `Amphion/pretrained/bert-base-uncased`, conforming to the following file structure tree:
+
+```
+Amphion
+ ┣ pretrained
+ ┃ ┣ bert-base-uncased
+ ┃ ┃ ┣ config.json
+ ┃ ┃ ┣ coreml 
+ ┃ ┃ ┃ ┣ fill-mask
+ ┃ ┃ ┃   ┣ float32_model.mlpackage
+ ┃ ┃ ┃      ┣ Data
+ ┃ ┃ ┃         ┣ com.apple.CoreML
+ ┃ ┃ ┃            ┣ model.mlmodel 
+ ┃ ┃ ┣ flax_model.msgpack
+ ┃ ┃ ┣ LICENSE
+ ┃ ┃ ┣ model.onnx
+ ┃ ┃ ┣ model.safetensors
+ ┃ ┃ ┣ pytorch_model.bin
+ ┃ ┃ ┣ README.md
+ ┃ ┃ ┣ rust_model.ot
+ ┃ ┃ ┣ tf_model.h5
+ ┃ ┃ ┣ tokenizer_config.json
+ ┃ ┃ ┣ tokenizer.json
+ ┃ ┃ ┣ vocab.txt
+```
+
+## facebook/bart-base
+
+To load `facebook/bart-base` locally, follow [this link](https://huggingface.co/facebook/bart-base) to download all files for `facebook/bart-base` model, and store them under `Amphion/pretrained/facebook/bart-base`, conforming to the following file structure tree:
+
+```
+Amphion
+ ┣ pretrained
+ ┃ ┣ facebook
+ ┃ ┃ ┣ bart-base
+ ┃ ┃ ┃ ┣ config.json
+ ┃ ┃ ┃ ┣ flax_model.msgpack
+ ┃ ┃ ┃ ┣ gitattributes.txt
+ ┃ ┃ ┃ ┣ merges.txt
+ ┃ ┃ ┃ ┣ model.safetensors
+ ┃ ┃ ┃ ┣ pytorch_model.bin
+ ┃ ┃ ┃ ┣ README.txt
+ ┃ ┃ ┃ ┣ rust_model.ot
+ ┃ ┃ ┃ ┣ tf_model.h5
+ ┃ ┃ ┃ ┣ tokenizer.json
+ ┃ ┃ ┃ ┣ vocab.json
+```
+
+## roberta-base
+
+To load `roberta-base` locally, follow [this link](https://huggingface.co/roberta-base) to download all files for `roberta-base` model, and store them under `Amphion/pretrained/roberta-base`, conforming to the following file structure tree:
+
+```
+Amphion
+ ┣ pretrained
+ ┃ ┣ roberta-base
+ ┃ ┃ ┣ config.json
+ ┃ ┃ ┣ dict.txt
+ ┃ ┃ ┣ flax_model.msgpack
+ ┃ ┃ ┣ gitattributes.txt
+ ┃ ┃ ┣ merges.txt
+ ┃ ┃ ┣ model.safetensors
+ ┃ ┃ ┣ pytorch_model.bin
+ ┃ ┃ ┣ README.txt
+ ┃ ┃ ┣ rust_model.ot
+ ┃ ┃ ┣ tf_model.h5
+ ┃ ┃ ┣ tokenizer.json
+ ┃ ┃ ┣ vocab.json
+```
