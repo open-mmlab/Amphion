@@ -8,6 +8,7 @@ import torch
 import numpy as np
 
 import json
+import resemblyzer
 from tqdm import tqdm
 from sklearn.preprocessing import StandardScaler
 from utils.io import save_feature, save_txt, save_torch_audio
@@ -261,6 +262,12 @@ def extract_utt_acoustic_features_tts(dataset_output, cfg, utt):
             save_txt(dataset_output, cfg.preprocess.lab_dir, uid, phones)
             wav = wav[start:end].astype(np.float32)
             wav_torch = torch.from_numpy(wav).to(wav_torch.device)
+
+        if cfg.preprocess.extract_speaker:
+            voice_encoder = resemblyzer.VoiceEncoder(verbose=False)
+            speaker_wav = resemblyzer.preprocess_wav(wav_path)
+            speaker_embedding = voice_encoder.embed_utterance(speaker_wav)
+            save_feature(dataset_output, cfg.preprocess.speaker_dir, uid, speaker_embedding)
 
         if cfg.preprocess.extract_linear_spec:
             from utils.mel import extract_linear_features

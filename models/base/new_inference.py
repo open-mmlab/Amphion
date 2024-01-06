@@ -142,11 +142,14 @@ class BaseInference(object):
                 torch.save(it, os.path.join(self.args.output_dir, f"{uid}.pt"))
                 j += 1
 
-        vocoder_cfg, vocoder_ckpt = self._parse_vocoder(self.args.vocoder_dir)
+        # vocoder_cfg, vocoder_ckpt = self._parse_vocoder(self.args.vocoder_dir)
+        vocoder_cfg = load_config(
+            os.path.join(self.args.vocoder_dir, "args.json"), lowercase=True
+        )
 
         res = synthesis(
             cfg=vocoder_cfg,
-            vocoder_weight_file=vocoder_ckpt,
+            vocoder_weight_file=self.args.vocoder_dir,
             n_samples=None,
             pred=[
                 torch.load(
