@@ -283,7 +283,7 @@ def extract_utt_acoustic_features_tts(dataset_output, cfg, utt):
                     mel_fmin=cfg.preprocess.fmin,
                     mel_fmax=cfg.preprocess.fmax,
                 )
-                mel = extract_mel_features(
+                mel = extract_mel_features_tts(
                     wav_torch.unsqueeze(0), cfg.preprocess, taco=True, _stft=_stft
                 )
                 if cfg.preprocess.extract_duration:
