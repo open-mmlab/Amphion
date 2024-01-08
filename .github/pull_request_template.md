@@ -12,6 +12,11 @@
 - [ ] change
 - [ ] ...
 
+
+**🧑‍🤝‍🧑 Who can review?** 
+
+[Please use the '@' symbol to mention any community member who is free to review the PR once the tests have passed. Feel free to tag members or contributors who might be interested in your PR.]
+
 **🛠 TODO**
 
 - [ ] task1
