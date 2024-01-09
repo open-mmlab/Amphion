@@ -26,6 +26,7 @@ Until now, Amphion Evaluation has supported the following objective metrics:
 - **Speaker Similarity**:
   - Cosine similarity based on [Rawnet3](https://github.com/Jungjee/RawNet)
   - Cosine similarity based on [Resemblyzer](https://github.com/resemble-ai/Resemblyzer)
+  - Cosine similarity based on [WavLM](https://github.com/microsoft/unilm/tree/master/wavlm)
   - Cosine similarity based on [WeSpeaker](https://github.com/wenet-e2e/wespeaker) (👨‍💻 developing)
 
 We provide a recipe to demonstrate how to objectively evaluate your generated audios. There are three steps in total:
@@ -86,6 +87,7 @@ All currently available metrics keywords are listed below:
 | `cer`                     | Character Error Rate                       |
 | `wer`                     | Word Error Rate                            |
 | `rawnet3_similarity`      | Cos Similarity based on RawNet3            |
+| `wavlm_similarity`        | Cos Similarity based on WavLM              |
 | `resemblyzer_similarity`  | Cos Similarity based on Resemblyzer        |
 | `fad`                     | Frechet Audio Distance                     |
 | `mcd`                     | Mel Cepstral Distortion                    |
