@@ -14,6 +14,10 @@ from transformers import Wav2Vec2FeatureExtractor, WavLMForXVector
 
 
 def extract_wavlm_similarity(target_path, reference_path):
+    """Extract cosine similarity based on WavLM for two given audio folders.
+    target_path: path to the ground truth audio folder.
+    reference_path: path to the predicted audio folder.
+    """
     feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
         "microsoft/wavlm-base-plus-sv"
     )
