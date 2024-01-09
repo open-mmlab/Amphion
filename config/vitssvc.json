@@ -7,6 +7,7 @@
         "extract_mel": true,
         "extract_linear_spec": true,
         "extract_audio": true,
+        "mel_min_max_norm": true,
         "use_linear": true,
         "use_mel": true,
         "use_audio": true,
