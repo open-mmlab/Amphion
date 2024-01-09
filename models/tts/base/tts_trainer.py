@@ -135,16 +135,16 @@ class TTSTrainer(BaseTrainer):
             end = time.monotonic_ns()
             self.logger.info(f"Building criterion done in {(end - start) / 1e6:.2f}ms")
 
+        # Resume or Finetune
+        with self.accelerator.main_process_first():
+            self._check_resume()
+
         # accelerate prepare
         self.logger.info("Initializing accelerate...")
         start = time.monotonic_ns()
         self._accelerator_prepare()
         end = time.monotonic_ns()
         self.logger.info(f"Initializing accelerate done in {(end - start) / 1e6:.2f}ms")
-
-        # Resume or Finetune
-        with self.accelerator.main_process_first():
-            self._check_resume()
 
         # save config file path
         self.config_save_path = os.path.join(self.exp_dir, "args.json")
@@ -155,7 +155,7 @@ class TTSTrainer(BaseTrainer):
             self.utt2spk_dict = self._build_utt2spk_dict()
 
         # Only for TTS tasks
-        self.task_type = cfg.task_type.upper()
+        self.task_type = "TTS"
         self.logger.info("Task type: {}".format(self.task_type))
 
     def _check_resume(self):
