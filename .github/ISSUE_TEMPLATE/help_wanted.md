@@ -2,7 +2,7 @@
 name: Help wanted
 about: Want help from Amphion team.
 title: "[Help]: "
-labels: ''
+labels: 'help wanted'
 assignees: ''
 
 ---

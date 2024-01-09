@@ -2,7 +2,7 @@
 name: Docs feedback
 about: Improve documentation about Amphion.
 title: "[Docs]: "
-labels: ''
+labels: 'documentation'
 assignees: ''
 
 ---
