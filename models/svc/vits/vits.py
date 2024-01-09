@@ -191,7 +191,6 @@ class SynthesizerTrn(nn.Module):
         """
 
         # TODO: elegantly handle the dimensions
-        c = data["contentvec_feat"].transpose(1, 2)
         spec = data["linear"].transpose(1, 2)
 
         g = data["spk_id"]
@@ -201,9 +200,9 @@ class SynthesizerTrn(nn.Module):
         spec_lengths = data["target_len"]
         f0 = data["frame_pitch"]
 
-        x_mask = torch.unsqueeze(sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
         # condition_encoder ver.
         x = self.condition_encoder(data).transpose(1, 2)
+        x_mask = torch.unsqueeze(sequence_mask(c_lengths, f0.size(1)), 1).to(x.dtype)
 
         # prior encoder
         z_ptemp, m_p, logs_p, _ = self.enc_p(x, x_mask)
@@ -240,24 +239,23 @@ class SynthesizerTrn(nn.Module):
     @torch.no_grad()
     def infer(self, data, noise_scale=0.35, seed=52468):
         # c, f0, uv, g
-        c = data["contentvec_feat"].transpose(1, 2)
         f0 = data["frame_pitch"]
         g = data["spk_id"]
 
-        if c.device == torch.device("cuda"):
+        if f0.device == torch.device("cuda"):
             torch.cuda.manual_seed_all(seed)
         else:
             torch.manual_seed(seed)
 
-        c_lengths = (torch.ones(c.size(0)) * c.size(-1)).to(c.device)
+        c_lengths = (torch.ones(f0.size(0)) * f0.size(-1)).to(f0.device)
 
         if g.dim() == 1:
             g = g.unsqueeze(0)
         g = self.emb_g(g).transpose(1, 2)
 
-        x_mask = torch.unsqueeze(sequence_mask(c_lengths, c.size(2)), 1).to(c.dtype)
         # condition_encoder ver.
         x = self.condition_encoder(data).transpose(1, 2)
+        x_mask = torch.unsqueeze(sequence_mask(c_lengths, f0.size(1)), 1).to(x.dtype)
 
         z_p, m_p, logs_p, c_mask = self.enc_p(x, x_mask, noice_scale=noise_scale)
         z = self.flow(z_p, c_mask, g=g, reverse=True)
