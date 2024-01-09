@@ -6,6 +6,8 @@
 import torch
 from torch.optim.lr_scheduler import ExponentialLR
 from tqdm import tqdm
+from pathlib import Path
+import accelerate
 
 # from models.svc.base import SVCTrainer
 from models.svc.base.svc_dataset import SVCCollator, SVCDataset
@@ -29,6 +31,82 @@ class VitsSVCTrainer(TTSTrainer):
         with self.accelerator.main_process_first():
             self.singers = self._build_singer_lut()
         TTSTrainer.__init__(self, args, cfg)
+
+    def _check_resume(self):
+        self.checkpoint_dir = os.path.join(self.exp_dir, "checkpoint")
+
+        if self.args.resume:
+            if self.args.resume_from_ckpt_path == "":
+                ## Automatically resume according to the current exprimental name
+                self.logger.info(
+                    "Automatically resuming from latest checkpoint in {}...".format(
+                        self.checkpoint_dir
+                    )
+                )
+                start = time.monotonic_ns()
+                self.ckpt_path = self._load_model(
+                    self.checkpoint_dir, None, self.args.resume_type
+                )
+                end = time.monotonic_ns()
+                self.logger.info(
+                    f"Resuming from checkpoint done in {(end - start) / 1e6:.2f}ms"
+                )
+                self.checkpoints_path = json.load(
+                    open(os.path.join(self.ckpt_path, "ckpts.json"), "r")
+                )
+            else:
+                ## Resume from the given checkpoint path
+                if not os.path.exists(self.args.resume_from_ckpt_path):
+                    raise ValueError(
+                        "[Error] The resumed checkpoint path {} don't exist.".format(
+                            self.args.resume_from_ckpt_path
+                        )
+                    )
+                self.logger.info(
+                    "Resuming from {}...".format(self.args.resume_from_ckpt_path)
+                )
+                start = time.monotonic_ns()
+                self.ckpt_path = self._load_model(
+                    self.checkpoint_dir,
+                    self.args.resume_from_ckpt_path,
+                    self.args.resume_type,
+                )
+                end = time.monotonic_ns()
+                self.logger.info(
+                    f"Resuming from checkpoint done in {(end - start) / 1e6:.2f}ms"
+                )
+
+    def _load_model(self, checkpoint_dir, checkpoint_path=None, resume_type="resume"):
+        """Load model from checkpoint. If a folder is given, it will
+        load the latest checkpoint in checkpoint_dir. If a path is given
+        it will load the checkpoint specified by checkpoint_path.
+        **Only use this method after** ``accelerator.prepare()``.
+        """
+        if checkpoint_path is None:
+            ls = [str(i) for i in Path(checkpoint_dir).glob("*")]
+            ls.sort(key=lambda x: int(x.split("_")[-3].split("-")[-1]), reverse=True)
+            checkpoint_path = ls[0]
+        self.logger.info("Load model from {}".format(checkpoint_path))
+
+        if resume_type == "resume":
+            self.accelerator.load_state(checkpoint_path)
+            self.epoch = int(checkpoint_path.split("_")[-3].split("-")[-1]) + 1
+            self.step = int(checkpoint_path.split("_")[-2].split("-")[-1]) + 1
+        elif resume_type == "finetune":
+            # TODO: figure out why only using "pytorch_model.bin" works
+            accelerate.load_checkpoint_and_dispatch(
+                self.accelerator.unwrap_model(self.model["generator"]),
+                os.path.join(checkpoint_path, "pytorch_model.bin"),
+            )
+            accelerate.load_checkpoint_and_dispatch(
+                self.accelerator.unwrap_model(self.model["discriminator"]),
+                os.path.join(checkpoint_path, "pytorch_model.bin"),
+            )
+            self.logger.info("Load model weights for finetune SUCCESS!")
+        else:
+            raise ValueError("Unsupported resume type: {}".format(resume_type))
+
+        return checkpoint_path
 
     def _build_model(self):
         net_g = SynthesizerTrn(
@@ -447,12 +525,12 @@ class VitsSVCTrainer(TTSTrainer):
         return epoch_sum_loss, epoch_losses
 
     def _build_singer_lut(self):
+        # custom for vitssvc, singers.json isn't saved in checkpoint
         resumed_singer_path = None
         if self.args.resume_from_ckpt_path and self.args.resume_from_ckpt_path != "":
-            resumed_singer_path = os.path.join(
-                self.args.resume_from_ckpt_path, self.cfg.preprocess.spk2id
-            )
-        if os.path.exists(os.path.join(self.exp_dir, self.cfg.preprocess.spk2id)):
+            ckpt_exp_dir = os.path.join(self.args.resume_from_ckpt_path, "../../")
+            resumed_singer_path = os.path.join(ckpt_exp_dir, self.cfg.preprocess.spk2id)
+        elif os.path.exists(os.path.join(self.exp_dir, self.cfg.preprocess.spk2id)):
             resumed_singer_path = os.path.join(self.exp_dir, self.cfg.preprocess.spk2id)
 
         if resumed_singer_path:
