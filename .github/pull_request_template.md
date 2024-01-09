@@ -30,3 +30,4 @@
 - [ ]  Code does not affect the normal use of existing features
 - [ ]  Code has been commented properly
 - [ ]  Documentation has been updated (if applicable)
+- [ ]  Demo/checkpoint has been attached (if applicable)
