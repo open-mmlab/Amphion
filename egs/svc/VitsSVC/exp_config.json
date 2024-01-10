@@ -23,28 +23,9 @@
         // TODO: Fill in the output data path. The default value is "Amphion/data"
         "processed_dir": "data",
         
-        "f0_min": 50,
-        "f0_max": 1100,
-        // f0_bin in sovits
-        "pitch_bin": 256,
-        // filter_length in sovits
-        "n_fft": 2048,
-        // hop_length in sovits
-        "hop_size": 512,
-        // win_length in sovits
-        "win_size": 2048,
-        "segment_size": 8192,
         "n_mel": 100,
         "sample_rate": 24000,
 
-        // Config for features extraction
-        "extract_mel": true,
-        "extract_pitch": true,
-        "pitch_extractor": "parselmouth",
-        "extract_energy": true,
-        "extract_uv": true,
-        "extract_linear_spec": true,
-        "extract_audio": true,
         // contentvec
         "extract_contentvec_feature": true,
         "contentvec_sample_rate": 16000,
@@ -56,7 +37,7 @@
         "whisper_frameshift": 0.01,
         "whisper_downsample_rate": 2,
         // wenet
-        "extract_wenet_feature": false,
+        "extract_wenet_feature": true,
         "wenet_downsample_rate": 4,
         "wenet_frameshift": 0.01,
         "wenet_sample_rate": 16000,
@@ -66,26 +47,16 @@
         "wenet_config": "pretrained/wenet/20220506_u2pp_conformer_exp/train.yaml",
         "whisper_model": "medium",
         "whisper_model_path": "pretrained/whisper/medium.pt",
-        // Config for features usage
-        "use_mel": true,
-        "use_frame_pitch": true,
-        "use_uv": true,
-        "use_spkid": true,
+
         "use_contentvec": true,
         "use_whisper": true,
         "use_wenet": false,
-        "use_text": false,
-        "use_phone": false,
-
+        
         // Extract content features using dataloader
         "pin_memory": true,
         "num_workers": 8,
         "content_feature_batch_size": 16,
-        // Meta file
-        "train_file": "train.json",
-        "valid_file": "test.json",
-        "spk2id": "singers.json",
-        "utt2spk": "utt2singer"
+
     },
     "model": {
         "condition_encoder": {
@@ -98,13 +69,6 @@
             "whisper_dim": 1024,
             "contentvec_dim": 256,
             "wenet_dim": 512,
-            "output_melody_dim": 384,
-            "output_loudness_dim": 384,
-            "content_encoder_dim": 384,
-            "output_singer_dim": 384,
-            "output_content_dim": 384,
-            "pitch_max": 1100.0,
-            "pitch_min": 50.0,
         },
         "vits": {
             "inter_channels": 384,
@@ -114,7 +78,6 @@
             "n_layers": 6,
             "kernel_size": 3,
             "p_dropout": 0.1,
-            "ssl_dim": 256,
             "n_flow_layer": 4,
             "n_layers_q": 3,
             "gin_channels": 256,

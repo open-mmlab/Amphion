@@ -96,7 +96,6 @@ class SynthesizerTrn(nn.Module):
         self.n_layers = cfg.model.vits.n_layers
         self.kernel_size = cfg.model.vits.kernel_size
         self.p_dropout = cfg.model.vits.p_dropout
-        self.ssl_dim = cfg.model.vits.ssl_dim
         self.n_flow_layer = cfg.model.vits.n_flow_layer
         self.gin_channels = cfg.model.vits.gin_channels
         self.n_speakers = cfg.model.vits.n_speakers
