@@ -1,8 +1,8 @@
-# Amphion Singing Voice Conversion (SVC) Recipe
+# Amphion Voice Conversion (VC) Recipe
 
 ## Quick Start
 
-We provide a **[beginner recipe](MultipleContentsSVC)** to demonstrate how to train a cutting edge SVC model. Specifically, it is also an official implementation of the paper "[Leveraging Content-based Features from Multiple Acoustic Models for Singing Voice Conversion](https://arxiv.org/abs/2310.11160)" (NeurIPS 2023 Workshop on Machine Learning for Audio). Some demos can be seen [here](https://www.zhangxueyao.com/data/MultipleContentsSVC/index.html).
+We provide a **[beginner recipe](MultipleContentsSVC)** to demonstrate how to train a cutting edge VC model. Some demos can be seen [here](https://www.zhangxueyao.com/data/MultipleContentsSVC/index.html).
 
 ## Supported Model Architectures
 

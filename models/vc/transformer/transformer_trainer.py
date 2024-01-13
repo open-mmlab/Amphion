@@ -18,8 +18,8 @@ class TransformerTrainer(VCTrainer):
         self.ssim_loss = SSIM()
 
     def _build_model(self):
-        self.cfg.model.condition_encoder.f0_min = self.cfg.preprocess.f0_min
-        self.cfg.model.condition_encoder.f0_max = self.cfg.preprocess.f0_max
+        # self.cfg.model.condition_encoder.f0_min = self.cfg.preprocess.f0_min
+        # self.cfg.model.condition_encoder.f0_max = self.cfg.preprocess.f0_max
         self.condition_encoder = ConditionEncoder(self.cfg.model.condition_encoder)
         if self.cfg.model.transformer.type == "transformer":
             self.acoustic_mapper = Transformer(self.cfg.model.transformer)
