@@ -27,6 +27,7 @@ from evaluation.metrics.similarity.speaker_similarity import extract_speaker_sim
 from evaluation.metrics.similarity.resemblyzer_similarity import (
     extract_resemblyzer_similarity,
 )
+from evaluation.metrics.similarity.wavlm_similarity import extract_wavlm_similarity
 from evaluation.metrics.spectrogram.frechet_distance import extract_fad
 from evaluation.metrics.spectrogram.mel_cepstral_distortion import extract_mcd
 from evaluation.metrics.spectrogram.multi_resolution_stft_distance import extract_mstft
@@ -50,7 +51,9 @@ METRIC_FUNC = {
     "v_uv_f1": extract_f1_v_uv,
     "cer": extract_cer,
     "wer": extract_wer,
-    "speaker_similarity": extract_speaker_similarity,
+    "rawnet3_similarity": extract_speaker_similarity,
+    "resemblyzer_similarity": extract_resemblyzer_similarity,
+    "wavlm_similarity": extract_wavlm_similarity,
     "fad": extract_fad,
     "mcd": extract_mcd,
     "mstft": extract_mstft,
@@ -65,23 +68,11 @@ def calc_metric(ref_dir, deg_dir, dump_dir, metrics, fs=None):
     result = defaultdict()
 
     for metric in tqdm(metrics):
-        if metric == "speaker_similarity":
-            print("Select the model to use for speaker similarity:")
-            print("(1) RawNet3")
-            print("(2) Resemblyzer")
-            model_choice = input("Enter the number of your choice: ").strip()
-
-            if model_choice not in ["1", "2"]:
-                print("Invalid choice. Exiting the program.")
-                sys.exit(1)
-
-            if model_choice == "1":
-                result[metric] = str(METRIC_FUNC[metric](ref_dir, deg_dir))
-            elif model_choice == "2":
-                similarity_score = extract_resemblyzer_similarity(
-                    deg_dir, ref_dir, dump_dir
-                )
-                result[metric] = str(similarity_score)
+        if metric in ["fad", "rawnet3_similarity", "wavlm_similarity"]:
+            result[metric] = str(METRIC_FUNC[metric](ref_dir, deg_dir))
+            continue
+        elif metric in ["resemblyzer_similarity"]:
+            result[metric] = str(METRIC_FUNC[metric](deg_dir, ref_dir, dump_dir))
             continue
 
         audios_ref = []
