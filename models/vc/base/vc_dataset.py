@@ -9,6 +9,7 @@ from torch.nn.utils.rnn import pad_sequence
 import json
 import os
 import numpy as np
+from sklearn.preprocessing import MinMaxScaler
 import resemblyzer
 from utils.data_utils import *
 from processors.acoustic_extractor import cal_normalized_mel, load_mel_extrema
@@ -16,6 +17,7 @@ from processors.content_extractor import (
     ContentvecExtractor,
     WhisperExtractor,
     WenetExtractor,
+    HubertExtractor,
 )
 from models.base.base_dataset import (
     BaseCollator,
@@ -55,7 +57,11 @@ class VCDataset(BaseDataset):
             self.utt2wenet_path = load_content_feature_path(
                 self.metadata, cfg.preprocess.processed_dir, cfg.preprocess.wenet_dir
             )
-
+        if cfg.model.condition_encoder.use_hubert:
+            self.hubert_aligner = HubertExtractor(self.cfg)
+            self.utt2hubert_path = load_content_feature_path(
+                self.metadata, cfg.preprocess.processed_dir, cfg.preprocess.hubert_dir
+            )
 
     def __getitem__(self, index):
         single_feature = BaseDataset.__getitem__(self, index)
@@ -64,6 +70,15 @@ class VCDataset(BaseDataset):
         dataset = utt_info["Dataset"]
         uid = utt_info["Uid"]
         utt = "{}_{}".format(dataset, uid)
+
+        if self.cfg.preprocess.use_frame_pitch:
+            assert "frame_pitch" in single_feature.keys()
+            scaler = MinMaxScaler()
+            scaler.fit(single_feature["frame_pitch"].reshape(-1, 1))
+            single_feature["frame_pitch"] = scaler.transform(
+                single_feature["frame_pitch"].reshape(-1, 1)
+            )
+            single_feature["frame_pitch"] = single_feature["frame_pitch"].reshape(-1)
 
         if self.cfg.model.condition_encoder.use_whisper:
             assert "target_len" in single_feature.keys()
@@ -94,6 +109,13 @@ class VCDataset(BaseDataset):
                 np.load(self.utt2wenet_path[utt]), single_feature["target_len"]
             )
             single_feature["wenet_feat"] = aligned_wenet_feat
+
+        if self.cfg.model.condition_encoder.use_hubert:
+            assert "target_len" in single_feature.keys()
+            aligned_hubert_feat = self.hubert_aligner.offline_align(
+                np.load(self.utt2hubert_path[utt]), single_feature["target_len"]
+            )
+            single_feature["hubert_feat"] = aligned_hubert_feat.astype(np.int32)
 
         # print(single_feature.keys())
         # for k, v in single_feature.items():
@@ -175,7 +197,6 @@ class VCTestDataset(BaseTestDataset):
         self.cfg = cfg
         self.trans_key = args.trans_key
 
-
         self.target_dataset = cfg.dataset[0]
         if cfg.preprocess.mel_min_max_norm:
             self.target_mel_extrema = load_mel_extrema(
@@ -193,6 +214,20 @@ class VCTestDataset(BaseTestDataset):
             with open(spk2id_path, "r") as f:
                 self.spk2id = json.load(f)
             # print("self.spk2id", self.spk2id)
+
+        if cfg.preprocess.use_spkemb:
+            self.utt2spk_path = {}
+            for utt_info in self.metadata:
+                dataset = utt_info["Dataset"]
+                uid = utt_info["Uid"]
+                utt = "{}_{}".format(dataset, uid)
+
+                self.utt2spk_path[utt] = os.path.join(
+                    cfg.preprocess.processed_dir,
+                    dataset,
+                    cfg.preprocess.speaker_dir,
+                    uid + ".npy",
+                )
 
         if cfg.preprocess.use_uv:
             self.utt2uv_path = {
@@ -215,34 +250,6 @@ class VCTestDataset(BaseTestDataset):
                 )
                 for utt_info in self.metadata
             }
-
-            # Target F0 median
-            target_f0_statistics_path = os.path.join(
-                cfg.preprocess.processed_dir,
-                self.target_dataset,
-                cfg.preprocess.pitch_dir,
-                "statistics.json",
-            )
-            self.target_pitch_median = json.load(open(target_f0_statistics_path, "r"))[
-                f"{self.target_dataset}_{self.target_singer}"
-            ]["voiced_positions"]["median"]
-
-            # Source F0 median (if infer from file)
-            if infer_type == "from_file":
-                source_audio_name = cfg.inference.source_audio_name
-                source_f0_statistics_path = os.path.join(
-                    cfg.preprocess.processed_dir,
-                    source_audio_name,
-                    cfg.preprocess.pitch_dir,
-                    "statistics.json",
-                )
-                self.source_pitch_median = json.load(
-                    open(source_f0_statistics_path, "r")
-                )[f"{source_audio_name}_{source_audio_name}"]["voiced_positions"][
-                    "median"
-                ]
-            else:
-                self.source_pitch_median = None
 
         if cfg.preprocess.use_frame_energy:
             self.utt2frame_energy_path = {
@@ -290,6 +297,11 @@ class VCTestDataset(BaseTestDataset):
             self.utt2wenet_path = load_content_feature_path(
                 self.metadata, cfg.preprocess.processed_dir, cfg.preprocess.wenet_dir
             )
+        if cfg.model.condition_encoder.use_hubert:
+            self.hubert_aligner = HubertExtractor(cfg)
+            self.utt2hubert_path = load_content_feature_path(
+                self.metadata, cfg.preprocess.processed_dir, cfg.preprocess.hubert_dir
+            )
 
     def __getitem__(self, index):
         single_feature = {}
@@ -308,7 +320,7 @@ class VCTestDataset(BaseTestDataset):
             )
 
         if self.cfg.preprocess.use_spkemb:
-            voice_encoder = resemblyzer.VoiceEncoder('cpu', verbose=False)
+            voice_encoder = resemblyzer.VoiceEncoder("cpu", verbose=False)
             target_wav = resemblyzer.preprocess_wav(self.target)
             single_feature["spkemb"] = voice_encoder.embed_utterance(target_wav)
 
@@ -328,26 +340,18 @@ class VCTestDataset(BaseTestDataset):
             frame_pitch_path = self.utt2frame_pitch_path[utt]
             frame_pitch = np.load(frame_pitch_path)
 
-            if self.trans_key:
-                try:
-                    self.trans_key = int(self.trans_key)
-                except:
-                    pass
-                if type(self.trans_key) == int:
-                    frame_pitch = transpose_key(frame_pitch, self.trans_key)
-                elif self.trans_key:
-                    assert self.target_singer
-
-                    frame_pitch = pitch_shift_to_target(
-                        frame_pitch, self.target_pitch_median, self.source_pitch_median
-                    )
-
             if "target_len" not in single_feature.keys():
                 single_feature["target_len"] = len(frame_pitch)
             aligned_frame_pitch = align_length(
                 frame_pitch, single_feature["target_len"]
             )
             single_feature["frame_pitch"] = aligned_frame_pitch
+            scaler = MinMaxScaler()
+            scaler.fit(single_feature["frame_pitch"].reshape(-1, 1))
+            single_feature["frame_pitch"] = scaler.transform(
+                single_feature["frame_pitch"].reshape(-1, 1)
+            )
+            single_feature["frame_pitch"] = single_feature["frame_pitch"].reshape(-1)
 
             if self.cfg.preprocess.use_uv:
                 frame_uv_path = self.utt2uv_path[utt]
@@ -399,6 +403,13 @@ class VCTestDataset(BaseTestDataset):
                 np.load(self.utt2wenet_path[utt]), single_feature["target_len"]
             )
             single_feature["wenet_feat"] = aligned_wenet_feat
+
+        if self.cfg.model.condition_encoder.use_hubert:
+            assert "target_len" in single_feature.keys()
+            aligned_hubert_feat = self.hubert_aligner.offline_align(
+                np.load(self.utt2hubert_path[utt]), single_feature["target_len"]
+            )
+            single_feature["hubert_feat"] = aligned_hubert_feat.astype(np.int32)
 
         return single_feature
 

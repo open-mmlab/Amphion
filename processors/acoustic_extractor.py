@@ -120,6 +120,14 @@ def __extract_utt_acoustic_features(dataset_output, cfg, utt):
         wav = wav_torch.cpu().numpy()
 
         # extract features
+        if cfg.preprocess.extract_speaker:
+            voice_encoder = resemblyzer.VoiceEncoder("cpu", verbose=False)
+            speaker_wav = resemblyzer.preprocess_wav(wav_path)
+            speaker_embedding = voice_encoder.embed_utterance(speaker_wav)
+            save_feature(
+                dataset_output, cfg.preprocess.speaker_dir, uid, speaker_embedding
+            )
+
         if cfg.preprocess.extract_duration:
             durations, phones, start, end = duration.get_duration(
                 utt, wav, cfg.preprocess
@@ -262,12 +270,6 @@ def extract_utt_acoustic_features_tts(dataset_output, cfg, utt):
             save_txt(dataset_output, cfg.preprocess.lab_dir, uid, phones)
             wav = wav[start:end].astype(np.float32)
             wav_torch = torch.from_numpy(wav).to(wav_torch.device)
-
-        if cfg.preprocess.extract_speaker:
-            voice_encoder = resemblyzer.VoiceEncoder(verbose=False)
-            speaker_wav = resemblyzer.preprocess_wav(wav_path)
-            speaker_embedding = voice_encoder.embed_utterance(speaker_wav)
-            save_feature(dataset_output, cfg.preprocess.speaker_dir, uid, speaker_embedding)
 
         if cfg.preprocess.extract_linear_spec:
             from utils.mel import extract_linear_features

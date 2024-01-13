@@ -76,10 +76,7 @@ def preprocess(cfg, args):
     # Specify the output root path to save the processed data
     output_path = cfg.preprocess.processed_dir
     os.makedirs(output_path, exist_ok=True)
-    # Prepare the content features
-    for dataset in cfg.dataset:
-        print("Extracting content features for {}...".format(dataset))
-        extract_content_features(dataset, output_path, cfg, args.num_workers)
+
     ## Split train and test sets
     for dataset in cfg.dataset:
         print("Preprocess {}...".format(dataset))
@@ -88,6 +85,7 @@ def preprocess(cfg, args):
             cfg.dataset_path[dataset],
             output_path,
             cfg.preprocess,
+            cfg.task_type,
             is_custom_dataset=cfg.use_custom_dataset,
         )
 

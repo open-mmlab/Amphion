@@ -15,16 +15,21 @@
         "processed_dir": "data",
         // Config for features extraction
         "extract_mel": true,
-        "extract_pitch": false,
+        "extract_pitch": true,
+        "extract_uv": false,
+        "extract_duration": false,
         "extract_energy": false,
         "extract_speaker": true,
-        "extract_whisper_feature": true,
+        "extract_whisper_feature": false,
         "extract_contentvec_feature": false,
         "extract_wenet_feature": false,
+        "extract_hubert_feature": true,
         "speaker_dir": "speaker",
         "whisper_batch_size": 30, // decrease it if your GPU is out of memory
         "contentvec_batch_size": 1,
         // Fill in the content-based pretrained model's path
+        "hubert_model_path": "pretrained/hubert/mhubert_base_vp_en_es_fr_it3.pt",
+        "hubert_km_path": "pretrained/hubert/mhubert_base_vp_en_es_fr_it3_L11_km1000.bin",
         "contentvec_file": "pretrained/contentvec/checkpoint_best_legacy_500.pt",
         "wenet_model_path": "pretrained/wenet/20220506_u2pp_conformer_exp/final.pt",
         "wenet_config": "pretrained/wenet/20220506_u2pp_conformer_exp/train.yaml",
@@ -33,22 +38,25 @@
         // Config for features usage
         "use_mel": true,
         "use_min_max_norm_mel": true,
-        "use_frame_pitch": false,
+        "use_frame_pitch": true,
         "use_frame_energy": false,
+        "use_uv": false,
         "use_spkid": false,
         "use_spkemb": true,
-        "use_whisper": true,
+        "use_whisper": false,
         "use_contentvec": false,
         "use_wenet": false,
+        "use_hubert": true,
         "n_mel": 100,
         "sample_rate": 24000
     },
     "model": {
         "condition_encoder": {
             // Config for features usage
-            "use_whisper": true,
+            "use_whisper": false,
             "use_contentvec": false,
             "use_wenet": false,
+            "use_hubert": true,
             "spkemb_dim": 256,
             "whisper_dim": 1024,
             "contentvec_dim": 256,
@@ -56,6 +64,8 @@
             "use_singer_encoder": false,
             "pitch_min": 50,
             "pitch_max": 1100,
+            "f0_min": 0,
+            "f0_max": 1,
             "use_spkemb": true,
             "use_spkid": false
         },
