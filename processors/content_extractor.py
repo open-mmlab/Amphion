@@ -711,3 +711,36 @@ def extract_utt_content_features_dataloader(cfg, metadata, num_workers):
                     )
                     for index, utt in enumerate(_metadata):
                         extractor.save_feature(utt, batch_content_features[index])
+
+        if cfg.preprocess.extract_hubert_feature:
+            feat_dir = os.path.join(
+                cfg.preprocess.processed_dir, dataset_name, "hubert"
+            )
+            os.makedirs(feat_dir, exist_ok=True)
+            feat_files_num = len(os.listdir(feat_dir))
+            if feat_files_num != len(metadata):
+                hubert_waveforms = LibrosaDataset(
+                    cfg,
+                    dataset_name,
+                    cfg.preprocess.hubert_sample_rate,
+                    metadata=metadata,
+                )
+                data_loader = DataLoader(
+                    hubert_waveforms,
+                    num_workers=num_workers,
+                    shuffle=False,
+                    pin_memory=cfg.preprocess.pin_memory,
+                    batch_size=cfg.preprocess.content_feature_batch_size,
+                    collate_fn=collate_batch,
+                    drop_last=False,
+                )
+                extractor = HubertExtractor(cfg)
+                extractor.load_model()
+                for batch_idx, items in enumerate(tqdm(data_loader)):
+                    _metadata, wavs, lens = items
+
+                    batch_content_features = extractor.extract_content_features(
+                        wavs,
+                    )
+                    for index, utt in enumerate(_metadata):
+                        extractor.save_feature(utt, batch_content_features[index])
