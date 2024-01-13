@@ -65,8 +65,6 @@ METRIC_FUNC = {
 }
 
 
-# --------wsy fix---------------------------------------------------------------------------------------------
-# def calc_metric(ref_dir, deg_dir, dump_dir, metrics, fs=None):
 def calc_metric(
     ref_dir,
     deg_dir,
@@ -77,7 +75,6 @@ def calc_metric(
     ltr_path=None,
     language="english",
 ):
-    # -------------------------------------------------------------------------------------------------------------
     result = defaultdict()
 
     for metric in tqdm(metrics):
@@ -115,7 +112,6 @@ def calc_metric(
             result[metric] = str(tp_total / (tp_total + (fp_total + fn_total) / 2))
         else:
             scores = []
-            # ------wsy add--------------------------------------------------
             if metric == "wer":
                 import whisper
 
@@ -136,15 +132,10 @@ def calc_metric(
                     ltrs = []
                     for file in files:
                         ltrs.append(tmpltrs[os.path.basename(file)])
-            # ----------------------------------------------------------------
             for i in tqdm(range(len(audios_ref))):
                 audio_ref = audios_ref[i]
                 audio_deg = audios_deg[i]
 
-                # ---wsy fix----------------------------------------------
-                # score = METRIC_FUNC[metric](
-                #     audio_ref=audio_ref, audio_deg=audio_deg, fs=fs
-                # )
                 if metric == "wer":
                     if wer_choose == 1:
                         score = METRIC_FUNC[metric](
@@ -171,7 +162,6 @@ def calc_metric(
                         audio_deg=audio_deg,
                         fs=fs,
                     )
-                # ---------------------------------------------------------
                 if not np.isnan(score):
                     scores.append(score)
 
@@ -190,18 +180,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--ref_dir",
         type=str,
-        # ---------wsy fix------------------------
-        # help="Path to the target audio folder.",
         help="Path to the reference audio folder.",
-        # -----------------------------------------
     )
     parser.add_argument(
         "--deg_dir",
         type=str,
-        # ---------wsy fix---------------------------
-        # help="Path to the reference audio folder.",
         help="Path to the test audio folder.",
-        # --------------------------------------------
     )
     parser.add_argument(
         "--dump_dir",
@@ -218,7 +202,6 @@ if __name__ == "__main__":
         type=str,
         help="(Optional) Sampling rate",
     )
-    # -----------wsy add-------------------------------------------------------------------------
     parser.add_argument(
         "--wer_choose",
         type=int,
@@ -239,12 +222,9 @@ if __name__ == "__main__":
         default="english",
         help="(Optional)['english','chinese']",
     )
-    # --------------------------------------------------------------------------------------------
 
     args = parser.parse_args()
 
-    # -----------wsy fix------------------------------------------------------------
-    # calc_metric(args.ref_dir, args.deg_dir, args.dump_dir, args.metrics, args.fs)
     calc_metric(
         args.ref_dir,
         args.deg_dir,
@@ -255,4 +235,3 @@ if __name__ == "__main__":
         args.ltr_path,
         args.language,
     )
-    # --------------------------------------------------------------------------------
