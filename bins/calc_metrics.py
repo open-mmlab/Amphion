@@ -27,6 +27,7 @@ from evaluation.metrics.similarity.speaker_similarity import extract_speaker_sim
 from evaluation.metrics.similarity.resemblyzer_similarity import (
     extract_resemblyzer_similarity,
 )
+from evaluation.metrics.similarity.wavlm_similarity import extract_wavlm_similarity
 from evaluation.metrics.spectrogram.frechet_distance import extract_fad
 from evaluation.metrics.spectrogram.mel_cepstral_distortion import extract_mcd
 from evaluation.metrics.spectrogram.multi_resolution_stft_distance import extract_mstft
@@ -52,6 +53,7 @@ METRIC_FUNC = {
     "wer": extract_wer,
     "rawnet3_similarity": extract_speaker_similarity,
     "resemblyzer_similarity": extract_resemblyzer_similarity,
+    "wavlm_similarity": extract_wavlm_similarity,
     "fad": extract_fad,
     "mcd": extract_mcd,
     "mstft": extract_mstft,
@@ -66,7 +68,7 @@ def calc_metric(ref_dir, deg_dir, dump_dir, metrics, fs=None):
     result = defaultdict()
 
     for metric in tqdm(metrics):
-        if metric in ["fad", "rawnet3_similarity"]:
+        if metric in ["fad", "rawnet3_similarity", "wavlm_similarity"]:
             result[metric] = str(METRIC_FUNC[metric](ref_dir, deg_dir))
             continue
         elif metric in ["resemblyzer_similarity"]:
