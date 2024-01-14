@@ -221,7 +221,6 @@ def main(output_path, dataset_path):
         )
     ]
     print("Found subsets:", subsets)
-    subsets = ["tiny", "small"]
     if len(subsets) == 0:
         print("No subsets found. Exiting...")
         return
