@@ -215,10 +215,13 @@ def main(output_path, dataset_path):
     subsets = [
         d
         for d in os.listdir(dataset_path)
-        if (os.path.isdir(os.path.join(dataset_path, d)) and d in ['tiny', 'small', 'medium', 'large'])
+        if (
+            os.path.isdir(os.path.join(dataset_path, d))
+            and d in ["tiny", "small", "medium", "large"]
+        )
     ]
     print("Found subsets:", subsets)
-    subsets = ['tiny', 'small']
+    subsets = ["tiny", "small"]
     if len(subsets) == 0:
         print("No subsets found. Exiting...")
         return

@@ -33,7 +33,9 @@ def transcribe_audio(model, processor, audio_file, device):
     outputs = model.generate(
         inputs=inputs, max_new_tokens=128
     )  # generate transcription
-    transcription = processor.batch_decode(outputs, skip_special_tokens=True)[0]  # decode
+    transcription = processor.batch_decode(outputs, skip_special_tokens=True)[
+        0
+    ]  # decode
     transcription_processed = preprocess_text(transcription)  # preprocess
     return transcription_processed
 
