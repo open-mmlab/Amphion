@@ -9,7 +9,6 @@ Amphion support the following academic datasets (sort alphabetically):
   - [KiSing](#kising)
   - [LibriLight](#librilight)
   - [LibriTTS](#libritts)
-  - [LibriLight](#librilight)
   - [LJSpeech](#ljspeech)
   - [M4Singer](#m4singer)
   - [NUS-48E](#nus-48e)
