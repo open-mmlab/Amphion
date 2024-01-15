@@ -205,29 +205,6 @@ Download the official LibriTTS dataset [here](https://www.openslr.org/60/). The 
  ┃ ┃ ┣ ...
  ┃ ┣ ...
 ```
-## LibriLight
-
-Download the official LibriLight dataset [here](https://github.com/facebookresearch/libri-light). The file structure looks like below:
-
-```plaintext
-[LibriTTS dataset path]
- ┣ small (Subset)
- ┃ ┣ 100 {Speaker_ID}
- ┃ ┃ ┣ sea_fairies_0812_librivox_64kb_mp3 {Chapter_ID}
- ┃ ┃ ┃ ┣ 01_baum_sea_fairies_64kb.flac
- ┃ ┃ ┃ ┣ 02_baum_sea_fairies_64kb.flac
- ┃ ┃ ┃ ┣ 03_baum_sea_fairies_64kb.flac
- ┃ ┃ ┃ ┣ 22_baum_sea_fairies_64kb.flac
- ┃ ┃ ┃ ┣ 01_baum_sea_fairies_64kb.json
- ┃ ┃ ┃ ┣ 02_baum_sea_fairies_64kb.json
- ┃ ┃ ┃ ┣ 03_baum_sea_fairies_64kb.json
- ┃ ┃ ┃ ┣ 22_baum_sea_fairies_64kb.json
- ┃ ┃ ┃ ┣ ...
- ┃ ┃ ┣ ...
- ┃ ┣ ...
- ┣ medium (Subset)
- ┣ ...
-```
 
 ## LJSpeech
 
