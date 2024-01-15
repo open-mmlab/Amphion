@@ -304,18 +304,18 @@ class TTSTrainer(BaseTrainer):
                         ckpt_name = "pytorch_model.bin"
                     else:
                         ckpt_name = "pytorch_model_{}.bin".format(idx)
-                        
+
                     self.model[sub_model].load_state_dict(
                         torch.load(os.path.join(checkpoint_path, ckpt_name))
-                    )   
-                self.model[sub_model].cuda(self.accelerator.device)  
-            else:      
+                    )
+                self.model[sub_model].cuda(self.accelerator.device)
+            else:
                 self.model.load_state_dict(
                     torch.load(os.path.join(checkpoint_path, "pytorch_model.bin"))
                 )
                 self.model.cuda(self.accelerator.device)
-            self.logger.info("Load model weights for finetune SUCCESS!")           
-                
+            self.logger.info("Load model weights for finetune SUCCESS!")
+
         else:
             raise ValueError("Unsupported resume type: {}".format(resume_type))
 
