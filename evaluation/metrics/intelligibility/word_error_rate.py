@@ -17,7 +17,7 @@ def extract_wer(
     remove_space=True,
     remove_punctuation=True,
     mode="gt_audio",
-    model=None, 
+    model=None,
 ):
     """Compute Word Error Rate (WER) between the predicted and the ground truth audio.
     content_gt: the ground truth content.
