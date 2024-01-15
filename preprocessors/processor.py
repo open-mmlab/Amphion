@@ -92,7 +92,7 @@ def preprocess_dataset(
     if dataset == "vocalist":
         vocalist.main(output_path, dataset_path)
     if dataset == "librilight":
-        librilight.main(output_path, dataset_path)
+        librilight.main(output_path, dataset_path, cfg)
 
 
 def prepare_align(dataset, dataset_path, cfg, output_path):

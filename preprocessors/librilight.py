@@ -205,12 +205,28 @@ def save_meta_data(save_dir, processed_dir, distribution2speakers2utts, speakers
     print("Metadata saved to", save_dir)
 
 
-def main(output_path, dataset_path):
+def main(output_path, dataset_path, cfg):
     """Preprocess librilight dataset"""
-    n_cpus = 16  # number of cpus to use for preprocessing
-    n_gpus = 4  # number of gpus to use for transcription
-    cut_length = 10  # target length of utterance in seconds
-    max_length = 15  # max length of utterance in seconds
+    n_cpus = cfg.n_cpus  # number of cpus to use for preprocessing
+    n_gpus = cfg.n_gpus  # number of gpus to use for transcription
+    cut_length = cfg.cut_length  # target length of utterance in seconds
+    max_length = cfg.max_length  # max length of utterance in seconds
+
+    # MFA files
+    mfa_config_path = cfg.mfa_config_path  # path to mfa config file
+    mfa_dict_path = cfg.mfa_dict_path  # path to mfa dict file
+    mfa_model_path = cfg.mfa_model_path  # path to mfa model file
+
+    # check if mfa files exist
+    if (
+        not os.path.exists(mfa_dict_path)
+        or not os.path.exists(mfa_model_path)
+        or not os.path.exists(mfa_config_path)
+    ):
+        raise Exception("MFA files not found.")
+
+    # Whisper model id
+    model_id = cfg.whisper_model_id  # id of whisper model to use for transcription
 
     subsets = [
         d
@@ -221,7 +237,7 @@ def main(output_path, dataset_path):
         )
     ]
     print("Found subsets:", subsets)
-    subsets = ["tiny", "small"]
+
     if len(subsets) == 0:
         print("No subsets found. Exiting...")
         return
@@ -234,17 +250,6 @@ def main(output_path, dataset_path):
         processed_dir = f"{dataset_path}/processed/{subset}"
         os.makedirs(processed_dir, exist_ok=True)
         os.makedirs(save_dir, exist_ok=True)
-        mfa_dict_path = f"{dataset_path}/pretrained/mfa/mfa_dict.dict"
-        mfa_model_path = f"{dataset_path}/pretrained/mfa/model"
-        mfa_config_path = f"{dataset_path}/pretrained/mfa/ipa_mfa_train_config.yaml"
-
-        # check if mfa files exist
-        if (
-            not os.path.exists(mfa_dict_path)
-            or not os.path.exists(mfa_model_path)
-            or not os.path.exists(mfa_config_path)
-        ):
-            raise Exception("MFA files not found.")
 
         # Step 1: Segmentation
         print("-" * 10)
@@ -268,7 +273,7 @@ def main(output_path, dataset_path):
         print("Transcribing audio files...")
 
         n_gpus = min(n_gpus, torch.cuda.device_count())
-        asr_main(processed_dir, n_gpus)
+        asr_main(processed_dir, n_gpus, model_id)
 
         # Step 6: MFA Align
         print("-" * 10)
@@ -315,9 +320,10 @@ def main(output_path, dataset_path):
 
         save_meta_data(save_dir, processed_dir, distribution2speakers2utts, speakers)
         print("Preprocessing subset", subset, "done!")
+        print("-" * 10)
 
 
 if __name__ == "__main__":
-    dataset_path = "/path/to/librilight/dataset"
-    output_path = "/path/to/save/librilight/metadata"
+    dataset_path = "/path/to/dataset/librilight"
+    output_path = "/path/to/output"
     main(output_path, dataset_path)

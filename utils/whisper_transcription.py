@@ -47,11 +47,10 @@ def write_transcription(audio_file, transcription):
         file.write(transcription)
 
 
-def init_whisper(device):
+def init_whisper(model_id, device):
     """Initialize whisper model and processor"""
     torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-    model_id = "distil-whisper/distil-large-v2"
-    print(f"Loading model {model_id}")
+    print(f"Loading model {model_id}")  # model_id = "distil-whisper/distil-large-v2"
     distil_model = AutoModelForSpeechSeq2Seq.from_pretrained(
         model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=False
     )
@@ -60,10 +59,10 @@ def init_whisper(device):
     return distil_model, processor
 
 
-def asr_wav_files(file_list, gpu_id, total_files):
+def asr_wav_files(file_list, gpu_id, total_files, model_id):
     """Transcribe wav files in a list"""
     device = f"cuda:{gpu_id}" if torch.cuda.is_available() else "cpu"
-    whisper_model, processor = init_whisper(device)
+    whisper_model, processor = init_whisper(model_id, device)
     print(f"Processing on {device} starts")
     start_time = time.time()
     for audio_file in file_list:
@@ -91,7 +90,7 @@ def asr_wav_files(file_list, gpu_id, total_files):
             print(f"Error processing file {audio_file}: {e}")
 
 
-def asr_main(input_dir, num_gpus):
+def asr_main(input_dir, num_gpus, model_id):
     """Transcribe wav files in a directory"""
     num_processes = min(num_gpus, os.cpu_count())
     print(f"Using {num_processes} GPUs for transcription")
@@ -108,6 +107,7 @@ def asr_main(input_dir, num_gpus):
                     wav_files[i * files_per_process : (i + 1) * files_per_process],
                     i % num_gpus,
                     total_files,
+                    model_id,
                 )
                 for i in range(num_processes)
             ],
@@ -118,4 +118,5 @@ def asr_main(input_dir, num_gpus):
 if __name__ == "__main__":
     input_dir = "/path/to/output/directory"
     num_gpus = 2
-    asr_main(input_dir, num_gpus)
+    model_id = "distil-whisper/distil-large-v2"
+    asr_main(input_dir, num_gpus, model_id)
