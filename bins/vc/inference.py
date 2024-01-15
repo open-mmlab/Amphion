@@ -62,7 +62,7 @@ def prepare_for_audio_file(args, cfg, num_workers=1):
 
 def merge_for_audio_segments(audio_files, args, cfg):
     audio_name = cfg.inference.source_audio_name
-    target_singer_name = os.path.basename(args.target).split('.')[0]
+    target_singer_name = os.path.basename(args.target).split(".")[0]
 
     merge_segments_encodec(
         wav_files=audio_files,
