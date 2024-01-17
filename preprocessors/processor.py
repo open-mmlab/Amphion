@@ -28,6 +28,7 @@ from preprocessors import (
     customsvcdataset,
     vocalist,
     ljspeech_vocoder,
+    librilight,
 )
 
 
@@ -90,6 +91,8 @@ def preprocess_dataset(
         cocoeval.main(output_path, dataset_path)
     if dataset == "vocalist":
         vocalist.main(output_path, dataset_path)
+    if dataset == "librilight":
+        librilight.main(output_path, dataset_path, cfg)
 
 
 def prepare_align(dataset, dataset_path, cfg, output_path):
