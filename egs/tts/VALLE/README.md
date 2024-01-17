@@ -126,8 +126,9 @@ sh egs/tts/VALLE/run.sh --stage 3 --gpu "0" \
     --infer_audio_prompt egs/tts/VALLE/prompt_examples/7176_92135_000004_000000.wav
 ```
 
-
-We released a pre-trained Amphion VALL-E model. So you can download the pre-trained model [here](https://huggingface.co/amphion/valle-libritts) and generate speech following the above inference instruction.
+We have released pre-trained VALL-E models, so you can download the pre-trained model and then generate speech following the above inference instruction. Specifically, 
+1. The pre-trained VALL-E trained on [LibriTTS](https://github.com/open-mmlab/Amphion/tree/main/egs/datasets#libritts) can be download [here](https://huggingface.co/amphion/valle-libritts).
+2. The pre-trained VALL-E trained on a part of [Libri-light](https://ai.meta.com/tools/libri-light/) (about 6k hours) can be download [here](https://huggingface.co/amphion/valle_librilight_6k).
 
 ```bibtex
 @article{wang2023neural,
