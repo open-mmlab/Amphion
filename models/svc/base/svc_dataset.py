@@ -191,7 +191,7 @@ class SVCTestDataset(BaseTestDataset):
             spk2id_path = os.path.join(args.acoustics_dir, cfg.preprocess.spk2id)
             # utt2sp_path = os.path.join(self.data_root, cfg.preprocess.utt2spk)
 
-            with open(spk2id_path, "r") as f:
+            with open(spk2id_path, "r", encoding='utf-8') as f:
                 self.spk2id = json.load(f)
             # print("self.spk2id", self.spk2id)
 
@@ -224,7 +224,7 @@ class SVCTestDataset(BaseTestDataset):
                 cfg.preprocess.pitch_dir,
                 "statistics.json",
             )
-            self.target_pitch_median = json.load(open(target_f0_statistics_path, "r"))[
+            self.target_pitch_median = json.load(open(target_f0_statistics_path, "r", encoding='utf-8'))[
                 f"{self.target_dataset}_{self.target_singer}"
             ]["voiced_positions"]["median"]
 
@@ -238,7 +238,7 @@ class SVCTestDataset(BaseTestDataset):
                     "statistics.json",
                 )
                 self.source_pitch_median = json.load(
-                    open(source_f0_statistics_path, "r")
+                    open(source_f0_statistics_path, "r", encoding='utf-8')
                 )[f"{source_audio_name}_{source_audio_name}"]["voiced_positions"][
                     "median"
                 ]
