@@ -179,11 +179,6 @@ class TTSTrainer(BaseTrainer):
                 open(os.path.join(self.ckpt_path, "ckpts.json"), "r")
             )
 
-        self.checkpoint_dir = os.path.join(self.exp_dir, "checkpoint")
-        if self.accelerator.is_main_process:
-            os.makedirs(self.checkpoint_dir, exist_ok=True)
-        self.logger.debug(f"Checkpoint directory: {self.checkpoint_dir}")
-
     def _init_accelerator(self):
         self.exp_dir = os.path.join(
             os.path.abspath(self.cfg.log_dir), self.args.exp_name
@@ -292,7 +287,7 @@ class TTSTrainer(BaseTrainer):
         it will load the checkpoint specified by checkpoint_path.
         **Only use this method after** ``accelerator.prepare()``.
         """
-        if checkpoint_path is None:
+        if checkpoint_path is None or checkpoint_path == "":
             ls = [str(i) for i in Path(checkpoint_dir).glob("*")]
             ls.sort(key=lambda x: int(x.split("_")[-3].split("-")[-1]), reverse=True)
             checkpoint_path = ls[0]
@@ -303,11 +298,24 @@ class TTSTrainer(BaseTrainer):
             self.epoch = int(checkpoint_path.split("_")[-3].split("-")[-1]) + 1
             self.step = int(checkpoint_path.split("_")[-2].split("-")[-1]) + 1
         elif resume_type == "finetune":
-            self.model.load_state_dict(
-                torch.load(os.path.join(checkpoint_path, "pytorch_model.bin"))
-            )
-            self.model.cuda(self.accelerator.device)
+            if isinstance(self.model, dict):
+                for idx, sub_model in enumerate(self.model.keys()):
+                    if idx == 0:
+                        ckpt_name = "pytorch_model.bin"
+                    else:
+                        ckpt_name = "pytorch_model_{}.bin".format(idx)
+
+                    self.model[sub_model].load_state_dict(
+                        torch.load(os.path.join(checkpoint_path, ckpt_name))
+                    )
+                self.model[sub_model].cuda(self.accelerator.device)
+            else:
+                self.model.load_state_dict(
+                    torch.load(os.path.join(checkpoint_path, "pytorch_model.bin"))
+                )
+                self.model.cuda(self.accelerator.device)
             self.logger.info("Load model weights for finetune SUCCESS!")
+
         else:
             raise ValueError("Unsupported resume type: {}".format(resume_type))
 
