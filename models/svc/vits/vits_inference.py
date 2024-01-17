@@ -70,7 +70,7 @@ class VitsInference(SVCInference):
         for i, batch in enumerate(self.test_dataloader):
             pred_audio_list = self._inference_each_batch(batch)
             for j, wav in enumerate(pred_audio_list):
-                uid = self.test_dataset.metadata[i*self.test_batch_size + j]["Uid"]
+                uid = self.test_dataset.metadata[i * self.test_batch_size + j]["Uid"]
                 file = os.path.join(self.args.output_dir, f"{uid}.wav")
                 print(f"Saving {file}")
 
