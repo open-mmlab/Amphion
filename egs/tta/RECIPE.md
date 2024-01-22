@@ -48,10 +48,8 @@ sh egs/tta/audioldm/run_inference.sh
 
 ### Dataset Download
 
-We take [AudioCaps](https://audiocaps.github.io/) as an example, AudioCaps is a dataset of around 44K audio-caption pairs, where each audio clip corresponds to a caption with rich semantic information. You can download the dataset [here](https://github.com/cdjkim/audiocaps).
+We take [AudioCaps](https://audiocaps.github.io/) as an example, AudioCaps is a dataset of around 44K audio-caption pairs, where each audio clip corresponds to a caption with rich semantic information. We have already processed the dataset. You can download the dataset [here](https://openxlab.org.cn/datasets/Amphion/AudioCaps).
 
-<!-- How to download AudioCaps is detailed [here](../datasets/README.md) -->
-<!-- You can downlaod the dataset [here](https://github.com/cdjkim/audiocaps). -->
 
 ### Data Processing
 
@@ -74,7 +72,7 @@ The folder structure of your downloaded data should be similar to:
 
 ```plaintext
 .../[Your path to save tta dataset]
-┣ AudioCpas
+┣ AudioCaps
 ┃   ┣ wav
 ┃   ┃   ┣ ---1_cCGK4M_0_10000.wav
 ┃   ┃   ┣ ---lTs1dxhU_30000_40000.wav
