@@ -9,6 +9,7 @@ import time
 import numpy as np
 from tqdm import tqdm
 import torch
+from torch.utils.data import DataLoader
 
 from models.svc.base import SVCInference
 from models.svc.vits.vits import SynthesizerTrn
@@ -47,14 +48,31 @@ class VitsInference(SVCInference):
         print("Saving to ", save_dir)
         return save_dir
 
+    def _build_dataloader(self):
+        datasets, collate = self._build_test_dataset()
+        self.test_dataset = datasets(self.args, self.cfg, self.infer_type)
+        self.test_collate = collate(self.cfg)
+        self.test_batch_size = min(
+            self.cfg.inference.batch_size, len(self.test_dataset.metadata)
+        )
+        test_dataloader = DataLoader(
+            self.test_dataset,
+            collate_fn=self.test_collate,
+            num_workers=1,
+            batch_size=self.test_batch_size,
+            shuffle=False,
+        )
+        return test_dataloader
+
     @torch.inference_mode()
     def inference(self):
         res = []
         for i, batch in enumerate(self.test_dataloader):
             pred_audio_list = self._inference_each_batch(batch)
-            for it, wav in zip(self.test_dataset.metadata, pred_audio_list):
-                uid = it["Uid"]
+            for j, wav in enumerate(pred_audio_list):
+                uid = self.test_dataset.metadata[i * self.test_batch_size + j]["Uid"]
                 file = os.path.join(self.args.output_dir, f"{uid}.wav")
+                print(f"Saving {file}")
 
                 wav = wav.numpy(force=True)
                 save_audio(

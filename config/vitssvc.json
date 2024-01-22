@@ -3,37 +3,57 @@
     "model_type": "VITS",
     "task_type": "svc",
     "preprocess": {
-        "extract_phone": false,
+        // Config for features extraction
         "extract_mel": true,
+        "extract_pitch": true,
+        "pitch_extractor": "parselmouth",
+        "extract_energy": true,
+        "extract_uv": true,
         "extract_linear_spec": true,
         "extract_audio": true,
+
+        "mel_min_max_norm": true,
+        // Config for features usage
         "use_linear": true,
         "use_mel": true,
+        "use_min_max_norm_mel": false,
         "use_audio": true,
+        "use_frame_pitch": true,
+        "use_uv": true,
+        "use_spkid": true,
+        "use_contentvec": false,
+        "use_whisper": false,
+        "use_wenet": false,
         "use_text": false,
-        "use_phone": true,
-        
+        "use_phone": false,
+
         "fmin": 0,
-        "fmax": null,
+        "fmax": 12000,
         "f0_min": 50,
         "f0_max": 1100,
         // f0_bin in sovits
         "pitch_bin": 256,
         // filter_length in sovits
-        "n_fft": 2048,
+        "n_fft": 1024,
         // hop_length in sovits
-        "hop_size": 512,
+        "hop_size": 256,
         // win_length in sovits
-        "win_size": 2048,
+        "win_size": 1024,
         "segment_size": 8192,
         "n_mel": 100,
-        "sample_rate": 44100,
+        "sample_rate": 24000,
 
         "mel_min_max_stats_dir": "mel_min_max_stats",
         "whisper_dir": "whisper",
         "contentvec_dir": "contentvec",
         "wenet_dir": "wenet",
         "mert_dir": "mert",
+
+        // Meta file
+        "train_file": "train.json",
+        "valid_file": "test.json",
+        "spk2id": "singers.json",
+        "utt2spk": "utt2singer"
     },
     "model": {
         "condition_encoder": {
@@ -41,12 +61,11 @@
             "input_melody_dim": 1,
             "use_log_f0": true,
             "n_bins_melody": 256,
-            //# Quantization (0 for not quantization)
-            "output_melody_dim": 196,
+            "output_melody_dim": 384,
             "input_loudness_dim": 1,
-            "use_log_loudness": false,
+            "use_log_loudness": true,
             "n_bins_loudness": 256,
-            "output_loudness_dim": 196,
+            "output_loudness_dim": 384,
             "use_whisper": false,
             "use_contentvec": false,
             "use_wenet": false,
@@ -55,17 +74,20 @@
             "contentvec_dim": 256,
             "mert_dim": 256,
             "wenet_dim": 512,
-            "content_encoder_dim": 196,
-            "output_singer_dim": 196,
+            "content_encoder_dim": 384,
             "singer_table_size": 512,
-            "output_content_dim": 196,
-            "use_spkid": true
+            "output_singer_dim": 384,
+            "output_content_dim": 384,
+            "use_spkid": true,
+            
+            "pitch_max": 1100.0,
+            "pitch_min": 50.0,
         },
         "vits": {
             "filter_channels": 256,
             "gin_channels": 256,
-            "hidden_channels": 192,
-            "inter_channels": 192,
+            "hidden_channels": 384,
+            "inter_channels": 384,
             "kernel_size": 3,
             "n_flow_layer": 4,
             "n_heads": 2,
@@ -73,7 +95,6 @@
             "n_layers_q": 3,
             "n_speakers": 512,
             "p_dropout": 0.1,
-            "ssl_dim": 256,
             "use_spectral_norm": false,
         },
         "generator": "hifigan",
@@ -86,10 +107,10 @@
                     11
                 ],
                 "upsample_rates": [
-                    8,8,2,2,2
+                    8,8,2,2
                 ],
                 "upsample_kernel_sizes": [
-                    16,16,4,4,4
+                    16,16,4,4
                 ],
                 "upsample_initial_channel": 512,
                 "resblock_dilation_sizes": [
@@ -99,7 +120,7 @@
                 ]
             },
             "melgan": {
-                "ratios": [8, 8, 2, 2, 2],
+                "ratios": [8, 8, 2, 2],
                 "ngf": 32,
                 "n_residual_layers": 3,
                 "num_D": 3,
@@ -112,10 +133,10 @@
                 "activation": "snakebeta",
                 "snake_logscale": true,
                 "upsample_rates": [
-                    8,8,2,2,2,
+                    8,8,2,2
                 ],
                 "upsample_kernel_sizes": [
-                    16,16,4,4,4,
+                    16,16,4,4
                 ],
                 "upsample_initial_channel": 512,
                 "resblock_kernel_sizes": [
@@ -133,10 +154,10 @@
                 "resblock": "1",
                 "harmonic_num": 8,
                 "upsample_rates": [
-                    8,8,2,2,2,
+                    8,8,2,2
                 ],
                 "upsample_kernel_sizes": [
-                    16,16,4,4,4,
+                    16,16,4,4
                 ],
                 "upsample_initial_channel": 768,
                 "resblock_kernel_sizes": [

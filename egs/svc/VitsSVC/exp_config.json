@@ -16,34 +16,16 @@
         "svcc": "[SVCC dataset path]",
         "vctk": "[VCTK dataset path]"
     },
+    "use_custom_dataset": [],
     // TODO: Fill in the output log path. The default value is "Amphion/ckpts/svc"
     "log_dir": "ckpts/svc",
     "preprocess": {
         // TODO: Fill in the output data path. The default value is "Amphion/data"
         "processed_dir": "data",
         
-        "f0_min": 50,
-        "f0_max": 1100,
-        // f0_bin in sovits
-        "pitch_bin": 256,
-        // filter_length in sovits
-        "n_fft": 2048,
-        // hop_length in sovits
-        "hop_size": 512,
-        // win_length in sovits
-        "win_size": 2048,
-        "segment_size": 8192,
         "n_mel": 100,
-        "sample_rate": 44100,
+        "sample_rate": 24000,
 
-        // Config for features extraction
-        "extract_mel": true,
-        "extract_pitch": true,
-        "pitch_extractor": "parselmouth",
-        "extract_energy": false,
-        "extract_uv": true,
-        "extract_linear_spec": true,
-        "extract_audio": true,
         // contentvec
         "extract_contentvec_feature": true,
         "contentvec_sample_rate": 16000,
@@ -54,66 +36,48 @@
         "whisper_sample_rate": 16000,
         "whisper_frameshift": 0.01,
         "whisper_downsample_rate": 2,
+        // wenet
+        "extract_wenet_feature": true,
+        "wenet_downsample_rate": 4,
+        "wenet_frameshift": 0.01,
+        "wenet_sample_rate": 16000,
         // Fill in the content-based pretrained model's path
         "contentvec_file": "pretrained/contentvec/checkpoint_best_legacy_500.pt",
         "wenet_model_path": "pretrained/wenet/20220506_u2pp_conformer_exp/final.pt",
         "wenet_config": "pretrained/wenet/20220506_u2pp_conformer_exp/train.yaml",
         "whisper_model": "medium",
         "whisper_model_path": "pretrained/whisper/medium.pt",
-        // Config for features usage
-        "use_mel": true,
-        "use_frame_pitch": true,
-        "use_uv": true,
-        "use_spkid": true,
+
         "use_contentvec": true,
         "use_whisper": true,
-        "use_text": false,
-        "use_phone": false,
-
+        "use_wenet": false,
+        
         // Extract content features using dataloader
         "pin_memory": true,
         "num_workers": 8,
         "content_feature_batch_size": 16,
-        // Meta file
-        "train_file": "train.json",
-        "valid_file": "test.json",
-        "spk2id": "singers.json",
-        "utt2spk": "utt2singer"
+
     },
     "model": {
         "condition_encoder": {
             // Config for features usage
             "merge_mode": "add",
-            "input_melody_dim": 1,
-            "use_log_f0": true,
-            "n_bins_melody": 256,
-            //# Quantization (0 for not quantization)
-            "output_melody_dim": 192,
-
+            "use_log_loudness": true,
             "use_contentvec": true,
             "use_whisper": true,
-            "use_mert": false,
             "use_wenet": false,
             "whisper_dim": 1024,
             "contentvec_dim": 256,
-            "content_encoder_dim": 192,
-            "output_singer_dim": 192,
-            "singer_table_size": 512,
-            "output_content_dim": 192,
-            "use_spkid": true,
-            
-            "pitch_max": 1100.0,
-            "pitch_min": 50.0,
+            "wenet_dim": 512,
         },
         "vits": {
-            "inter_channels": 192,
-            "hidden_channels": 192,
+            "inter_channels": 384,
+            "hidden_channels": 384,
             "filter_channels": 256,
             "n_heads": 2,
             "n_layers": 6,
             "kernel_size": 3,
             "p_dropout": 0.1,
-            "ssl_dim": 256,
             "n_flow_layer": 4,
             "n_layers_q": 3,
             "gin_channels": 256,
@@ -135,26 +99,6 @@
             3,
             2
         ],
-        "run_eval": [
-            true,
-            true
-        ],
-        "adamw": {
-            "lr": 2.0e-4
-        },
-        "reducelronplateau": {
-            "factor": 0.8,
-            "patience": 30,
-            "min_lr": 1.0e-4
-        },
-        "dataloader": {
-            "num_worker": 8,
-            "pin_memory": true
-        },
-        "sampler": {
-            "holistic_shuffle": false,
-            "drop_last": true
-        }
     },
     "inference": {
         "batch_size": 1,
