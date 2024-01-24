@@ -110,7 +110,7 @@ def extract_fpc(
     f0_deg = torch.from_numpy(f0_deg)
 
     if torch.cuda.is_available():
-        device = torch.device('cuda')
+        device = torch.device("cuda")
         f0_ref = f0_ref.to(device)
         f0_deg = f0_deg.to(device)
         pearson = pearson.to(device)

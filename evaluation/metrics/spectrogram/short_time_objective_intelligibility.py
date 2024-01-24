@@ -59,7 +59,7 @@ def extract_stoi(audio_ref, audio_deg, **kwargs):
     audio_deg = torch.from_numpy(audio_deg)
 
     if torch.cuda.is_available():
-        device = torch.device('cuda')
+        device = torch.device("cuda")
         audio_ref = audio_ref.to(device)
         audio_deg = audio_deg.to(device)
         stoi = stoi.to(device)

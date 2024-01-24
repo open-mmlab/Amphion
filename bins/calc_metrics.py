@@ -85,7 +85,7 @@ def calc_metric(
             uid = file.split("/")[-1].split(".wav")[0]
             file_gt = ref_dir + "/{}.wav".format(uid)
             audios_ref.append(file_gt)
-        
+
         if metric in ["wer", "cer"] and kwargs["intelligibility_mode"] == "gt_content":
             ltr_path = kwargs["ltr_path"]
             tmpltrs = {}
@@ -129,7 +129,7 @@ def calc_metric(
                     model = whisper.load_model("large")
                     mode = kwargs["intelligibility_mode"]
                     if torch.cuda.is_available():
-                        device = torch.device('cuda')
+                        device = torch.device("cuda")
                         model = model.to(device)
 
                     if mode == "gt_audio":
@@ -256,13 +256,13 @@ if __name__ == "__main__":
         args.deg_dir,
         args.dump_dir,
         args.metrics,
-        fs = int(args.fs) if args.fs != "None" else None,
-        method = args.align_method,
-        db_scale = True if args.db_scale == "True" else False,
-        need_mean = True if args.f0_subtract_mean == "True" else False,
-        model_name = args.similarity_model,
-        similarity_mode = args.similarity_mode,
-        ltr_path = args.ltr_path,
-        intelligibility_mode = args.intelligibility_mode,
-        language = args.language,
+        fs=int(args.fs) if args.fs != "None" else None,
+        method=args.align_method,
+        db_scale=True if args.db_scale == "True" else False,
+        need_mean=True if args.f0_subtract_mean == "True" else False,
+        model_name=args.similarity_model,
+        similarity_mode=args.similarity_mode,
+        ltr_path=args.ltr_path,
+        intelligibility_mode=args.intelligibility_mode,
+        language=args.language,
     )

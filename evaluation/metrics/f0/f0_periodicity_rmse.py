@@ -43,9 +43,9 @@ def extract_f0_periodicity_rmse(
     audio_deg = torch.from_numpy(audio_deg).unsqueeze(0)
 
     if torch.cuda.is_available():
-        device = torch.device('cuda')
+        device = torch.device("cuda")
     else:
-        device = torch.device('cpu')
+        device = torch.device("cpu")
 
     # Get periodicity
     _, periodicity_ref = torchcrepe.predict(

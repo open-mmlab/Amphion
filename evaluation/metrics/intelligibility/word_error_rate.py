@@ -28,14 +28,14 @@ def extract_wer(
     wer = WordErrorRate()
 
     if torch.cuda.is_available():
-        device = torch.device('cuda')
+        device = torch.device("cuda")
         wer = wer.to(device)
 
     # Get ground truth content
     if mode == "gt_content":
         content_gt = kwargs["content_gt"]
         audio_deg = kwargs["audio_deg"]
-        
+
         if language == "chinese":
             prompt = "以下是普通话的句子"
             result_deg = model.transcribe(
@@ -58,9 +58,9 @@ def extract_wer(
         else:
             result_ref = model.transcribe(audio_deg, verbose=True)
             result_deg = model.transcribe(audio_deg, verbose=True)
-        
+
         content_gt = result_ref["text"]
-    
+
     content_gt = content_gt.replace(" ", "")
     content_gt = content_gt.replace(".", "")
     content_gt = content_gt.replace("'", "")

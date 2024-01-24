@@ -93,7 +93,7 @@ def extract_energy_pearson_coeffcients(
     energy_deg = torch.from_numpy(energy_deg)
 
     if torch.cuda.is_available():
-        device = torch.device('cuda')
+        device = torch.device("cuda")
         energy_ref = energy_ref.to(device)
         energy_deg = energy_deg.to(device)
         pearson = pearson.to(device)

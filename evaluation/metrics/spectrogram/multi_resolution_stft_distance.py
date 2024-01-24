@@ -67,7 +67,7 @@ def extract_mstft(
     audio_deg = torch.from_numpy(audio_deg)
 
     if torch.cuda.is_available():
-        device = torch.device('cuda')
+        device = torch.device("cuda")
         audio_ref = audio_ref.to(device)
         audio_deg = audio_deg.to(device)
 
@@ -93,9 +93,7 @@ def extract_mstft(
         mag_deg = torch.sqrt(
             torch.clamp(real_deg**2 + imag_deg**2, min=1e-7)
         ).transpose(1, 0)
-        sc_loss = torch.norm(mag_ref - mag_deg, p="fro") / torch.norm(
-            mag_ref, p="fro"
-        )
+        sc_loss = torch.norm(mag_ref - mag_deg, p="fro") / torch.norm(mag_ref, p="fro")
         mag_loss = l1Loss(torch.log(mag_ref), torch.log(mag_deg))
 
         mstft_sc += sc_loss
@@ -105,4 +103,7 @@ def extract_mstft(
     mstft_sc /= len(fft_sizes)
     mstft_mag /= len(fft_sizes)
 
-    return mstft_sc.detach().cpu().numpy().tolist() + mstft_mag.detach().cpu().numpy().tolist()
+    return (
+        mstft_sc.detach().cpu().numpy().tolist()
+        + mstft_mag.detach().cpu().numpy().tolist()
+    )

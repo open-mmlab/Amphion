@@ -16,7 +16,7 @@ def extract_si_snr(audio_ref, audio_deg, **kwargs):
     kwargs = kwargs["kwargs"]
     fs = kwargs["fs"]
     method = kwargs["method"]
-    
+
     si_snr = ScaleInvariantSignalNoiseRatio()
 
     if fs != None:
@@ -48,7 +48,7 @@ def extract_si_snr(audio_ref, audio_deg, **kwargs):
     audio_deg = torch.from_numpy(audio_deg)
 
     if torch.cuda.is_available():
-        device = torch.device('cuda')
+        device = torch.device("cuda")
         audio_ref = audio_ref.to(device)
         audio_deg = audio_deg.to(device)
         si_snr = si_snr.to(device)
