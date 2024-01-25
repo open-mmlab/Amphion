@@ -6,11 +6,14 @@
 import torch
 from torch.optim.lr_scheduler import ExponentialLR
 from tqdm import tqdm
+from pathlib import Path
+import shutil
+import accelerate
 
 # from models.svc.base import SVCTrainer
 from models.svc.base.svc_dataset import SVCCollator, SVCDataset
 from models.svc.vits.vits import *
-from models.tts.base import TTSTrainer
+from models.svc.base import SVCTrainer
 
 from utils.mel import mel_spectrogram_torch
 import json
@@ -20,15 +23,79 @@ from models.vocoders.gan.discriminator.mpd import (
 )
 
 
-class VitsSVCTrainer(TTSTrainer):
+class VitsSVCTrainer(SVCTrainer):
     def __init__(self, args, cfg):
         self.args = args
         self.cfg = cfg
-        self._init_accelerator()
-        # Only for SVC tasks
-        with self.accelerator.main_process_first():
-            self.singers = self._build_singer_lut()
-        TTSTrainer.__init__(self, args, cfg)
+        SVCTrainer.__init__(self, args, cfg)
+
+    def _accelerator_prepare(self):
+        (
+            self.train_dataloader,
+            self.valid_dataloader,
+        ) = self.accelerator.prepare(
+            self.train_dataloader,
+            self.valid_dataloader,
+        )
+        if isinstance(self.model, dict):
+            for key in self.model.keys():
+                self.model[key] = self.accelerator.prepare(self.model[key])
+        else:
+            self.model = self.accelerator.prepare(self.model)
+
+        if isinstance(self.optimizer, dict):
+            for key in self.optimizer.keys():
+                self.optimizer[key] = self.accelerator.prepare(self.optimizer[key])
+        else:
+            self.optimizer = self.accelerator.prepare(self.optimizer)
+
+        if isinstance(self.scheduler, dict):
+            for key in self.scheduler.keys():
+                self.scheduler[key] = self.accelerator.prepare(self.scheduler[key])
+        else:
+            self.scheduler = self.accelerator.prepare(self.scheduler)
+
+    def _load_model(
+        self,
+        checkpoint_dir: str = None,
+        checkpoint_path: str = None,
+        resume_type: str = "",
+    ):
+        r"""Load model from checkpoint. If checkpoint_path is None, it will
+        load the latest checkpoint in checkpoint_dir. If checkpoint_path is not
+        None, it will load the checkpoint specified by checkpoint_path. **Only use this
+        method after** ``accelerator.prepare()``.
+        """
+        if checkpoint_path is None:
+            ls = [str(i) for i in Path(checkpoint_dir).glob("*")]
+            ls.sort(key=lambda x: int(x.split("_")[-3].split("-")[-1]), reverse=True)
+            checkpoint_path = ls[0]
+            self.logger.info("Resume from {}...".format(checkpoint_path))
+
+        if resume_type in ["resume", ""]:
+            # Load all the things, including model weights, optimizer, scheduler, and random states.
+            self.accelerator.load_state(input_dir=checkpoint_path)
+
+            # set epoch and step
+            self.epoch = int(checkpoint_path.split("_")[-3].split("-")[-1]) + 1
+            self.step = int(checkpoint_path.split("_")[-2].split("-")[-1]) + 1
+
+        elif resume_type == "finetune":
+            # Load only the model weights
+            accelerate.load_checkpoint_and_dispatch(
+                self.accelerator.unwrap_model(self.model["generator"]),
+                os.path.join(checkpoint_path, "pytorch_model.bin"),
+            )
+            accelerate.load_checkpoint_and_dispatch(
+                self.accelerator.unwrap_model(self.model["discriminator"]),
+                os.path.join(checkpoint_path, "pytorch_model.bin"),
+            )
+            self.logger.info("Load model weights for finetune...")
+
+        else:
+            raise ValueError("Resume_type must be `resume` or `finetune`.")
+
+        return checkpoint_path
 
     def _build_model(self):
         net_g = SynthesizerTrn(
@@ -319,6 +386,185 @@ class VitsSVCTrainer(TTSTrainer):
             valid_stats,
         )
 
+    @torch.inference_mode()
+    def _valid_epoch(self):
+        r"""Testing epoch. Should return average loss of a batch (sample) over
+        one epoch. See ``train_loop`` for usage.
+        """
+        if isinstance(self.model, dict):
+            for key in self.model.keys():
+                self.model[key].eval()
+        else:
+            self.model.eval()
+
+        epoch_sum_loss = 0.0
+        epoch_losses = dict()
+        for batch in tqdm(
+            self.valid_dataloader,
+            desc=f"Validating Epoch {self.epoch}",
+            unit="batch",
+            colour="GREEN",
+            leave=False,
+            dynamic_ncols=True,
+            smoothing=0.04,
+            disable=not self.accelerator.is_main_process,
+        ):
+            total_loss, valid_losses, valid_stats = self._valid_step(batch)
+            epoch_sum_loss += total_loss
+            if isinstance(valid_losses, dict):
+                for key, value in valid_losses.items():
+                    if key not in epoch_losses.keys():
+                        epoch_losses[key] = value
+                    else:
+                        epoch_losses[key] += value
+
+        epoch_sum_loss = epoch_sum_loss / len(self.valid_dataloader)
+        for key in epoch_losses.keys():
+            epoch_losses[key] = epoch_losses[key] / len(self.valid_dataloader)
+
+        self.accelerator.wait_for_everyone()
+
+        return epoch_sum_loss, epoch_losses
+
+    ### THIS IS MAIN ENTRY ###
+    def train_loop(self):
+        r"""Training loop. The public entry of training process."""
+        # Wait everyone to prepare before we move on
+        self.accelerator.wait_for_everyone()
+        # dump config file
+        if self.accelerator.is_main_process:
+            self.__dump_cfg(self.config_save_path)
+
+        # self.optimizer.zero_grad()
+        # Wait to ensure good to go
+
+        self.accelerator.wait_for_everyone()
+        while self.epoch < self.max_epoch:
+            self.logger.info("\n")
+            self.logger.info("-" * 32)
+            self.logger.info("Epoch {}: ".format(self.epoch))
+
+            # Do training & validating epoch
+            train_total_loss, train_losses = self._train_epoch()
+            if isinstance(train_losses, dict):
+                for key, loss in train_losses.items():
+                    self.logger.info("  |- Train/{} Loss: {:.6f}".format(key, loss))
+                    self.accelerator.log(
+                        {"Epoch/Train {} Loss".format(key): loss},
+                        step=self.epoch,
+                    )
+
+            valid_total_loss, valid_losses = self._valid_epoch()
+            if isinstance(valid_losses, dict):
+                for key, loss in valid_losses.items():
+                    self.logger.info("  |- Valid/{} Loss: {:.6f}".format(key, loss))
+                    self.accelerator.log(
+                        {"Epoch/Train {} Loss".format(key): loss},
+                        step=self.epoch,
+                    )
+
+            self.logger.info("  |- Train/Loss: {:.6f}".format(train_total_loss))
+            self.logger.info("  |- Valid/Loss: {:.6f}".format(valid_total_loss))
+            self.accelerator.log(
+                {
+                    "Epoch/Train Loss": train_total_loss,
+                    "Epoch/Valid Loss": valid_total_loss,
+                },
+                step=self.epoch,
+            )
+
+            self.accelerator.wait_for_everyone()
+
+            # Check if hit save_checkpoint_stride and run_eval
+            run_eval = False
+            if self.accelerator.is_main_process:
+                save_checkpoint = False
+                hit_dix = []
+                for i, num in enumerate(self.save_checkpoint_stride):
+                    if self.epoch % num == 0:
+                        save_checkpoint = True
+                        hit_dix.append(i)
+                        run_eval |= self.run_eval[i]
+
+            self.accelerator.wait_for_everyone()
+            if self.accelerator.is_main_process and save_checkpoint:
+                path = os.path.join(
+                    self.checkpoint_dir,
+                    "epoch-{:04d}_step-{:07d}_loss-{:.6f}".format(
+                        self.epoch, self.step, train_total_loss
+                    ),
+                )
+                self.tmp_checkpoint_save_path = path
+                self.accelerator.save_state(path)
+
+                json.dump(
+                    self.checkpoints_path,
+                    open(os.path.join(path, "ckpts.json"), "w"),
+                    ensure_ascii=False,
+                    indent=4,
+                )
+                self._save_auxiliary_states()
+
+                # Remove old checkpoints
+                to_remove = []
+                for idx in hit_dix:
+                    self.checkpoints_path[idx].append(path)
+                    while len(self.checkpoints_path[idx]) > self.keep_last[idx]:
+                        to_remove.append((idx, self.checkpoints_path[idx].pop(0)))
+
+                # Search conflicts
+                total = set()
+                for i in self.checkpoints_path:
+                    total |= set(i)
+                do_remove = set()
+                for idx, path in to_remove[::-1]:
+                    if path in total:
+                        self.checkpoints_path[idx].insert(0, path)
+                    else:
+                        do_remove.add(path)
+
+                # Remove old checkpoints
+                for path in do_remove:
+                    shutil.rmtree(path, ignore_errors=True)
+                    self.logger.debug(f"Remove old checkpoint: {path}")
+
+            self.accelerator.wait_for_everyone()
+            if run_eval:
+                # TODO: run evaluation
+                pass
+
+            # Update info for each epoch
+            self.epoch += 1
+
+        # Finish training and save final checkpoint
+        self.accelerator.wait_for_everyone()
+        if self.accelerator.is_main_process:
+            path = os.path.join(
+                self.checkpoint_dir,
+                "final_epoch-{:04d}_step-{:07d}_loss-{:.6f}".format(
+                    self.epoch, self.step, valid_total_loss
+                ),
+            )
+            self.tmp_checkpoint_save_path = path
+            self.accelerator.save_state(
+                os.path.join(
+                    self.checkpoint_dir,
+                    "final_epoch-{:04d}_step-{:07d}_loss-{:.6f}".format(
+                        self.epoch, self.step, valid_total_loss
+                    ),
+                )
+            )
+
+            json.dump(
+                self.checkpoints_path,
+                open(os.path.join(path, "ckpts.json"), "w"),
+                ensure_ascii=False,
+                indent=4,
+            )
+            self._save_auxiliary_states()
+
+        self.accelerator.end_training()
+
     def _train_step(self, batch):
         r"""Forward step for training and inference. This function is called
         in ``_train_step`` & ``_test_step`` function.
@@ -446,38 +692,13 @@ class VitsSVCTrainer(TTSTrainer):
 
         return epoch_sum_loss, epoch_losses
 
-    def _build_singer_lut(self):
-        resumed_singer_path = None
-        if self.args.resume_from_ckpt_path and self.args.resume_from_ckpt_path != "":
-            resumed_singer_path = os.path.join(
-                self.args.resume_from_ckpt_path, self.cfg.preprocess.spk2id
-            )
-        if os.path.exists(os.path.join(self.exp_dir, self.cfg.preprocess.spk2id)):
-            resumed_singer_path = os.path.join(self.exp_dir, self.cfg.preprocess.spk2id)
-
-        if resumed_singer_path:
-            with open(resumed_singer_path, "r") as f:
-                singers = json.load(f)
-        else:
-            singers = dict()
-
-        for dataset in self.cfg.dataset:
-            singer_lut_path = os.path.join(
-                self.cfg.preprocess.processed_dir, dataset, self.cfg.preprocess.spk2id
-            )
-            with open(singer_lut_path, "r") as singer_lut_path:
-                singer_lut = json.load(singer_lut_path)
-            for singer in singer_lut.keys():
-                if singer not in singers:
-                    singers[singer] = len(singers)
-
-        with open(
-            os.path.join(self.exp_dir, self.cfg.preprocess.spk2id), "w"
-        ) as singer_file:
-            json.dump(singers, singer_file, indent=4, ensure_ascii=False)
-        print(
-            "singers have been dumped to {}".format(
-                os.path.join(self.exp_dir, self.cfg.preprocess.spk2id)
-            )
+    def __dump_cfg(self, path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        json5.dump(
+            self.cfg,
+            open(path, "w"),
+            indent=4,
+            sort_keys=True,
+            ensure_ascii=False,
+            quote_keys=True,
         )
-        return singers

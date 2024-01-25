@@ -70,7 +70,9 @@ class SVCTrainer(BaseTrainer):
         To save the singer's look-up table in the checkpoint saving path
         """
         with open(
-            os.path.join(self.tmp_checkpoint_save_path, self.cfg.preprocess.spk2id), "w"
+            os.path.join(self.tmp_checkpoint_save_path, self.cfg.preprocess.spk2id),
+            "w",
+            encoding="utf-8",
         ) as f:
             json.dump(self.singers, f, indent=4, ensure_ascii=False)
 

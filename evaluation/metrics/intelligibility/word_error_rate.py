@@ -17,6 +17,7 @@ def extract_wer(
     remove_space=True,
     remove_punctuation=True,
     mode="gt_audio",
+    model=None,
 ):
     """Compute Word Error Rate (WER) between the predicted and the ground truth audio.
     content_gt: the ground truth content.
@@ -32,18 +33,15 @@ def extract_wer(
         assert content_gt != None
         if language == "chinese":
             prompt = "以下是普通话的句子"
-            model = whisper.load_model("large").cuda()
             result_deg = model.transcribe(
                 audio_deg, language="zh", verbose=True, initial_prompt=prompt
             )
         elif language == "english":
-            model = whisper.load_model("large").cuda()
             result_deg = model.transcribe(audio_deg, language="en", verbose=True)
     elif mode == "gt_audio":
         assert audio_ref != None
         if language == "chinese":
             prompt = "以下是普通话的句子"
-            model = whisper.load_model("large").cuda()
             result_ref = model.transcribe(
                 audio_ref, language="zh", verbose=True, initial_prompt=prompt
             )
@@ -51,8 +49,7 @@ def extract_wer(
                 audio_deg, language="zh", verbose=True, initial_prompt=prompt
             )
         elif language == "english":
-            model = whisper.load_model("large").cuda()
-            result_ref = model.transcribe(audio_deg, language="en", verbose=True)
+            result_ref = model.transcribe(audio_ref, language="en", verbose=True)
             result_deg = model.transcribe(audio_deg, language="en", verbose=True)
         content_gt = result_ref["text"]
         if remove_space:
