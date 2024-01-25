@@ -24,10 +24,16 @@ import numpy as np
 def textgird_extract(
     corpus_directory,
     output_directory,
-    mfa_path=os.path.join("mfa", "montreal-forced-aligner", "bin", "mfa_align"),
-    lexicon=os.path.join("mfa", "lexicon", "librispeech-lexicon.txt"),
+    mfa_path=os.path.join(
+        "pretrained", "mfa", "montreal-forced-aligner", "bin", "mfa_align"
+    ),
+    lexicon=os.path.join("text", "lexicon", "librispeech-lexicon.txt"),
     acoustic_model_path=os.path.join(
-        "mfa", "montreal-forced-aligner", "pretrained_models", "english.zip"
+        "pretrained",
+        "mfa",
+        "montreal-forced-aligner",
+        "pretrained_models",
+        "english.zip",
     ),
     jobs="8",
 ):
