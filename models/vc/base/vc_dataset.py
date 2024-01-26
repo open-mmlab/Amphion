@@ -33,6 +33,15 @@ class VCDataset(BaseDataset):
         BaseDataset.__init__(self, cfg, dataset, is_valid=is_valid)
 
         cfg = self.cfg
+        if cfg.preprocess.segment_size is not None:
+            metadata_new = []
+            for item in self.metadata:
+                if (
+                    item["Duration"] * cfg.preprocess.sample_rate
+                    > cfg.preprocess.segment_size
+                ):
+                    metadata_new.append(item)
+            self.metadata = metadata_new
 
         if cfg.model.condition_encoder.use_whisper:
             self.whisper_aligner = WhisperExtractor(self.cfg)
