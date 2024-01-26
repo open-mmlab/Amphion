@@ -13,6 +13,7 @@ import time
 
 
 from models.vc.transformer.transformer_inference import TransformerInference
+from models.vc.vits.vits_inference import VitsInference
 from utils.util import load_config
 from utils.audio_slicer import split_audio, merge_segments_encodec
 from processors import acoustic_extractor, content_extractor
@@ -21,6 +22,7 @@ from processors import acoustic_extractor, content_extractor
 def build_inference(args, cfg, infer_type="from_dataset"):
     supported_inference = {
         "TransformerVC": TransformerInference,
+        "VitsVC": VitsInference,
     }
 
     inference_class = supported_inference[cfg.model_type]

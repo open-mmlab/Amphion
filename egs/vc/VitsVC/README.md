@@ -1,6 +1,6 @@
-# Transformer for Voice Conversion
+# VITS for Voice Conversion
 
-This is an implementation of **vanilla transformer encoder**/**conformer** as acoustic model for voice conversion.
+This is an implementation of VITS as acoustic model for end-to-end voice conversion. Adapted from [so-vits-svc](https://github.com/svc-develop-team/so-vits-svc), SoftVC content encoder is used to extract content features from the source audio. These feature vectors are directly fed into VITS without the need for conversion to a text-based intermediate representation.
 
 There are four stages in total:
 
@@ -38,7 +38,7 @@ Specify the dataset paths in  `exp_config.json`. Note that you can change the `d
 
 ### Content-based Pretrained Models Download
 
-By default, we utilize the Hubert to extract content features. How to download them is detailed [here](../../../pretrained/README.md).
+By default, we utilize Hubert to extract content features. How to download them is detailed [here](../../../pretrained/README.md).
 
 ### Configuration
 
@@ -59,7 +59,7 @@ Specify the dataset path and the output path for saving the processed data and t
 Run the `run.sh` as the preproces stage (set  `--stage 1`).
 
 ```bash
-sh egs/vc/TransformerVC/run.sh --stage 1
+sh egs/vc/VitsVC/run.sh --stage 1
 ```
 
 > **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "1"`.
@@ -67,22 +67,7 @@ sh egs/vc/TransformerVC/run.sh --stage 1
 ## 3. Training
 
 ### Configuration
-Specify the detailed configuration for transformer block in `exp_config.json`. For key `type`, `conformer` and `transformer` are supported:
-```json
-"model": {
-        ...
-        "transformer":{
-            // 'conformer' or 'transformer'
-            "type": "conformer",
-            "input_dim": 384,
-            "output_dim": 100,
-            "n_heads": 2,
-            "n_layers": 6,
-            "filter_channels":512,
-            "dropout":0.1,
-        }
-    }
-```
+
 We provide the default hyparameters in the `exp_config.json`. They can work on single NVIDIA-24g GPU. You can adjust them based on you GPU machines.
 
 ```json
@@ -98,19 +83,15 @@ We provide the default hyparameters in the `exp_config.json`. They can work on s
 
 ### Run
 
-Run the `run.sh` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/vc/[YourExptName]`.
+Run the `run.sh` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/svc/[YourExptName]`.
 
 ```bash
-sh egs/vc/TransformerVC/run.sh --stage 2 --name [YourExptName]
+sh egs/vc/VitsVC/run.sh --stage 2 --name [YourExptName]
 ```
 
 > **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "0,1,2,3"`.
 
 ## 4. Inference/Conversion
-
-### Pretrained Vocoder Download
-
-We fine-tune the official BigVGAN pretrained model with over 120 hours singing voice data. The benifits of fine-tuning has been investigated in our paper (see this [demo page](https://www.zhangxueyao.com/data/MultipleContentsSVC/vocoder.html)). The final pretrained singing voice vocoder is released [here](../../../pretrained/README.md#amphion-singing-bigvgan) (called `Amphion Singing BigVGAN`).
 
 ### Run
 
@@ -126,29 +107,9 @@ For inference/conversion, you need to specify the following configurations when 
 For example, if you want to make the speaker in `reference.wav` to speake the utterances in the `[Your Audios Folder]`, just run:
 
 ```bash
-cd Amphion
-sh egs/vc/TransformerVC/run.sh --stage 3 --gpu "0" \
+sh egs/vc/VitsVC/run.sh --stage 3 --gpu "0" \
 	--infer_expt_dir Amphion/ckpts/vc/[YourExptName] \
 	--infer_output_dir Amphion/ckpts/vc/[YourExptName]/result \
 	--infer_source_audio_dir [Your Audios Folder] \
-	--infer_target_speaker "reference.wav"
-```
-
-## Citations
-
-```bibtex
-@inproceedings{transformer,
-  author       = {Ashish Vaswani and
-                  Noam Shazeer and
-                  Niki Parmar and
-                  Jakob Uszkoreit and
-                  Llion Jones and
-                  Aidan N. Gomez and
-                  Lukasz Kaiser and
-                  Illia Polosukhin},
-  title        = {Attention is All you Need},
-  booktitle    = {{NIPS}},
-  pages        = {5998--6008},
-  year         = {2017}
-}
+	--infer_target_speaker "reference.wav" 
 ```

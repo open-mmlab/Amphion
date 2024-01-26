@@ -9,13 +9,12 @@ import torch
 
 
 from models.vc.transformer.transformer_trainer import TransformerTrainer
+from models.vc.vits.vits_trainer import VitsVCTrainer
 from utils.util import load_config
 
 
 def build_trainer(args, cfg):
-    supported_trainer = {
-        "TransformerVC": TransformerTrainer,
-    }
+    supported_trainer = {"TransformerVC": TransformerTrainer, "VitsVC": VitsVCTrainer}
 
     trainer_class = supported_trainer[cfg.model_type]
     trainer = trainer_class(args, cfg)
