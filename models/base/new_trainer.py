@@ -115,8 +115,8 @@ class BaseTrainer(object):
         with self.accelerator.main_process_first():
             self.logger.info("Building optimizer and scheduler...")
             start = time.monotonic_ns()
-            self.optimizer = self.__build_optimizer()
-            self.scheduler = self.__build_scheduler()
+            self.optimizer = self._build_optimizer()
+            self.scheduler = self._build_scheduler()
             end = time.monotonic_ns()
             self.logger.info(
                 f"Building optimizer and scheduler done in {(end - start) / 1e6:.2f}ms"
@@ -125,19 +125,7 @@ class BaseTrainer(object):
         # accelerate prepare
         self.logger.info("Initializing accelerate...")
         start = time.monotonic_ns()
-        (
-            self.train_dataloader,
-            self.valid_dataloader,
-            self.model,
-            self.optimizer,
-            self.scheduler,
-        ) = self.accelerator.prepare(
-            self.train_dataloader,
-            self.valid_dataloader,
-            self.model,
-            self.optimizer,
-            self.scheduler,
-        )
+        self._accelerator_prepare()
         end = time.monotonic_ns()
         self.logger.info(f"Initializing accelerate done in {(end - start) / 1e6:.2f}ms")
 
@@ -160,7 +148,7 @@ class BaseTrainer(object):
                         )
                     )
                     start = time.monotonic_ns()
-                    ckpt_path = self.__load_model(
+                    ckpt_path = self._load_model(
                         checkpoint_dir=self.checkpoint_dir, resume_type=args.resume_type
                     )
                     end = time.monotonic_ns()
@@ -182,7 +170,7 @@ class BaseTrainer(object):
                         "Resuming from {}...".format(args.resume_from_ckpt_path)
                     )
                     start = time.monotonic_ns()
-                    ckpt_path = self.__load_model(
+                    ckpt_path = self._load_model(
                         checkpoint_path=args.resume_from_ckpt_path,
                         resume_type=args.resume_type,
                     )
@@ -193,6 +181,21 @@ class BaseTrainer(object):
 
         # save config file path
         self.config_save_path = os.path.join(self.exp_dir, "args.json")
+
+    def _accelerator_prepare(self):
+        (
+            self.train_dataloader,
+            self.valid_dataloader,
+            self.model,
+            self.optimizer,
+            self.scheduler,
+        ) = self.accelerator.prepare(
+            self.train_dataloader,
+            self.valid_dataloader,
+            self.model,
+            self.optimizer,
+            self.scheduler,
+        )
 
     ### Following are abstract methods that should be implemented in child classes ###
     @abstractmethod
@@ -422,7 +425,7 @@ class BaseTrainer(object):
         """
         return self._forward_step(batch)
 
-    def __load_model(
+    def _load_model(
         self,
         checkpoint_dir: str = None,
         checkpoint_path: str = None,
@@ -546,7 +549,7 @@ class BaseTrainer(object):
 
     ## Following are private methods ##
     ## !!! These are inconvenient for GAN-based model training. It'd be better to move these to svc_trainer.py if needed.
-    def __build_optimizer(self):
+    def _build_optimizer(self):
         r"""Build optimizer for model."""
         # Make case-insensitive matching
         if self.cfg.train.optimizer.lower() == "adadelta":
@@ -604,7 +607,7 @@ class BaseTrainer(object):
             )
         return optimizer
 
-    def __build_scheduler(self):
+    def _build_scheduler(self):
         r"""Build scheduler for optimizer."""
         # Make case-insensitive matching
         if self.cfg.train.scheduler.lower() == "lambdalr":

@@ -13,6 +13,7 @@ from glob import glob
 from tqdm import tqdm
 from collections import defaultdict
 
+
 from evaluation.metrics.energy.energy_rmse import extract_energy_rmse
 from evaluation.metrics.energy.energy_pearson_coefficients import (
     extract_energy_pearson_coeffcients,
@@ -64,7 +65,16 @@ METRIC_FUNC = {
 }
 
 
-def calc_metric(ref_dir, deg_dir, dump_dir, metrics, fs=None):
+def calc_metric(
+    ref_dir,
+    deg_dir,
+    dump_dir,
+    metrics,
+    fs=None,
+    wer_choose=1,
+    ltr_path=None,
+    language="english",
+):
     result = defaultdict()
 
     for metric in tqdm(metrics):
@@ -102,14 +112,56 @@ def calc_metric(ref_dir, deg_dir, dump_dir, metrics, fs=None):
             result[metric] = str(tp_total / (tp_total + (fp_total + fn_total) / 2))
         else:
             scores = []
+            if metric == "wer":
+                import whisper
 
+                model = whisper.load_model("large").cuda()
+                if wer_choose == 2:
+                    tmpltrs = {}
+                    with open(ltr_path, "r") as f:
+                        for line in f:
+                            paras = line.replace("\n", "").split("|")
+                            paras[1] = paras[1].replace(" ", "")
+                            paras[1] = paras[1].replace(".", "")
+                            paras[1] = paras[1].replace("'", "")
+                            paras[1] = paras[1].replace("-", "")
+                            paras[1] = paras[1].replace(",", "")
+                            paras[1] = paras[1].replace("!", "")
+                            paras[1] = paras[1].lower()
+                            tmpltrs[paras[0]] = paras[1]
+                    ltrs = []
+                    for file in files:
+                        ltrs.append(tmpltrs[os.path.basename(file)])
             for i in tqdm(range(len(audios_ref))):
                 audio_ref = audios_ref[i]
                 audio_deg = audios_deg[i]
 
-                score = METRIC_FUNC[metric](
-                    audio_ref=audio_ref, audio_deg=audio_deg, fs=fs
-                )
+                if metric == "wer":
+                    if wer_choose == 1:
+                        score = METRIC_FUNC[metric](
+                            audio_ref=audio_ref,
+                            audio_deg=audio_deg,
+                            fs=fs,
+                            model=model,
+                            language=language,
+                        )
+                    elif wer_choose == 2:
+                        content_ref = ltrs[i]
+                        score = METRIC_FUNC[metric](
+                            audio_ref=audio_ref,
+                            audio_deg=audio_deg,
+                            fs=fs,
+                            model=model,
+                            content_gt=content_ref,
+                            mode="gt_content",
+                            language=language,
+                        )
+                else:
+                    score = METRIC_FUNC[metric](
+                        audio_ref=audio_ref,
+                        audio_deg=audio_deg,
+                        fs=fs,
+                    )
                 if not np.isnan(score):
                     scores.append(score)
 
@@ -128,12 +180,12 @@ if __name__ == "__main__":
     parser.add_argument(
         "--ref_dir",
         type=str,
-        help="Path to the target audio folder.",
+        help="Path to the reference audio folder.",
     )
     parser.add_argument(
         "--deg_dir",
         type=str,
-        help="Path to the reference audio folder.",
+        help="Path to the test audio folder.",
     )
     parser.add_argument(
         "--dump_dir",
@@ -150,6 +202,36 @@ if __name__ == "__main__":
         type=str,
         help="(Optional) Sampling rate",
     )
+    parser.add_argument(
+        "--wer_choose",
+        type=int,
+        default=1,
+        help="(Optional)The method of calculating WER, where choose set to 1 means selecting \
+        the recognition content of the reference audio as the target, and choose set to 2 means \
+        using transcription as the target",
+    )
+    parser.add_argument(
+        "--ltr_path",
+        type=str,
+        help="(Optional)Path to the transcription file,Note that the format in the transcription \
+            file is 'file name|transcription'",
+    )
+    parser.add_argument(
+        "--language",
+        type=str,
+        default="english",
+        help="(Optional)['english','chinese']",
+    )
+
     args = parser.parse_args()
 
-    calc_metric(args.ref_dir, args.deg_dir, args.dump_dir, args.metrics, args.fs)
+    calc_metric(
+        args.ref_dir,
+        args.deg_dir,
+        args.dump_dir,
+        args.metrics,
+        args.fs,
+        args.wer_choose,
+        args.ltr_path,
+        args.language,
+    )
