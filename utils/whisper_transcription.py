@@ -16,6 +16,17 @@ processed_files_count = Value("i", 0)  # count of processed files
 lock = Lock()  # lock for the count
 
 
+def get_txt_files(directory):
+    """get all txt files in the dataset"""
+    txt_files = []
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".txt"):
+                txt_files.append(os.path.join(root, file))
+    print("total txt files: {}".format(len(txt_files)))
+    return txt_files
+
+
 def preprocess_text(text):
     """Preprocess text after ASR"""
     return text.lower().translate(str.maketrans("", "", string.punctuation))
@@ -59,6 +70,24 @@ def init_whisper(model_id, device):
     return distil_model, processor
 
 
+def count_processed_files(start_time, total_files):
+    with lock:
+        processed_files_count.value += 1
+        if processed_files_count.value % 10000 == 0:
+            current_time = time.time()
+            avg_time_per_file = (current_time - start_time) / (
+                processed_files_count.value
+            )
+            remaining_files = total_files - processed_files_count.value
+            estimated_time_remaining = avg_time_per_file * remaining_files
+            remaining_time_formatted = time.strftime(
+                "%H:%M:%S", time.gmtime(estimated_time_remaining)
+            )
+            print(
+                f"Processed {processed_files_count.value}/{total_files} files, time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}, Estimated time remaining: {remaining_time_formatted}"
+            )
+
+
 def asr_wav_files(file_list, gpu_id, total_files, model_id):
     """Transcribe wav files in a list"""
     device = f"cuda:{gpu_id}" if torch.cuda.is_available() else "cpu"
@@ -67,25 +96,17 @@ def asr_wav_files(file_list, gpu_id, total_files, model_id):
     start_time = time.time()
     for audio_file in file_list:
         try:
+            # if corressponding txt file exists, skip
+            txt_file = audio_file.with_suffix(".txt")
+            if txt_file.exists():
+                # print(f"Skipping {audio_file}")
+                count_processed_files(start_time, total_files)
+                continue
             transcription = transcribe_audio(
                 whisper_model, processor, audio_file, device
             )
             write_transcription(audio_file, transcription)
-            with lock:
-                processed_files_count.value += 1
-                if processed_files_count.value % 5 == 0:
-                    current_time = time.time()
-                    avg_time_per_file = (current_time - start_time) / (
-                        processed_files_count.value
-                    )
-                    remaining_files = total_files - processed_files_count.value
-                    estimated_time_remaining = avg_time_per_file * remaining_files
-                    remaining_time_formatted = time.strftime(
-                        "%H:%M:%S", time.gmtime(estimated_time_remaining)
-                    )
-                    print(
-                        f"Processed {processed_files_count.value}/{total_files} files, time: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())}, Estimated time remaining: {remaining_time_formatted}"
-                    )
+            count_processed_files(start_time, total_files)
         except Exception as e:
             print(f"Error processing file {audio_file}: {e}")
 

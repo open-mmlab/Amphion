@@ -1,5 +1,5 @@
 {
-    "base_config": "config/base.json",
+    "base_config": "config/tts.json",
     "model_type": "NaturalSpeech2",
     "dataset": ["libritts"],
     "preprocess": {

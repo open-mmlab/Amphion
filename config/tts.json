@@ -16,6 +16,16 @@
     // Directory names of processed data or extracted features
     "phone_dir": "phones",
     "use_phone": true,
+    "n_cpus": 16,
+    "n_gpus": 8,
+    "cut_length": 10,
+    "max_length": 20,
+    "whisper_model_id":"distil-whisper/distil-medium.en",
+    "used_subsets": ["tiny"],
+    // MFA files
+    "mfa_dict_path": "./mfa/english_mfa/mfa_dict.dict",
+    "mfa_model_path": "./mfa/english_mfa/model",
+    "mfa_config_path": "./mfa/english_mfa/config.yaml",
   },
   "model": {
       "text_token_num": 512,
