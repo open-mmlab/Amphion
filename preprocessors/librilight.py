@@ -158,8 +158,8 @@ def save_meta_data(save_dir, processed_dir, distribution2speakers2utts, speakers
                     "Uid": "{}#{}#{}".format(distribution, speaker, chosen_uid),
                     "Distribution": distribution,
                 }
-                res["Path"] = "{}/{}.wav".format(speaker, chosen_uid)
-                res["Path"] = os.path.join(processed_dir, res["Path"])
+                res["Path"] = "/{}/{}.wav".format(speaker, chosen_uid)
+                # res["Path"] = os.path.join(processed_dir, res["Path"])
                 text_file_path = os.path.join(
                     processed_dir,
                     speaker,
@@ -175,7 +175,7 @@ def save_meta_data(save_dir, processed_dir, distribution2speakers2utts, speakers
                 if (
                     not os.path.exists(text_file_path)
                     or not os.path.exists(textgrid_file_path)
-                    or not os.path.exists(res["Path"])
+                    or not os.path.exists(os.path.join(processed_dir, res["Path"]))
                 ):
                     continue
 
