@@ -18,7 +18,7 @@ cd $work_dir
 
 ######## Parse the Given Parameters from the Commond ###########
 # options=$(getopt -o c:n:s --long gpu:,config:,infer_expt_dir:,infer_output_dir:,infer_source_file:,infer_source_audio_dir:,infer_target_speaker:,infer_key_shift:,infer_vocoder_dir:,name:,stage: -- "$@")
-options=$(getopt -o c:n:s --long gpu:,config:,resume:,resume_from_ckpt_path:,resume_type:,infer_expt_dir:,infer_output_dir:,infer_mode:,infer_dataset:,infer_testing_set:,infer_text:,name:,stage: -- "$@")
+options=$(getopt -o c:n:s --long gpu:,config:,resume:,resume_from_ckpt_path:,resume_type:,infer_expt_dir:,infer_output_dir:,infer_mode:,infer_dataset:,infer_testing_set:,infer_text:,infer_speaker_name:,name:,stage: -- "$@")
 eval set -- "$options"
 
 while true; do
@@ -51,6 +51,8 @@ while true; do
     --infer_testing_set) shift; infer_testing_set=$1 ; shift ;;
     # [Only for Inference] The text to be synthesized from. It is only used when the inference model is "single". 
     --infer_text) shift; infer_text=$1 ; shift ;;
+    # [Only for Inference] The speaker voice to be delivered in the synthesized speech. It is only used when the inference model is "single".
+    --infer_speaker_name) shift; infer_speaker_name=$1 ; shift ;;
 
     --) shift ; break ;;
     *) echo "Invalid option: $1" exit 1 ;;
@@ -153,6 +155,12 @@ if [ $running_stage -eq 3 ]; then
     elif [ "$infer_mode" = "batch" ]; then
         infer_text=''
     fi
+    
+    if [ -z "$infer_speaker_name" ]; then
+        infer_speaker_name=None
+    fi
+
+    
 
 
     CUDA_VISIBLE_DEVICES=$gpu accelerate launch "$work_dir"/bins/tts/inference.py \
@@ -163,6 +171,7 @@ if [ $running_stage -eq 3 ]; then
         --dataset $infer_dataset \
         --testing_set $infer_testing_set \
         --text "$infer_text" \
+        --speaker_name $infer_speaker_name \
         --log_level debug
 
 
