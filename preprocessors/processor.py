@@ -29,7 +29,7 @@ from preprocessors import (
     vocalist,
     ljspeech_vocoder,
     librilight,
-    hifitts
+    hifitts,
 )
 
 

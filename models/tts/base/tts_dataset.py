@@ -210,7 +210,7 @@ class TTSDataset(BaseDataset):
                     sequence = phon_id_collator.get_phone_id_sequence(cfg, phones_seq)
 
                     if cfg.preprocess.add_blank:
-                        sequence = intersperse(sequence,0)
+                        sequence = intersperse(sequence, 0)
 
                 self.utt2seq[utt] = sequence
 

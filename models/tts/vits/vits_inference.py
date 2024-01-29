@@ -135,7 +135,9 @@ class VitsInference(TTSInference):
             with open(spk2id_file, "r") as f:
                 spk2id = json.load(f)
                 speaker_id = spk2id[self.args.speaker_name]
-                speaker_id = torch.from_numpy(np.array([speaker_id], dtype=np.int32)).unsqueeze(0)
+                speaker_id = torch.from_numpy(
+                    np.array([speaker_id], dtype=np.int32)
+                ).unsqueeze(0)
 
         with torch.no_grad():
             x_tst = phone_id_seq.to(self.device).unsqueeze(0)
