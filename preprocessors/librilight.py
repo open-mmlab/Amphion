@@ -59,6 +59,9 @@ def get_duration_phone_start_end(textgrid_path):
         start = interval.minTime
         end = interval.maxTime
         phone = interval.mark
+        phone = phone.strip()
+        if phone == "":
+            continue
         duration = end - start
         phones.append(phone)
         durations.append(duration)
