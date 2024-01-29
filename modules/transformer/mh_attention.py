@@ -65,6 +65,7 @@ class MultiheadAttention(Module):
         >>> attn_output, attn_output_weights = multihead_attn(query, key, value)
 
     """
+
     __constants__ = ["batch_first"]
     bias_k: Optional[torch.Tensor]
     bias_v: Optional[torch.Tensor]
@@ -340,11 +341,11 @@ class MultiheadAttention(Module):
                     key_padding_mask if key_padding_mask is not None else attn_mask,
                     need_weights,
                     average_attn_weights,
-                    1
-                    if key_padding_mask is not None
-                    else 0
-                    if attn_mask is not None
-                    else None,
+                    (
+                        1
+                        if key_padding_mask is not None
+                        else 0 if attn_mask is not None else None
+                    ),
                 )
 
         any_nested = query.is_nested or key.is_nested or value.is_nested

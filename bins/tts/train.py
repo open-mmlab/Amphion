@@ -86,9 +86,11 @@ def main():
         for dataset in cfg.preprocess.data_augment:
             new_datasets = [
                 f"{dataset}_pitch_shift" if cfg.preprocess.use_pitch_shift else None,
-                f"{dataset}_formant_shift"
-                if cfg.preprocess.use_formant_shift
-                else None,
+                (
+                    f"{dataset}_formant_shift"
+                    if cfg.preprocess.use_formant_shift
+                    else None
+                ),
                 f"{dataset}_equalizer" if cfg.preprocess.use_equalizer else None,
                 f"{dataset}_time_stretch" if cfg.preprocess.use_time_stretch else None,
             ]
