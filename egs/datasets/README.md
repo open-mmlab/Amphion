@@ -90,7 +90,7 @@ Download the official KiSing dataset [here](http://shijt.site/index.php/2021/05/
 Download the official LibriLight dataset [here](https://github.com/facebookresearch/libri-light). The file structure looks like below:
 
 ```plaintext
-[LibriTTS dataset path]
+[LibriLight dataset path]
  ┣ small (Subset)
  ┃ ┣ 100 {Speaker_ID}
  ┃ ┃ ┣ sea_fairies_0812_librivox_64kb_mp3 {Chapter_ID}
