@@ -424,11 +424,13 @@ class SqueezeformerEncoder(nn.Module):
                 xs,
                 att_mask,
                 pos_emb,
-                att_cache=att_cache[i : i + 1][:, :, ::factor, :][
-                    :, :, : pos_emb.size(1) - xs.size(1), :
-                ]
-                if elayers > 0
-                else att_cache[:, :, ::factor, :],
+                att_cache=(
+                    att_cache[i : i + 1][:, :, ::factor, :][
+                        :, :, : pos_emb.size(1) - xs.size(1), :
+                    ]
+                    if elayers > 0
+                    else att_cache[:, :, ::factor, :]
+                ),
                 cnn_cache=cnn_cache[i] if cnn_cache.size(0) > 0 else cnn_cache,
             )
             # NOTE(xcsong): After layer.forward

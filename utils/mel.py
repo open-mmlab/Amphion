@@ -107,7 +107,7 @@ hann_window = {}
 def extract_mel_features(
     y,
     cfg,
-    center=False
+    center=False,
     # n_fft, n_mel, sampling_rate, hop_size, win_size, fmin, fmax, center=False
 ):
     """Extract mel features
