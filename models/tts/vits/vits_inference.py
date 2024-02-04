@@ -121,7 +121,7 @@ class VitsInference(TTSInference):
         )
         phone_id_seq = phon_id_collator.get_phone_id_sequence(self.cfg, phone_seq)
 
-        if self.cfg.preprocess.add_blank:
+        if self.cfg.preprocess.add_blank and self.cfg.train.multi_speaker_training:
             phone_id_seq = intersperse(phone_id_seq, 0)
 
         # convert phone sequence to phone id sequence

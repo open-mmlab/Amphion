@@ -20,13 +20,13 @@
     "processed_dir": "data",
     "sample_rate": 22050, // target sampling rate
     "valid_file": "valid.json", // validation set
-    //"use_spkid": true //true: use speaker id for multi-speaker dataset
+    //"use_spkid": true // true: use speaker ID for multi-speaker dataset
   },
   "model":{
-    //"n_speakers": 10 //Specify number of speakers for multi-speaker dataset
+    //"n_speakers": 10 // specify number of speakers for multi-speaker dataset
   },
   "train": {
     "batch_size": 16,
-    //"multi_speaker_training": true //Set to true for multi-speaker training
+    //"multi_speaker_training": true //true: enable multi-speaker training
   }
 }

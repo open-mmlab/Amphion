@@ -62,11 +62,8 @@ class VITSCollator(TTSCollator):
 class VITSTestDataset(TTSTestDataset):
     def __init__(self, args, cfg):
         super().__init__(args, cfg)
-
+        processed_data_dir = os.path.join(cfg.preprocess.processed_dir, args.dataset)
         if cfg.preprocess.use_spkid:
-            processed_data_dir = os.path.join(
-                cfg.preprocess.processed_dir, args.dataset
-            )
             spk2id_path = os.path.join(processed_data_dir, cfg.preprocess.spk2id)
             with open(spk2id_path, "r") as f:
                 self.spk2id = json.load(f)
