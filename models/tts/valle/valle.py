@@ -194,11 +194,13 @@ class VALLE(nn.Module):
                     adaptive_layer_norm=True,
                 ),
                 num_layers=int(num_decoder_layers * nar_scale_factor),
-                norm=AdaptiveLayerNorm(
-                    nar_decoder_dim, norm=nn.LayerNorm(nar_decoder_dim)
-                )
-                if cfg.norm_first
-                else None,
+                norm=(
+                    AdaptiveLayerNorm(
+                        nar_decoder_dim, norm=nn.LayerNorm(nar_decoder_dim)
+                    )
+                    if cfg.norm_first
+                    else None
+                ),
             )
             self.nar_predict_layers = nn.ModuleList(
                 [

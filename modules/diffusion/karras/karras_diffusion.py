@@ -465,9 +465,7 @@ def to_d(x, sigma, denoised):
 def get_ancestral_step(sigma_from, sigma_to):
     """Calculates the noise level (sigma_down) to step down to and the amount
     of noise to add (sigma_up) when doing an ancestral sampling step."""
-    sigma_up = (
-        sigma_to**2 * (sigma_from**2 - sigma_to**2) / sigma_from**2
-    ) ** 0.5
+    sigma_up = (sigma_to**2 * (sigma_from**2 - sigma_to**2) / sigma_from**2) ** 0.5
     sigma_down = (sigma_to**2 - sigma_up**2) ** 0.5
     return sigma_down, sigma_up
 
