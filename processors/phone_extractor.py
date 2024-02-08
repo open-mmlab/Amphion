@@ -45,7 +45,7 @@ class phoneExtractor:
             assert cfg.preprocess.lexicon_path != ""
             self.g2p_module = LexiconModule(cfg.preprocess.lexicon_path)
         else:
-            print("No suppert to", cfg.preprocess.phone_extractor)
+            print("No support to", cfg.preprocess.phone_extractor)
             raise
 
     def extract_phone(self, text):

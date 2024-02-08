@@ -92,7 +92,7 @@ def extract_phonme_sequences(dataset, output_path, cfg, dataset_types):
 
 
 def preprocess(cfg, args):
-    """Proprocess raw data of single or multiple datasets (in cfg.dataset)
+    """Preprocess raw data of single or multiple datasets (in cfg.dataset)
 
     Args:
         cfg (dict): dictionary that stores configurations
