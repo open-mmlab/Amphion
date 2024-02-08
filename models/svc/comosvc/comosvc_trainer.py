@@ -30,7 +30,9 @@ class ComoSVCTrainer(SVCTrainer):
     def _load_teacher_model(self, model):
         r"""Load teacher model from checkpoint file."""
         self.checkpoint_file = self.teacher_model_path
-        self.logger.info("Load teacher acoustic model from {}".format(self.checkpoint_file))
+        self.logger.info(
+            "Load teacher acoustic model from {}".format(self.checkpoint_file)
+        )
         raw_dict = torch.load(self.checkpoint_file)
         model.load_state_dict(raw_dict)
 
@@ -55,7 +57,7 @@ class ComoSVCTrainer(SVCTrainer):
             self.freeze_net(self.acoustic_mapper.decoder.denoise_fn_pretrained)
             self.freeze_net(self.acoustic_mapper.decoder.denoise_fn_ema)
         return model
-    
+
     def freeze_net(self, model):
         r"""Freeze the model for training."""
         for name, param in model.named_parameters():
@@ -66,18 +68,16 @@ class ComoSVCTrainer(SVCTrainer):
 
         if self.cfg.train.optimizer.lower() == "adamw":
             optimizer = torch.optim.AdamW(
-                params = filter(lambda p: p.requires_grad, self.model.parameters()), 
-                **self.cfg.train.adamw
+                params=filter(lambda p: p.requires_grad, self.model.parameters()),
+                **self.cfg.train.adamw,
             )
 
         else:
             raise NotImplementedError(
                 "Not support optimizer: {}".format(self.cfg.train.optimizer)
             )
-        
-        return optimizer
 
-    
+        return optimizer
 
     def _forward_step(self, batch):
         r"""Forward step for training and inference. This function is called

@@ -344,7 +344,9 @@ class MultiheadAttention(Module):
                     (
                         1
                         if key_padding_mask is not None
-                        else 0 if attn_mask is not None else None
+                        else 0
+                        if attn_mask is not None
+                        else None
                     ),
                 )
 

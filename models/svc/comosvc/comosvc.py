@@ -65,7 +65,11 @@ class Consistency(nn.Module):
         sigma = sigma.reshape(-1, 1, 1)
 
         c_skip = self.sigma_data**2 / (sigma**2 + self.sigma_data**2)
-        c_out = (sigma-self.sigma_min) * self.sigma_data / (sigma ** 2 + self.sigma_data ** 2).sqrt()
+        c_out = (
+            (sigma - self.sigma_min)
+            * self.sigma_data
+            / (sigma**2 + self.sigma_data**2).sqrt()
+        )
         c_in = 1 / (self.sigma_data**2 + sigma**2).sqrt()
         c_noise = sigma.log() / 4
 
@@ -116,7 +120,7 @@ class Consistency(nn.Module):
         S_churn=0,
         S_min=0,
         S_max=float("inf"),
-        S_noise=1
+        S_noise=1,
     ):
         """
         karras diffusion sampler
@@ -158,18 +162,20 @@ class Consistency(nn.Module):
             t = torch.zeros((x_cur.shape[0], 1, 1), device=x_cur.device)
             t[:, 0, 0] = t_hat
             t_hat = t
-            x_hat = x_cur + (t_hat**2 - t_cur**2).sqrt() * S_noise * torch.randn_like(x_cur)
+            x_hat = x_cur + (
+                t_hat**2 - t_cur**2
+            ).sqrt() * S_noise * torch.randn_like(x_cur)
             # Euler step.
             denoised = self.EDMPrecond(x_hat, t_hat, cond, self.denoise_fn)
             d_cur = (x_hat - denoised) / t_hat
             x_next = x_hat + (t_next - t_hat) * d_cur
 
-            # add Heun’s 2nd order method 
+            # add Heun’s 2nd order method
             # if i < num_steps - 1:
             #     t = torch.zeros((x_cur.shape[0], 1, 1), device=x_cur.device)
             #     t[:, 0, 0] = t_next
             #     #t_next = t
-            #     denoised = self.EDMPrecond(x_next, t, cond, self.denoise_fn, nonpadding) 
+            #     denoised = self.EDMPrecond(x_next, t, cond, self.denoise_fn, nonpadding)
             #     d_prime = (x_next - denoised) / t_next
             #     x_next = x_hat + (t_next - t_hat) * (0.5 * d_cur + 0.5 * d_prime)
 
@@ -202,20 +208,18 @@ class Consistency(nn.Module):
 
             # euler step
             x_hat = y + tn_1 * z
-            denoised = self.EDMPrecond(
-                x_hat, tn_1, cond, self.denoise_fn_pretrained
-            )
+            denoised = self.EDMPrecond(x_hat, tn_1, cond, self.denoise_fn_pretrained)
             d_cur = (x_hat - denoised) / tn_1
             y_tn = x_hat + (tn - tn_1) * d_cur
-            
+
             # Heun’s 2nd order method
-            
-            denoised2 = self.EDMPrecond(y_tn, tn , cond,self.denoise_fn_pretrained) 
+
+            denoised2 = self.EDMPrecond(y_tn, tn, cond, self.denoise_fn_pretrained)
             d_prime = (y_tn - denoised2) / tn
             y_tn = x_hat + (tn - tn_1) * (0.5 * d_cur + 0.5 * d_prime)
 
             f_theta_ema = self.EDMPrecond(y_tn, tn, cond, self.denoise_fn_ema)
-        
+
         loss = (f_theta - f_theta_ema.detach()) ** 2
         loss = torch.sum(loss * mask) / torch.sum(mask)
 
@@ -227,7 +231,6 @@ class Consistency(nn.Module):
         if torch.any(torch.isnan(f_theta_ema)):
             print("nan f_theta_ema")
 
-        
         return loss
 
     def get_t_steps(self, N):
@@ -361,11 +364,11 @@ class ComoSVC(BaseModule):
 
         mu_x = self.encoder(x, x_mask)
         # prior loss
-        x_mask = x_mask.repeat(1,1, mel.shape[-1])
+        x_mask = x_mask.repeat(1, 1, mel.shape[-1])
         prior_loss = torch.sum(
             0.5 * ((mel - mu_x) ** 2 + math.log(2 * math.pi)) * x_mask
         )
-        
+
         prior_loss = prior_loss / (torch.sum(x_mask) * self.cfg.model.comosvc.n_mel)
         # ssim loss
         ssim_loss = self.ssim_loss(mu_x, mel)
@@ -386,4 +389,3 @@ class ComoSVC(BaseModule):
             diff_loss = self.decoder(mel, mask_y, mu_y, infer=False)
 
         return ssim_loss, prior_loss, diff_loss
-
