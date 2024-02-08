@@ -13,6 +13,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 def intersperse(lst, item):
+    # Insert an item in between any consecutive elements of the given list, including beginning and end of list
     result = [item] * (len(lst) * 2 + 1)
     result[1::2] = lst
     return result
