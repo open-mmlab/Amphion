@@ -88,7 +88,7 @@ def extract_phonme_sequences(dataset, output_path, cfg, dataset_types):
         dataset_file = os.path.join(dataset_output, "{}.json".format(dataset_type))
         with open(dataset_file, "r") as f:
             metadata.extend(json.load(f))
-    phone_extractor.extract_utt_phone_sequence(cfg, metadata)
+    phone_extractor.extract_utt_phone_sequence(dataset, cfg, metadata)
 
 
 def preprocess(cfg, args):
