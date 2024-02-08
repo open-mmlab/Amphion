@@ -74,13 +74,55 @@ We provide the default hyparameters in the `exp_config.json`. They can work on s
     }
 ```
 
-### Run
+### Train From Scratch
 
 Run the `run.sh` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/tts/[YourExptName]`.
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 2 --name [YourExptName]
 ```
+
+### Train From Existing Source
+
+We support training from existing source for various purposes. You can resume training the model from a checkpoint or fine-tune a model from another checkpoint.
+
+Setting `--resume true`, the training will resume from the **latest checkpoint** from the current `[YourExptName]` by default. For example, if you want to resume training from the latest checkpoint in `Amphion/ckpts/tts/[YourExptName]/checkpoint`, run:
+
+```bash
+sh egs/tts/VITS/run.sh --stage 2 --name [YourExptName] \
+    --resume true
+```
+
+You can also choose a **specific checkpoint** for retraining by `--resume_from_ckpt_path` argument. For example, if you want to resume training from the checkpoint `Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificCheckpoint]`, run:
+
+```bash
+sh egs/tts/VITS/run.sh --stage 2 --name [YourExptName] \
+    --resume true
+    --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificCheckpoint]" \
+```
+
+If you want to **fine-tune from another checkpoint**, just use `--resume_type` and set it to `"finetune"`. For example, If you want to fine-tune the model from the checkpoint `Amphion/ckpts/tts/[AnotherExperiment]/checkpoint/[SpecificCheckpoint]`, run:
+
+
+```bash
+sh egs/tts/VITS/run.sh --stage 2 --name [YourExptName] \
+    --resume true
+    --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificCheckpoint]" \
+    --resume_type "finetune"
+```
+
+> **NOTE:** The `--resume_type` is set as `"resume"` in default. It's not necessary to specify it when resuming training.
+> 
+> The difference between `"resume"` and `"finetune"` is that the `"finetune"` will **only** load the pretrained model weights from the checkpoint, while the `"resume"` will load all the training states (including optimizer, scheduler, etc.) from the checkpoint.
+
+Here are some example scenarios to better understand how to use these arguments:
+| Scenario | `--resume` | `--resume_from_ckpt_path` | `--resume_type` |
+| ------ | -------- | ----------------------- | ------------- |
+| You want to train from scratch | no | no | no |
+| The machine breaks down during training and you want to resume training from the latest checkpoint | `true` | no | no |
+| You find the latest model is overfitting and you want to re-train from the checkpoint before | `true` | `SpecificCheckpoint Path` | no |
+| You want to fine-tune a model from another checkpoint | `true` | `SpecificCheckpoint Path` | `"finetune"` |
+
 
 > **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "0,1,2,3"`.
 

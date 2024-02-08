@@ -16,7 +16,7 @@ mkdir -p monotonic_align
 python setup.py build_ext --inplace
 cd $work_dir
 
-mfa_dir=$work_dir/mfa
+mfa_dir=$work_dir/pretrained/mfa
 echo $mfa_dir
 
 ######## Parse the Given Parameters from the Commond ###########
@@ -71,7 +71,7 @@ fi
 
 ######## Features Extraction ###########
 if [ $running_stage -eq 1 ]; then
-    if [ ! -d "$mfa_dir" ]; then
+    if [ ! -d "$mfa_dir/montreal-forced-aligner" ]; then
         bash ${exp_dir}/prepare_mfa.sh
     fi
     CUDA_VISIBLE_DEVICES=$gpu python "${work_dir}"/bins/tts/preprocess.py \

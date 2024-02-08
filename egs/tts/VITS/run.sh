@@ -18,7 +18,7 @@ cd $work_dir
 
 ######## Parse the Given Parameters from the Commond ###########
 # options=$(getopt -o c:n:s --long gpu:,config:,infer_expt_dir:,infer_output_dir:,infer_source_file:,infer_source_audio_dir:,infer_target_speaker:,infer_key_shift:,infer_vocoder_dir:,name:,stage: -- "$@")
-options=$(getopt -o c:n:s --long gpu:,config:,infer_expt_dir:,infer_output_dir:,infer_mode:,infer_dataset:,infer_testing_set:,infer_text:,name:,stage: -- "$@")
+options=$(getopt -o c:n:s --long gpu:,config:,resume:,resume_from_ckpt_path:,resume_type:,infer_expt_dir:,infer_output_dir:,infer_mode:,infer_dataset:,infer_testing_set:,infer_text:,name:,stage: -- "$@")
 eval set -- "$options"
 
 while true; do
@@ -31,6 +31,13 @@ while true; do
     -s | --stage) shift; running_stage=$1 ; shift ;;
     # Visible GPU machines. The default value is "0".
     --gpu) shift; gpu=$1 ; shift ;;
+
+    # [Only for Training] Resume configuration
+    --resume) shift; resume=$1 ; shift ;;
+    # [Only for Training] The specific checkpoint path that you want to resume from.
+    --resume_from_ckpt_path) shift; resume_from_ckpt_path=$1 ; shift ;;
+    # [Only for Training] `resume` for loading all the things (including model weights, optimizer, scheduler, and random states). `finetune` for loading only the model weights.
+    --resume_type) shift; resume_type=$1 ; shift ;;
 
     # [Only for Inference] The experiment dir. The value is like "[Your path to save logs and checkpoints]/[YourExptName]"
     --infer_expt_dir) shift; infer_expt_dir=$1 ; shift ;;
@@ -81,10 +88,31 @@ if [ $running_stage -eq 2 ]; then
     fi
     echo "Exprimental Name: $exp_name"
 
-    CUDA_VISIBLE_DEVICES=$gpu accelerate launch "${work_dir}"/bins/tts/train.py \
-        --config $exp_config \
-        --exp_name $exp_name \
-        --log_level debug
+    # add default value
+    if [ -z "$resume_from_ckpt_path" ]; then
+        resume_from_ckpt_path=""
+    fi
+
+    if [ -z "$resume_type" ]; then
+        resume_type="resume"
+    fi
+
+    if [ "$resume" = true ]; then
+        echo "Resume from the existing experiment..."
+        CUDA_VISIBLE_DEVICES="$gpu" accelerate launch "${work_dir}"/bins/tts/train.py \
+            --config "$exp_config" \
+            --exp_name "$exp_name" \
+            --log_level info \
+            --resume \
+            --checkpoint_path "$resume_from_ckpt_path" \
+            --resume_type "$resume_type"
+    else
+        echo "Start a new experiment..."
+        CUDA_VISIBLE_DEVICES=$gpu accelerate launch "${work_dir}"/bins/tts/train.py \
+            --config $exp_config \
+            --exp_name $exp_name \
+            --log_level debug
+    fi
 fi
 
 ######## Inference ###########

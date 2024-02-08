@@ -47,6 +47,7 @@ ckpts
 *.wav
 *.flac
 pretrained/wenet/*conformer_exp
+!egs/tts/VALLE/prompt_examples/*.wav
 
 # Runtime data dirs
 processed_data
