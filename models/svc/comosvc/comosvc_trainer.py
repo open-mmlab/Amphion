@@ -6,7 +6,6 @@
 import torch
 import os
 import json5
-from collections import OrderedDict
 from tqdm import tqdm
 import json
 import shutil
@@ -25,28 +24,17 @@ class ComoSVCTrainer(SVCTrainer):
         SVCTrainer.__init__(self, args, cfg)
         self.distill = cfg.model.comosvc.distill
         self.skip_diff = True
-        if self.distill:  # and args.resume is None:
-            self.teacher_model_path = cfg.model.teacher_model_path
-            self.teacher_state_dict = self._load_teacher_state_dict()
-            self._load_teacher_model(self.teacher_state_dict)
-            self.acoustic_mapper.decoder.init_consistency_training()
 
     ### Following are methods only for comoSVC models ###
-    def _load_teacher_state_dict(self):
-        self.checkpoint_file = self.teacher_model_path
-        print("Load teacher acoustic model from {}".format(self.checkpoint_file))
-        raw_state_dict = torch.load(self.checkpoint_file)  # , map_location=self.device)
-        return raw_state_dict
 
-    def _load_teacher_model(self, state_dict):
-        raw_dict = state_dict
-        clean_dict = OrderedDict()
-        for k, v in raw_dict.items():
-            if k.startswith("module."):
-                clean_dict[k[7:]] = v
-            else:
-                clean_dict[k] = v
-        self.model.load_state_dict(clean_dict)
+    def _load_teacher_model(self, model):
+        r"""Load teacher model from checkpoint file."""
+        self.checkpoint_file = self.teacher_model_path
+        self.logger.info(
+            "Load teacher acoustic model from {}".format(self.checkpoint_file)
+        )
+        raw_dict = torch.load(self.checkpoint_file)
+        model.load_state_dict(raw_dict)
 
     def _build_model(self):
         r"""Build the model for training. This function is called in ``__init__`` function."""
@@ -57,7 +45,39 @@ class ComoSVCTrainer(SVCTrainer):
         self.condition_encoder = ConditionEncoder(self.cfg.model.condition_encoder)
         self.acoustic_mapper = ComoSVC(self.cfg)
         model = torch.nn.ModuleList([self.condition_encoder, self.acoustic_mapper])
+        if self.cfg.model.comosvc.distill:
+            if not self.args.resume:
+                # do not load teacher model when resume
+                self.teacher_model_path = self.cfg.model.teacher_model_path
+                self._load_teacher_model(model)
+            # build teacher & target decoder and freeze teacher
+            self.acoustic_mapper.decoder.init_consistency_training()
+            self.freeze_net(self.condition_encoder)
+            self.freeze_net(self.acoustic_mapper.encoder)
+            self.freeze_net(self.acoustic_mapper.decoder.denoise_fn_pretrained)
+            self.freeze_net(self.acoustic_mapper.decoder.denoise_fn_ema)
         return model
+
+    def freeze_net(self, model):
+        r"""Freeze the model for training."""
+        for name, param in model.named_parameters():
+            param.requires_grad = False
+
+    def __build_optimizer(self):
+        r"""Build optimizer for training. This function is called in ``__init__`` function."""
+
+        if self.cfg.train.optimizer.lower() == "adamw":
+            optimizer = torch.optim.AdamW(
+                params=filter(lambda p: p.requires_grad, self.model.parameters()),
+                **self.cfg.train.adamw,
+            )
+
+        else:
+            raise NotImplementedError(
+                "Not support optimizer: {}".format(self.cfg.train.optimizer)
+            )
+
+        return optimizer
 
     def _forward_step(self, batch):
         r"""Forward step for training and inference. This function is called
@@ -124,7 +144,7 @@ class ComoSVCTrainer(SVCTrainer):
                 for k, v in loss.items():
                     key = "Step/Train Loss/{}".format(k)
                     log_info[key] = v
-                log_info["Step/Learning Rate"]: self.optimizer.param_groups[0]["lr"]
+                log_info["Step/Learning Rate"] = self.optimizer.param_groups[0]["lr"]
                 self.accelerator.log(
                     log_info,
                     step=self.step,
@@ -197,13 +217,16 @@ class ComoSVCTrainer(SVCTrainer):
                         self.epoch, self.step, train_loss
                     ),
                 )
+                self.tmp_checkpoint_save_path = path
                 self.accelerator.save_state(path)
+                print(f"save checkpoint in {path}")
                 json.dump(
                     self.checkpoints_path,
                     open(os.path.join(path, "ckpts.json"), "w"),
                     ensure_ascii=False,
                     indent=4,
                 )
+                self._save_auxiliary_states()
 
                 # Remove old checkpoints
                 to_remove = []
@@ -247,6 +270,7 @@ class ComoSVCTrainer(SVCTrainer):
                     ),
                 )
             )
+            self._save_auxiliary_states()
         self.accelerator.end_training()
 
     @torch.inference_mode()

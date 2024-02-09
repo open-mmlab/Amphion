@@ -127,7 +127,7 @@
             "sigma_min": 0.002,
             "sigma_max": 80,
             "rho": 7,
-            "n_timesteps": 40,
+            "n_timesteps": 18,
         },
         "diffusion": {
             // Diffusion steps encoder
@@ -154,7 +154,7 @@
     "train": {
         // Basic settings
         "fast_steps": 0,
-        "batch_size": 32,
+        "batch_size": 64,
         "gradient_accumulation_step": 1,
         "max_epoch": -1,
         // -1 means no limit
@@ -195,7 +195,7 @@
         // Optimizer
         "optimizer": "AdamW",
         "adamw": {
-            "lr": 4.0e-4
+            "lr": 5.0e-5
             // nn model lr
         },
         // LR Scheduler
@@ -204,7 +204,7 @@
             "factor": 0.8,
             "patience": 10,
             // unit is epoch
-            "min_lr": 1.0e-4
+            "min_lr": 5.0e-6
         }
     },
     "inference": {

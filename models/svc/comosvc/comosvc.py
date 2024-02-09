@@ -3,8 +3,6 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-"""Adapted from https://github.com/zhenye234/CoMoSpeech"""
-
 import torch
 import torch.nn as nn
 import copy
@@ -16,14 +14,12 @@ from utils.ssim import SSIM
 
 from models.svc.transformer.conformer import Conformer, BaseModule
 from models.svc.diffusion.diffusion_wrapper import DiffusionWrapper
-from models.svc.comosvc.utils import slice_segments, rand_ids_segments
 
 
 class Consistency(nn.Module):
     def __init__(self, cfg, distill=False):
         super().__init__()
         self.cfg = cfg
-        # self.denoise_fn = GradLogPEstimator2d(96)
         self.denoise_fn = DiffusionWrapper(self.cfg)
         self.cfg = cfg.model.comosvc
         self.teacher = not distill
@@ -53,7 +49,7 @@ class Consistency(nn.Module):
         self.denoise_fn_ema = copy.deepcopy(self.denoise_fn)
         self.denoise_fn_pretrained = copy.deepcopy(self.denoise_fn)
 
-    def EDMPrecond(self, x, sigma, cond, denoise_fn, mask, spk=None):
+    def EDMPrecond(self, x, sigma, cond, denoise_fn):
         """
         karras diffusion reverse process
 
@@ -62,7 +58,6 @@ class Consistency(nn.Module):
             sigma: noise level [B x 1 x 1]
             cond: output of conformer encoder [B x n_mel x L]
             denoise_fn: denoiser neural network e.g. DilatedCNN
-            mask: mask of padded frames [B x n_mel x L]
 
         Returns:
             denoised mel-spectrogram [B x n_mel x L]
@@ -70,7 +65,11 @@ class Consistency(nn.Module):
         sigma = sigma.reshape(-1, 1, 1)
 
         c_skip = self.sigma_data**2 / (sigma**2 + self.sigma_data**2)
-        c_out = sigma * self.sigma_data / (sigma**2 + self.sigma_data**2).sqrt()
+        c_out = (
+            (sigma - self.sigma_min)
+            * self.sigma_data
+            / (sigma**2 + self.sigma_data**2).sqrt()
+        )
         c_in = 1 / (self.sigma_data**2 + sigma**2).sqrt()
         c_noise = sigma.log() / 4
 
@@ -78,8 +77,10 @@ class Consistency(nn.Module):
         x_in = x_in.transpose(1, 2)
         x = x.transpose(1, 2)
         cond = cond.transpose(1, 2)
-        F_x = denoise_fn(x_in, c_noise.squeeze(), cond)
-        # F_x =  denoise_fn((c_in * x), mask, cond, c_noise.flatten())
+        c_noise = c_noise.squeeze()
+        if c_noise.dim() == 0:
+            c_noise = c_noise.unsqueeze(0)
+        F_x = denoise_fn(x_in, c_noise, cond)
         D_x = c_skip * x + c_out * (F_x)
         D_x = D_x.transpose(1, 2)
         return D_x
@@ -99,7 +100,7 @@ class Consistency(nn.Module):
 
         # follow Grad-TTS, start from Gaussian noise with mean cond and std I
         noise = (torch.randn_like(x_start) + cond) * sigma
-        D_yn = self.EDMPrecond(x_start + noise, sigma, cond, self.denoise_fn, mask)
+        D_yn = self.EDMPrecond(x_start + noise, sigma, cond, self.denoise_fn)
         loss = weight * ((D_yn - x_start) ** 2)
         loss = torch.sum(loss * mask) / torch.sum(mask)
         return loss
@@ -120,10 +121,6 @@ class Consistency(nn.Module):
         S_min=0,
         S_max=float("inf"),
         S_noise=1,
-        # S_churn=40 ,S_min=0.05,S_max=50,S_noise=1.003,# S_churn=0, S_min=0, S_max=float('inf'), S_noise=1,
-        # S_churn=30 ,S_min=0.01,S_max=30,S_noise=1.007,
-        # S_churn=30 ,S_min=0.01,S_max=1,S_noise=1.007,
-        # S_churn=80 ,S_min=0.05,S_max=50,S_noise=1.003,
     ):
         """
         karras diffusion sampler
@@ -138,9 +135,9 @@ class Consistency(nn.Module):
             denoised mel-spectrogram [B x n_mel x L]
         """
         # Time step discretization.
-        step_indices = torch.arange(num_steps, device=latents.device)
 
         num_steps = num_steps + 1
+        step_indices = torch.arange(num_steps, device=latents.device)
         t_steps = (
             sigma_max ** (1 / rho)
             + step_indices
@@ -169,9 +166,18 @@ class Consistency(nn.Module):
                 t_hat**2 - t_cur**2
             ).sqrt() * S_noise * torch.randn_like(x_cur)
             # Euler step.
-            denoised = self.EDMPrecond(x_hat, t_hat, cond, self.denoise_fn, nonpadding)
+            denoised = self.EDMPrecond(x_hat, t_hat, cond, self.denoise_fn)
             d_cur = (x_hat - denoised) / t_hat
             x_next = x_hat + (t_next - t_hat) * d_cur
+
+            # add Heun’s 2nd order method
+            # if i < num_steps - 1:
+            #     t = torch.zeros((x_cur.shape[0], 1, 1), device=x_cur.device)
+            #     t[:, 0, 0] = t_next
+            #     #t_next = t
+            #     denoised = self.EDMPrecond(x_next, t, cond, self.denoise_fn, nonpadding)
+            #     d_prime = (x_next - denoised) / t_next
+            #     x_next = x_hat + (t_next - t_hat) * (0.5 * d_cur + 0.5 * d_prime)
 
         return x_next
 
@@ -195,31 +201,41 @@ class Consistency(nn.Module):
         z = torch.randn_like(y) + cond
 
         tn_1 = self.t_steps[n + 1].reshape(-1, 1, 1).to(y.device)
-        f_theta = self.EDMPrecond(y + tn_1 * z, tn_1, cond, self.denoise_fn, mask)
+        f_theta = self.EDMPrecond(y + tn_1 * z, tn_1, cond, self.denoise_fn)
 
         with torch.no_grad():
             tn = self.t_steps[n].reshape(-1, 1, 1).to(y.device)
 
             # euler step
             x_hat = y + tn_1 * z
-            denoised = self.EDMPrecond(
-                x_hat, tn_1, cond, self.denoise_fn_pretrained, mask
-            )
+            denoised = self.EDMPrecond(x_hat, tn_1, cond, self.denoise_fn_pretrained)
             d_cur = (x_hat - denoised) / tn_1
             y_tn = x_hat + (tn - tn_1) * d_cur
 
-            f_theta_ema = self.EDMPrecond(y_tn, tn, cond, self.denoise_fn_ema, mask)
+            # Heun’s 2nd order method
 
-        # loss = (f_theta - f_theta_ema.detach()) ** 2
-        # loss = torch.sum(loss * mask) / torch.sum(mask)
-        loss = self.ssim_loss(f_theta, f_theta_ema.detach())
+            denoised2 = self.EDMPrecond(y_tn, tn, cond, self.denoise_fn_pretrained)
+            d_prime = (y_tn - denoised2) / tn
+            y_tn = x_hat + (tn - tn_1) * (0.5 * d_cur + 0.5 * d_prime)
+
+            f_theta_ema = self.EDMPrecond(y_tn, tn, cond, self.denoise_fn_ema)
+
+        loss = (f_theta - f_theta_ema.detach()) ** 2
         loss = torch.sum(loss * mask) / torch.sum(mask)
+
+        # check nan
+        if torch.any(torch.isnan(loss)):
+            print("nan loss")
+        if torch.any(torch.isnan(f_theta)):
+            print("nan f_theta")
+        if torch.any(torch.isnan(f_theta_ema)):
+            print("nan f_theta_ema")
 
         return loss
 
     def get_t_steps(self, N):
         N = N + 1
-        step_indices = torch.arange(N)  # , device=latents.device)
+        step_indices = torch.arange(N)
         t_steps = (
             self.sigma_min ** (1 / self.rho)
             + step_indices
@@ -252,8 +268,8 @@ class Consistency(nn.Module):
         t_steps = torch.as_tensor(t_steps).to(latents.device)
         latents = latents * t_steps[0]
         _t = torch.zeros((latents.shape[0], 1, 1), device=latents.device)
-        _t[:, 0, 0] = t_steps
-        x = self.EDMPrecond(latents, _t, cond, self.denoise_fn_ema, nonpadding)
+        _t[:, 0, 0] = t_steps[0]
+        x = self.EDMPrecond(latents, _t, cond, self.denoise_fn_ema)
 
         for t in t_steps[1:-1]:
             z = torch.randn_like(x) + cond
@@ -261,8 +277,7 @@ class Consistency(nn.Module):
             _t = torch.zeros((x.shape[0], 1, 1), device=x.device)
             _t[:, 0, 0] = t
             t = _t
-            print(t)
-            x = self.EDMPrecond(x_tn, t, cond, self.denoise_fn_ema, nonpadding)
+            x = self.EDMPrecond(x_tn, t, cond, self.denoise_fn_ema)
         return x
 
     def forward(self, x, nonpadding, cond, t_steps=1, infer=False):
@@ -335,10 +350,10 @@ class ComoSVC(BaseModule):
         decoder_outputs = decoder_outputs.transpose(1, 2)
         return encoder_outputs, decoder_outputs
 
-    def compute_loss(self, x_mask, x, mel, out_size=None, skip_diff=False):
+    def compute_loss(self, x_mask, x, mel, skip_diff=False):
         """
         Computes 2 losses:
-            1. prior loss: loss between mel-spectrogram and encoder outputs.
+            1. prior loss: loss between mel-spectrogram and encoder outputs. (l2 and ssim loss)
             2. diffusion loss: loss between gaussian noise and its reconstruction by diffusion-based decoder.
 
         Args:
@@ -349,9 +364,11 @@ class ComoSVC(BaseModule):
 
         mu_x = self.encoder(x, x_mask)
         # prior loss
+        x_mask = x_mask.repeat(1, 1, mel.shape[-1])
         prior_loss = torch.sum(
             0.5 * ((mel - mu_x) ** 2 + math.log(2 * math.pi)) * x_mask
         )
+
         prior_loss = prior_loss / (torch.sum(x_mask) * self.cfg.model.comosvc.n_mel)
         # ssim loss
         ssim_loss = self.ssim_loss(mu_x, mel)
@@ -366,10 +383,7 @@ class ComoSVC(BaseModule):
 
         # Cut a small segment of mel-spectrogram in order to increase batch size
         else:
-            if self.distill:
-                mu_y = mu_x.detach()
-            else:
-                mu_y = mu_x
+            mu_y = mu_x
             mask_y = x_mask
 
             diff_loss = self.decoder(mel, mask_y, mu_y, infer=False)
