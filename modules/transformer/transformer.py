@@ -385,9 +385,13 @@ class TransformerDecoderLayer(nn.Module):
             return (
                 layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs),
                 layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs),
-                layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs)
-                if layer_norm_cls != IdentityNorm
-                else BalancedBasicNorm(d_model, eps=layer_norm_eps, **factory_kwargs),
+                (
+                    layer_norm_cls(d_model, eps=layer_norm_eps, **factory_kwargs)
+                    if layer_norm_cls != IdentityNorm
+                    else BalancedBasicNorm(
+                        d_model, eps=layer_norm_eps, **factory_kwargs
+                    )
+                ),
             )
 
 

@@ -234,12 +234,16 @@ class EfficientConformerEncoder(torch.nn.Module):
                         output_size,
                         encoder_selfattn_layer(*encoder_selfattn_layer_args),
                         positionwise_layer(*positionwise_layer_args),
-                        positionwise_layer(*positionwise_layer_args)
-                        if macaron_style
-                        else None,
-                        convolution_layer(*convolution_layer_args_stride)
-                        if use_cnn_module
-                        else None,
+                        (
+                            positionwise_layer(*positionwise_layer_args)
+                            if macaron_style
+                            else None
+                        ),
+                        (
+                            convolution_layer(*convolution_layer_args_stride)
+                            if use_cnn_module
+                            else None
+                        ),
                         torch.nn.AvgPool1d(
                             kernel_size=self.stride[index],
                             stride=self.stride[index],
@@ -266,12 +270,16 @@ class EfficientConformerEncoder(torch.nn.Module):
                         output_size,
                         encoder_selfattn_layer(*encoder_selfattn_layer_args),
                         positionwise_layer(*positionwise_layer_args),
-                        positionwise_layer(*positionwise_layer_args)
-                        if macaron_style
-                        else None,
-                        convolution_layer(*convolution_layer_args_normal)
-                        if use_cnn_module
-                        else None,
+                        (
+                            positionwise_layer(*positionwise_layer_args)
+                            if macaron_style
+                            else None
+                        ),
+                        (
+                            convolution_layer(*convolution_layer_args_normal)
+                            if use_cnn_module
+                            else None
+                        ),
                         dropout_rate,
                         normalize_before,
                     )
