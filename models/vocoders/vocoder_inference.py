@@ -179,7 +179,7 @@ class VocoderInference(object):
         utts = []
         mels = glob(os.path.join(self.args.feature_folder, "mels", "*.npy"))
         for i, mel in enumerate(mels):
-            uid = mel.split("/")[-1].split(".")[0]
+            uid = os.path.splitext(os.path.basename(mel))[0]
             utt = {"Dataset": "tmp", "Uid": uid, "index": i}
             utts.append(utt)
 
@@ -199,7 +199,7 @@ class VocoderInference(object):
 
         features = glob(os.path.join(self.args.feature_folder, "*"))
         for feature in features:
-            feature_name = feature.split("/")[-1]
+            feature_name = os.path.basename(feature)
             if os.path.isfile(feature):
                 continue
             shutil.copytree(
@@ -214,7 +214,7 @@ class VocoderInference(object):
         utts = []
         audios = glob(os.path.join(self.args.audio_folder, "*"))
         for i, audio in enumerate(audios):
-            uid = audio.split("/")[-1].split(".")[0]
+            uid = os.path.splitext(os.path.basename(audio))[0]
             utt = {"Dataset": "tmp", "Uid": uid, "index": i, "Path": audio}
             utts.append(utt)
 

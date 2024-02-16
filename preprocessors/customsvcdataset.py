@@ -19,15 +19,15 @@ def statistics(utterance_dir):
     utts_all = []
     singers2songs = defaultdict(lambda: defaultdict(list))
 
-    singer_infos = glob(utterance_dir + "/*")
+    singer_infos = os.scandir(utterance_dir.path)
 
     for singer_info in singer_infos:
-        singer = singer_info.split("/")[-1]
+        singer = os.path.basename(singer_info)
 
-        song_infos = glob(singer_info + "/*")
+        song_infos = os.scandir(singer_info.path)
 
         for song_info in song_infos:
-            song = song_info.split("/")[-1]
+            song = os.path.basename(song_info)
 
             singers.append(singer)
             songs.append(song)
@@ -36,7 +36,7 @@ def statistics(utterance_dir):
             utts_all.extend(utts)
 
             for utt in utts:
-                uid = utt.split("/")[-1].split(".")[0]
+                uid = os.path.splitext(os.path.basename(utt))[0]
                 singers2songs[singer][song].append(uid)
 
     unique_singers = list(set(singers))

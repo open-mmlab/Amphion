@@ -230,7 +230,7 @@ def split_utterances_from_audio(
     min_interval (millisecond):
         The smaller min_interval is, the more sliced audio clips this script is likely to generate.
     """
-    print("File:", wav_file.split("/")[-1])
+    print("File:", os.path.basename(wav_file))
     waveform, fs = torchaudio.load(wav_file)
 
     slicer = Slicer(sr=fs, min_interval=min_interval, threshold=db_threshold)

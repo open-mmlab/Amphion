@@ -19,34 +19,33 @@ def libritts_statistics(data_dir):
         lambda: defaultdict(lambda: defaultdict(list))
     )
 
-    distribution_infos = glob(data_dir + "/*")
+    distribution_infos = os.scandir(data_dir)
 
     for distribution_info in distribution_infos:
-        distribution = distribution_info.split("/")[-1]
-        print(distribution)
+        if distribution_info.is_dir():
+            distribution = distribution_info.name
+            print(distribution)
 
-        speaker_infos = glob(distribution_info + "/*")
+            speaker_infos = os.scandir(distribution_info.path)
 
-        if len(speaker_infos) == 0:
-            continue
+            for speaker_info in speaker_infos:
+                if speaker_info.is_dir():
+                    speaker = speaker_info.name
 
-        for speaker_info in speaker_infos:
-            speaker = speaker_info.split("/")[-1]
+                    speakers.append(speaker)
 
-            speakers.append(speaker)
+                    pharase_infos = os.scandir(speaker_info.path)
 
-            pharase_infos = glob(speaker_info + "/*")
+                    for pharase_info in pharase_infos:
+                        if pharase_info.is_dir():
+                            pharase = pharase_info.name
 
-            for pharase_info in pharase_infos:
-                pharase = pharase_info.split("/")[-1]
+                            utts = os.scandir(pharase_info.path)
 
-                utts = glob(pharase_info + "/*.wav")
-
-                for utt in utts:
-                    uid = utt.split("/")[-1].split(".")[0]
-                    distribution2speakers2pharases2utts[distribution][speaker][
-                        pharase
-                    ].append(uid)
+                            for utt in utts:
+                                if utt.is_file() and utt.name.endswith(".wav"):
+                                    uid = os.path.splitext(utt.name)[0]
+                                    distribution2speakers2pharases2utts[distribution][speaker][pharase].append(uid)
 
     unique_speakers = list(set(speakers))
     unique_speakers.sort()
@@ -105,9 +104,10 @@ def main(output_path, dataset_path):
                             distribution, speaker, chosen_pharase, chosen_uid
                         ),
                     }
-                    res["Path"] = "{}/{}/{}/{}.wav".format(
-                        distribution, speaker, chosen_pharase, chosen_uid
-                    )
+                    res["Path"] = os.path.join("{}".format(distribution),
+                                               "{}".format(speaker),
+                                               "{}".format(chosen_pharase),
+                                               "{}".format(chosen_uid)) + ".wav"
                     res["Path"] = os.path.join(libritts_path, res["Path"])
                     assert os.path.exists(res["Path"])
 

@@ -85,8 +85,8 @@ class BaseInference(object):
             os.path.dirname(self.checkpoint_dir_vocoder), "args.json"
         )
         self.cfg.vocoder = load_config(self.vocoder_cfg, lowercase=True)
-        self.vocoder_tag = self.checkpoint_dir_vocoder.split("/")[-2].split(":")[-1]
-        self.vocoder_steps = self.checkpoint_dir_vocoder.split("/")[-1].split(".")[0]
+        self.vocoder_tag = os.path.split(self.checkpoint_dir_vocoder)[-2].split(":")[-1]
+        self.vocoder_steps = os.path.splitext(os.path.basename(self.checkpoint_dir_vocoder))[0]
 
     def build_test_utt_data(self):
         raise NotImplementedError
