@@ -98,6 +98,9 @@ class PypinyinBackend:
 class G2PModule:
     """Phonemize Text."""
 
+    # We support espeak to extract IPA (International Phonetic Alphabet), which supports 100 languages,
+    # https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md
+
     def __init__(
         self,
         language="en-us",
