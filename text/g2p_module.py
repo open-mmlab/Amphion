@@ -147,6 +147,8 @@ class G2PModule:
                 words_mismatch=words_mismatch,
             )
         elif backend in ["pypinyin", "pypinyin_initials_finals"]:
+            if language != "cmn":
+                raise ValueError(f"{language} is not supported for pypinyin and pypinyin_initials_finals.")
             return PypinyinBackend(
                 backend=backend,
                 punctuation_marks=punctuation_marks + self.separator.word,
