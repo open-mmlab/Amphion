@@ -8,7 +8,7 @@
   ],
   "task_type": "tts",
   "preprocess": {
-    "language": "en-us",
+    "language": "en-us", //  espeak supports 100 languages https://github.com/espeak-ng/espeak-ng/blob/master/docs/languages.md
     // linguistic features
     "extract_phone": true,
     "phone_extractor": "espeak", // "espeak, pypinyin, pypinyin_initials_finals, lexicon (only for language=en-us right now)"

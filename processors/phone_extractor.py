@@ -40,7 +40,9 @@ class phoneExtractor:
             "pypinyin",
             "pypinyin_initials_finals",
         ]:
-            self.g2p_module = G2PModule(backend=cfg.preprocess.phone_extractor)
+            self.g2p_module = G2PModule(
+                backend=cfg.preprocess.phone_extractor, language=cfg.preprocess.language
+            )
         elif cfg.preprocess.phone_extractor == "lexicon":
             assert cfg.preprocess.lexicon_path != ""
             self.g2p_module = LexiconModule(cfg.preprocess.lexicon_path)
