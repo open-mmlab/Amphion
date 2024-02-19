@@ -13,7 +13,13 @@ from sklearn.preprocessing import StandardScaler
 
 
 def intersperse(lst, item):
-    # Insert an item in between any consecutive elements of the given list, including beginning and end of list
+    """
+    Insert an item in between any two consecutive elements of the given list, including beginning and end of list
+
+    Example:
+        >>> intersperse(0, [1, 74, 5, 31])
+            [0, 1, 0, 74, 0, 5, 0, 31, 0]
+    """
     result = [item] * (len(lst) * 2 + 1)
     result[1::2] = lst
     return result
