@@ -81,6 +81,12 @@ Amphion unifies the data preprocess of the open-source datasets including [Audio
 
 ## 📀 Installation
 
+Amphion provide two types of installation: Directly install or Docker install.
+
+### Directly Install
+
+In this section, we provide the installation steps for Amphion. Check commands in [Dockerfile](Dockerfile) for necessary dependencies.
+
 ```bash
 git clone https://github.com/open-mmlab/Amphion.git
 cd Amphion
@@ -92,6 +98,23 @@ conda activate amphion
 # Install Python Packages Dependencies
 sh env.sh
 ```
+
+### Docker Install
+
+In this section, we provide the installation steps for Amphion using Docker. It is recommended to use Docker for the installation, as it is more convenient and less error-prone.
+
+1. Install [Docker](https://docs.docker.com/get-docker/), [NVIDIA Driver](https://www.nvidia.com/download/index.aspx), [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html), and [CUDA](https://developer.nvidia.com/cuda-downloads).
+
+2. Run the following commands:
+```bash
+git clone https://github.com/open-mmlab/Amphion.git
+cd Amphion
+
+docker pull realamphion/amphion
+docker run --runtime=nvidia --gpus all -it -v .:/app realamphion/amphion
+```
+Mount dataset by argument `-v` is necessary when using Docker. Please refer to [Mount dataset in Docker container](egs/datasets/docker.md) and [Docker Docs](https://docs.docker.com/engine/reference/commandline/container_run/#volume) for more details.
+
 
 ## 🐍 Usage in Python
 
