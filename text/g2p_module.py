@@ -113,6 +113,7 @@ class G2PModule:
         language_switch: LanguageSwitch = "keep-flags",
         words_mismatch: WordMismatch = "ignore",
     ) -> None:
+        self.separator = separator
         self.backend = self._initialize_backend(
             backend,
             language,
@@ -123,7 +124,6 @@ class G2PModule:
             language_switch,
             words_mismatch,
         )
-        self.separator = separator
 
     def _initialize_backend(
         self,
