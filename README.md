@@ -79,6 +79,13 @@ Amphion provides a comprehensive objective evaluation of the generated audio. Th
 
 Amphion unifies the data preprocess of the open-source datasets including [AudioCaps](https://audiocaps.github.io/), [LibriTTS](https://www.openslr.org/60/), [LJSpeech](https://keithito.com/LJ-Speech-Dataset/), [M4Singer](https://github.com/M4Singer/M4Singer), [Opencpop](https://wenet.org.cn/opencpop/), [OpenSinger](https://github.com/Multi-Singer/Multi-Singer.github.io), [SVCC](http://vc-challenge.org/), [VCTK](https://datashare.ed.ac.uk/handle/10283/3443), and more. The supported dataset list can be seen [here](egs/datasets/README.md) (updating).
 
+### Visualization
+
+Amphion provides visualization tools to interactively illustrate the internal processing mechanism of classic models. This provides an invaluable resource for educational purposes and for facilitating understandable research.
+
+Currently, Amphion supports [SingVisio](https://arxiv.org/abs/2402.12660), a visualization tool of the diffusion model for singing voice conversion. And, SingVisio tool can be experienced [here](https://openxlab.org.cn/apps/detail/Amphion/DiffSVC).
+
+
 ## 📀 Installation
 
 ```bash
@@ -102,6 +109,7 @@ We detail the instructions of different tasks in the following recipes:
 - [Text to Audio (TTA)](egs/tta/README.md)
 - [Vocoder](egs/vocoder/README.md)
 - [Evaluation](egs/metrics/README.md)
+- [Visualization](egs/visualization/README.md)
 
 ## 👨‍💻 Contributing
 We appreciate all contributions to improve Amphion. Please refer to [CONTRIBUTING.md](.github/CONTRIBUTING.md) for the contributing guideline.

@@ -11,7 +11,7 @@ As the unique feature of Amphion, visualization aims to  introduces interactive 
 Until now, Amphion has supported the visualization tool for the following models:
 
 - **SVC**:
-    - **[MultipleContentsSVC](../svc/MultipleContentsSVC)**: A diffusion based model for sining voice conversion
+    - **[MultipleContentsSVC](../svc/MultipleContentsSVC)**: A diffusion-based model for sining voice conversion
 - **TTS**:
     - **[FastSpeech 2](../tts/FastSpeech2/)** (👨‍💻 developing): A typical transformer-based TTS model.
     - **[VITS](../tts/VITS/)** (👨‍💻 developing): A typical flow-based end-to-end TTS model.
