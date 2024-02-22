@@ -6,7 +6,7 @@ We provides a **[beginner recipe](SingVisio/)** to demonstrate how to implement 
 
 ## Supported Models
 
-As the unique feature of Amphion, visualization aims to  introduces interactive visual analysis of some classical models for educational purposes, helping newcomers understand their inner workings. 
+As the unique feature of Amphion, visualization aims to introduce interactive visual analysis of some classical models for educational purposes, helping newcomers understand their inner workings. 
 
 Until now, Amphion has supported the visualization tool for the following models:
 

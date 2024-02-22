@@ -9,7 +9,7 @@
 
 This is the official implementation of the paper "[SingVisio: Visual Analytics of the Diffusion Model for Singing Voice Conversion](https://arxiv.org/abs/2402.12660)." Specifically,
 
-- The web-based user interface was developed using [D3.js](https://d3-graph-gallery.com/index.html), a JavaScript library designed for creating dynamic and interactive data visualizations. The code will soon be available, and can be accessed [here](../../visualization/SingVisio/).
+- The web-based user interface was developed using [D3.js](https://d3-graph-gallery.com/index.html), a JavaScript library designed for creating dynamic and interactive data visualizations. The code can be accessed [here](../../visualization/SingVisio/webpage/).
 - The core generative model, [MultipleContentsSVC](https://arxiv.org/abs/2310.11160), is a diffusion-based model tailored for singing voice conversion (SVC). The code for this model is available in Amphion, with the recipe accessible [here](../../svc/MultipleContentsSVC/).
 
 ## Functions of SingVisio
