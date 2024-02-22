@@ -23,7 +23,7 @@ Amphion support the following academic datasets (sort alphabetically):
 
 The downloading link and the file structure tree of each dataset is displayed as follows.
 
-When using Docker to run Amphion, mount the dataset to the container is necessary after downloading. Check [Mount dataset in Docker container](./docker.md) for more details.
+> **Note:** When using Docker to run Amphion, mount the dataset to the container is necessary after downloading. Check [Mount dataset in Docker container](./docker.md) for more details.
 
 ## AudioCaps
 
