@@ -81,11 +81,9 @@ Amphion unifies the data preprocess of the open-source datasets including [Audio
 
 ## 📀 Installation
 
-Amphion provide two types of installation: Directly install or Docker install.
+Amphion can be installed through either Setup Installer or Docker Image.
 
-### Directly Install
-
-In this section, we provide the installation steps for Amphion. Check commands in [Dockerfile](Dockerfile) for necessary dependencies.
+### Setup Installer
 
 ```bash
 git clone https://github.com/open-mmlab/Amphion.git
@@ -99,9 +97,7 @@ conda activate amphion
 sh env.sh
 ```
 
-### Docker Install
-
-In this section, we provide the installation steps for Amphion using Docker. It is recommended to use Docker for the installation, as it is more convenient and less error-prone.
+### Docker Image
 
 1. Install [Docker](https://docs.docker.com/get-docker/), [NVIDIA Driver](https://www.nvidia.com/download/index.aspx), [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html), and [CUDA](https://developer.nvidia.com/cuda-downloads).
 
