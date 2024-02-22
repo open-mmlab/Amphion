@@ -1,13 +1,16 @@
 # SingVisio: Visual Analytics of the Diffusion Model for Singing Voice Conversion
 
 [![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2402.12660)
-[![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/DiffSVC)
+[![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/SingVisio)
+[![Video](https://img.shields.io/badge/Video-Demo-orange)](https://drive.google.com/file/d/1w5xgsfaLxBcUvzq3rgejZ6jfgu6hwC0c/view)
 
 <div align="center">
 <img src="../../../imgs/visualization/SingVisio_system.png" width="85%">
 </div>
 
-This is the official implementation of the paper "[SingVisio: Visual Analytics of the Diffusion Model for Singing Voice Conversion](https://arxiv.org/abs/2402.12660)." Specifically, the **SingVisio** system comprises two main components: a web-based front-end user interface and a back-end generation model.
+This is the official implementation of the paper "[SingVisio: Visual Analytics of the Diffusion Model for Singing Voice Conversion](https://arxiv.org/abs/2402.12660)."  **SingVisio** system can be experienced [here](https://openxlab.org.cn/apps/detail/Amphion/SingVisio). 
+
+**SingVisio** system comprises two main components: a web-based front-end user interface and a back-end generation model.
 
 - The web-based user interface was developed using [D3.js](https://d3-graph-gallery.com/index.html), a JavaScript library designed for creating dynamic and interactive data visualizations. The code can be accessed [here](../../../visualization/SingVisio/webpage/).
 - The core generative model, [MultipleContentsSVC](https://arxiv.org/abs/2310.11160), is a diffusion-based model tailored for singing voice conversion (SVC). The code for this model is available in Amphion, with the recipe accessible [here](../../svc/MultipleContentsSVC/).

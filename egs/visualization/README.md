@@ -2,7 +2,7 @@
 
 ## Quick Start
 
-We provides a **[beginner recipe](SingVisio/)** to demonstrate how to implement interactive visualization for classic audio, music and speech generative models. Specifically, it is also an official implementation of the paper "[SingVisio: SingVisio: Visual Analytics of Diffusion Model for Singing Voice Conversion](https://arxiv.org/pdf/2402.12660.pdf)". The **SingVisio** can be accessed via [here](https://dsvc.openmmlab.org.cn/).
+We provides a **[beginner recipe](SingVisio/)** to demonstrate how to implement interactive visualization for classic audio, music and speech generative models. Specifically, it is also an official implementation of the paper "[SingVisio: SingVisio: Visual Analytics of Diffusion Model for Singing Voice Conversion](https://arxiv.org/pdf/2402.12660.pdf)". The **SingVisio** can be experienced [here](https://openxlab.org.cn/apps/detail/Amphion/SingVisio).
 
 ## Supported Models
 
