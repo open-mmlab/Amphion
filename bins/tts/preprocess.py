@@ -100,6 +100,7 @@ def preprocess(cfg, args):
     """
     # Specify the output root path to save the processed data
     output_path = cfg.preprocess.processed_dir
+    print("Output path: {}".format(output_path))
     os.makedirs(output_path, exist_ok=True)
 
     # Split train and test sets
@@ -136,6 +137,9 @@ def preprocess(cfg, args):
             print("Augmentation datasets: ", cfg.dataset)
     except:
         print("No Data Augmentation.")
+
+    if "librilight" in cfg.dataset:
+        return
 
     # json files
     dataset_types = list()
