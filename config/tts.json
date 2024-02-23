@@ -16,6 +16,7 @@
     // Directory names of processed data or extracted features
     "phone_dir": "phones",
     "use_phone": true,
+    "add_blank": true
   },
   "model": {
       "text_token_num": 512,

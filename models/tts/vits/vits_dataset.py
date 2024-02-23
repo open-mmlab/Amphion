@@ -27,6 +27,26 @@ class VITSDataset(TTSDataset):
     def __len__(self):
         return super().__len__()
 
+    def get_metadata(self):
+        metadata_filter = []
+        with open(self.metafile_path, "r", encoding="utf-8") as f:
+            metadata = json.load(f)
+        for utt_info in metadata:
+            duration = utt_info["Duration"]
+            frame_len = (
+                duration
+                * self.cfg.preprocess.sample_rate
+                // self.cfg.preprocess.hop_size
+            )
+            if (
+                frame_len
+                < self.cfg.preprocess.segment_size // self.cfg.preprocess.hop_size
+            ):
+                continue
+            metadata_filter.append(utt_info)
+
+        return metadata_filter
+
 
 class VITSCollator(TTSCollator):
     """Zero-pads model inputs and targets based on number of frames per step"""
@@ -42,11 +62,8 @@ class VITSCollator(TTSCollator):
 class VITSTestDataset(TTSTestDataset):
     def __init__(self, args, cfg):
         super().__init__(args, cfg)
-
+        processed_data_dir = os.path.join(cfg.preprocess.processed_dir, args.dataset)
         if cfg.preprocess.use_spkid:
-            processed_data_dir = os.path.join(
-                cfg.preprocess.processed_dir, args.dataset
-            )
             spk2id_path = os.path.join(processed_data_dir, cfg.preprocess.spk2id)
             with open(spk2id_path, "r") as f:
                 self.spk2id = json.load(f)

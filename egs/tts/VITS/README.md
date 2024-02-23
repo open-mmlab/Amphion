@@ -3,7 +3,7 @@
 [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/Text-to-Speech)
 [![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/Text-to-Speech)
 
-In this recipe, we will show how to train [VITS](https://arxiv.org/abs/2106.06103) using Amphion's infrastructure. VITS is an end-to-end TTS architecture that utilizes conditional variational autoencoder with adversarial learning.
+In this recipe, we will show how to train VITS using Amphion's infrastructure. [VITS](https://arxiv.org/abs/2106.06103) is an end-to-end TTS architecture that utilizes conditional variational autoencoder with adversarial learning.
 
 There are four stages in total:
 
@@ -20,7 +20,7 @@ There are four stages in total:
 ## 1. Data Preparation
 
 ### Dataset Download
-You can use the commonly used TTS dataset to train TTS model, e.g., LJSpeech, VCTK, LibriTTS, etc. We strongly recommend you use LJSpeech to train TTS model for the first time. How to download dataset is detailed [here](../../datasets/README.md).
+You can use the commonly used TTS dataset to train TTS model, e.g., LJSpeech, VCTK, Hi-Fi TTS, LibriTTS, etc. We strongly recommend using LJSpeech to train single-speaker TTS model for the first time. While for training multi-speaker TTS model for the first time, we would recommend using Hi-Fi TTS. The process of downloading dataset has been detailed [here](../../datasets/README.md).
 
 ### Configuration
 
@@ -29,10 +29,12 @@ After downloading the dataset, you can set the dataset paths in  `exp_config.jso
 ```json
     "dataset": [
         "LJSpeech",
+        //"hifitts"
     ],
     "dataset_path": {
         // TODO: Fill in your dataset path
         "LJSpeech": "[LJSpeech dataset path]",
+        //"hifitts": "[Hi-Fi TTS dataset path]
     },
 ```
 
@@ -40,21 +42,28 @@ After downloading the dataset, you can set the dataset paths in  `exp_config.jso
 
 ### Configuration
 
-Specify the `processed_dir` and the `log_dir` and for saving the processed data and the checkpoints in `exp_config.json`:
+In `exp_config.json`, specify the `log_dir` for saving the checkpoints and logs, and specify the `processed_dir` for saving processed data. For preprocessing the multi-speaker TTS dataset, set `extract_audio` and `use_spkid` to `true`:
 
 ```json
     // TODO: Fill in the output log path. The default value is "Amphion/ckpts/tts"
     "log_dir": "ckpts/tts",
     "preprocess": {
+        //"extract_audio": true,
+        "use_phone": true,
+        // linguistic features
+        "extract_phone": true,
+        "phone_extractor": "espeak", // "espeak, pypinyin, pypinyin_initials_finals, lexicon (only for language=en-us right now)"
         // TODO: Fill in the output data path. The default value is "Amphion/data"
         "processed_dir": "data",
-        ...
+        "sample_rate": 22050, //target sampling rate
+        "valid_file": "valid.json", //validation set
+        //"use_spkid": true, //use speaker ID to train multi-speaker TTS model
     },
 ```
 
 ### Run
 
-Run the `run.sh` as the preproces stage (set  `--stage 1`):
+Run the `run.sh` as the preprocess stage (set  `--stage 1`):
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 1
@@ -66,17 +75,22 @@ sh egs/tts/VITS/run.sh --stage 1
 
 ### Configuration
 
-We provide the default hyparameters in the `exp_config.json`. They can work on single NVIDIA-24g GPU. You can adjust them based on your GPU machines.
+We provide the default hyparameters in the `exp_config.json`. They can work on a single NVIDIA-24g GPU. You can adjust them based on your GPU machines.
+For training the multi-speaker TTS model, specify the `n_speakers` value to be greater (used for new speaker fine-tuning) than or equal to the number of speakers in your dataset(s) and set `multi_speaker_training` to `true`.
 
-```
-"train": {
-        "batch_size": 16,
-    }
+```json
+  "model": {
+    //"n_speakers": 10 //Number of speakers in the dataset(s) used. The default value is 0 if not specified.
+  },
+  "train": {
+    "batch_size": 16,
+    //"multi_speaker_training": true, 
+  }
 ```
 
 ### Train From Scratch
 
-Run the `run.sh` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/tts/[YourExptName]`.
+Run the `run.sh` as the training stage (set  `--stage 2`). Specify an experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/tts/[YourExptName]`.
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 2 --name [YourExptName]
@@ -139,23 +153,14 @@ For inference, you need to specify the following configurations when running `ru
 | `--infer_expt_dir`    | The experimental directory which contains `checkpoint`                                 | `Amphion/ckpts/tts/[YourExptName]`                                                                                                                                              |
 | `--infer_output_dir`  | The output directory to save inferred audios.                                          | `Amphion/ckpts/tts/[YourExptName]/result`                                                                                                                                       |
 | `--infer_mode`        | The inference mode, e.g., "`single`", "`batch`".                                       | "`single`" to generate a clip of speech, "`batch`" to generate a batch of speech at a time.                                                                                     |
-| `--infer_dataset`     | The dataset used for inference.                                                        | For LJSpeech dataset, the inference dataset would be `LJSpeech`.                                                                                                                |
-| `--infer_testing_set` | The subset of the inference dataset used for inference, e.g., train, test, golden_test | For LJSpeech dataset, the testing set would be  "`test`" split from LJSpeech at the feature extraction, or "`golden_test`" cherry-picked from test set as template testing set. |
+| `--infer_dataset`     | The dataset used for inference.                                                        | For LJSpeech dataset, the inference dataset would be `LJSpeech`.<br> For Hi-Fi TTS dataset, the inference dataset would be `hifitts`.                                                                                                              |
+| `--infer_testing_set` | The subset of the inference dataset used for inference, e.g., train, test, golden_test | For LJSpeech dataset, the testing set would be  "`test`" split from LJSpeech at the feature extraction, or "`golden_test`" cherry-picked from the test set as template testing set.<br>For Hi-Fi TTS dataset, the testing set would be "`test`" split from Hi-Fi TTS during the feature extraction process. |
 | `--infer_text`        | The text to be synthesized.                                                            | "`This is a clip of generated speech with the given text from a TTS model.`"                                                                                                    |
+| `--infer_speaker_name`        | The target speaker's voice is to be  synthesized.<br> (***Note: only applicable to multi-speaker TTS model***)                                                   | For Hi-Fi TTS dataset, the list of available speakers includes: "`hifitts_11614`", "`hifitts_11697`", "`hifitts_12787`", "`hifitts_6097`", "`hifitts_6670`", "`hifitts_6671`", "`hifitts_8051`", "`hifitts_9017`", "`hifitts_9136`", "`hifitts_92`". <br> You may find the list of available speakers from `spk2id.json` file generated in  ```log_dir/[YourExptName]``` that you have specified in `exp_config.json`.                                                                         |
 
 ### Run
-For example, if you want to generate speech of all testing set split from LJSpeech, just run:
-
-```bash
-sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
-    --infer_expt_dir Amphion/ckpts/tts/[YourExptName] \
-    --infer_output_dir Amphion/ckpts/tts/[YourExptName]/result \
-    --infer_mode "batch" \
-    --infer_dataset "LJSpeech" \
-    --infer_testing_set "test"
-```
-
-Or, if you want to generate a single clip of speech from a given text, just run:
+#### Single text inference: 
+For the single-speaker TTS model, if you want to generate a single clip of speech from a given text, just run:
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
@@ -165,7 +170,39 @@ sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
     --infer_text "This is a clip of generated speech with the given text from a TTS model."
 ```
 
-We released a pre-trained Amphion VITS model trained on LJSpeech. So you can download the pre-trained model [here](https://huggingface.co/amphion/vits-ljspeech) and generate speech following the above inference instruction.
+For the multi-speaker TTS model, in addition to the above-mentioned arguments, you need to add ```infer_speaker_name``` argument, and run: 
+```bash
+sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
+    --infer_expt_dir Amphion/ckpts/tts/[YourExptName] \
+    --infer_output_dir Amphion/ckpts/tts/[YourExptName]/result \
+    --infer_mode "single" \
+    --infer_text "This is a clip of generated speech with the given text from a TTS model." \
+    --infer_speaker_name "hifitts_92"
+```
+
+#### Batch inference: 
+For the single-speaker TTS model, if you want to generate speech of all testing sets split from LJSpeech, just run:
+
+```bash
+sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
+    --infer_expt_dir Amphion/ckpts/tts/[YourExptName] \
+    --infer_output_dir Amphion/ckpts/tts/[YourExptName]/result \
+    --infer_mode "batch" \
+    --infer_dataset "LJSpeech" \
+    --infer_testing_set "test"
+```
+For the multi-speaker TTS model, if you want to generate speech of all testing sets split from Hi-Fi TTS, the same procedure follows from above, with ```LJSpeech``` replaced by ```hifitts```.
+```bash
+sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
+    --infer_expt_dir Amphion/ckpts/tts/[YourExptName] \
+    --infer_output_dir Amphion/ckpts/tts/[YourExptName]/result \
+    --infer_mode "batch" \
+    --infer_dataset "hifitts" \
+    --infer_testing_set "test" 
+```
+
+
+We released a pre-trained Amphion VITS model trained on LJSpeech. So you can download the pre-trained model [here](https://huggingface.co/amphion/vits-ljspeech) and generate speech following the above inference instruction. Meanwhile, the pre-trained multi-speaker VITS model trained on Hi-Fi TTS will be released soon. Stay tuned.
 
 
 ```bibtex
