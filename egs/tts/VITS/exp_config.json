@@ -25,7 +25,7 @@
     //"use_spkid": true // use speaker ID to train multi-speaker TTS model
   },
   "model":{
-    //"n_speakers": 10 // number of speakers in the dataset(s) used. The default value is 0 if not specified.
+    //"n_speakers": 10 // number of speakers, greater than or equal to the number of speakers in the dataset(s) used. The default value is 0 if not specified.
   },
   "train": {
     "batch_size": 16,
