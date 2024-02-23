@@ -42,7 +42,7 @@ After downloading the dataset, you can set the dataset paths in  `exp_config.jso
 
 ### Configuration
 
-In `exp_config.json`, specify the `log_dir` for saving the checkpoints and logs, specify the `processed_dir` for saving processed data. For preprocessing multi-speaker TTS dataset, set `extract_audio` and `use_spkid` to `true`:
+In `exp_config.json`, specify the `log_dir` for saving the checkpoints and logs, and specify the `processed_dir` for saving processed data. For preprocessing the multi-speaker TTS dataset, set `extract_audio` and `use_spkid` to `true`:
 
 ```json
     // TODO: Fill in the output log path. The default value is "Amphion/ckpts/tts"
@@ -63,7 +63,7 @@ In `exp_config.json`, specify the `log_dir` for saving the checkpoints and logs,
 
 ### Run
 
-Run the `run.sh` as the preproces stage (set  `--stage 1`):
+Run the `run.sh` as the preprocess stage (set  `--stage 1`):
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 1
@@ -75,8 +75,8 @@ sh egs/tts/VITS/run.sh --stage 1
 
 ### Configuration
 
-We provide the default hyparameters in the `exp_config.json`. They can work on single NVIDIA-24g GPU. You can adjust them based on your GPU machines.
-For training multi-speaker TTS model, specify the `n_speakers` according to the number of speakers in your dataset(s) and set `multi_speaker_training` to `true`.
+We provide the default hyparameters in the `exp_config.json`. They can work on a single NVIDIA-24g GPU. You can adjust them based on your GPU machines.
+For training the multi-speaker TTS model, specify the `n_speakers` value to be greater (used for new speaker fine-tuning) than or equal to the number of speakers in your dataset(s) and set `multi_speaker_training` to `true`.
 
 ```json
   "model": {
@@ -90,7 +90,7 @@ For training multi-speaker TTS model, specify the `n_speakers` according to the 
 
 ### Train From Scratch
 
-Run the `run.sh` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/tts/[YourExptName]`.
+Run the `run.sh` as the training stage (set  `--stage 2`). Specify an experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/tts/[YourExptName]`.
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 2 --name [YourExptName]
@@ -154,13 +154,13 @@ For inference, you need to specify the following configurations when running `ru
 | `--infer_output_dir`  | The output directory to save inferred audios.                                          | `Amphion/ckpts/tts/[YourExptName]/result`                                                                                                                                       |
 | `--infer_mode`        | The inference mode, e.g., "`single`", "`batch`".                                       | "`single`" to generate a clip of speech, "`batch`" to generate a batch of speech at a time.                                                                                     |
 | `--infer_dataset`     | The dataset used for inference.                                                        | For LJSpeech dataset, the inference dataset would be `LJSpeech`.<br> For Hi-Fi TTS dataset, the inference dataset would be `hifitts`.                                                                                                              |
-| `--infer_testing_set` | The subset of the inference dataset used for inference, e.g., train, test, golden_test | For LJSpeech dataset, the testing set would be  "`test`" split from LJSpeech at the feature extraction, or "`golden_test`" cherry-picked from test set as template testing set.<br>For Hi-Fi TTS dataset, the testing set would be "`test`" split from Hi-Fi TTS during the feature extraction process. |
+| `--infer_testing_set` | The subset of the inference dataset used for inference, e.g., train, test, golden_test | For LJSpeech dataset, the testing set would be  "`test`" split from LJSpeech at the feature extraction, or "`golden_test`" cherry-picked from the test set as template testing set.<br>For Hi-Fi TTS dataset, the testing set would be "`test`" split from Hi-Fi TTS during the feature extraction process. |
 | `--infer_text`        | The text to be synthesized.                                                            | "`This is a clip of generated speech with the given text from a TTS model.`"                                                                                                    |
-| `--infer_speaker_name`        | The target speaker's voice to be  synthesized.<br> (***Note: only applicable to multi-speaker TTS model***)                                                   | For Hi-Fi TTS dataset, the list of available speakers includes: "`hifitts_11614`", "`hifitts_11697`", "`hifitts_12787`", "`hifitts_6097`", "`hifitts_6670`", "`hifitts_6671`", "`hifitts_8051`", "`hifitts_9017`", "`hifitts_9136`", "`hifitts_92`". <br> You may find the list of available speakers from `spk2id.json` file generated in  ```log_dir/[YourExptName]``` that you have specified in `exp_config.json`.                                                                         |
+| `--infer_speaker_name`        | The target speaker's voice is to be  synthesized.<br> (***Note: only applicable to multi-speaker TTS model***)                                                   | For Hi-Fi TTS dataset, the list of available speakers includes: "`hifitts_11614`", "`hifitts_11697`", "`hifitts_12787`", "`hifitts_6097`", "`hifitts_6670`", "`hifitts_6671`", "`hifitts_8051`", "`hifitts_9017`", "`hifitts_9136`", "`hifitts_92`". <br> You may find the list of available speakers from `spk2id.json` file generated in  ```log_dir/[YourExptName]``` that you have specified in `exp_config.json`.                                                                         |
 
 ### Run
 #### Single text inference: 
-For single-speaker TTS model, if you want to generate a single clip of speech from a given text, just run:
+For the single-speaker TTS model, if you want to generate a single clip of speech from a given text, just run:
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
@@ -170,7 +170,7 @@ sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
     --infer_text "This is a clip of generated speech with the given text from a TTS model."
 ```
 
-For multi-speaker TTS model, in addition to the above-mentioned arguments, you need to add ```infer_speaker_name``` argument, and run: 
+For the multi-speaker TTS model, in addition to the above-mentioned arguments, you need to add ```infer_speaker_name``` argument, and run: 
 ```bash
 sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
     --infer_expt_dir Amphion/ckpts/tts/[YourExptName] \
@@ -181,7 +181,7 @@ sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
 ```
 
 #### Batch inference: 
-For single-speaker TTS model, if you want to generate speech of all testing set split from LJSpeech, just run:
+For the single-speaker TTS model, if you want to generate speech of all testing sets split from LJSpeech, just run:
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
@@ -191,7 +191,7 @@ sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
     --infer_dataset "LJSpeech" \
     --infer_testing_set "test"
 ```
-For multi-speaker TTS model, if you want to generate speech of all testing set split from Hi-Fi TTS, the same procedure follows from above, with ```LJSpeech``` replaced by ```hifitts```.
+For the multi-speaker TTS model, if you want to generate speech of all testing sets split from Hi-Fi TTS, the same procedure follows from above, with ```LJSpeech``` replaced by ```hifitts```.
 ```bash
 sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
     --infer_expt_dir Amphion/ckpts/tts/[YourExptName] \
