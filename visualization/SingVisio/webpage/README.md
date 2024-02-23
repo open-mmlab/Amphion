@@ -1,16 +1,6 @@
 ## SingVisio Webpage
 
-This is the source code of SingVisio Webpage. This README file will introduce the project and provide installation guide.
-
-### Structure
-
-- `index.html`: entry point file
-- `config`: json file loaded in `index.html`
-- `img`: image files
-- `resources`: CSS style and JavaScript files
-    - `init.js`: load config and initialize variables
-    - `function.js`: functions used in this project
-    - `event.js`: bind webpage mouse and keyboard events to function
+This is the source code of the SingVisio Webpage. This README file will introduce the project and provide an installation guide.
 
 ### Tech stack
 
@@ -19,9 +9,21 @@ This is the source code of SingVisio Webpage. This README file will introduce th
 - [D3.js](https://d3js.org/)
 - [Driver.js](https://driverjs.com/)
 
+
+### Structure
+
+- `index.html`: entry point file
+- `config`: JSON file loaded in `index.html`
+- `img`: image files
+- `resources`: CSS style and JavaScript files
+    - `init.js`: load config and initialize variables
+    - `function.js`: functions used in this project
+    - `event.js`: bind webpage mouse and keyboard events to function
+
+
 ### Configuration
 
-Before installation, it is required to config the data path in file `config/default.json`. 
+Before installation, the data path must be configured in the file `config/default.json`. 
 
 ```json
 {
@@ -90,14 +92,14 @@ Before installation, it is required to config the data path in file `config/defa
 
 ### Installation
 
-This project does not need build. There are multiple ways to run this project. Here we will introduce the simplest way:
+This project does not need to be built. There are multiple ways to run this project. Here, we will introduce the simplest way:
 
-1. Install Python and run following code to start http server:
+1. Install Python and run the following code to start the HTTP server:
 
 ```bash
 cd webpage
 python -m http.server 8080
 ```
 
-2. After starting the web server, enter the link in browser: [http://localhost:8080/](http://localhost:8080/)
+2. After starting the web server, enter the link in the browser: [http://localhost:8080/](http://localhost:8080/)
 
