@@ -33,7 +33,7 @@ Here is the Amphion v0.1 demo, whose voice, audio effects, and singing voice are
 )
 
 ## 🚀 News
-
+- **2024/02/22**: The first Amphion visualization tool, **SingVisio**, release. [![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2402.12660) [![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/SingVisio) [![Video](https://img.shields.io/badge/Video-Demo-orange)](https://drive.google.com/file/d/1w5xgsfaLxBcUvzq3rgejZ6jfgu6hwC0c/view) [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](egs/visualization/SingVisio/README.md)
 - **2023/12/18**: Amphion v0.1 release. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2312.09911) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Amphion-pink)](https://huggingface.co/amphion) [![youtube](https://img.shields.io/badge/YouTube-Demo-red)](https://www.youtube.com/watch?v=1aw0HhcggvQ) [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](https://github.com/open-mmlab/Amphion/pull/39)
 - **2023/11/28**: Amphion alpha release. [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](https://github.com/open-mmlab/Amphion/pull/2)
 
@@ -79,6 +79,13 @@ Amphion provides a comprehensive objective evaluation of the generated audio. Th
 
 Amphion unifies the data preprocess of the open-source datasets including [AudioCaps](https://audiocaps.github.io/), [LibriTTS](https://www.openslr.org/60/), [LJSpeech](https://keithito.com/LJ-Speech-Dataset/), [M4Singer](https://github.com/M4Singer/M4Singer), [Opencpop](https://wenet.org.cn/opencpop/), [OpenSinger](https://github.com/Multi-Singer/Multi-Singer.github.io), [SVCC](http://vc-challenge.org/), [VCTK](https://datashare.ed.ac.uk/handle/10283/3443), and more. The supported dataset list can be seen [here](egs/datasets/README.md) (updating).
 
+### Visualization
+
+Amphion provides visualization tools to interactively illustrate the internal processing mechanism of classic models. This provides an invaluable resource for educational purposes and for facilitating understandable research.
+
+Currently, Amphion supports [SingVisio](egs/visualization/SingVisio/README.md), a visualization tool of the diffusion model for singing voice conversion. [![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2402.12660) [![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/SingVisio) [![Video](https://img.shields.io/badge/Video-Demo-orange)](https://drive.google.com/file/d/1w5xgsfaLxBcUvzq3rgejZ6jfgu6hwC0c/view)
+
+
 ## 📀 Installation
 
 Amphion can be installed through either Setup Installer or Docker Image.
@@ -121,6 +128,7 @@ We detail the instructions of different tasks in the following recipes:
 - [Text to Audio (TTA)](egs/tta/README.md)
 - [Vocoder](egs/vocoder/README.md)
 - [Evaluation](egs/metrics/README.md)
+- [Visualization](egs/visualization/README.md)
 
 ## 👨‍💻 Contributing
 We appreciate all contributions to improve Amphion. Please refer to [CONTRIBUTING.md](.github/CONTRIBUTING.md) for the contributing guideline.
@@ -146,9 +154,9 @@ Amphion is under the [MIT License](LICENSE). It is free for both research and co
 ```bibtex
 @article{zhang2023amphion,
       title={Amphion: An Open-Source Audio, Music and Speech Generation Toolkit}, 
-      author={Xueyao Zhang and Liumeng Xue and Yuancheng Wang and Yicheng Gu and Xi Chen and Zihao Fang and Haopeng Chen and Lexiao Zou and Chaoren Wang and Jun Han and Kai Chen and Haizhou Li and Zhizheng Wu},
+      author={Xueyao Zhang and Liumeng Xue and Yicheng Gu and Yuancheng Wang and Haorui He and Chaoren Wang and Xi Chen and Zihao Fang and Haopeng Chen and Junan Zhang and Tze Ying Tang and Lexiao Zou and Mingxuan Wang and Jun Han and Kai Chen and Haizhou Li and Zhizheng Wu},
       journal={arXiv},
-      year={2023},
+      year={2024},
       volume={abs/2312.09911}
 }
 ```

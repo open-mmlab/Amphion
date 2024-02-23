@@ -1,0 +1,402 @@
+{
+    "pathData": {
+        "Step Comparison": {
+            "multi": false,
+            "data": [
+                {
+                    "dataset": "SVCC",
+                    "basePath": "data/gd_svcc",
+                    "pathMap": {
+                        "SF1": {
+                            "songs": [
+                                "30001",
+                                "30002",
+                                "30003"
+                            ],
+                            "targets": [
+                                "svcc_IDF1",
+                                "svcc_IDM1",
+                                "svcc_CDF1",
+                                "svcc_CDM1"
+                            ]
+                        },
+                        "SM1": {
+                            "songs": [
+                                "30001",
+                                "30002",
+                                "30003"
+                            ],
+                            "targets": [
+                                "svcc_IDF1",
+                                "svcc_IDM1",
+                                "svcc_CDF1",
+                                "svcc_CDM1"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "dataset": "M4Singer",
+                    "basePath": "data/gd_m4sg",
+                    "pathMap": {
+                        "Alto-1": {
+                            "songs": [
+                                "美错_0014"
+                            ],
+                            "targets": [
+                                "opencpop"
+                            ]
+                        },
+                        "Bass-1": {
+                            "songs": [
+                                "十年_0008"
+                            ],
+                            "targets": [
+                                "opencpop"
+                            ]
+                        },
+                        "Soprano-2": {
+                            "songs": [
+                                "同桌的你_0018"
+                            ],
+                            "targets": [
+                                "opencpop"
+                            ]
+                        },
+                        "Tenor-5": {
+                            "songs": [
+                                "爱笑的眼睛_0010"
+                            ],
+                            "targets": [
+                                "opencpop"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "Source Singer Comparison": {
+            "multi": [
+                "sourcesinger_id"
+            ],
+            "referenceMap": {
+                "m4singer_Alto-7": [
+                    "Alto-7_寂寞沙洲冷_0000",
+                    "Alto-7_寂寞沙洲冷_0011"
+                ],
+                "m4singer_Bass-1": [
+                    "Bass-1_寂寞沙洲冷_0002",
+                    "Bass-1_寂寞沙洲冷_0021"
+                ],
+                "m4singer_Tenor-6": [
+                    "Tenor-6_寂寞沙洲冷_0002",
+                    "Tenor-6_寂寞沙洲冷_0020"
+                ],
+                "m4singer_Tenor-7": [
+                    "Tenor-7_寂寞沙洲冷_0002",
+                    "Tenor-7_寂寞沙洲冷_0013",
+                    "Tenor-7_寂寞沙洲冷_0023"
+                ]
+            },
+            "indexMode": "number",
+            "data": [
+                {
+                    "dataset": "M4Singer",
+                    "basePath": "data/dc_dss",
+                    "pathMap": {
+                        "Alto-7": {
+                            "songs": [
+                                "寂寞沙洲冷_0000",
+                                "寂寞沙洲冷_0011"
+                            ],
+                            "targets": [
+                                "m4singer_Tenor-7",
+                                "m4singer_Alto-7"
+                            ]
+                        },
+                        "Bass-1": {
+                            "songs": [
+                                "寂寞沙洲冷_0002",
+                                "寂寞沙洲冷_0021"
+                            ],
+                            "targets": [
+                                "m4singer_Tenor-7",
+                                "m4singer_Bass-1"
+                            ]
+                        },
+                        "Tenor-6": {
+                            "songs": [
+                                "寂寞沙洲冷_0002",
+                                "寂寞沙洲冷_0020"
+                            ],
+                            "targets": [
+                                "m4singer_Tenor-7",
+                                "m4singer_Tenor-6"
+                            ]
+                        },
+                        "Tenor-7": {
+                            "songs": [
+                                "寂寞沙洲冷_0002",
+                                "寂寞沙洲冷_0013"
+                            ],
+                            "targets": [
+                                "m4singer_Alto-7",
+                                "m4singer_Bass-1",
+                                "m4singer_Tenor-6"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "Song comparison": {
+            "multi": [
+                "song_id"
+            ],
+            "referenceMap": {
+                "m4singer_Tenor-6": [
+                    "Tenor-6_寂寞沙洲冷_0002",
+                    "Tenor-6_寂寞沙洲冷_0020"
+                ],
+                "m4singer_Tenor-7": [
+                    "Tenor-7_寂寞沙洲冷_0002",
+                    "Tenor-7_寂寞沙洲冷_0013"
+                ]
+            },
+            "data": [
+                {
+                    "dataset": "M4Singer",
+                    "basePath": "data/dc_dss",
+                    "pathMap": {
+                        "Tenor-6": {
+                            "songs": [
+                                "寂寞沙洲冷_0002",
+                                "寂寞沙洲冷_0020"
+                            ],
+                            "targets": [
+                                "m4singer_Tenor-7",
+                                "m4singer_Tenor-6"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "Target Singer Comparison": {
+            "multi": [
+                "song_id",
+                "target_id"
+            ],
+            "referenceMap": {
+                "m4singer_Alto-7": [
+                    "Alto-7_寂寞沙洲冷_0000",
+                    "Alto-7_寂寞沙洲冷_0011"
+                ],
+                "m4singer_Bass-1": [
+                    "Bass-1_寂寞沙洲冷_0002",
+                    "Bass-1_寂寞沙洲冷_0021"
+                ],
+                "m4singer_Tenor-7": [
+                    "Tenor-7_寂寞沙洲冷_0002",
+                    "Tenor-7_寂寞沙洲冷_0013"
+                ],
+                "m4singer_Tenor-6": [
+                    "Tenor-6_寂寞沙洲冷_0002",
+                    "Tenor-6_寂寞沙洲冷_0020"
+                ]
+            },
+            "data": [
+                {
+                    "dataset": "M4Singer",
+                    "basePath": "data/dc_ssd",
+                    "pathMap": {
+                        "Tenor-6": {
+                            "songs": [
+                                "寂寞沙洲冷_0002",
+                                "寂寞沙洲冷_0020"
+                            ],
+                            "targets": [
+                                "m4singer_Alto-7",
+                                "m4singer_Bass-1",
+                                "m4singer_Tenor-7",
+                                "m4singer_Tenor-6"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "Metric Comparison": {
+            "multi": false,
+            "curve": true,
+            "data": [
+                {
+                    "dataset": "SVCC",
+                    "basePath": "data/ev_best",
+                    "pathMap": {
+                        "SM1": {
+                            "songs": [
+                                "30009"
+                            ],
+                            "targets": [
+                                "svcc_IDM1"
+                            ]
+                        },
+                        "SF1": {
+                            "songs": [
+                                "30005",
+                                "30006",
+                                "30009",
+                                "30016",
+                                "30022",
+                                "30019"
+                            ],
+                            "targets": [
+                                "svcc_IDF1"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "mapToName": {
+        "SF1": "Singer 1",
+        "SM1": "Singer 2",
+        "CDF1": "Singer 3",
+        "CDM1": "Singer 4",
+        "IDF1": "Singer 5",
+        "IDM1": "Singer 6",
+        "svcc_CDF1": "Singer 3",
+        "svcc_CDM1": "Singer 4",
+        "svcc_IDF1": "Singer 5",
+        "svcc_IDM1": "Singer 6",
+        "Alto-1": "Singer 7",
+        "m4singer_Alto-1": "Singer 7",
+        "Alto-7": "Singer 8",
+        "m4singer_Alto-7": "Singer 8",
+        "Bass-1": "Singer 9",
+        "m4singer_Bass-1": "Singer 9",
+        "Soprano-2": "Singer 10",
+        "m4singer_Soprano-2": "Singer 10",
+        "Tenor-5": "Singer 11",
+        "m4singer_Tenor-5": "Singer 11",
+        "Tenor-6": "Singer 12",
+        "m4singer_Tenor-6": "Singer 12",
+        "Tenor-7": "Singer 13",
+        "m4singer_Tenor-7": "Singer 13",
+        "opencpop": "Singer 14"
+    },
+    "mapToSong": {
+        "30001": "Song 1",
+        "30002": "Song 2",
+        "30003": "Song 3",
+        "10001": "Song 4",
+        "10030": "Song 5",
+        "10120": "Song 6",
+        "10140": "Song 7",
+        "美错_0014": "Song 8",
+        "十年_0008": "Song 9",
+        "同桌的你_0018": "Song 10",
+        "爱笑的眼睛_0010": "Song 11",
+        "寂寞沙洲冷_0000": "Song 12",
+        "寂寞沙洲冷_0002": "Song 12",
+        "寂寞沙洲冷_0011": "Song 13",
+        "寂寞沙洲冷_0013": "Song 13",
+        "寂寞沙洲冷_0020": "Song 13",
+        "寂寞沙洲冷_0021": "Song 14",
+        "30005": "Song 15",
+        "30006": "Song 16",
+        "30009": "Song 17",
+        "30016": "Song 18",
+        "30022": "Song 19",
+        "30019": "Song 20"
+    },
+    "mapToSpace": {
+        "encoded_step": "Step (Diffusion step)",
+        "noise_step_layer0": "Step + Noise (First layer)",
+        "noise_step_layer10": "Step + Noise (Middle layer)",
+        "noise_step_layer19": "Step + Noise (Last layer)",
+        "noise_step_condition_layer0": "Step + Noise + Condition (First layer)",
+        "noise_step_condition_layer10": "Step + Noise + Condition (Middle layer)",
+        "noise_step_condition_layer19": "Step + Noise + Condition (Last layer)"
+    },
+    "picTypes": [
+        "encoded_step",
+        "noise_step_layer0",
+        "noise_step_layer10",
+        "noise_step_layer19",
+        "noise_step_condition_layer0",
+        "noise_step_condition_layer10",
+        "noise_step_condition_layer19"
+    ],
+    "evaluation_data": [
+        {
+            "target": "svcc_IDM1",
+            "sourcesinger": "SM1",
+            "song": "30009",
+            "best": [
+                "MCD"
+            ]
+        },
+        {
+            "target": "svcc_IDF1",
+            "sourcesinger": "SF1",
+            "song": "30016",
+            "best": [
+                "F0CORR",
+                "FAD"
+            ]
+        },
+        {
+            "target": "svcc_IDF1",
+            "sourcesinger": "SF1",
+            "song": "30009",
+            "best": [
+                "F0RMSE",
+                "CER"
+            ]
+        },
+        {
+            "target": "svcc_IDF1",
+            "sourcesinger": "SF1",
+            "song": "30019",
+            "best": [
+                "Dembed"
+            ]
+        }
+    ],
+    "colorList": [
+        "#FFA500",
+        "#1C64F2",
+        "#7E3AF2",
+        "#9F580A"
+    ],
+    "histogramData": [
+        {
+            "type": "high",
+            "name": "F0CORR",
+            "value": 0.946698913
+        },
+        {
+            "type": "high",
+            "name": "Dembed",
+            "value": 0.688410708
+        },
+        {
+            "type": "low",
+            "name": "MCD",
+            "value": 11.44773471
+        },
+        {
+            "type": "low",
+            "name": "F0RMSE",
+            "value": 70.81400428
+        },
+        {
+            "type": "low",
+            "name": "FAD",
+            "value": 10.35121372
+        }
+    ]
+}
