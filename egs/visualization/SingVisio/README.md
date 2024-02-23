@@ -57,7 +57,7 @@ The user inference of **SingVisio** is comprised of five views:
 
 ## Detailed System Introduction of SingVisio
 
-For a detailed introduction to **SingVisio** and user instructions, please refer to [this document](https://x8gvg3n7v3.feishu.cn/docx/IMhUdqIFVo0ZjaxlBf6cpjTEnvf?from=from_copylink). 
+For a detailed introduction to **SingVisio** and user instructions, please refer to [this oneline document](https://x8gvg3n7v3.feishu.cn/docx/IMhUdqIFVo0ZjaxlBf6cpjTEnvf?from=from_copylink) (with animation) or [offline document](../../../visualization/SingVisio/System_Introduction_of_SingVisio.pdf)(without animation)
 
 Additionally, explore the SingVisio demo to see the system's functionalities and usage in action.
 
