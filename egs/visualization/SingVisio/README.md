@@ -23,7 +23,7 @@ The process of developing a visualization system encompasses seven key steps:
 
 2. **Task Analysis**: Analyze the specific tasks that the visualization system needs to support through discussions with experts, model builders, and potential users. It means to determine what you want to visualize, such as the classical denoising generation process in diffusion models.
 
-3. **Data and Feature Generation**: Produce the data and features necessary for visualization based on the selected model. Alternatively, you can also generate and visualize them in real-time.
+3. **Data and Feature Generation**: Produce the data and features necessary for visualization based on the selected model. Alternatively, you can also generate and visualize them in real time.
 
 4. **Design the User Interface**: Design and develop the user interface to effectively display the model structure, data, and features. 
 
@@ -31,17 +31,17 @@ The process of developing a visualization system encompasses seven key steps:
 
 6. **User Study Preparation**: Design questionnaires for a user study to evaluate the system in terms of system design, functionality, explainability, and user-friendliness.
 
-7. **Evaluation and Improvement**: Conduct comprehensive evaluations through user study, case study, and expert study to evaluate, analyze, and improve the system.
+7. **Evaluation and Improvement**: Conduct comprehensive evaluations through a user study, case study, and expert study to evaluate, analyze, and improve the system.
 
 
 ## Tasks Supported in SingVisio
 
 There are five tasks in **SingVisio** System.
-- To investigate the evolution and quality of the converted SVC results from each step in the diffusion generation process, **SingVisio** support the following two tasks:
+- To investigate the evolution and quality of the converted SVC results from each step in the diffusion generation process, **SingVisio** supports the following two tasks:
     - **T1: Step-wise Diffusion Generation Comparison:** Investigate the evolution and quality of results converted at each step of the diffusion process.
     - **T2: Step-wise Metric Comparison:** Examine changes in metrics throughout the diffusion steps.
 
-- To explore how various factors (content, melody, singer timbre) influence the SVC results, **SingVisio** support the following three tasks:
+- To explore how various factors (content, melody, singer timbre) influence the SVC results, **SingVisio** supports the following three tasks:
     - **T3: Pair-wise SVC Comparison with Different <u>Target Singers</u>**
     - **T4: Pair-wise SVC Comparison with Different <u>Source Singers</u>**
     - **T5: Pair-wise SVC Comparison with Different <u>Songs</u>**
@@ -57,7 +57,7 @@ The user inference of **SingVisio** is comprised of five views:
 
 ## Detailed System Introduction of SingVisio
 
-For a detailed introduction to **SingVisio** and user instructions, please refer to [this oneline document](https://x8gvg3n7v3.feishu.cn/docx/IMhUdqIFVo0ZjaxlBf6cpjTEnvf?from=from_copylink) (with animation) or [offline document](../../../visualization/SingVisio/System_Introduction_of_SingVisio.pdf)(without animation)
+For a detailed introduction to **SingVisio** and user instructions, please refer to [this online document](https://x8gvg3n7v3.feishu.cn/docx/IMhUdqIFVo0ZjaxlBf6cpjTEnvf?from=from_copylink) (with animation) or [offline document](../../../visualization/SingVisio/System_Introduction_of_SingVisio.pdf) (without animation).
 
 Additionally, explore the SingVisio demo to see the system's functionalities and usage in action.
 
