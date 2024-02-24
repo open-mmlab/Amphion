@@ -111,7 +111,7 @@ You can also choose a **specific checkpoint** for retraining by `--resume_from_c
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 2 --name [YourExptName] \
-    --resume true
+    --resume true \
     --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificCheckpoint]" \
 ```
 
@@ -120,7 +120,7 @@ If you want to **fine-tune from another checkpoint**, just use `--resume_type` a
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 2 --name [YourExptName] \
-    --resume true
+    --resume true \
     --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificCheckpoint]" \
     --resume_type "finetune"
 ```

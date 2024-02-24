@@ -158,19 +158,29 @@ class TTSTrainer(BaseTrainer):
         self.task_type = "TTS"
         self.logger.info("Task type: {}".format(self.task_type))
 
+
     def _check_resume(self):
         # if args.resume:
         if self.args.resume or (
             self.cfg.model_type == "VALLE" and self.args.train_stage == 2
         ):
+            checkpoint_dir = self.checkpoint_dir
             if self.cfg.model_type == "VALLE" and self.args.train_stage == 2:
-                self.args.resume_type = "finetune"
+                ls = [str(i) for i in Path(checkpoint_dir).glob("*")]
+                if self.args.checkpoint_path is None or len(ls) == 0: # Train stage 2 from scratch using the checkpoint of stage 1
+                    assert self.args.ar_model_ckpt_dir is not None, "Error: ar_model_ckpt_dir should be set to train nar model."
+                    self.args.resume_type = "finetune"
+                    checkpoint_dir = self.args.ar_model_ckpt_dir
+                    self.logger.info(
+                        f"Training NAR model at stage 2 using the checkpoint of AR model at stage 1."
+                    )
 
-            self.logger.info("Resuming from checkpoint...")
+            self.logger.info(f"Resuming from checkpoint: {checkpoint_dir}")
             start = time.monotonic_ns()
             self.ckpt_path = self._load_model(
-                self.checkpoint_dir, self.args.checkpoint_path, self.args.resume_type
+                checkpoint_dir, self.args.checkpoint_path, self.args.resume_type
             )
+            self.logger.info(f"Checkpoint path: {self.ckpt_path}")
             end = time.monotonic_ns()
             self.logger.info(
                 f"Resuming from checkpoint done in {(end - start) / 1e6:.2f}ms"
@@ -178,7 +188,7 @@ class TTSTrainer(BaseTrainer):
             self.checkpoints_path = json.load(
                 open(os.path.join(self.ckpt_path, "ckpts.json"), "r")
             )
-
+            
     def _init_accelerator(self):
         self.exp_dir = os.path.join(
             os.path.abspath(self.cfg.log_dir), self.args.exp_name
@@ -699,6 +709,7 @@ class TTSTrainer(BaseTrainer):
         phone_symbols_file_to_exp_path = os.path.join(
             self.exp_dir, self.cfg.preprocess.symbols_dict
         )
+        os.chmod(phone_symbols_file_to_exp_path, 0o666)
         shutil.copy(phone_symbols_file, phone_symbols_file_to_exp_path)
         print(
             "phone symbols been dumped to {}".format(

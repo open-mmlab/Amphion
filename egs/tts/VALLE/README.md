@@ -66,13 +66,13 @@ sh egs/tts/VALLE/run.sh --stage 1
 
 We provide the default hyparameters in the `exp_config.json`. They can work on single NVIDIA-24g GPU. You can adjust them based on your GPU machines.
 
-```
+```json
 "train": {
         "batch_size": 4,
     }
 ```
 
-### Run
+### Train From Scratch
 
 Run the `run.sh` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/tts/[YourExptName]`.
 
@@ -90,6 +90,63 @@ Train a NAR model, just run:
 sh egs/tts/VALLE/run.sh --stage 2 --model_train_stage 2 --ar_model_ckpt_dir [ARModelPath] --name [YourExptName]
 ```
 <!-- > **NOTE:** To train a NAR model, `--checkpoint_path` should be set as the ckeckpoint path to the trained AR model. -->
+
+
+### Train From Existing Source
+
+We support training from existing source for various purposes. You can resume training the model from a checkpoint or fine-tune a model from another checkpoint.
+
+Setting `--resume true`, the training will resume from the **latest checkpoint** from the current `[YourExptName]` by default. For example, if you want to resume training from the latest checkpoint in `Amphion/ckpts/tts/[YourExptName]/checkpoint`, 
+
+Train a AR moel, just run:
+
+```bash
+sh egs/tts/VALLE/run.sh --stage 2 --model_train_stage 1 --name [YourExptName] \
+    --resume true
+```
+
+Train a NAR model, just run:
+```bash
+sh egs/tts/VALLE/run.sh --stage 2 --model_train_stage 2 --ar_model_ckpt_dir [ARModelPath] --name [YourExptName] \
+    --resume true
+```
+
+
+
+You can also choose a **specific checkpoint** for retraining by `--resume_from_ckpt_path` argument. For example, if you want to resume training from the checkpoint `Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificCheckpoint]`,
+
+Train a AR moel, just run:
+
+```bash
+sh egs/tts/VALLE/run.sh --stage 2 --model_train_stage 1 --name [YourExptName] \
+    --resume true \
+    --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificARCheckpoint]" \
+```
+
+Train a NAR model, just run:
+```bash
+sh egs/tts/VALLE/run.sh --stage 2 --model_train_stage 2 --ar_model_ckpt_dir [ARModelPath] --name [YourExptName] \
+    --resume true \
+    --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificNARCheckpoint]" \
+```
+
+
+If you want to **fine-tune from another checkpoint**, just use `--resume_type` and set it to `"finetune"`. For example, If you want to fine-tune the model from the checkpoint `Amphion/ckpts/tts/[AnotherExperiment]/checkpoint/[SpecificCheckpoint]`, run:
+
+
+```bash
+sh egs/tts/VALLE/run.sh --stage 2 --name [YourExptName] \
+    --resume true \
+    --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificCheckpoint]" \
+    --resume_type "finetune"
+```
+
+> **NOTE:** The `--resume_type` is set as `"resume"` in default. It's not necessary to specify it when resuming training.
+> 
+> The difference between `"resume"` and `"finetune"` is that the `"finetune"` will **only** load the pretrained model weights from the checkpoint, while the `"resume"` will load all the training states (including optimizer, scheduler, etc.) from the checkpoint.
+
+
+
 
 > **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "0,1,2,3"`.
 
