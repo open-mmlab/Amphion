@@ -60,7 +60,7 @@ def main(output_path, dataset_path):
                 entry = json.loads(line)
                 utt_path = entry.get("audio_filepath")
                 chosen_book = utt_path.split("/")[-2]
-                chosen_uid = utt_path.split("/")[-1]
+                chosen_uid = utt_path.split("/")[-1].split(".")[0]
                 duration = entry.get("duration")
                 text = entry.get("text_normalized")
                 path = os.path.join(hifitts_path, utt_path)

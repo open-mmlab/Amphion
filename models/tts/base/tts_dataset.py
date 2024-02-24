@@ -209,6 +209,9 @@ class TTSDataset(BaseDataset):
                     phon_id_collator = phoneIDCollation(cfg, dataset=dataset)
                     sequence = phon_id_collator.get_phone_id_sequence(cfg, phones_seq)
 
+                    if cfg.preprocess.add_blank:
+                        sequence = intersperse(sequence, 0)
+
                 self.utt2seq[utt] = sequence
 
     def __getitem__(self, index):

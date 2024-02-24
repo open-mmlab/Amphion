@@ -12,6 +12,7 @@ import numpy as np
 from tqdm import tqdm
 from accelerate.logging import get_logger
 from torch.utils.data import DataLoader
+from safetensors.torch import load_file
 
 
 from abc import abstractmethod
@@ -162,7 +163,16 @@ class TTSInference(object):
             ls.sort(key=lambda x: int(x.split("_")[-3].split("-")[-1]), reverse=True)
             checkpoint_path = ls[0]
 
-        self.accelerator.load_state(str(checkpoint_path))
+        if (
+            Path(os.path.join(checkpoint_path, "model.safetensors")).exists()
+            and accelerate.__version__ < "0.25"
+        ):
+            self.model.load_state_dict(
+                load_file(os.path.join(checkpoint_path, "model.safetensors")),
+                strict=False,
+            )
+        else:
+            self.accelerator.load_state(str(checkpoint_path))
         return str(checkpoint_path)
 
     def inference(self):

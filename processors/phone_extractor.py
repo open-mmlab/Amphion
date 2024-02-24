@@ -47,7 +47,7 @@ class phoneExtractor:
             assert cfg.preprocess.lexicon_path != ""
             self.g2p_module = LexiconModule(cfg.preprocess.lexicon_path)
         else:
-            print("No suppert to", cfg.preprocess.phone_extractor)
+            print("No support to", cfg.preprocess.phone_extractor)
             raise
 
     def extract_phone(self, text):
@@ -95,16 +95,17 @@ class phoneExtractor:
         phone_symbol_dict.to_file(self.phone_symbols_file)
 
 
-def extract_utt_phone_sequence(cfg, metadata):
+def extract_utt_phone_sequence(dataset, cfg, metadata):
     """
     Extract phone sequence from text
     Args:
+        dataset (str): name of dataset, e.g. opencpop
         cfg: config
         metadata: list of dict, each dict contains "Uid", "Text"
 
     """
 
-    dataset_name = cfg.dataset[0]
+    dataset_name = dataset
 
     # output path
     out_path = os.path.join(

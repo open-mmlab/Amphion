@@ -12,6 +12,19 @@ from tqdm import tqdm
 from sklearn.preprocessing import StandardScaler
 
 
+def intersperse(lst, item):
+    """
+    Insert an item in between any two consecutive elements of the given list, including beginning and end of list
+
+    Example:
+        >>> intersperse(0, [1, 74, 5, 31])
+            [0, 1, 0, 74, 0, 5, 0, 31, 0]
+    """
+    result = [item] * (len(lst) * 2 + 1)
+    result[1::2] = lst
+    return result
+
+
 def load_content_feature_path(meta_data, processed_dir, feat_dir):
     utt2feat_path = {}
     for utt_info in meta_data:

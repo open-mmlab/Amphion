@@ -2,26 +2,33 @@
   "base_config": "config/vits.json",
   "model_type": "VITS",
   "dataset": [
-    "LJSpeech"
+    "LJSpeech",
+    //"hifitts"
   ],
   "dataset_path": {
     // TODO: Fill in your dataset path
-    "LJSpeech": "[LJSpeech dataset path]"
+    "LJSpeech": "[LJSpeech dataset path]",
+    //"hifitts": "[Hi-Fi TTS dataset path]
   },
   // TODO: Fill in the output log path. The default value is "Amphion/ckpts/tts"
   "log_dir": "ckpts/tts",
   "preprocess": {
+    //"extract_audio":true,
     "use_phone": true,
     // linguistic features
     "extract_phone": true,
-    "phone_extractor": "lexicon", // "espeak, pypinyin, pypinyin_initials_finals, lexicon (only for language=en-us right now)"
+    "phone_extractor": "espeak", // "espeak, pypinyin, pypinyin_initials_finals, lexicon (only for language=en-us right now)"
     // TODO: Fill in the output data path. The default value is "Amphion/data"
     "processed_dir": "data",
-    
-    "sample_rate": 22050,
-    "valid_file": "test.json", // validattion set
+    "sample_rate": 22050, // target sampling rate
+    "valid_file": "valid.json", // validation set
+    //"use_spkid": true // use speaker ID to train multi-speaker TTS model
+  },
+  "model":{
+    //"n_speakers": 10 // number of speakers, greater than or equal to the number of speakers in the dataset(s) used. The default value is 0 if not specified.
   },
   "train": {
     "batch_size": 16,
+    //"multi_speaker_training": true 
   }
 }
