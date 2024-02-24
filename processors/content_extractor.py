@@ -58,7 +58,7 @@ from modules.wenet_extractor.utils.checkpoint import load_checkpoint
 """
 
 
-class BaseExtractor:
+class AudioPretrainedModelFeaturesExtractor:
     def __init__(self, cfg):
         self.cfg = cfg
         self.extractor_type = None
@@ -181,7 +181,7 @@ class BaseExtractor:
         np.save(save_path, content_feature.cpu().detach().numpy())
 
 
-class WhisperExtractor(BaseExtractor):
+class WhisperExtractor(AudioPretrainedModelFeaturesExtractor):
     def __init__(self, config):
         super(WhisperExtractor, self).__init__(config)
         self.extractor_type = "whisper"
@@ -233,7 +233,7 @@ class WhisperExtractor(BaseExtractor):
         return features
 
 
-class ContentvecExtractor(BaseExtractor):
+class ContentvecExtractor(AudioPretrainedModelFeaturesExtractor):
     def __init__(self, cfg):
         super(ContentvecExtractor, self).__init__(cfg)
         self.extractor_type = "contentvec"
@@ -275,7 +275,7 @@ class ContentvecExtractor(BaseExtractor):
         return feats
 
 
-class WenetExtractor(BaseExtractor):
+class WenetExtractor(AudioPretrainedModelFeaturesExtractor):
     def __init__(self, config):
         super(WenetExtractor, self).__init__(config)
         self.extractor_type = "wenet"
@@ -365,7 +365,7 @@ class WenetExtractor(BaseExtractor):
         return features
 
 
-class MertExtractor(BaseExtractor):
+class MertExtractor(AudioPretrainedModelFeaturesExtractor):
     def __init__(self, cfg):
         super(MertExtractor, self).__init__(cfg)
         self.extractor_type = "mert"

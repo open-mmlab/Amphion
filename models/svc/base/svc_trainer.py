@@ -37,8 +37,8 @@ class SVCTrainer(BaseTrainer):
         self.logger.info("Task type: {}".format(self.task_type))
 
     ### Following are methods only for SVC tasks ###
-    # TODO: LEGACY CODE, NEED TO BE REFACTORED
     def _build_dataset(self):
+        # TODO: 区分开offline和online的Dataset
         return SVCDataset, SVCCollator
 
     @staticmethod

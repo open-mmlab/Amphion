@@ -13,6 +13,7 @@ from text import text_to_sequence
 from text.text_token_collation import phoneIDCollation
 
 
+# TODO: Change to BaseOfflineDataset
 class BaseDataset(torch.utils.data.Dataset):
     def __init__(self, cfg, dataset, is_valid=False):
         """
@@ -267,6 +268,17 @@ class BaseDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.metadata)
+
+
+class BaseOnlineDataset(torch.utils.data.Dataset):
+    def __init__(self, cfg, dataset, is_valid=False):
+        """
+        Args:
+            cfg: config
+            dataset: dataset name
+            is_valid: whether to use train or valid dataset
+        """
+        pass
 
 
 class BaseCollator(object):

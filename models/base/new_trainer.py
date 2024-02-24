@@ -463,7 +463,6 @@ class BaseTrainer(object):
 
         return checkpoint_path
 
-    # TODO: LEGACY CODE
     def _build_dataloader(self):
         Dataset, Collator = self._build_dataset()
 
@@ -480,6 +479,7 @@ class BaseTrainer(object):
         # TODO: use config instead of (sampler, shuffle, drop_last, batch_size)
         train_loader = DataLoader(
             train_dataset,
+            shuffle=True,
             collate_fn=train_collate,
             batch_sampler=batch_sampler,
             num_workers=self.cfg.train.dataloader.num_worker,
@@ -548,7 +548,6 @@ class BaseTrainer(object):
     ### Protected methods end ###
 
     ## Following are private methods ##
-    ## !!! These are inconvenient for GAN-based model training. It'd be better to move these to svc_trainer.py if needed.
     def _build_optimizer(self):
         r"""Build optimizer for model."""
         # Make case-insensitive matching

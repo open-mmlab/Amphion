@@ -62,6 +62,8 @@ class DiffusionTrainer(SVCTrainer):
         in ``_train_step`` & ``_test_step`` function.
         """
 
+        # TODO: 区分开offline和online的特征
+
         device = self.accelerator.device
 
         mel_input = batch["mel"]
