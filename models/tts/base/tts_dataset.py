@@ -15,7 +15,7 @@ from text.text_token_collation import phoneIDCollation
 from processors.acoustic_extractor import cal_normalized_mel
 
 from models.base.base_dataset import (
-    BaseDataset,
+    BaseOfflineDataset,
     BaseCollator,
     BaseTestDataset,
     BaseTestCollator,
@@ -28,7 +28,7 @@ from processors.content_extractor import (
 )
 
 
-class TTSDataset(BaseDataset):
+class TTSDataset(BaseOfflineDataset):
     def __init__(self, cfg, dataset, is_valid=False):
         """
         Args:

@@ -52,6 +52,9 @@ def extract_linear_features(y, cfg, center=False):
 
 
 def mel_spectrogram_torch(y, cfg, center=False):
+    """
+    TODO: to merge this funtion with the extract_mel_features below
+    """
     if torch.min(y) < -1.0:
         print("min value is ", torch.min(y))
     if torch.max(y) > 1.0:
@@ -108,7 +111,6 @@ def extract_mel_features(
     y,
     cfg,
     center=False,
-    # n_fft, n_mel, sampling_rate, hop_size, win_size, fmin, fmax, center=False
 ):
     """Extract mel features
 
@@ -164,7 +166,6 @@ def extract_mel_features(
 
     spec = torch.matmul(mel_basis[str(cfg.fmax) + "_" + str(y.device)], spec)
     spec = spectral_normalize_torch(spec)
-
     return spec.squeeze(0)
 
 

@@ -16,13 +16,114 @@ All the features extraction are designed to utilize GPU to the maximum extent, w
 
 """
 
+import torch
+
+from utils.mel import extract_mel_features
+from utils.f0 import get_f0 as extract_f0_features
+from processors.content_extractor import (
+    WhisperExtractor,
+    ContentvecExtractor,
+    WenetExtractor,
+)
+
 
 class AudioFeaturesExtractor:
-    def __init__(self, cfg, wav=None, sr=None):
+    def __init__(self, cfg):
         """
         Args:
             cfg: Amphion config that would be used to specify the processing parameters
-            wav (Tensor, optional): The waveform extracted from. During the on-the-fly extraction, it is usually as the batch input. Defaults to None.
-            sr (int, optional): The sampling rate of the waveform. Defaults to None.
         """
         self.cfg = cfg
+
+    def get_mel_spectrogram(self, wavs):
+        """Get Mel Spectrogram Features
+
+        Args:
+            wavs: Tensor whose shape is (B, T)
+
+        Returns:
+            Tensor whose shape is (B, n_mels, n_frames)
+        """
+        return extract_mel_features(y=wavs, cfg=self.cfg.preprocess)
+
+    def get_f0(self, wavs):
+        """Get F0 Features
+
+        Args:
+            wavs: Tensor whose shape is (B, T)
+
+        Returns:
+            Tensor whose shape is (B, n_frames)
+        """
+        f0s = []
+        for w in wavs:
+            f0s.append(extract_f0_features(w, self.cfg.preprocess))
+
+        return torch.stack(f0s, dim=0)
+
+    def get_energy(self, wavs, mel_spec=None):
+        """Get Energy Features
+
+        Args:
+            wavs: Tensor whose shape is (B, T)
+
+        Returns:
+            Tensor whose shape is (B, n_frames)
+        """
+        if mel_spec is None:
+            mel_spec = self.get_mel_spectrogram(wavs)
+
+        return (mel_spec.exp() ** 2).sum(1).sqrt()
+
+    def get_whisper_features(self, wavs, target_frames_len):
+        """Get Whisper Features
+
+        Args:
+            wavs: Tensor whose shape is (B, T)
+
+        Returns:
+            Tensor whose shape is (B, n_frames, D)
+        """
+        if not hasattr(self, "whisper_extractor"):
+            self.whisper_extractor = WhisperExtractor(self.cfg)
+            self.whisper_extractor.load_model()
+
+        whisper_feats = self.whisper_extractor.extract_content_features(wavs)
+        whisper_feats = self.whisper_extractor.ReTrans(whisper_feats, target_frames_len)
+        return whisper_feats
+
+    def get_contentvec_features(self, wavs, target_frames_len):
+        """Get ContentVec Features
+
+        Args:
+            wavs: Tensor whose shape is (B, T)
+
+        Returns:
+            Tensor whose shape is (B, n_frames, D)
+        """
+        if not hasattr(self, "contentvec_extractor"):
+            self.contentvec_extractor = ContentvecExtractor(self.cfg)
+            self.contentvec_extractor.load_model()
+
+        contentvec_feats = self.contentvec_extractor.extract_content_features(wavs)
+        contentvec_feats = self.contentvec_extractor.ReTrans(
+            contentvec_feats, target_frames_len
+        )
+        return contentvec_feats
+
+    def get_wenet_features(self, wavs, target_frames_len, wav_lens=None):
+        """Get WeNet Features
+
+        Args:
+            wavs: Tensor whose shape is (B, T)
+
+        Returns:
+            Tensor whose shape is (B, n_frames, D)
+        """
+        if not hasattr(self, "wenet_extractor"):
+            self.wenet_extractor = WenetExtractor(self.cfg)
+            self.wenet_extractor.load_model()
+
+        wenet_feats = self.wenet_extractor.extract_content_features(wavs, lens=wav_lens)
+        wenet_feats = self.wenet_extractor.ReTrans(wenet_feats, target_frames_len)
+        return wenet_feats

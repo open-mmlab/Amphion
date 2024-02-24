@@ -11,7 +11,7 @@ from processors.acoustic_extractor import cal_normalized_mel
 from processors.acoustic_extractor import load_normalized
 from models.base.base_dataset import (
     BaseCollator,
-    BaseDataset,
+    BaseOfflineDataset,
     BaseTestDataset,
     BaseTestCollator,
 )

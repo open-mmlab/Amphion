@@ -9,16 +9,16 @@ from torch.nn.utils.rnn import pad_sequence
 from utils.data_utils import *
 from models.base.base_dataset import (
     BaseCollator,
-    BaseDataset,
+    BaseOfflineDataset,
     BaseTestDataset,
     BaseTestCollator,
 )
 from text import text_to_sequence
 
 
-class FS2Dataset(BaseDataset):
+class FS2Dataset(BaseOfflineDataset):
     def __init__(self, cfg, dataset, is_valid=False):
-        BaseDataset.__init__(self, cfg, dataset, is_valid=is_valid)
+        BaseOfflineDataset.__init__(self, cfg, dataset, is_valid=is_valid)
         self.batch_size = cfg.train.batch_size
         cfg = cfg.preprocess
         # utt2duration
@@ -99,7 +99,7 @@ class FS2Dataset(BaseDataset):
         self.metadata = self.check_metadata()
 
     def __getitem__(self, index):
-        single_feature = BaseDataset.__getitem__(self, index)
+        single_feature = BaseOfflineDataset.__getitem__(self, index)
 
         utt_info = self.metadata[index]
         dataset = utt_info["Dataset"]

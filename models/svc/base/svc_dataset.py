@@ -18,16 +18,16 @@ from processors.content_extractor import (
 )
 from models.base.base_dataset import (
     BaseCollator,
-    BaseDataset,
+    BaseOfflineDataset,
 )
 from models.base.new_dataset import BaseTestDataset
 
 EPS = 1.0e-12
 
 
-class SVCDataset(BaseDataset):
+class SVCDataset(BaseOfflineDataset):
     def __init__(self, cfg, dataset, is_valid=False):
-        BaseDataset.__init__(self, cfg, dataset, is_valid=is_valid)
+        BaseOfflineDataset.__init__(self, cfg, dataset, is_valid=is_valid)
 
         cfg = self.cfg
 
@@ -56,7 +56,7 @@ class SVCDataset(BaseDataset):
             )
 
     def __getitem__(self, index):
-        single_feature = BaseDataset.__getitem__(self, index)
+        single_feature = BaseOfflineDataset.__getitem__(self, index)
 
         utt_info = self.metadata[index]
         dataset = utt_info["Dataset"]
@@ -65,15 +65,19 @@ class SVCDataset(BaseDataset):
 
         if self.cfg.model.condition_encoder.use_whisper:
             assert "target_len" in single_feature.keys()
-            aligned_whisper_feat = self.whisper_aligner.offline_align(
-                np.load(self.utt2whisper_path[utt]), single_feature["target_len"]
+            aligned_whisper_feat = (
+                self.whisper_aligner.offline_resolution_transformation(
+                    np.load(self.utt2whisper_path[utt]), single_feature["target_len"]
+                )
             )
             single_feature["whisper_feat"] = aligned_whisper_feat
 
         if self.cfg.model.condition_encoder.use_contentvec:
             assert "target_len" in single_feature.keys()
-            aligned_contentvec = self.contentvec_aligner.offline_align(
-                np.load(self.utt2contentVec_path[utt]), single_feature["target_len"]
+            aligned_contentvec = (
+                self.contentvec_aligner.offline_resolution_transformation(
+                    np.load(self.utt2contentVec_path[utt]), single_feature["target_len"]
+                )
             )
             single_feature["contentvec_feat"] = aligned_contentvec
 
@@ -88,7 +92,7 @@ class SVCDataset(BaseDataset):
 
         if self.cfg.model.condition_encoder.use_wenet:
             assert "target_len" in single_feature.keys()
-            aligned_wenet_feat = self.wenet_aligner.offline_align(
+            aligned_wenet_feat = self.wenet_aligner.offline_resolution_transformation(
                 np.load(self.utt2wenet_path[utt]), single_feature["target_len"]
             )
             single_feature["wenet_feat"] = aligned_wenet_feat
@@ -370,15 +374,19 @@ class SVCTestDataset(BaseTestDataset):
         ######### Get Content Features Item #########
         if self.cfg.model.condition_encoder.use_whisper:
             assert "target_len" in single_feature.keys()
-            aligned_whisper_feat = self.whisper_aligner.offline_align(
-                np.load(self.utt2whisper_path[utt]), single_feature["target_len"]
+            aligned_whisper_feat = (
+                self.whisper_aligner.offline_resolution_transformation(
+                    np.load(self.utt2whisper_path[utt]), single_feature["target_len"]
+                )
             )
             single_feature["whisper_feat"] = aligned_whisper_feat
 
         if self.cfg.model.condition_encoder.use_contentvec:
             assert "target_len" in single_feature.keys()
-            aligned_contentvec = self.contentvec_aligner.offline_align(
-                np.load(self.utt2contentVec_path[utt]), single_feature["target_len"]
+            aligned_contentvec = (
+                self.contentvec_aligner.offline_resolution_transformation(
+                    np.load(self.utt2contentVec_path[utt]), single_feature["target_len"]
+                )
             )
             single_feature["contentvec_feat"] = aligned_contentvec
 
@@ -393,7 +401,7 @@ class SVCTestDataset(BaseTestDataset):
 
         if self.cfg.model.condition_encoder.use_wenet:
             assert "target_len" in single_feature.keys()
-            aligned_wenet_feat = self.wenet_aligner.offline_align(
+            aligned_wenet_feat = self.wenet_aligner.offline_resolution_transformation(
                 np.load(self.utt2wenet_path[utt]), single_feature["target_len"]
             )
             single_feature["wenet_feat"] = aligned_wenet_feat

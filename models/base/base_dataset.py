@@ -7,14 +7,15 @@ import torch
 import numpy as np
 import torch.utils.data
 from torch.nn.utils.rnn import pad_sequence
+import librosa
+
 from utils.data_utils import *
 from processors.acoustic_extractor import cal_normalized_mel
 from text import text_to_sequence
 from text.text_token_collation import phoneIDCollation
 
 
-# TODO: Change to BaseOfflineDataset
-class BaseDataset(torch.utils.data.Dataset):
+class BaseOfflineDataset(torch.utils.data.Dataset):
     def __init__(self, cfg, dataset, is_valid=False):
         """
         Args:
@@ -278,7 +279,37 @@ class BaseOnlineDataset(torch.utils.data.Dataset):
             dataset: dataset name
             is_valid: whether to use train or valid dataset
         """
-        pass
+        assert isinstance(dataset, str)
+
+        self.cfg = cfg
+        self.sample_rate = cfg.preprocess.sample_rate
+
+        processed_data_dir = os.path.join(cfg.preprocess.processed_dir, dataset)
+        meta_file = cfg.preprocess.valid_file if is_valid else cfg.preprocess.train_file
+        self.metafile_path = os.path.join(processed_data_dir, meta_file)
+        self.metadata = self.get_metadata()
+
+    def get_metadata(self):
+        with open(self.metafile_path, "r", encoding="utf-8") as f:
+            metadata = json.load(f)
+
+        return metadata
+
+    def get_dataset_name(self):
+        return self.metadata[0]["Dataset"]
+
+    def __getitem__(self, index):
+        """
+        Get only waveform tensor
+        """
+        utt_item = self.metadata[index]
+        wav_path = utt_item["Path"]
+        wav, _ = librosa.load(wav_path, sr=self.sample_rate)
+        wav = torch.as_tensor(wav, dtype=torch.float32)
+        return wav
+
+    def __len__(self):
+        return len(self.metadata)
 
 
 class BaseCollator(object):

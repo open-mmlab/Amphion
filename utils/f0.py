@@ -11,43 +11,7 @@ import torchcrepe
 import pyworld as pw
 
 
-def get_bin_index(f0, m, M, n_bins, use_log_scale):
-    """
-    WARNING: to abandon!
-
-    Args:
-        raw_f0: tensor whose shpae is (N, frame_len)
-    Returns:
-        index: tensor whose shape is same to f0
-    """
-    raw_f0 = f0.clone()
-    raw_m, raw_M = m, M
-
-    if use_log_scale:
-        f0[torch.where(f0 == 0)] = 1
-        f0 = torch.log(f0)
-        m, M = float(np.log(m)), float(np.log(M))
-
-    # Set normal index in [1, n_bins - 1]
-    width = (M + 1e-7 - m) / (n_bins - 1)
-    index = (f0 - m) // width + 1
-    # Set unvoiced frames as 0, Therefore, the vocabulary is [0, n_bins- 1], whose size is n_bins
-    index[torch.where(f0 == 0)] = 0
-
-    # TODO: Boundary check (special: to judge whether 0 for unvoiced)
-    if torch.any(raw_f0 > raw_M):
-        print("F0 Warning: too high f0: {}".format(raw_f0[torch.where(raw_f0 > raw_M)]))
-        index[torch.where(raw_f0 > raw_M)] = n_bins - 1
-    if torch.any(raw_f0 < raw_m):
-        print("F0 Warning: too low f0: {}".format(raw_f0[torch.where(f0 < m)]))
-        index[torch.where(f0 < m)] = 0
-
-    return torch.as_tensor(index, dtype=torch.long, device=f0.device)
-
-
 def f0_to_coarse(f0, pitch_bin, pitch_min, pitch_max):
-    ## TODO: Figure out the detail of this function
-
     f0_mel_min = 1127 * np.log(1 + pitch_min / 700)
     f0_mel_max = 1127 * np.log(1 + pitch_max / 700)
 
@@ -89,9 +53,6 @@ def get_log_f0(f0):
     f0[np.where(f0 == 0)] = 1
     log_f0 = np.log(f0)
     return log_f0
-
-
-# ========== Methods ==========
 
 
 def get_f0_features_using_pyin(audio, cfg):
@@ -154,8 +115,9 @@ def get_f0_features_using_parselmouth(audio, cfg, speed=1):
     # f0 = np.pad(f0, [[pad_size, mel_len - len(f0) - pad_size]], mode="constant")
 
     # Get the coarse part
-    pitch_coarse = f0_to_coarse(f0, cfg.pitch_bin, cfg.f0_min, cfg.f0_max)
-    return f0, pitch_coarse
+    # pitch_coarse = f0_to_coarse(f0, cfg.pitch_bin, cfg.f0_min, cfg.f0_max)
+
+    return f0
 
 
 def get_f0_features_using_dio(audio, cfg):
@@ -266,8 +228,9 @@ def get_f0(audio, cfg):
     elif cfg.pitch_extractor == "pyin":
         f0 = get_f0_features_using_pyin(audio, cfg)
     elif cfg.pitch_extractor == "parselmouth":
-        f0, _ = get_f0_features_using_parselmouth(audio, cfg)
-    # elif cfg.data.f0_extractor == 'cwt': # todo
+        f0 = get_f0_features_using_parselmouth(audio, cfg)
+
+    # TODO: 融入interpolate的判断、return v/uv的判断
 
     return f0
 

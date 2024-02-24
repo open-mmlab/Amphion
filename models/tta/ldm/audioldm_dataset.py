@@ -11,7 +11,7 @@ from utils.data_utils import *
 
 from models.base.base_dataset import (
     BaseCollator,
-    BaseDataset,
+    BaseOfflineDataset,
     BaseTestDataset,
     BaseTestCollator,
 )
@@ -20,9 +20,9 @@ import librosa
 from transformers import AutoTokenizer
 
 
-class AudioLDMDataset(BaseDataset):
+class AudioLDMDataset(BaseOfflineDataset):
     def __init__(self, cfg, dataset, is_valid=False):
-        BaseDataset.__init__(self, cfg, dataset, is_valid=is_valid)
+        BaseOfflineDataset.__init__(self, cfg, dataset, is_valid=is_valid)
 
         self.cfg = cfg
 
@@ -70,7 +70,7 @@ class AudioLDMDataset(BaseDataset):
         # melspec: (n_mels, T)
         # wav: (T,)
 
-        single_feature = BaseDataset.__getitem__(self, index)
+        single_feature = BaseOfflineDataset.__getitem__(self, index)
 
         utt_info = self.metadata[index]
         dataset = utt_info["Dataset"]

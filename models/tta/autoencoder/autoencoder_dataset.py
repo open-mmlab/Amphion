@@ -9,16 +9,16 @@ from torch.nn.utils.rnn import pad_sequence
 from utils.data_utils import *
 from models.base.base_dataset import (
     BaseCollator,
-    BaseDataset,
+    BaseOfflineDataset,
     BaseTestDataset,
     BaseTestCollator,
 )
 import librosa
 
 
-class AutoencoderKLDataset(BaseDataset):
+class AutoencoderKLDataset(BaseOfflineDataset):
     def __init__(self, cfg, dataset, is_valid=False):
-        BaseDataset.__init__(self, cfg, dataset, is_valid=is_valid)
+        BaseOfflineDataset.__init__(self, cfg, dataset, is_valid=is_valid)
 
         cfg = self.cfg
 
@@ -56,7 +56,7 @@ class AutoencoderKLDataset(BaseDataset):
         # melspec: (n_mels, T)
         # wav: (T,)
 
-        single_feature = BaseDataset.__getitem__(self, index)
+        single_feature = BaseOfflineDataset.__getitem__(self, index)
 
         utt_info = self.metadata[index]
         dataset = utt_info["Dataset"]
