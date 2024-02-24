@@ -101,7 +101,7 @@ For inference, you need to specify the following configurations when running `ru
 | `--infer_dataset`                            | The dataset used for inference.  |  For LJSpeech dataset, the inference dataset would be `LJSpeech`.                                                                                                                                    |
 | `--infer_testing_set`                             | The subset of the inference dataset used for inference, e.g., train, test, golden_test | For LJSpeech dataset, the testing set would be  "`test`" split from LJSpeech at the feature extraction, or "`golden_test`" cherry-picked from test set as template testing set.                                                                                                                                    |
 | `--infer_text`                            | The text to be synthesized. | "`This is a clip of generated speech with the given text from a TTS model.`"                                                                                                                                    |
-| `--vocoder_dir`                           | The directory for the vocoder. | "`ckpts/vocoder/hifigan_ljspeech.`"                                                                                                                                    |
+| `--vocoder_dir`                           | The directory for the vocoder. | "`ckpts/vocoder/hifigan_ljspeech`"                                                                                                                                    |
 
 
 ### Run
