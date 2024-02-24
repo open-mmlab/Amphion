@@ -158,7 +158,6 @@ class TTSTrainer(BaseTrainer):
         self.task_type = "TTS"
         self.logger.info("Task type: {}".format(self.task_type))
 
-
     def _check_resume(self):
         # if args.resume:
         if self.args.resume or (
@@ -167,8 +166,12 @@ class TTSTrainer(BaseTrainer):
             checkpoint_dir = self.checkpoint_dir
             if self.cfg.model_type == "VALLE" and self.args.train_stage == 2:
                 ls = [str(i) for i in Path(checkpoint_dir).glob("*")]
-                if self.args.checkpoint_path is None or len(ls) == 0: # Train stage 2 from scratch using the checkpoint of stage 1
-                    assert self.args.ar_model_ckpt_dir is not None, "Error: ar_model_ckpt_dir should be set to train nar model."
+                if (
+                    self.args.checkpoint_path is None or len(ls) == 0
+                ):  # Train stage 2 from scratch using the checkpoint of stage 1
+                    assert (
+                        self.args.ar_model_ckpt_dir is not None
+                    ), "Error: ar_model_ckpt_dir should be set to train nar model."
                     self.args.resume_type = "finetune"
                     checkpoint_dir = self.args.ar_model_ckpt_dir
                     self.logger.info(
@@ -188,7 +191,7 @@ class TTSTrainer(BaseTrainer):
             self.checkpoints_path = json.load(
                 open(os.path.join(self.ckpt_path, "ckpts.json"), "r")
             )
-            
+
     def _init_accelerator(self):
         self.exp_dir = os.path.join(
             os.path.abspath(self.cfg.log_dir), self.args.exp_name

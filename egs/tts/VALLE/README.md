@@ -131,13 +131,23 @@ sh egs/tts/VALLE/run.sh --stage 2 --model_train_stage 2 --ar_model_ckpt_dir [ARM
 ```
 
 
-If you want to **fine-tune from another checkpoint**, just use `--resume_type` and set it to `"finetune"`. For example, If you want to fine-tune the model from the checkpoint `Amphion/ckpts/tts/[AnotherExperiment]/checkpoint/[SpecificCheckpoint]`, run:
+If you want to **fine-tune from another checkpoint**, just use `--resume_type` and set it to `"finetune"`. For example, If you want to fine-tune the model from the checkpoint `Amphion/ckpts/tts/[AnotherExperiment]/checkpoint/[SpecificCheckpoint]`, 
 
+
+Train a AR moel, just run:
 
 ```bash
-sh egs/tts/VALLE/run.sh --stage 2 --name [YourExptName] \
+sh egs/tts/VALLE/run.sh --stage 2 --model_train_stage 1 --name [YourExptName] \
     --resume true \
-    --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificCheckpoint]" \
+    --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificARCheckpoint]" \
+    --resume_type "finetune"
+```
+
+Train a NAR model, just run:
+```bash
+sh egs/tts/VALLE/run.sh --stage 2 --model_train_stage 2 --ar_model_ckpt_dir [ARModelPath] --name [YourExptName] \
+    --resume true \
+    --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificNARCheckpoint]" \
     --resume_type "finetune"
 ```
 
