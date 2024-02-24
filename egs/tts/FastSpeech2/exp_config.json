@@ -17,5 +17,6 @@
   },
   "train": {
     "batch_size": 16,
+    "max_epoch": 100,
   }
 }

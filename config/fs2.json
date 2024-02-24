@@ -93,6 +93,7 @@
     },
     "train":{
       "batch_size": 16,
+      "max_epoch": 100,
       "sort_sample": true,
       "drop_last": true,
       "group_size": 4,
