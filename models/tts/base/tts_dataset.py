@@ -16,7 +16,7 @@ from processors.acoustic_extractor import cal_normalized_mel
 
 from models.base.base_dataset import (
     BaseOfflineDataset,
-    BaseCollator,
+    BaseOfflineCollator,
     BaseTestDataset,
     BaseTestCollator,
 )
@@ -294,7 +294,7 @@ class TTSDataset(BaseOfflineDataset):
         return super().get_metadata()
 
 
-class TTSCollator(BaseCollator):
+class TTSCollator(BaseOfflineCollator):
     """Zero-pads model inputs and targets based on number of frames per step"""
 
     def __init__(self, cfg):

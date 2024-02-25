@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 
 from models.base.new_trainer import BaseTrainer
-from models.svc.base.svc_dataset import SVCCollator, SVCDataset
+from models.svc.base.svc_dataset import SVCOfflineCollator, SVCOfflineDataset
 
 
 class SVCTrainer(BaseTrainer):
@@ -39,7 +39,7 @@ class SVCTrainer(BaseTrainer):
     ### Following are methods only for SVC tasks ###
     def _build_dataset(self):
         # TODO: 区分开offline和online的Dataset
-        return SVCDataset, SVCCollator
+        return SVCOfflineDataset, SVCOfflineCollator
 
     @staticmethod
     def _build_criterion():

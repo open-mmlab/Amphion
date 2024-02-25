@@ -283,6 +283,7 @@ class BaseOnlineDataset(torch.utils.data.Dataset):
 
         self.cfg = cfg
         self.sample_rate = cfg.preprocess.sample_rate
+        self.hop_size = self.cfg.preprocess.hop_size
 
         processed_data_dir = os.path.join(cfg.preprocess.processed_dir, dataset)
         meta_file = cfg.preprocess.valid_file if is_valid else cfg.preprocess.train_file
@@ -300,19 +301,25 @@ class BaseOnlineDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, index):
         """
-        Get only waveform tensor
+        Get waveform tensor, its length, and the frame length
         """
         utt_item = self.metadata[index]
         wav_path = utt_item["Path"]
         wav, _ = librosa.load(wav_path, sr=self.sample_rate)
+        # wav: (T)
         wav = torch.as_tensor(wav, dtype=torch.float32)
-        return wav
+        wav_len = len(wav)
+        # mask: (n_frames, 1)
+        frame_len = wav_len // self.hop_size
+        mask = torch.ones(frame_len, 1, dtype=torch.long)
+
+        return {"wav": wav, "wav_len": wav_len, "frame_len": frame_len, "mask": mask}
 
     def __len__(self):
         return len(self.metadata)
 
 
-class BaseCollator(object):
+class BaseOfflineCollator(object):
     """Zero-pads model inputs and targets based on number of frames per step"""
 
     def __init__(self, cfg):
@@ -359,6 +366,38 @@ class BaseCollator(object):
                 values = [torch.from_numpy(b[key]) for b in batch]
                 packed_batch_features[key] = pad_sequence(
                     values, batch_first=True, padding_value=0
+                )
+        return packed_batch_features
+
+
+class BaseOnlineCollator(object):
+    """Zero-pads model inputs and targets based on number of frames per step (For on-the-fly features extraction, whose iterative item contains only wavs)"""
+
+    def __init__(self, cfg):
+        self.cfg = cfg
+
+    def __call__(self, batch):
+        """
+        BaseOnlineDataset.__getitem__:
+            wav: (T,)
+            wav_len: int
+            frame_len: int
+            mask: (n_frames, 1)
+
+        Returns:
+            wav: (B, T), torch.float32
+            wav_len: (B), torch.long
+            frame_len: (B), torch.long
+            mask: (B, n_frames, 1), torch.long
+        """
+        packed_batch_features = dict()
+
+        for key in batch[0].keys():
+            if key in ["wav_len", "frame_len"]:
+                packed_batch_features[key] = torch.LongTensor([b[key] for b in batch])
+            else:
+                packed_batch_features[key] = pad_sequence(
+                    [b[key] for b in batch], batch_first=True, padding_value=0
                 )
         return packed_batch_features
 

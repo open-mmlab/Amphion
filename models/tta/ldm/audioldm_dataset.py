@@ -10,7 +10,7 @@ from utils.data_utils import *
 
 
 from models.base.base_dataset import (
-    BaseCollator,
+    BaseOfflineCollator,
     BaseOfflineDataset,
     BaseTestDataset,
     BaseTestCollator,
@@ -105,9 +105,9 @@ class AudioLDMDataset(BaseOfflineDataset):
         return len(self.metadata)
 
 
-class AudioLDMCollator(BaseCollator):
+class AudioLDMCollator(BaseOfflineCollator):
     def __init__(self, cfg):
-        BaseCollator.__init__(self, cfg)
+        BaseOfflineCollator.__init__(self, cfg)
 
         self.tokenizer = AutoTokenizer.from_pretrained("t5-base", model_max_length=512)
 

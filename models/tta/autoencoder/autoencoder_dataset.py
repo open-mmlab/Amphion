@@ -8,7 +8,7 @@ import torch
 from torch.nn.utils.rnn import pad_sequence
 from utils.data_utils import *
 from models.base.base_dataset import (
-    BaseCollator,
+    BaseOfflineCollator,
     BaseOfflineDataset,
     BaseTestDataset,
     BaseTestCollator,
@@ -81,9 +81,9 @@ class AutoencoderKLDataset(BaseOfflineDataset):
         return len(self.metadata)
 
 
-class AutoencoderKLCollator(BaseCollator):
+class AutoencoderKLCollator(BaseOfflineCollator):
     def __init__(self, cfg):
-        BaseCollator.__init__(self, cfg)
+        BaseOfflineCollator.__init__(self, cfg)
 
     def __call__(self, batch):
         # mel: (B, n_mels, T)

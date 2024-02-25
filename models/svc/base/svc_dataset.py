@@ -9,6 +9,8 @@ from torch.nn.utils.rnn import pad_sequence
 import json
 import os
 import numpy as np
+import librosa
+
 from utils.data_utils import *
 from processors.acoustic_extractor import cal_normalized_mel, load_mel_extrema
 from processors.content_extractor import (
@@ -17,15 +19,17 @@ from processors.content_extractor import (
     WenetExtractor,
 )
 from models.base.base_dataset import (
-    BaseCollator,
     BaseOfflineDataset,
+    BaseOfflineCollator,
+    BaseOnlineDataset,
+    BaseOnlineCollator,
 )
 from models.base.new_dataset import BaseTestDataset
 
 EPS = 1.0e-12
 
 
-class SVCDataset(BaseOfflineDataset):
+class SVCOfflineDataset(BaseOfflineDataset):
     def __init__(self, cfg, dataset, is_valid=False):
         BaseOfflineDataset.__init__(self, cfg, dataset, is_valid=is_valid)
 
@@ -157,15 +161,124 @@ class SVCDataset(BaseOfflineDataset):
         return sample
 
 
-class SVCCollator(BaseCollator):
-    """Zero-pads model inputs and targets based on number of frames per step"""
+class SVCOnlineDataset(BaseOnlineDataset):
+    def __init__(self, cfg, dataset, is_valid=False):
+        super().__init__(self, cfg, dataset, is_valid=is_valid)
 
+        # Audio pretrained models' sample rates
+        self.all_sample_rates = set()
+        if self.cfg.model.condition_encoder.use_whisper:
+            self.all_sample_rates.add(self.cfg.preprocess.whisper_sample_rate)
+        if self.cfg.model.condition_encoder.use_contentvec:
+            self.all_sample_rates.add(self.cfg.preprocess.contentvec_sample_rate)
+        if self.cfg.model.condition_encoder.use_wenet:
+            self.all_sample_rates.add(self.cfg.preprocess.wenet_sample_rate)
+
+        # The maximum duration (seconds) for one training sample
+        self.max_duration = 6.0
+        self.max_n_frames = self.max_duration * self.sample_rate
+
+    def random_select(self, wav, sr, duration):
+        if duration <= self.max_duration:
+            return wav
+
+        ts_frame = int((duration - self.max_duration) * sr)
+        start = random.randint(0, ts_frame)
+        end = start + self.max_n_frames
+        return wav[start:end]
+
+    def __getitem__(self, index):
+        """
+        single_feature: dict,
+            wav: (T,)
+            wav_len: int
+            frame_len: int
+            mask: (n_frames, 1)
+
+            wav_{sr}: (T,)
+            wav_{sr}_len: int
+        """
+        single_feature = dict()
+
+        utt_item = self.metadata[index]
+        wav_path = utt_item["Path"]
+
+        # Target sample rate
+        wav, _ = librosa.load(wav_path, sr=self.sample_rate)
+        wav = self.random_select(wav, self.sample_rate, utt_item["Duration"])
+        wav_len = len(wav)
+        frame_len = wav_len // self.hop_size
+
+        single_feature["wav"] = torch.as_tensor(wav, dtype=torch.float32)
+        single_feature["wav_len"] = wav_len
+        single_feature["frame_len"] = frame_len
+        single_feature["mask"] = torch.ones(frame_len, 1, dtype=torch.long)
+
+        # All the sample rates
+        for sr in self.all_sample_rates:
+            if sr != self.sample_rate:
+                wav_sr = librosa.resample(wav, orig_sr=self.sample_rate, target_sr=sr)
+                single_feature["wav_{}".format(sr)] = torch.as_tensor(
+                    wav_sr, dtype=torch.float32
+                )
+                single_feature["wav_{}_len".format(sr)] = len(wav_sr)
+            else:
+                single_feature["wav_{}".format(self.sample_rate)] = single_feature[
+                    "wav"
+                ]
+                single_feature["wav_{}_len".format(self.sample_rate)] = single_feature[
+                    "wav_len"
+                ]
+
+        return single_feature
+
+    def __len__(self):
+        return len(self.metadata)
+
+
+class SVCOfflineCollator(BaseOfflineCollator):
     def __init__(self, cfg):
-        BaseCollator.__init__(self, cfg)
+        super().__init__(self, cfg)
 
     def __call__(self, batch):
-        parsed_batch_features = BaseCollator.__call__(self, batch)
+        parsed_batch_features = super().__call__(self, batch)
         return parsed_batch_features
+
+
+class SVCOnlineCollator(BaseOnlineCollator):
+    def __init__(self, cfg):
+        super().__init__(self, cfg)
+
+    def __call__(self, batch):
+        """
+        SVCOnlineDataset.__getitem__:
+            wav: (T,)
+            wav_len: int
+            frame_len: int
+            mask: (n_frames, 1)
+
+            wav_{sr}: (T,)
+            wav_{sr}_len: int
+
+        Returns:
+            wav: (B, T), torch.float32
+            wav_len: (B), torch.long
+            frame_len: (B), torch.long
+            mask: (B, n_frames, 1), torch.long
+
+            wav_{sr}: (B, T)
+            wav_{sr}_len: (B), torch.long
+        """
+        packed_batch_features = dict()
+
+        for key in batch[0].keys():
+            if "_len" in key:
+                packed_batch_features[key] = torch.LongTensor([b[key] for b in batch])
+            else:
+                packed_batch_features[key] = pad_sequence(
+                    [b[key] for b in batch], batch_first=True, padding_value=0
+                )
+        return packed_batch_features
 
 
 class SVCTestDataset(BaseTestDataset):

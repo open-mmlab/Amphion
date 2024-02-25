@@ -75,31 +75,31 @@ class AudioFeaturesExtractor:
 
         return (mel_spec.exp() ** 2).sum(1).sqrt()
 
-    def get_whisper_features(self, wavs, target_frames_len):
+    def get_whisper_features(self, wavs, target_frame_len):
         """Get Whisper Features
 
         Args:
             wavs: Tensor whose shape is (B, T)
 
         Returns:
-            Tensor whose shape is (B, n_frames, D)
+            Tensor whose shape is (B, target_frame_len, D)
         """
         if not hasattr(self, "whisper_extractor"):
             self.whisper_extractor = WhisperExtractor(self.cfg)
             self.whisper_extractor.load_model()
 
         whisper_feats = self.whisper_extractor.extract_content_features(wavs)
-        whisper_feats = self.whisper_extractor.ReTrans(whisper_feats, target_frames_len)
+        whisper_feats = self.whisper_extractor.ReTrans(whisper_feats, target_frame_len)
         return whisper_feats
 
-    def get_contentvec_features(self, wavs, target_frames_len):
+    def get_contentvec_features(self, wavs, target_frame_len):
         """Get ContentVec Features
 
         Args:
             wavs: Tensor whose shape is (B, T)
 
         Returns:
-            Tensor whose shape is (B, n_frames, D)
+            Tensor whose shape is (B, target_frame_len, D)
         """
         if not hasattr(self, "contentvec_extractor"):
             self.contentvec_extractor = ContentvecExtractor(self.cfg)
@@ -107,23 +107,23 @@ class AudioFeaturesExtractor:
 
         contentvec_feats = self.contentvec_extractor.extract_content_features(wavs)
         contentvec_feats = self.contentvec_extractor.ReTrans(
-            contentvec_feats, target_frames_len
+            contentvec_feats, target_frame_len
         )
         return contentvec_feats
 
-    def get_wenet_features(self, wavs, target_frames_len, wav_lens=None):
+    def get_wenet_features(self, wavs, target_frame_len, wav_lens=None):
         """Get WeNet Features
 
         Args:
             wavs: Tensor whose shape is (B, T)
 
         Returns:
-            Tensor whose shape is (B, n_frames, D)
+            Tensor whose shape is (B, target_frame_len, D)
         """
         if not hasattr(self, "wenet_extractor"):
             self.wenet_extractor = WenetExtractor(self.cfg)
             self.wenet_extractor.load_model()
 
         wenet_feats = self.wenet_extractor.extract_content_features(wavs, lens=wav_lens)
-        wenet_feats = self.wenet_extractor.ReTrans(wenet_feats, target_frames_len)
+        wenet_feats = self.wenet_extractor.ReTrans(wenet_feats, target_frame_len)
         return wenet_feats
