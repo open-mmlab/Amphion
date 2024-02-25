@@ -1,5 +1,5 @@
 {
-    "base_config": "config/diffusion.json",
+    "base_config": "config/svc/diffusion.json",
     "model_type": "DiffWaveNetSVC",
     "dataset": [
         "m4singer",
@@ -22,6 +22,7 @@
         // TODO: Fill in the output data path. The default value is "Amphion/data"
         "processed_dir": "data",
         // Config for features extraction
+        "features_extraction_mode": "offline", // Online or offline features extraction ("offline" or "online")
         "extract_mel": true,
         "extract_pitch": true,
         "extract_energy": true,

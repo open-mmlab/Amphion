@@ -114,7 +114,7 @@ def get_f0_features_using_parselmouth(audio, cfg, speed=1):
     # pad_size = (int(len(audio) // hop_size) - len(f0) + 1) // 2
     # f0 = np.pad(f0, [[pad_size, mel_len - len(f0) - pad_size]], mode="constant")
 
-    # Get the coarse part
+    # Get the coarse part (Move this operation into AudioFeaturesExtractor)
     # pitch_coarse = f0_to_coarse(f0, cfg.pitch_bin, cfg.f0_min, cfg.f0_max)
 
     return f0
@@ -229,8 +229,6 @@ def get_f0(audio, cfg):
         f0 = get_f0_features_using_pyin(audio, cfg)
     elif cfg.pitch_extractor == "parselmouth":
         f0 = get_f0_features_using_parselmouth(audio, cfg)
-
-    # TODO: 融入interpolate的判断、return v/uv的判断
 
     return f0
 

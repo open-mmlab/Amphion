@@ -194,6 +194,7 @@ class SVCOnlineDataset(BaseOnlineDataset):
             wav_len: int
             frame_len: int
             mask: (n_frames, 1)
+            spk_id
 
             wav_{sr}: (T,)
             wav_{sr}_len: int
@@ -256,6 +257,7 @@ class SVCOnlineCollator(BaseOnlineCollator):
             wav_len: int
             frame_len: int
             mask: (n_frames, 1)
+            spk_id: (1)
 
             wav_{sr}: (T,)
             wav_{sr}_len: int
@@ -265,6 +267,7 @@ class SVCOnlineCollator(BaseOnlineCollator):
             wav_len: (B), torch.long
             frame_len: (B), torch.long
             mask: (B, n_frames, 1), torch.long
+            spk_id: (B, 1), torch.int32
 
             wav_{sr}: (B, T)
             wav_{sr}_len: (B), torch.long

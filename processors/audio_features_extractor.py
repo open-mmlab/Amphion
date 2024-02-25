@@ -57,15 +57,20 @@ class AudioFeaturesExtractor:
         """
         f0s = []
         for w in wavs:
+            # TODO: use numpy to extract
             f0s.append(extract_f0_features(w, self.cfg.preprocess))
 
-        return torch.stack(f0s, dim=0)
+        f0s = torch.stack(f0s, dim=0)
+
+        # TODO: 融入interpolate的判断、return v/uv的判断
+        return f0s
 
     def get_energy(self, wavs, mel_spec=None):
         """Get Energy Features
 
         Args:
             wavs: Tensor whose shape is (B, T)
+            mel_spec: Tensor whose shape is (B, n_mels, n_frames)
 
         Returns:
             Tensor whose shape is (B, n_frames)
@@ -73,13 +78,14 @@ class AudioFeaturesExtractor:
         if mel_spec is None:
             mel_spec = self.get_mel_spectrogram(wavs)
 
-        return (mel_spec.exp() ** 2).sum(1).sqrt()
+        return (mel_spec.exp() ** 2).sum(dim=1).sqrt()
 
     def get_whisper_features(self, wavs, target_frame_len):
         """Get Whisper Features
 
         Args:
             wavs: Tensor whose shape is (B, T)
+            target_frame_len: int
 
         Returns:
             Tensor whose shape is (B, target_frame_len, D)
@@ -97,6 +103,7 @@ class AudioFeaturesExtractor:
 
         Args:
             wavs: Tensor whose shape is (B, T)
+            target_frame_len: int
 
         Returns:
             Tensor whose shape is (B, target_frame_len, D)
@@ -116,6 +123,8 @@ class AudioFeaturesExtractor:
 
         Args:
             wavs: Tensor whose shape is (B, T)
+            target_frame_len: int
+            wav_lens: Tensor whose shape is (B)
 
         Returns:
             Tensor whose shape is (B, target_frame_len, D)

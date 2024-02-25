@@ -8,6 +8,7 @@ from librosa.filters import mel as librosa_mel_fn
 
 
 def dynamic_range_compression_torch(x, C=1, clip_val=1e-5):
+    # Min value: ln(1e-5) = -11.5129
     return torch.log(torch.clamp(x, min=clip_val) * C)
 
 

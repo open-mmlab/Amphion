@@ -170,7 +170,7 @@ class AudioPretrainedModelFeaturesExtractor:
 
         args:
             source_feats: Tensor, (B, padded_source_len, D)
-            padded_target_len: the maximum target length in a batch
+            padded_target_len: int, the maximum target length in a batch
         return:
             mapped_feature: Tensor, (B, padded_target_len, D)
         """
@@ -379,7 +379,7 @@ class WenetExtractor(AudioPretrainedModelFeaturesExtractor):
     def extract_content_features(self, wavs, lens):
         """extract content features from a batch of dataloader
         Args:
-            wavs: tensor
+            wavs: tensor, whose shape is (B, T)
             lens: list
         """
         feats_list = []
