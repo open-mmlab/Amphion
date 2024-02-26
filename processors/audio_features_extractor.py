@@ -56,22 +56,23 @@ class AudioFeaturesExtractor:
         Returns:
             Tensor whose shape is (B, n_frames)
         """
+        device = wavs.device
+
         f0s = []
         uvs = []
         for i, w in enumerate(wavs):
             if wav_lens is not None:
                 w = w[: wav_lens[i]]
 
-            # TODO: use numpy to extract?
-
             f0, uv = extract_f0_features(
-                w,
+                # Use numpy to extract
+                w.cpu().numpy(),
                 self.cfg.preprocess,
                 use_interpolate=use_interpolate,
                 return_uv=True,
             )
-            f0s.append(f0)
-            uvs.append(uv)
+            f0s.append(torch.as_tensor(f0, device=device))
+            uvs.append(torch.as_tensor(uv, device=device, dtype=torch.long))
 
         # (B, n_frames)
         f0s = pad_sequence(f0s, batch_first=True, padding_value=0)
@@ -95,7 +96,8 @@ class AudioFeaturesExtractor:
         if mel_spec is None:
             mel_spec = self.get_mel_spectrogram(wavs)
 
-        return (mel_spec.exp() ** 2).sum(dim=1).sqrt()
+        energies = (mel_spec.exp() ** 2).sum(dim=1).sqrt()
+        return energies
 
     def get_whisper_features(self, wavs, target_frame_len):
         """Get Whisper Features

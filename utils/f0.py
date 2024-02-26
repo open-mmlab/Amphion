@@ -124,7 +124,6 @@ def get_f0_features_using_parselmouth(audio, cfg, speed=1):
         )
         .selected_array["frequency"]
     )
-
     return f0
 
 

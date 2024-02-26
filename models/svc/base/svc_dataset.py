@@ -163,7 +163,7 @@ class SVCOfflineDataset(BaseOfflineDataset):
 
 class SVCOnlineDataset(BaseOnlineDataset):
     def __init__(self, cfg, dataset, is_valid=False):
-        super().__init__(self, cfg, dataset, is_valid=is_valid)
+        super().__init__(cfg, dataset, is_valid=is_valid)
 
         # Audio pretrained models' sample rates
         self.all_sample_rates = set()
@@ -176,7 +176,7 @@ class SVCOnlineDataset(BaseOnlineDataset):
 
         # The maximum duration (seconds) for one training sample
         self.max_duration = 6.0
-        self.max_n_frames = self.max_duration * self.sample_rate
+        self.max_n_frames = int(self.max_duration * self.sample_rate)
 
     def random_select(self, wav, sr, duration):
         if duration <= self.max_duration:
@@ -192,7 +192,7 @@ class SVCOnlineDataset(BaseOnlineDataset):
         single_feature: dict,
             wav: (T,)
             wav_len: int
-            frame_len: int
+            target_len: int
             mask: (n_frames, 1)
             spk_id
 
@@ -212,7 +212,7 @@ class SVCOnlineDataset(BaseOnlineDataset):
 
         single_feature["wav"] = torch.as_tensor(wav, dtype=torch.float32)
         single_feature["wav_len"] = wav_len
-        single_feature["frame_len"] = frame_len
+        single_feature["target_len"] = frame_len
         single_feature["mask"] = torch.ones(frame_len, 1, dtype=torch.long)
 
         # All the sample rates
@@ -239,23 +239,23 @@ class SVCOnlineDataset(BaseOnlineDataset):
 
 class SVCOfflineCollator(BaseOfflineCollator):
     def __init__(self, cfg):
-        super().__init__(self, cfg)
+        super().__init__(cfg)
 
     def __call__(self, batch):
-        parsed_batch_features = super().__call__(self, batch)
+        parsed_batch_features = super().__call__(batch)
         return parsed_batch_features
 
 
 class SVCOnlineCollator(BaseOnlineCollator):
     def __init__(self, cfg):
-        super().__init__(self, cfg)
+        super().__init__(cfg)
 
     def __call__(self, batch):
         """
         SVCOnlineDataset.__getitem__:
             wav: (T,)
             wav_len: int
-            frame_len: int
+            target_len: int
             mask: (n_frames, 1)
             spk_id: (1)
 
@@ -265,7 +265,7 @@ class SVCOnlineCollator(BaseOnlineCollator):
         Returns:
             wav: (B, T), torch.float32
             wav_len: (B), torch.long
-            frame_len: (B), torch.long
+            target_len: (B), torch.long
             mask: (B, n_frames, 1), torch.long
             spk_id: (B, 1), torch.int32
 
@@ -299,9 +299,13 @@ class SVCTestDataset(BaseTestDataset):
             "_{}".format(self.target_singer), ""
         )
         if cfg.preprocess.mel_min_max_norm:
-            self.target_mel_extrema = load_mel_extrema(
-                cfg.preprocess, self.target_dataset
-            )
+            if self.cfg.preprocess.features_extraction_mode == "online":
+                self.target_mel_extrema = -11.5129, 2.0
+            else:
+                self.target_mel_extrema = load_mel_extrema(
+                    cfg.preprocess, self.target_dataset
+                )
+
             self.target_mel_extrema = torch.as_tensor(
                 self.target_mel_extrema[0]
             ), torch.as_tensor(self.target_mel_extrema[1])

@@ -59,9 +59,9 @@ from modules.wenet_extractor.utils.checkpoint import load_checkpoint
 
 
 class AudioPretrainedModelFeaturesExtractor:
-    def __init__(self, cfg):
+    def __init__(self, cfg, extractor_type):
         self.cfg = cfg
-        self.extractor_type = None
+        self.extractor_type = extractor_type
         self.model = None
         self.init_for_retrans()
 
@@ -262,8 +262,7 @@ class AudioPretrainedModelFeaturesExtractor:
 
 class WhisperExtractor(AudioPretrainedModelFeaturesExtractor):
     def __init__(self, config):
-        super(WhisperExtractor, self).__init__(config)
-        self.extractor_type = "whisper"
+        super(WhisperExtractor, self).__init__(config, extractor_type="whisper")
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def load_model(self):
@@ -313,8 +312,7 @@ class WhisperExtractor(AudioPretrainedModelFeaturesExtractor):
 
 class ContentvecExtractor(AudioPretrainedModelFeaturesExtractor):
     def __init__(self, cfg):
-        super(ContentvecExtractor, self).__init__(cfg)
-        self.extractor_type = "contentvec"
+        super(ContentvecExtractor, self).__init__(cfg, extractor_type="contentvec")
 
     def load_model(self):
         assert self.model == None
@@ -354,8 +352,7 @@ class ContentvecExtractor(AudioPretrainedModelFeaturesExtractor):
 
 class WenetExtractor(AudioPretrainedModelFeaturesExtractor):
     def __init__(self, config):
-        super(WenetExtractor, self).__init__(config)
-        self.extractor_type = "wenet"
+        super(WenetExtractor, self).__init__(config, extractor_type="wenet")
 
     def load_model(self):
         wenet_cfg = self.cfg.preprocess.wenet_config
@@ -444,8 +441,7 @@ class WenetExtractor(AudioPretrainedModelFeaturesExtractor):
 
 class MertExtractor(AudioPretrainedModelFeaturesExtractor):
     def __init__(self, cfg):
-        super(MertExtractor, self).__init__(cfg)
-        self.extractor_type = "mert"
+        super(MertExtractor, self).__init__(cfg, extractor_type="mert")
         self.preprocessor = None
 
     def load_model(self):

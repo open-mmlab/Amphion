@@ -64,7 +64,7 @@ class SVCTrainer(BaseTrainer):
         Batch:
             wav: (B, T)
             wav_len: (B)
-            frame_len: (B)
+            target_len: (B)
             mask: (B, n_frames, 1)
             spk_id: (B, 1)
 
@@ -79,7 +79,7 @@ class SVCTrainer(BaseTrainer):
             frame_{content}: (B, n_frames, D)
         """
 
-        padded_n_frames = torch.max(batch["frame_len"])
+        padded_n_frames = torch.max(batch["target_len"])
         final_n_frames = padded_n_frames
 
         ### Mel Spectrogram ###
@@ -169,7 +169,7 @@ class SVCTrainer(BaseTrainer):
         for k in frame_level_features:
             if k in batch:
                 # (B, n_frames, ...)
-                batch[k] = batch[k][:, :final_n_frames]
+                batch[k] = batch[k][:, :final_n_frames].contiguous()
 
         return batch
 

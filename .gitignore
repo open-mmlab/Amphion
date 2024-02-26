@@ -32,6 +32,7 @@ egs/svc/*wavmark
 egs/svc/custom
 egs/svc/*/dev*
 egs/svc/dev_exp_config.json
+egs/svc/dev
 bins/svc/demo*
 bins/svc/preprocess_custom.py
 data

@@ -282,7 +282,7 @@ class BaseOfflineCollator(object):
 
         # mel: [b, T, n_mels]
         # frame_pitch, frame_energy: [1, T]
-        # target_len: [1]
+        # target_len: [b]
         # spk_id: [b, 1]
         # mask: [b, T, 1]
 
@@ -372,7 +372,7 @@ class BaseOnlineDataset(torch.utils.data.Dataset):
         single_feature:
             wav: (T)
             wav_len: int
-            frame_len: int
+            target_len: int
             mask: (n_frames, 1)
             spk_id: (1)
         """
@@ -390,7 +390,7 @@ class BaseOnlineDataset(torch.utils.data.Dataset):
         single_feature = {
             "wav": wav,
             "wav_len": wav_len,
-            "frame_len": frame_len,
+            "target_len": frame_len,
             "mask": mask,
         }
 
@@ -417,21 +417,21 @@ class BaseOnlineCollator(object):
         BaseOnlineDataset.__getitem__:
             wav: (T,)
             wav_len: int
-            frame_len: int
+            target_len: int
             mask: (n_frames, 1)
             spk_id: (1)
 
         Returns:
             wav: (B, T), torch.float32
             wav_len: (B), torch.long
-            frame_len: (B), torch.long
+            target_len: (B), torch.long
             mask: (B, n_frames, 1), torch.long
             spk_id: (B, 1), torch.int32
         """
         packed_batch_features = dict()
 
         for key in batch[0].keys():
-            if key in ["wav_len", "frame_len"]:
+            if key in ["wav_len", "target_len"]:
                 packed_batch_features[key] = torch.LongTensor([b[key] for b in batch])
             else:
                 packed_batch_features[key] = pad_sequence(

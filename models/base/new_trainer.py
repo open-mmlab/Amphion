@@ -479,7 +479,7 @@ class BaseTrainer(object):
         # TODO: use config instead of (sampler, shuffle, drop_last, batch_size)
         train_loader = DataLoader(
             train_dataset,
-            shuffle=True,
+            # shuffle=True,
             collate_fn=train_collate,
             batch_sampler=batch_sampler,
             num_workers=self.cfg.train.dataloader.num_worker,
