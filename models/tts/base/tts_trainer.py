@@ -712,8 +712,8 @@ class TTSTrainer(BaseTrainer):
         phone_symbols_file_to_exp_path = os.path.join(
             self.exp_dir, self.cfg.preprocess.symbols_dict
         )
-        os.chmod(phone_symbols_file_to_exp_path, 0o666)
         shutil.copy(phone_symbols_file, phone_symbols_file_to_exp_path)
+        os.chmod(phone_symbols_file_to_exp_path, 0o666)
         print(
             "phone symbols been dumped to {}".format(
                 os.path.join(self.exp_dir, self.cfg.preprocess.symbols_dict)
