@@ -74,6 +74,7 @@ class SVCTrainer(BaseTrainer):
         Added elements when output:
             mel: (B, n_frames, n_mels)
             frame_pitch: (B, n_frames)
+            frame_uv: (B, n_frames)
             frame_energy: (B, n_frames)
             frame_{content}: (B, n_frames, D)
         """
@@ -102,13 +103,17 @@ class SVCTrainer(BaseTrainer):
         ### F0 ###
         if self.cfg.preprocess.use_frame_pitch:
             # (B, n_frames)
-            raw_f0 = self.audio_features_extractor.get_f0(batch["wav"])
+            raw_f0, raw_uv = self.audio_features_extractor.get_f0(
+                batch["wav"],
+                wav_lens=batch["wav_len"],
+                use_interpolate=self.cfg.preprocess.use_interpolation_for_uv,
+                return_uv=True,
+            )
             final_n_frames = min(final_n_frames, raw_f0.size(-1))
             batch["frame_pitch"] = raw_f0
 
-            # TODO: v/uv, interpolate, and mel scale
             if self.cfg.preprocess.use_uv:
-                pass
+                batch["frame_uv"] = raw_uv
 
         ### Energy ###
         if self.cfg.preprocess.use_frame_energy:
@@ -155,6 +160,7 @@ class SVCTrainer(BaseTrainer):
             "mask",
             "mel",
             "frame_pitch",
+            "frame_uv",
             "frame_energy",
             "whisper_feat",
             "contentvec_feat",

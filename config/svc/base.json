@@ -75,6 +75,7 @@
         "use_min_max_norm_mel": true,
         "use_frame_pitch": true,
         "use_uv": true,
+        "use_interpolation_for_uv": false,
         "use_frame_energy": true,
         "use_log_scale_pitch": false,
         "use_log_scale_energy": false,

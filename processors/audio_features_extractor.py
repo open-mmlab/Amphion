@@ -17,6 +17,7 @@ All the features extraction are designed to utilize GPU to the maximum extent, w
 """
 
 import torch
+from torch.nn.utils.rnn import pad_sequence
 
 from utils.mel import extract_mel_features
 from utils.f0 import get_f0 as extract_f0_features
@@ -46,7 +47,7 @@ class AudioFeaturesExtractor:
         """
         return extract_mel_features(y=wavs, cfg=self.cfg.preprocess)
 
-    def get_f0(self, wavs):
+    def get_f0(self, wavs, wav_lens=None, use_interpolate=False, return_uv=False):
         """Get F0 Features
 
         Args:
@@ -56,13 +57,29 @@ class AudioFeaturesExtractor:
             Tensor whose shape is (B, n_frames)
         """
         f0s = []
-        for w in wavs:
-            # TODO: use numpy to extract
-            f0s.append(extract_f0_features(w, self.cfg.preprocess))
+        uvs = []
+        for i, w in enumerate(wavs):
+            if wav_lens is not None:
+                w = w[: wav_lens[i]]
 
-        f0s = torch.stack(f0s, dim=0)
+            # TODO: use numpy to extract?
 
-        # TODO: 融入interpolate的判断、return v/uv的判断
+            f0, uv = extract_f0_features(
+                w,
+                self.cfg.preprocess,
+                use_interpolate=use_interpolate,
+                return_uv=True,
+            )
+            f0s.append(f0)
+            uvs.append(uv)
+
+        # (B, n_frames)
+        f0s = pad_sequence(f0s, batch_first=True, padding_value=0)
+        uvs = pad_sequence(uvs, batch_first=True, padding_value=0)
+
+        if return_uv:
+            return f0s, uvs
+
         return f0s
 
     def get_energy(self, wavs, mel_spec=None):

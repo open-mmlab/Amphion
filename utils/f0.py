@@ -11,9 +11,24 @@ import torchcrepe
 import pyworld as pw
 
 
-def f0_to_coarse(f0, pitch_bin, pitch_min, pitch_max):
-    f0_mel_min = 1127 * np.log(1 + pitch_min / 700)
-    f0_mel_max = 1127 * np.log(1 + pitch_max / 700)
+def f0_to_coarse(f0, pitch_bin, f0_min, f0_max):
+    """
+    Convert f0 (Hz) to pitch (mel scale), and then quantize the mel-scale pitch to the
+    range from [1, 2, 3, ..., pitch_bin-1]
+
+    Reference: https://en.wikipedia.org/wiki/Mel_scale
+
+    Args:
+        f0 (array or Tensor): Hz
+        pitch_bin (int): the vocabulary size
+        f0_min (int): the minimum f0 (Hz)
+        f0_max (int): the maximum f0 (Hz)
+
+    Returns:
+        _type_: _description_
+    """
+    f0_mel_min = 1127 * np.log(1 + f0_min / 700)
+    f0_mel_max = 1127 * np.log(1 + f0_max / 700)
 
     is_torch = isinstance(f0, torch.Tensor)
     f0_mel = 1127 * (1 + f0 / 700).log() if is_torch else 1127 * np.log(1 + f0 / 700)
@@ -109,13 +124,6 @@ def get_f0_features_using_parselmouth(audio, cfg, speed=1):
         )
         .selected_array["frequency"]
     )
-
-    # Pad the pitch to the mel_len
-    # pad_size = (int(len(audio) // hop_size) - len(f0) + 1) // 2
-    # f0 = np.pad(f0, [[pad_size, mel_len - len(f0) - pad_size]], mode="constant")
-
-    # Get the coarse part (Move this operation into AudioFeaturesExtractor)
-    # pitch_coarse = f0_to_coarse(f0, cfg.pitch_bin, cfg.f0_min, cfg.f0_max)
 
     return f0
 
@@ -222,13 +230,21 @@ def get_f0_features_using_crepe(
     return f0
 
 
-def get_f0(audio, cfg):
+def get_f0(audio, cfg, use_interpolate=False, return_uv=False):
     if cfg.pitch_extractor == "dio":
         f0 = get_f0_features_using_dio(audio, cfg)
     elif cfg.pitch_extractor == "pyin":
         f0 = get_f0_features_using_pyin(audio, cfg)
     elif cfg.pitch_extractor == "parselmouth":
         f0 = get_f0_features_using_parselmouth(audio, cfg)
+
+    if use_interpolate:
+        f0, uv = interpolate(f0)
+    else:
+        uv = f0 == 0
+
+    if return_uv:
+        return f0, uv
 
     return f0
 
