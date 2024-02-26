@@ -25,7 +25,7 @@ def f0_to_coarse(f0, pitch_bin, f0_min, f0_max):
         f0_max (int): the maximum f0 (Hz)
 
     Returns:
-        _type_: _description_
+        quantized f0 (array or Tensor)
     """
     f0_mel_min = 1127 * np.log(1 + f0_min / 700)
     f0_mel_max = 1127 * np.log(1 + f0_max / 700)
