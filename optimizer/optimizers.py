@@ -697,9 +697,7 @@ class ScaledAdam(BatchedOptimizer):
 
         denom = scale_exp_avg_sq.sqrt() + eps
 
-        scale_step = (
-            -size_lr * (bias_correction2**0.5) * scale_grads.sum(dim=0) / denom
-        )
+        scale_step = -size_lr * (bias_correction2**0.5) * scale_grads.sum(dim=0) / denom
 
         is_too_small = param_rms < param_min_rms
         is_too_large = param_rms > param_max_rms

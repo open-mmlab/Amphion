@@ -18,7 +18,7 @@ cd $work_dir
 
 ######## Parse the Given Parameters from the Commond ###########
 # options=$(getopt -o c:n:s --long gpu:,config:,infer_expt_dir:,infer_output_dir:,infer_source_file:,infer_source_audio_dir:,infer_target_speaker:,infer_key_shift:,infer_vocoder_dir:,name:,stage: -- "$@")
-options=$(getopt -o c:n:s --long gpu:,config:,resume:,resume_from_ckpt_path:,resume_type:,infer_expt_dir:,infer_output_dir:,infer_mode:,infer_dataset:,infer_testing_set:,infer_text:,name:,stage: -- "$@")
+options=$(getopt -o c:n:s --long gpu:,config:,resume:,resume_from_ckpt_path:,resume_type:,infer_expt_dir:,infer_output_dir:,infer_mode:,infer_dataset:,infer_testing_set:,infer_text:,infer_speaker_name:,name:,stage: -- "$@")
 eval set -- "$options"
 
 while true; do
@@ -43,14 +43,16 @@ while true; do
     --infer_expt_dir) shift; infer_expt_dir=$1 ; shift ;;
     # [Only for Inference] The output dir to save inferred audios. Its default value is "$expt_dir/result"
     --infer_output_dir) shift; infer_output_dir=$1 ; shift ;;
-    # [Only for Inference] The inference mode. It can be "batch" to generate speech by batch, or "single" to generage a single clip of speech.
+    # [Only for Inference] The inference mode. It can be "batch" to generate speech by batch, or "single" to generate a single clip of speech.
     --infer_mode) shift; infer_mode=$1 ; shift ;;
-    # [Only for Inference] The inference dataset. It is only used when the inference model is "batch".
+    # [Only for Inference] The inference dataset. It is only used when the inference mode is "batch".
     --infer_dataset) shift; infer_dataset=$1 ; shift ;;
-    # [Only for Inference] The inference testing set. It is only used when the inference model is "batch". It can be "test" set split from the dataset, or "golden_test" carefully selected from the testing set.
+    # [Only for Inference] The inference testing set. It is only used when the inference mode is "batch". It can be "test" set split from the dataset, or "golden_test" carefully selected from the testing set.
     --infer_testing_set) shift; infer_testing_set=$1 ; shift ;;
-    # [Only for Inference] The text to be synthesized from. It is only used when the inference model is "single". 
+    # [Only for Inference] The text to be synthesized from. It is only used when the inference mode is "single". 
     --infer_text) shift; infer_text=$1 ; shift ;;
+    # [Only for Inference] The chosen speaker's voice to be synthesized. It is only used when the inference mode is "single" for multi-speaker VITS.
+    --infer_speaker_name) shift; infer_speaker_name=$1 ; shift ;;
 
     --) shift ; break ;;
     *) echo "Invalid option: $1" exit 1 ;;
@@ -67,7 +69,7 @@ fi
 if [ -z "$exp_config" ]; then
     exp_config="${exp_dir}"/exp_config.json
 fi
-echo "Exprimental Configuration File: $exp_config"
+echo "Experimental Configuration File: $exp_config"
 
 if [ -z "$gpu" ]; then
     gpu="0"
@@ -86,7 +88,7 @@ if [ $running_stage -eq 2 ]; then
         echo "[Error] Please specify the experiments name"
         exit 1
     fi
-    echo "Exprimental Name: $exp_name"
+    echo "Experimental Name: $exp_name"
 
     # add default value
     if [ -z "$resume_from_ckpt_path" ]; then
@@ -153,6 +155,12 @@ if [ $running_stage -eq 3 ]; then
     elif [ "$infer_mode" = "batch" ]; then
         infer_text=''
     fi
+    
+    if [ -z "$infer_speaker_name" ]; then
+        infer_speaker_name=None
+    fi
+
+    
 
 
     CUDA_VISIBLE_DEVICES=$gpu accelerate launch "$work_dir"/bins/tts/inference.py \
@@ -163,6 +171,7 @@ if [ $running_stage -eq 3 ]; then
         --dataset $infer_dataset \
         --testing_set $infer_testing_set \
         --text "$infer_text" \
+        --speaker_name $infer_speaker_name \
         --log_level debug
 
 

@@ -76,9 +76,11 @@ def init_model(configs):
             input_dim,
             global_cmvn=global_cmvn,
             **configs["encoder_conf"],
-            **configs["encoder_conf"]["efficient_conf"]
-            if "efficient_conf" in configs["encoder_conf"]
-            else {},
+            **(
+                configs["encoder_conf"]["efficient_conf"]
+                if "efficient_conf" in configs["encoder_conf"]
+                else {}
+            ),
         )
     else:
         encoder = TransformerEncoder(

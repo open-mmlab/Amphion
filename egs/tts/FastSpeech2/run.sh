@@ -16,12 +16,12 @@ mkdir -p monotonic_align
 python setup.py build_ext --inplace
 cd $work_dir
 
-mfa_dir=$work_dir/mfa
+mfa_dir=$work_dir/pretrained/mfa
 echo $mfa_dir
 
 ######## Parse the Given Parameters from the Commond ###########
 # options=$(getopt -o c:n:s --long gpu:,config:,infer_expt_dir:,infer_output_dir:,infer_source_file:,infer_source_audio_dir:,infer_target_speaker:,infer_key_shift:,infer_vocoder_dir:,name:,stage: -- "$@")
-options=$(getopt -o c:n:s --long gpu:,config:,infer_expt_dir:,infer_output_dir:,infer_mode:,infer_dataset:,infer_testing_set:,infer_text:,name:,stage: -- "$@")
+options=$(getopt -o c:n:s --long gpu:,config:,infer_expt_dir:,infer_output_dir:,infer_mode:,infer_dataset:,infer_testing_set:,infer_text:,name:,stage:,vocoder_dir: -- "$@")
 eval set -- "$options"
 
 while true; do
@@ -47,6 +47,8 @@ while true; do
     --infer_testing_set) shift; infer_testing_set=$1 ; shift ;;
     # [Only for Inference] The text to be synthesized from. It is only used when the inference model is "single". 
     --infer_text) shift; infer_text=$1 ; shift ;;
+    # [Only for Inference] The output dir to the vocoder. 
+    --vocoder_dir) shift; vocoder_dir=$1 ; shift ;;
 
     --) shift ; break ;;
     *) echo "Invalid option: $1" exit 1 ;;
@@ -71,7 +73,7 @@ fi
 
 ######## Features Extraction ###########
 if [ $running_stage -eq 1 ]; then
-    if [ ! -d "$mfa_dir" ]; then
+    if [ ! -d "$mfa_dir/montreal-forced-aligner" ]; then
         bash ${exp_dir}/prepare_mfa.sh
     fi
     CUDA_VISIBLE_DEVICES=$gpu python "${work_dir}"/bins/tts/preprocess.py \
@@ -103,6 +105,11 @@ if [ $running_stage -eq 3 ]; then
 
     if [ -z "$infer_output_dir" ]; then
         infer_output_dir="$expt_dir/result"
+    fi
+    
+    if [ -z "$vocoder_dir" ]; then
+        echo "[Error] Please specify the vocoder directory to reconstruct waveform from mel spectrogram."
+        exit 1
     fi
 
     if [ -z "$infer_mode" ]; then
@@ -143,8 +150,6 @@ if [ $running_stage -eq 3 ]; then
         --testing_set $infer_testing_set \
         --text "$infer_text" \
         --log_level debug \
-        --vocoder_dir /mntnfs/lee_data1/chenxi/processed_data/ljspeech/model_ckpt/hifigan/checkpoints
-
-
+        --vocoder_dir $vocoder_dir
 
 fi

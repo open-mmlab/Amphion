@@ -83,6 +83,11 @@ sh egs/tts/FastSpeech2/run.sh --stage 2 --name [YourExptName]
 
 ## 4. Inference
 
+### Pre-trained Fastspeech 2 and HiFi-GAN Download
+
+We released a pre-trained Amphion [Fastspeech 2](https://huggingface.co/amphion/fastspeech2_ljspeech) model and [HiFi-GAN](https://huggingface.co/amphion/hifigan_ljspeech) trained on LJSpeech. So you can download the them and generate speech according to the following inference instruction.
+
+
 ### Configuration
 
 For inference, you need to specify the following configurations when running `run.sh`:
@@ -96,6 +101,8 @@ For inference, you need to specify the following configurations when running `ru
 | `--infer_dataset`                            | The dataset used for inference.  |  For LJSpeech dataset, the inference dataset would be `LJSpeech`.                                                                                                                                    |
 | `--infer_testing_set`                             | The subset of the inference dataset used for inference, e.g., train, test, golden_test | For LJSpeech dataset, the testing set would be  "`test`" split from LJSpeech at the feature extraction, or "`golden_test`" cherry-picked from test set as template testing set.                                                                                                                                    |
 | `--infer_text`                            | The text to be synthesized. | "`This is a clip of generated speech with the given text from a TTS model.`"                                                                                                                                    |
+| `--vocoder_dir`                           | The directory for the vocoder. | "`ckpts/vocoder/hifigan_ljspeech`"                                                                                                                                    |
+
 
 ### Run
 For example, if you want to generate speech of all testing set split from LJSpeech, just run:
@@ -106,7 +113,8 @@ sh egs/tts/FastSpeech2/run.sh --stage 3 \
     --infer_output_dir ckpts/tts/[YourExptName]/result \
     --infer_mode "batch" \
     --infer_dataset "LJSpeech" \
-    --infer_testing_set "test"
+    --infer_testing_set "test" \
+    --vocoder_dir ckpts/vocoder/hifigan_ljspeech/checkpoints
 ```
 
 Or, if you want to generate a single clip of speech from a given text, just run:
@@ -116,10 +124,28 @@ sh egs/tts/FastSpeech2/run.sh --stage 3 \
     --infer_expt_dir ckpts/tts/[YourExptName] \
     --infer_output_dir ckpts/tts/[YourExptName]/result \
     --infer_mode "single" \
-    --infer_text "This is a clip of generated speech with the given text from a TTS model."
+    --infer_text "This is a clip of generated speech with the given text from a TTS model." \
+    --vocoder_dir ckpts/vocoder/hifigan_ljspeech
 ```
 
-We will release a pre-trained FastSpeech2 model trained on LJSpeech. So you can download the pre-trained model and generate speech following the above inference instruction.
+### ISSUES and Solutions
+
+```
+NotImplementedError: Using RTX 3090 or 4000 series doesn't support faster communication broadband via P2P or IB. Please set `NCCL_P2P_DISABLE="1"` and `NCCL_IB_DISABLE="1" or use `accelerate launch` which will do this automatically.
+2024-02-24 10:57:49 | INFO | torch.distributed.distributed_c10d | Rank 0: Completed store-based barrier for key:store_based_barrier_key:1 with 2 nodes.
+```
+The error message is related to an incompatibility issue with the NVIDIA RTX 3090 or 4000 series GPUs when trying to use peer-to-peer (P2P) communication or InfiniBand (IB) for faster communication. This incompatibility arises within the PyTorch accelerate library, which facilitates distributed training and inference.
+
+To fix this issue, before running your script, you can set the environment variables in your terminal:
+```
+export NCCL_P2P_DISABLE=1
+export NCCL_IB_DISABLE=1
+```
+
+### Noted
+Extensive logging messages related to `torch._subclasses.fake_tensor` and `torch._dynamo.output_graph` may be observed during inference. Despite attempts to ignore these logs, no effective solution has been found. However, it does not impact the inference process.
+
+
 
 
 ```bibtex

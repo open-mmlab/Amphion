@@ -250,8 +250,7 @@ class Encoder2d(nn.Module):
 
 
 # TODO: Encoder1d
-class Encoder1d(Encoder2d):
-    ...
+class Encoder1d(Encoder2d): ...
 
 
 class Decoder2d(nn.Module):
@@ -351,8 +350,7 @@ class Decoder2d(nn.Module):
 
 
 # TODO: decoder1d
-class Decoder1d(Decoder2d):
-    ...
+class Decoder1d(Decoder2d): ...
 
 
 class AutoencoderKL(nn.Module):

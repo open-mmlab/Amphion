@@ -95,11 +95,13 @@ class TransformerDecoder(torch.nn.Module):
                     MultiHeadedAttention(
                         attention_heads, attention_dim, self_attention_dropout_rate
                     ),
-                    MultiHeadedAttention(
-                        attention_heads, attention_dim, src_attention_dropout_rate
-                    )
-                    if src_attention
-                    else None,
+                    (
+                        MultiHeadedAttention(
+                            attention_heads, attention_dim, src_attention_dropout_rate
+                        )
+                        if src_attention
+                        else None
+                    ),
                     PositionwiseFeedForward(attention_dim, linear_units, dropout_rate),
                     dropout_rate,
                     normalize_before,

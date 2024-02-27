@@ -6,6 +6,7 @@ Amphion support the following academic datasets (sort alphabetically):
   - [AudioCaps](#audiocaps)
   - [CSD](#csd)
   - [CustomSVCDataset](#customsvcdataset)
+  - [Hi-Fi TTS](#hifitts)
   - [KiSing](#kising)
   - [LibriLight](#librilight)
   - [LibriTTS](#libritts)
@@ -22,6 +23,8 @@ Amphion support the following academic datasets (sort alphabetically):
   - [VCTK](#vctk)
 
 The downloading link and the file structure tree of each dataset is displayed as follows.
+
+> **Note:** When using Docker to run Amphion, mount the dataset to the container is necessary after downloading. Check [Mount dataset in Docker container](./docker.md) for more details.
 
 ## AudioCaps
 
@@ -71,6 +74,36 @@ We support custom dataset for Singing Voice Conversion. Organize your data in th
  ┃ ┣ ...
  ┣ singer2
  ┣ ...
+```
+
+
+## Hi-Fi TTS
+
+Download the official Hi-Fi TTS dataset [here](https://www.openslr.org/109/). The file structure looks like below:
+
+```plaintext
+[Hi-Fi TTS dataset path]
+ ┣ audio
+ ┃ ┣ 11614_other {Speaker_ID}_{SNR_subset}
+ ┃ ┃ ┣ 10547 {Book_ID}
+ ┃ ┃ ┃ ┣ thousandnights8_04_anonymous_0001.flac
+ ┃ ┃ ┃ ┣ thousandnights8_04_anonymous_0003.flac
+ ┃ ┃ ┃ ┣ thousandnights8_04_anonymous_0004.flac
+ ┃ ┃ ┃ ┣ ...
+ ┃ ┃ ┣ ...
+ ┃ ┣ ...
+ ┣ 92_manifest_clean_dev.json
+ ┣ 92_manifest_clean_test.json
+ ┣ 92_manifest_clean_train.json
+ ┣ ...
+ ┣ {Speaker_ID}_manifest_{SNR_subset}_{dataset_split}.json
+ ┣ ...
+ ┣ books_bandwidth.tsv
+ ┣ LICENSE.txt
+ ┣ readers_books_clean.txt
+ ┣ readers_books_other.txt
+ ┣ README.txt
+
 ```
 
 ## KiSing

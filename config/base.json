@@ -122,7 +122,7 @@
     "align_mel_duration": false
   },
   "train": {
-    "ddp": true,
+    "ddp": false,
     "random_seed": 970227,
     "batch_size": 16,
     "max_steps": 1000000,

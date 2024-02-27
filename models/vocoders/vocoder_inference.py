@@ -303,9 +303,11 @@ class VocoderInference(object):
             ]:
                 ckpt = torch.load(
                     checkpoint_dir,
-                    map_location=torch.device("cuda")
-                    if torch.cuda.is_available()
-                    else torch.device("cpu"),
+                    map_location=(
+                        torch.device("cuda")
+                        if torch.cuda.is_available()
+                        else torch.device("cpu")
+                    ),
                 )
                 if from_multi_gpu:
                     pretrained_generator_dict = ckpt["generator_state_dict"]
@@ -412,9 +414,11 @@ def load_nnvocoder(
         if vocoder_name in ["bigvgan", "hifigan", "melgan", "nsfhifigan"]:
             ckpt = torch.load(
                 weights_file,
-                map_location=torch.device("cuda")
-                if torch.cuda.is_available()
-                else torch.device("cpu"),
+                map_location=(
+                    torch.device("cuda")
+                    if torch.cuda.is_available()
+                    else torch.device("cpu")
+                ),
             )
             if from_multi_gpu:
                 pretrained_generator_dict = ckpt["generator_state_dict"]
