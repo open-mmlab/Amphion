@@ -27,7 +27,7 @@ Until now, Amphion Evaluation has supported the following objective metrics:
   - Cosine similarity based on:
     - [Rawnet3](https://github.com/Jungjee/RawNet)
     - [Resemblyzer](https://github.com/resemble-ai/Resemblyzer)
-    - [WavLM](https://github.com/microsoft/unilm/tree/master/wavlm)
+    - [WavLM](https://huggingface.co/microsoft/wavlm-base-sv)
 
 We provide a recipe to demonstrate how to objectively evaluate your generated audios. There are three steps in total:
 
@@ -100,7 +100,29 @@ All currently available metrics keywords are listed below:
 | `si_snr`                  | Scale Invariant Signal to Noise Ratio      |
 | `stoi`                    | Short Time Objective Intelligibility       |
 
+For example, if want to calculate the speaker similarity between the synthesized audio and the reference audio with the same content, run:
 
+```bash
+sh egs/metrics/run.sh \
+	--reference_folder [Your path to the reference audios] \
+	--generated_folder [Your path to the generated audios] \
+	--dump_folder [Your path to dump the objective results] \
+	--metrics "similarity" \
+	--similarity_model [Optional. To choose the model for calculating the speaker similarity. Currently "rawnet", "wavlm" and "resemblyzer" are available. Default to "wavlm"] \
+	--similarity_mode "pairwith" \
+```
+
+If you don't have the reference audio with the same content, run the following to get the conteng-free similarity score:
+
+```bash
+sh egs/metrics/run.sh \
+	--reference_folder [Your path to the reference audios] \
+	--generated_folder [Your path to the generated audios] \
+	--dump_folder [Your path to dump the objective results] \
+	--metrics "similarity" \
+	--similarity_model [Optional. To choose the model for calculating the speaker similarity. Currently "rawnet", "wavlm" and "resemblyzer" are available. Default to "wavlm"] \
+	--similarity_mode "overall" \
+```
 
 ## Troubleshooting
 ### FAD (Using Offline Models)
