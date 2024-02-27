@@ -2,7 +2,7 @@
 
 [![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2402.12660)
 [![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/SingVisio)
-[![Video](https://img.shields.io/badge/Video-Demo-orange)](https://drive.google.com/file/d/1w5xgsfaLxBcUvzq3rgejZ6jfgu6hwC0c/view)
+[![Video](https://img.shields.io/badge/Video-Demo-orange)](https://github.com/open-mmlab/Amphion/assets/33707885/0a6e39e8-d5f1-4288-b0f8-32da5a2d6e96)
 
 <div align="center">
 <img src="../../../imgs/visualization/SingVisio_system.png" width="85%">
@@ -61,10 +61,7 @@ For a detailed introduction to **SingVisio** and user instructions, please refer
 
 Additionally, explore the SingVisio demo to see the system's functionalities and usage in action.
 
-<a href="https://drive.google.com/file/d/1w5xgsfaLxBcUvzq3rgejZ6jfgu6hwC0c/view?usp=sharing">
-   <img src="../../../imgs/visualization/SingVisio_demo.png" alt="Watch the video" style="width:100%;">
-</a>
-
+[SingVisio_Demo](https://github.com/open-mmlab/Amphion/assets/33707885/0a6e39e8-d5f1-4288-b0f8-32da5a2d6e96)
 
 ## User Study of SingVisio
 
