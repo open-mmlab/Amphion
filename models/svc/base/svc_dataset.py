@@ -166,7 +166,7 @@ class SVCOnlineDataset(BaseOnlineDataset):
         super().__init__(cfg, dataset, is_valid=is_valid)
 
         # Audio pretrained models' sample rates
-        self.all_sample_rates = set()
+        self.all_sample_rates = {self.sample_rate}
         if self.cfg.model.condition_encoder.use_whisper:
             self.all_sample_rates.add(self.cfg.preprocess.whisper_sample_rate)
         if self.cfg.model.condition_encoder.use_contentvec:
@@ -174,17 +174,32 @@ class SVCOnlineDataset(BaseOnlineDataset):
         if self.cfg.model.condition_encoder.use_wenet:
             self.all_sample_rates.add(self.cfg.preprocess.wenet_sample_rate)
 
+        self.highest_sample_rate = max(list(self.all_sample_rates))
+
         # The maximum duration (seconds) for one training sample
         self.max_duration = 6.0
-        self.max_n_frames = int(self.max_duration * self.sample_rate)
+        self.max_n_frames = int(self.max_duration * self.highest_sample_rate)
 
-    def random_select(self, wav, sr, duration):
+    def random_select(self, wav, duration, wav_path):
+        """
+        wav: (T,)
+        """
         if duration <= self.max_duration:
             return wav
 
-        ts_frame = int((duration - self.max_duration) * sr)
+        ts_frame = int((duration - self.max_duration) * self.highest_sample_rate)
         start = random.randint(0, ts_frame)
         end = start + self.max_n_frames
+
+        if (wav[start:end] == 0).all():
+            print("*" * 20)
+            print("Warning! The wav file {} has a lot of silience.".format(wav_path))
+
+            # There should be at least some frames that are not silience. Then we select them.
+            assert (wav != 0).any()
+            start = np.where(wav != 0)[0][0]
+            end = start + self.max_n_frames
+
         return wav[start:end]
 
     def __getitem__(self, index):
@@ -204,34 +219,42 @@ class SVCOnlineDataset(BaseOnlineDataset):
         utt_item = self.metadata[index]
         wav_path = utt_item["Path"]
 
-        # TODO: use the highest sampling rate to load
+        ### Use the highest sampling rate to load and randomly select ###
+        highest_sr_wav, _ = librosa.load(wav_path, sr=self.highest_sample_rate)
+        highest_sr_wav = self.random_select(
+            highest_sr_wav, utt_item["Duration"], wav_path
+        )
 
-        # Target sample rate
-        wav, _ = librosa.load(wav_path, sr=self.sample_rate)
-        wav = self.random_select(wav, self.sample_rate, utt_item["Duration"])
-        wav_len = len(wav)
-        frame_len = wav_len // self.hop_size
-
-        single_feature["wav"] = torch.as_tensor(wav, dtype=torch.float32)
-        single_feature["wav_len"] = wav_len
-        single_feature["target_len"] = frame_len
-        single_feature["mask"] = torch.ones(frame_len, 1, dtype=torch.long)
-
-        # All the sample rates
+        ### Waveforms under all the sample rates ###
         for sr in self.all_sample_rates:
-            if sr != self.sample_rate:
-                wav_sr = librosa.resample(wav, orig_sr=self.sample_rate, target_sr=sr)
-                single_feature["wav_{}".format(sr)] = torch.as_tensor(
-                    wav_sr, dtype=torch.float32
+            # Resample to the required sample rate
+            if sr != self.highest_sample_rate:
+                wav_sr = librosa.resample(
+                    highest_sr_wav, orig_sr=self.highest_sample_rate, target_sr=sr
                 )
-                single_feature["wav_{}_len".format(sr)] = len(wav_sr)
             else:
-                single_feature["wav_{}".format(self.sample_rate)] = single_feature[
-                    "wav"
-                ]
-                single_feature["wav_{}_len".format(self.sample_rate)] = single_feature[
-                    "wav_len"
-                ]
+                wav_sr = highest_sr_wav
+
+            wav_sr = torch.as_tensor(wav_sr, dtype=torch.float32)
+            single_feature["wav_{}".format(sr)] = wav_sr
+            single_feature["wav_{}_len".format(sr)] = len(wav_sr)
+
+            # For target sample rate
+            if sr == self.sample_rate:
+                wav_len = len(wav_sr)
+                frame_len = wav_len // self.hop_size
+
+                single_feature["wav"] = wav_sr
+                single_feature["wav_len"] = wav_len
+                single_feature["target_len"] = frame_len
+                single_feature["mask"] = torch.ones(frame_len, 1, dtype=torch.long)
+
+        ### Speaker ID ###
+        if self.cfg.preprocess.use_spkid:
+            utt = "{}_{}".format(utt_item["Dataset"], utt_item["Uid"])
+            single_feature["spk_id"] = torch.tensor(
+                [self.spk2id[self.utt2spk[utt]]], dtype=torch.int32
+            )
 
         return single_feature
 
