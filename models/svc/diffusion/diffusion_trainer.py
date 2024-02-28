@@ -67,6 +67,10 @@ class DiffusionTrainer(SVCTrainer):
             # On-the-fly features extraction
             batch = self._extract_svc_features(batch)
 
+            # for k, v in batch.items():
+            #     print(k, v)
+            # exit()
+
         mel_input = batch["mel"]
         noise = torch.randn_like(mel_input, device=device, dtype=torch.float32)
         batch_size = mel_input.size(0)

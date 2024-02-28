@@ -204,6 +204,8 @@ class SVCOnlineDataset(BaseOnlineDataset):
         utt_item = self.metadata[index]
         wav_path = utt_item["Path"]
 
+        # TODO: use the highest sampling rate to load
+
         # Target sample rate
         wav, _ = librosa.load(wav_path, sr=self.sample_rate)
         wav = self.random_select(wav, self.sample_rate, utt_item["Duration"])

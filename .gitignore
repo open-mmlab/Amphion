@@ -48,6 +48,7 @@ ckpts
 *.wav
 *.flac
 pretrained/wenet/*conformer_exp
+pretrained/bigvgan/args.json
 !egs/tts/VALLE/prompt_examples/*.wav
 
 # Runtime data dirs
