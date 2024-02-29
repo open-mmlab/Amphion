@@ -25,7 +25,7 @@ def _split_utts():
 
     vocal_files = glob(os.path.join(raw_dir, "*/vocal.wav"))
     for vocal_f in tqdm(vocal_files):
-        song_name = vocal_f.split("/")[-2]
+        song_name = os.path.split(vocal_f)[-2]
 
         output_dir = os.path.join(output_root, song_name)
         os.makedirs(output_dir, exist_ok=True)
@@ -39,10 +39,10 @@ def cocoeval_statistics(data_dir):
     song_infos = glob(data_dir + "/*")
 
     for song in song_infos:
-        song_name = song.split("/")[-1]
+        song_name = os.path.basename(song)
         utts = glob(song + "/*.wav")
         for utt in utts:
-            uid = utt.split("/")[-1].split(".")[0]
+            uid = os.path.splitext(os.path.basename(utt))[0]
             song2utts[song_name].append(uid)
 
     print("Cocoeval: {} songs".format(len(song_infos)))

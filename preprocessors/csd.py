@@ -38,7 +38,7 @@ def split_to_utterances(language_dir, output_dir):
     pitches = set()
     for wav_file in tqdm(glob("{}/*.wav".format(wav_dir))):
         # Load waveform
-        song_name = wav_file.split("/")[-1].split(".")[0]
+        song_name = os.path.splitext(os.path.basename(wav_file))[0]
         waveform, fs = torchaudio.load(wav_file)
 
         # Load utterances
@@ -100,7 +100,7 @@ def csd_statistics(data_dir):
     folder_infos = glob(data_dir + "/*")
 
     for folder_info in folder_infos:
-        folder_info_split = folder_info.split("/")[-1]
+        folder_info_split = os.path.basename(folder_info)
 
         language = folder_info_split[:2]
         song = folder_info_split[2:]
@@ -111,7 +111,7 @@ def csd_statistics(data_dir):
         utts = glob(folder_info + "/*")
 
         for utt in utts:
-            uid = utt.split("/")[-1].split(".")[0]
+            uid = os.path.splitext(os.path.basename(utt))[0]
             languages2songs[language][song].append(uid)
 
     unique_languages = list(set(languages))

@@ -60,7 +60,7 @@ def extract_resemblyzer_similarity(target_path, reference_path, dump_dir):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    filename = target_path.split("/")[-1]
+    filename = os.path.basename(target_path)
     csv_file_name = f"similarity_results_{filename}.csv"
     dump_dir = dump_dir + "/" + csv_file_name
 

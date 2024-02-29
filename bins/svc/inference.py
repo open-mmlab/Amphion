@@ -227,14 +227,14 @@ def main():
         audio_list = []
         for suffix in ["wav", "flac", "mp3"]:
             audio_list += glob.glob(
-                os.path.join(source_audio_dir, "**/*.{}".format(suffix)), recursive=True
+                os.path.join(source_audio_dir, "**", "*.{}".format(suffix)), recursive=True
             )
         print("There are {} source audios: ".format(len(audio_list)))
 
         # Infer for every file as dataset
         output_root_path = args.output_dir
         for audio_path in tqdm(audio_list):
-            audio_name = audio_path.split("/")[-1].split(".")[0]
+            audio_name = os.path.splitext(os.path.basename(audio_path))[0]
             args.output_dir = os.path.join(output_root_path, audio_name)
             print("\n{}\nConversion for {}...\n".format("*" * 10, audio_name))
 

@@ -86,14 +86,16 @@ def calc_metric(
             continue
 
         audios_ref = []
+        import os
+
         audios_deg = []
 
-        files = glob(ref_dir + "/*.wav")
+        files = glob(os.path.join(ref_dir, "*.wav"))
 
         for file in files:
             audios_ref.append(file)
-            uid = file.split("/")[-1].split(".wav")[0]
-            file_gt = deg_dir + "/{}.wav".format(uid)
+            uid = os.path.splitext(os.path.basename(file))[0]
+            file_gt = os.path.join(deg_dir, f"{uid}.wav")
             audios_deg.append(file_gt)
 
         if metric in ["v_uv_f1"]:

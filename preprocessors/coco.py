@@ -24,10 +24,10 @@ def coco_statistics(data_dir):
     song_infos = glob(data_dir + "/*")
 
     for song in song_infos:
-        song_name = song.split("/")[-1]
+        song_name = os.path.basename(song)
         utts = glob(song + "/*.wav")
         for utt in utts:
-            uid = utt.split("/")[-1].split(".")[0]
+            uid = os.path.splitext(os.path.basename(utt))[0]
             song2utts[song_name].append(uid)
 
     print("Coco: {} songs".format(len(song_infos)))

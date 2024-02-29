@@ -11,6 +11,7 @@ import torchaudio
 
 from utils.util import has_existed
 from utils.io import save_audio
+from tqdm import tqdm
 
 
 def get_splitted_utterances(
@@ -27,7 +28,7 @@ def get_splitted_utterances(
     if len(raw_song_files) * n_utterance_splits == len(trimed_song_files):
         print("Splitted done...")
         for wav_file in tqdm(trimed_song_files):
-            uid = wav_file.split("/")[-1].split(".")[0]
+            uid = os.path.splitext(os.path.basename(wav_file))[0]
             utt = {"Dataset": "pjs", "Singer": "male1", "Uid": uid, "Path": wav_file}
 
             waveform, sample_rate = torchaudio.load(wav_file)
@@ -38,7 +39,7 @@ def get_splitted_utterances(
 
     else:
         for wav_file in tqdm(raw_song_files):
-            song_id = wav_file.split("/")[-1].split(".")[0]
+            song_id = os.path.splitext(os.path.basename(wav_file))[0]
 
             waveform, sample_rate = torchaudio.load(wav_file)
             trimed_waveform = torchaudio.functional.vad(waveform, sample_rate)

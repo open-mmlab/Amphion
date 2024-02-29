@@ -54,10 +54,10 @@ Specify the `processed_dir` and the `log_dir` and for saving the processed data 
 Run the `run.sh` as the preproces stage (set  `--stage 1`):
 
 ```bash
-sh egs/tts/VALLE/run.sh --stage 1
+python egs/tts/VALLE/run.py --stage 1
 ```
 
-> **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "1"`.
+> **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.py` by specifying such as `--gpu "1"`.
 
 
 ## 3. Training
@@ -74,7 +74,7 @@ We provide the default hyparameters in the `exp_config.json`. They can work on s
 
 ### Run
 
-Run the `run.sh` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/tts/[YourExptName]`.
+Run the `run.py` as the training stage (set  `--stage 2`). Specify a experimental name to run the following command. The tensorboard logs and checkpoints will be saved in `Amphion/ckpts/tts/[YourExptName]`.
 
 Specifically, VALL-E need to train a autoregressive (AR) model and then a non-autoregressive (NAR) model. So, you can set `--model_train_stage 1` to train AR model, and set `--model_train_stage 2` to train NAR model, where `--ar_model_ckpt_dir` should be set as the ckeckpoint path to the trained AR model.
 
@@ -82,23 +82,23 @@ Specifically, VALL-E need to train a autoregressive (AR) model and then a non-au
 Train a AR moel, just run:
 
 ```bash
-sh egs/tts/VALLE/run.sh --stage 2 --model_train_stage 1 --name [YourExptName]
+python egs/tts/VALLE/run.py --stage 2 --model_train_stage 1 --name [YourExptName]
 ```
 
 Train a NAR model, just run:
 ```bash
-sh egs/tts/VALLE/run.sh --stage 2 --model_train_stage 2 --ar_model_ckpt_dir [ARModelPath] --name [YourExptName]
+python egs/tts/VALLE/run.py --stage 2 --model_train_stage 2 --ar_model_ckpt_dir [ARModelPath] --name [YourExptName]
 ```
 <!-- > **NOTE:** To train a NAR model, `--checkpoint_path` should be set as the ckeckpoint path to the trained AR model. -->
 
-> **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.sh` by specifying such as `--gpu "0,1,2,3"`.
+> **NOTE:** The `CUDA_VISIBLE_DEVICES` is set as `"0"` in default. You can change it when running `run.py` by specifying such as `--gpu "0,1,2,3"`.
 
 
 ## 4. Inference
 
 ### Configuration
 
-For inference, you need to specify the following configurations when running `run.sh`:
+For inference, you need to specify the following configurations when running `run.py`:
 
 
 
@@ -117,7 +117,7 @@ For inference, you need to specify the following configurations when running `ru
 For example, if you want to generate a single clip of speech, just run:
 
 ```bash
-sh egs/tts/VALLE/run.sh --stage 3 --gpu "0" \
+python egs/tts/VALLE/run.py --stage 3 --gpu "0" \
     --infer_expt_dir Amphion/ckpts/tts/[YourExptName] \
     --infer_output_dir Amphion/ckpts/tts/[YourExptName]/result \
     --infer_mode "single" \
