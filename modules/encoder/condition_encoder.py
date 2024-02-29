@@ -254,7 +254,7 @@ class ConditionEncoder(nn.Module):
             singer_info = speaker_enc_out.expand(-1, seq_len, -1)
             outputs.append(singer_info)
 
-        if "spkemb" in x.keys():
+        if self.cfg.use_spkemb:
             speaker_embedding = self.speaker_project(
                 x["spkemb"].unsqueeze(1)
             )  # [b, 1, 384]
