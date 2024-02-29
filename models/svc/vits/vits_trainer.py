@@ -11,7 +11,7 @@ import shutil
 import accelerate
 
 # from models.svc.base import SVCTrainer
-from models.svc.base.svc_dataset import SVCCollator, SVCDataset
+from models.svc.base.svc_dataset import SVCOfflineCollator, SVCOfflineDataset
 from models.svc.vits.vits import *
 from models.svc.base import SVCTrainer
 
@@ -110,7 +110,7 @@ class VitsSVCTrainer(SVCTrainer):
         return model
 
     def _build_dataset(self):
-        return SVCDataset, SVCCollator
+        return SVCOfflineDataset, SVCOfflineCollator
 
     def _build_optimizer(self):
         optimizer_g = torch.optim.AdamW(

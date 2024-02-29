@@ -7,13 +7,15 @@ import torch
 import numpy as np
 import torch.utils.data
 from torch.nn.utils.rnn import pad_sequence
+import librosa
+
 from utils.data_utils import *
 from processors.acoustic_extractor import cal_normalized_mel
 from text import text_to_sequence
 from text.text_token_collation import phoneIDCollation
 
 
-class BaseDataset(torch.utils.data.Dataset):
+class BaseOfflineDataset(torch.utils.data.Dataset):
     def __init__(self, cfg, dataset, is_valid=False):
         """
         Args:
@@ -269,7 +271,7 @@ class BaseDataset(torch.utils.data.Dataset):
         return len(self.metadata)
 
 
-class BaseCollator(object):
+class BaseOfflineCollator(object):
     """Zero-pads model inputs and targets based on number of frames per step"""
 
     def __init__(self, cfg):
@@ -280,7 +282,7 @@ class BaseCollator(object):
 
         # mel: [b, T, n_mels]
         # frame_pitch, frame_energy: [1, T]
-        # target_len: [1]
+        # target_len: [b]
         # spk_id: [b, 1]
         # mask: [b, T, 1]
 
@@ -316,6 +318,124 @@ class BaseCollator(object):
                 values = [torch.from_numpy(b[key]) for b in batch]
                 packed_batch_features[key] = pad_sequence(
                     values, batch_first=True, padding_value=0
+                )
+        return packed_batch_features
+
+
+class BaseOnlineDataset(torch.utils.data.Dataset):
+    def __init__(self, cfg, dataset, is_valid=False):
+        """
+        Args:
+            cfg: config
+            dataset: dataset name
+            is_valid: whether to use train or valid dataset
+        """
+        assert isinstance(dataset, str)
+
+        self.cfg = cfg
+        self.sample_rate = cfg.preprocess.sample_rate
+        self.hop_size = self.cfg.preprocess.hop_size
+
+        processed_data_dir = os.path.join(cfg.preprocess.processed_dir, dataset)
+        meta_file = cfg.preprocess.valid_file if is_valid else cfg.preprocess.train_file
+        self.metafile_path = os.path.join(processed_data_dir, meta_file)
+        self.metadata = self.get_metadata()
+
+        """
+        load spk2id and utt2spk from json file
+            spk2id: {spk1: 0, spk2: 1, ...}
+            utt2spk: {dataset_uid: spk1, ...}
+        """
+        if cfg.preprocess.use_spkid:
+            spk2id_path = os.path.join(processed_data_dir, cfg.preprocess.spk2id)
+            with open(spk2id_path, "r") as f:
+                self.spk2id = json.load(f)
+
+            utt2spk_path = os.path.join(processed_data_dir, cfg.preprocess.utt2spk)
+            self.utt2spk = dict()
+            with open(utt2spk_path, "r") as f:
+                for line in f.readlines():
+                    utt, spk = line.strip().split("\t")
+                    self.utt2spk[utt] = spk
+
+    def get_metadata(self):
+        with open(self.metafile_path, "r", encoding="utf-8") as f:
+            metadata = json.load(f)
+
+        return metadata
+
+    def get_dataset_name(self):
+        return self.metadata[0]["Dataset"]
+
+    def __getitem__(self, index):
+        """
+        single_feature:
+            wav: (T)
+            wav_len: int
+            target_len: int
+            mask: (n_frames, 1)
+            spk_id: (1)
+        """
+        utt_item = self.metadata[index]
+
+        wav_path = utt_item["Path"]
+        wav, _ = librosa.load(wav_path, sr=self.sample_rate)
+        # wav: (T)
+        wav = torch.as_tensor(wav, dtype=torch.float32)
+        wav_len = len(wav)
+        # mask: (n_frames, 1)
+        frame_len = wav_len // self.hop_size
+        mask = torch.ones(frame_len, 1, dtype=torch.long)
+
+        single_feature = {
+            "wav": wav,
+            "wav_len": wav_len,
+            "target_len": frame_len,
+            "mask": mask,
+        }
+
+        if self.cfg.preprocess.use_spkid:
+            utt = "{}_{}".format(utt_item["Dataset"], utt_item["Uid"])
+            single_feature["spk_id"] = torch.tensor(
+                [self.spk2id[self.utt2spk[utt]]], dtype=torch.int32
+            )
+
+        return single_feature
+
+    def __len__(self):
+        return len(self.metadata)
+
+
+class BaseOnlineCollator(object):
+    """Zero-pads model inputs and targets based on number of frames per step (For on-the-fly features extraction, whose iterative item contains only wavs)"""
+
+    def __init__(self, cfg):
+        self.cfg = cfg
+
+    def __call__(self, batch):
+        """
+        BaseOnlineDataset.__getitem__:
+            wav: (T,)
+            wav_len: int
+            target_len: int
+            mask: (n_frames, 1)
+            spk_id: (1)
+
+        Returns:
+            wav: (B, T), torch.float32
+            wav_len: (B), torch.long
+            target_len: (B), torch.long
+            mask: (B, n_frames, 1), torch.long
+            spk_id: (B, 1), torch.int32
+        """
+        packed_batch_features = dict()
+
+        for key in batch[0].keys():
+            if key in ["wav_len", "target_len"]:
+                packed_batch_features[key] = torch.LongTensor([b[key] for b in batch])
+            else:
+                packed_batch_features[key] = pad_sequence(
+                    [b[key] for b in batch], batch_first=True, padding_value=0
                 )
         return packed_batch_features
 

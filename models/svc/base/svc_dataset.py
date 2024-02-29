@@ -9,6 +9,8 @@ from torch.nn.utils.rnn import pad_sequence
 import json
 import os
 import numpy as np
+import librosa
+
 from utils.data_utils import *
 from processors.acoustic_extractor import cal_normalized_mel, load_mel_extrema
 from processors.content_extractor import (
@@ -17,17 +19,19 @@ from processors.content_extractor import (
     WenetExtractor,
 )
 from models.base.base_dataset import (
-    BaseCollator,
-    BaseDataset,
+    BaseOfflineDataset,
+    BaseOfflineCollator,
+    BaseOnlineDataset,
+    BaseOnlineCollator,
 )
 from models.base.new_dataset import BaseTestDataset
 
 EPS = 1.0e-12
 
 
-class SVCDataset(BaseDataset):
+class SVCOfflineDataset(BaseOfflineDataset):
     def __init__(self, cfg, dataset, is_valid=False):
-        BaseDataset.__init__(self, cfg, dataset, is_valid=is_valid)
+        BaseOfflineDataset.__init__(self, cfg, dataset, is_valid=is_valid)
 
         cfg = self.cfg
 
@@ -56,7 +60,7 @@ class SVCDataset(BaseDataset):
             )
 
     def __getitem__(self, index):
-        single_feature = BaseDataset.__getitem__(self, index)
+        single_feature = BaseOfflineDataset.__getitem__(self, index)
 
         utt_info = self.metadata[index]
         dataset = utt_info["Dataset"]
@@ -65,15 +69,19 @@ class SVCDataset(BaseDataset):
 
         if self.cfg.model.condition_encoder.use_whisper:
             assert "target_len" in single_feature.keys()
-            aligned_whisper_feat = self.whisper_aligner.offline_align(
-                np.load(self.utt2whisper_path[utt]), single_feature["target_len"]
+            aligned_whisper_feat = (
+                self.whisper_aligner.offline_resolution_transformation(
+                    np.load(self.utt2whisper_path[utt]), single_feature["target_len"]
+                )
             )
             single_feature["whisper_feat"] = aligned_whisper_feat
 
         if self.cfg.model.condition_encoder.use_contentvec:
             assert "target_len" in single_feature.keys()
-            aligned_contentvec = self.contentvec_aligner.offline_align(
-                np.load(self.utt2contentVec_path[utt]), single_feature["target_len"]
+            aligned_contentvec = (
+                self.contentvec_aligner.offline_resolution_transformation(
+                    np.load(self.utt2contentVec_path[utt]), single_feature["target_len"]
+                )
             )
             single_feature["contentvec_feat"] = aligned_contentvec
 
@@ -88,7 +96,7 @@ class SVCDataset(BaseDataset):
 
         if self.cfg.model.condition_encoder.use_wenet:
             assert "target_len" in single_feature.keys()
-            aligned_wenet_feat = self.wenet_aligner.offline_align(
+            aligned_wenet_feat = self.wenet_aligner.offline_resolution_transformation(
                 np.load(self.utt2wenet_path[utt]), single_feature["target_len"]
             )
             single_feature["wenet_feat"] = aligned_wenet_feat
@@ -153,15 +161,152 @@ class SVCDataset(BaseDataset):
         return sample
 
 
-class SVCCollator(BaseCollator):
-    """Zero-pads model inputs and targets based on number of frames per step"""
+class SVCOnlineDataset(BaseOnlineDataset):
+    def __init__(self, cfg, dataset, is_valid=False):
+        super().__init__(cfg, dataset, is_valid=is_valid)
 
+        # Audio pretrained models' sample rates
+        self.all_sample_rates = {self.sample_rate}
+        if self.cfg.model.condition_encoder.use_whisper:
+            self.all_sample_rates.add(self.cfg.preprocess.whisper_sample_rate)
+        if self.cfg.model.condition_encoder.use_contentvec:
+            self.all_sample_rates.add(self.cfg.preprocess.contentvec_sample_rate)
+        if self.cfg.model.condition_encoder.use_wenet:
+            self.all_sample_rates.add(self.cfg.preprocess.wenet_sample_rate)
+
+        self.highest_sample_rate = max(list(self.all_sample_rates))
+
+        # The maximum duration (seconds) for one training sample
+        self.max_duration = 6.0
+        self.max_n_frames = int(self.max_duration * self.highest_sample_rate)
+
+    def random_select(self, wav, duration, wav_path):
+        """
+        wav: (T,)
+        """
+        if duration <= self.max_duration:
+            return wav
+
+        ts_frame = int((duration - self.max_duration) * self.highest_sample_rate)
+        start = random.randint(0, ts_frame)
+        end = start + self.max_n_frames
+
+        if (wav[start:end] == 0).all():
+            print("*" * 20)
+            print("Warning! The wav file {} has a lot of silience.".format(wav_path))
+
+            # There should be at least some frames that are not silience. Then we select them.
+            assert (wav != 0).any()
+            start = np.where(wav != 0)[0][0]
+            end = start + self.max_n_frames
+
+        return wav[start:end]
+
+    def __getitem__(self, index):
+        """
+        single_feature: dict,
+            wav: (T,)
+            wav_len: int
+            target_len: int
+            mask: (n_frames, 1)
+            spk_id
+
+            wav_{sr}: (T,)
+            wav_{sr}_len: int
+        """
+        single_feature = dict()
+
+        utt_item = self.metadata[index]
+        wav_path = utt_item["Path"]
+
+        ### Use the highest sampling rate to load and randomly select ###
+        highest_sr_wav, _ = librosa.load(wav_path, sr=self.highest_sample_rate)
+        highest_sr_wav = self.random_select(
+            highest_sr_wav, utt_item["Duration"], wav_path
+        )
+
+        ### Waveforms under all the sample rates ###
+        for sr in self.all_sample_rates:
+            # Resample to the required sample rate
+            if sr != self.highest_sample_rate:
+                wav_sr = librosa.resample(
+                    highest_sr_wav, orig_sr=self.highest_sample_rate, target_sr=sr
+                )
+            else:
+                wav_sr = highest_sr_wav
+
+            wav_sr = torch.as_tensor(wav_sr, dtype=torch.float32)
+            single_feature["wav_{}".format(sr)] = wav_sr
+            single_feature["wav_{}_len".format(sr)] = len(wav_sr)
+
+            # For target sample rate
+            if sr == self.sample_rate:
+                wav_len = len(wav_sr)
+                frame_len = wav_len // self.hop_size
+
+                single_feature["wav"] = wav_sr
+                single_feature["wav_len"] = wav_len
+                single_feature["target_len"] = frame_len
+                single_feature["mask"] = torch.ones(frame_len, 1, dtype=torch.long)
+
+        ### Speaker ID ###
+        if self.cfg.preprocess.use_spkid:
+            utt = "{}_{}".format(utt_item["Dataset"], utt_item["Uid"])
+            single_feature["spk_id"] = torch.tensor(
+                [self.spk2id[self.utt2spk[utt]]], dtype=torch.int32
+            )
+
+        return single_feature
+
+    def __len__(self):
+        return len(self.metadata)
+
+
+class SVCOfflineCollator(BaseOfflineCollator):
     def __init__(self, cfg):
-        BaseCollator.__init__(self, cfg)
+        super().__init__(cfg)
 
     def __call__(self, batch):
-        parsed_batch_features = BaseCollator.__call__(self, batch)
+        parsed_batch_features = super().__call__(batch)
         return parsed_batch_features
+
+
+class SVCOnlineCollator(BaseOnlineCollator):
+    def __init__(self, cfg):
+        super().__init__(cfg)
+
+    def __call__(self, batch):
+        """
+        SVCOnlineDataset.__getitem__:
+            wav: (T,)
+            wav_len: int
+            target_len: int
+            mask: (n_frames, 1)
+            spk_id: (1)
+
+            wav_{sr}: (T,)
+            wav_{sr}_len: int
+
+        Returns:
+            wav: (B, T), torch.float32
+            wav_len: (B), torch.long
+            target_len: (B), torch.long
+            mask: (B, n_frames, 1), torch.long
+            spk_id: (B, 1), torch.int32
+
+            wav_{sr}: (B, T)
+            wav_{sr}_len: (B), torch.long
+        """
+        packed_batch_features = dict()
+
+        for key in batch[0].keys():
+            if "_len" in key:
+                packed_batch_features[key] = torch.LongTensor([b[key] for b in batch])
+            else:
+                packed_batch_features[key] = pad_sequence(
+                    [b[key] for b in batch], batch_first=True, padding_value=0
+                )
+        return packed_batch_features
 
 
 class SVCTestDataset(BaseTestDataset):
@@ -179,9 +324,16 @@ class SVCTestDataset(BaseTestDataset):
             "_{}".format(self.target_singer), ""
         )
         if cfg.preprocess.mel_min_max_norm:
-            self.target_mel_extrema = load_mel_extrema(
-                cfg.preprocess, self.target_dataset
-            )
+            if self.cfg.preprocess.features_extraction_mode == "online":
+                # TODO: Change the hard code
+
+                # Using an empirical mel extrema to normalize
+                self.target_mel_extrema = load_mel_extrema(cfg.preprocess, "vctk")
+            else:
+                self.target_mel_extrema = load_mel_extrema(
+                    cfg.preprocess, self.target_dataset
+                )
+
             self.target_mel_extrema = torch.as_tensor(
                 self.target_mel_extrema[0]
             ), torch.as_tensor(self.target_mel_extrema[1])
@@ -370,15 +522,19 @@ class SVCTestDataset(BaseTestDataset):
         ######### Get Content Features Item #########
         if self.cfg.model.condition_encoder.use_whisper:
             assert "target_len" in single_feature.keys()
-            aligned_whisper_feat = self.whisper_aligner.offline_align(
-                np.load(self.utt2whisper_path[utt]), single_feature["target_len"]
+            aligned_whisper_feat = (
+                self.whisper_aligner.offline_resolution_transformation(
+                    np.load(self.utt2whisper_path[utt]), single_feature["target_len"]
+                )
             )
             single_feature["whisper_feat"] = aligned_whisper_feat
 
         if self.cfg.model.condition_encoder.use_contentvec:
             assert "target_len" in single_feature.keys()
-            aligned_contentvec = self.contentvec_aligner.offline_align(
-                np.load(self.utt2contentVec_path[utt]), single_feature["target_len"]
+            aligned_contentvec = (
+                self.contentvec_aligner.offline_resolution_transformation(
+                    np.load(self.utt2contentVec_path[utt]), single_feature["target_len"]
+                )
             )
             single_feature["contentvec_feat"] = aligned_contentvec
 
@@ -393,7 +549,7 @@ class SVCTestDataset(BaseTestDataset):
 
         if self.cfg.model.condition_encoder.use_wenet:
             assert "target_len" in single_feature.keys()
-            aligned_wenet_feat = self.wenet_aligner.offline_align(
+            aligned_wenet_feat = self.wenet_aligner.offline_resolution_transformation(
                 np.load(self.utt2wenet_path[utt]), single_feature["target_len"]
             )
             single_feature["wenet_feat"] = aligned_wenet_feat

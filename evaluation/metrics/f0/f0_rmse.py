@@ -65,12 +65,12 @@ def extract_f0rmse(
     f0_ref = get_f0_features_using_parselmouth(
         audio_ref,
         cfg,
-    )[0]
+    )
 
     f0_deg = get_f0_features_using_parselmouth(
         audio_deg,
         cfg,
-    )[0]
+    )
 
     # Subtract mean value from f0
     if need_mean:

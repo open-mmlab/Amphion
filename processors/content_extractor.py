@@ -58,20 +58,14 @@ from modules.wenet_extractor.utils.checkpoint import load_checkpoint
 """
 
 
-class BaseExtractor:
-    def __init__(self, cfg):
+class AudioPretrainedModelFeaturesExtractor:
+    def __init__(self, cfg, extractor_type):
         self.cfg = cfg
-        self.extractor_type = None
+        self.extractor_type = extractor_type
         self.model = None
+        self.init_for_retrans()
 
-    def offline_align(self, content, target_len):
-        """
-        args:
-            content: (source_len, dim)
-            target_len: target length
-        return:
-            mapped_feature: (target_len, dim)
-        """
+    def init_for_retrans(self):
         target_hop = self.cfg.preprocess.hop_size
 
         assert self.extractor_type in ["whisper", "contentvec", "wenet"]
@@ -96,6 +90,20 @@ class BaseExtractor:
         factor = np.gcd(source_hop, target_hop)
         source_hop //= factor
         target_hop //= factor
+
+        self.source_hop = source_hop
+        self.target_hop = target_hop
+
+    def offline_resolution_transformation(self, content, target_len):
+        """
+        args:
+            content: (source_len, dim)
+            target_len: target length
+        return:
+            mapped_feature: (target_len, dim)
+        """
+        source_hop = self.source_hop
+        target_hop = self.target_hop
 
         # (source_len, 256)
         _, width = content.shape
@@ -139,20 +147,73 @@ class BaseExtractor:
 
         return mapped_feature
 
-    def save_feature(self, utt, content_feature):
-        """Save a single utternace to path {cfg.preprocess.processed_dir}
-
-        Args:
-            utt (dict): one item in metadata, containing information for one utterance
-            content_feature (tensor): content feature of one utterance
-        """
-        uid = utt["Uid"]
-        assert self.extractor_type != None
-        out_dir = os.path.join(
-            self.cfg.preprocess.processed_dir, utt["Dataset"], self.extractor_type
+    def log_for_ReTrans(self, err):
+        err_log_dir = os.path.join(
+            self.cfg.preprocess.processed_dir, "align_max_err.log"
         )
-        os.makedirs(out_dir, exist_ok=True)
-        save_path = os.path.join(out_dir, uid + ".npy")
+        try:
+            with open(err_log_dir, "r") as f:
+                err_num = int(f.read())
+        except:
+            with open(err_log_dir, "w") as f:
+                f.write("0")
+            err_num = 0
+        if err > err_num:
+            with open(err_log_dir, "w") as f:
+                f.write(str(err))
+
+    def ReTrans(self, source_feats, padded_target_len):
+        """
+        Resolution Transformation for mismatched frames alginment.
+
+        TODO: Merge the offline resolution_transformation into one
+
+        args:
+            source_feats: Tensor, (B, padded_source_len, D)
+            padded_target_len: int, the maximum target length in a batch
+        return:
+            mapped_feature: Tensor, (B, padded_target_len, D)
+        """
+        source_hop = self.source_hop
+        target_hop = self.target_hop
+
+        # (B, padded_source_len, D)
+        B, padded_source_len, D = source_feats.shape
+
+        # select the valid content from padded feature
+        source_len = min(
+            padded_target_len * target_hop // source_hop + 1, padded_source_len
+        )
+
+        # const ~= padded_target_len * target_hop (padded wav's duration)
+        const = source_len * source_hop // target_hop * target_hop
+
+        # (B, padded_source_len, D) -> (B, padded_source_len * source_hop, D) -> (B, const, D)
+        up_sampling_feats = torch.repeat_interleave(source_feats, source_hop, dim=1)[
+            :, :const
+        ]
+        # (B, const, D) -> (B, const/target_hop, target_hop, D) -> (B, const/target_hop, D)
+        down_sampling_feats = torch.mean(
+            up_sampling_feats.reshape(B, -1, target_hop, D), dim=2
+        )
+
+        err = abs(padded_target_len - down_sampling_feats.shape[1])
+        if err > 8:
+            self.log_for_ReTrans(err)
+
+        if down_sampling_feats.shape[1] < padded_target_len:
+            # (B, 1, D) -> (B, err, D)
+            end = down_sampling_feats[:, -1, :][:, None, :].repeat_interleave(
+                err, dim=1
+            )
+            # -> (B, padded_target_len, D)
+            down_sampling_feats = torch.cat([down_sampling_feats, end], dim=1)
+
+        # (B, padded_target_len, D)
+        mapped_feature = down_sampling_feats[:, :padded_target_len]
+        return mapped_feature
+
+    def get_valid_features(self, utt, content_feature):
         # only keep effective parts
         duration = utt["Duration"]
         if self.extractor_type == "whisper":
@@ -171,20 +232,37 @@ class BaseExtractor:
             frameshift = self.cfg.preprocess.mert_frameshift
         else:
             raise NotImplementedError
+
         # calculate the number of valid frames
         num_frames = int(np.ceil((duration - frameshift) / frameshift)) + 1
-        # (num_frames, dim) -> (valid_frames, dim)
         assert (
             len(content_feature.shape) == 2
         ), "content feature shape error, it should be (num_frames, dim)"
         content_feature = content_feature[:num_frames, :]
+        return content_feature
+
+    def save_feature(self, utt, content_feature):
+        """Save a single utternace to path {cfg.preprocess.processed_dir}
+
+        Args:
+            utt (dict): one item in metadata, containing information for one utterance
+            content_feature (tensor): content feature of one utterance
+        """
+        uid = utt["Uid"]
+        assert self.extractor_type != None
+        out_dir = os.path.join(
+            self.cfg.preprocess.processed_dir, utt["Dataset"], self.extractor_type
+        )
+        os.makedirs(out_dir, exist_ok=True)
+        save_path = os.path.join(out_dir, uid + ".npy")
+
+        content_feature = self.get_valid_features(utt, content_feature)
         np.save(save_path, content_feature.cpu().detach().numpy())
 
 
-class WhisperExtractor(BaseExtractor):
+class WhisperExtractor(AudioPretrainedModelFeaturesExtractor):
     def __init__(self, config):
-        super(WhisperExtractor, self).__init__(config)
-        self.extractor_type = "whisper"
+        super(WhisperExtractor, self).__init__(config, extractor_type="whisper")
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     def load_model(self):
@@ -217,11 +295,10 @@ class WhisperExtractor(BaseExtractor):
 
         self.model = model.eval()
 
-    def extract_content_features(self, wavs, lens):
+    def extract_content_features(self, wavs):
         """extract content features from a batch of dataloader
         Args:
             wavs: tensor (batch_size, T)
-            lens: list
         """
         # wavs: (batch, max_len)
         wavs = whisper.pad_or_trim(wavs)
@@ -233,10 +310,9 @@ class WhisperExtractor(BaseExtractor):
         return features
 
 
-class ContentvecExtractor(BaseExtractor):
+class ContentvecExtractor(AudioPretrainedModelFeaturesExtractor):
     def __init__(self, cfg):
-        super(ContentvecExtractor, self).__init__(cfg)
-        self.extractor_type = "contentvec"
+        super(ContentvecExtractor, self).__init__(cfg, extractor_type="contentvec")
 
     def load_model(self):
         assert self.model == None
@@ -257,11 +333,10 @@ class ContentvecExtractor(BaseExtractor):
 
         self.model = model
 
-    def extract_content_features(self, wavs, lens):
+    def extract_content_features(self, wavs):
         """extract content features from a batch of dataloader
         Args:
             wavs: tensor (batch, T)
-            lens: list
         """
         device = next(self.model.parameters()).device
         wavs = wavs.to(device)  # (batch, max_len)
@@ -275,10 +350,9 @@ class ContentvecExtractor(BaseExtractor):
         return feats
 
 
-class WenetExtractor(BaseExtractor):
+class WenetExtractor(AudioPretrainedModelFeaturesExtractor):
     def __init__(self, config):
-        super(WenetExtractor, self).__init__(config)
-        self.extractor_type = "wenet"
+        super(WenetExtractor, self).__init__(config, extractor_type="wenet")
 
     def load_model(self):
         wenet_cfg = self.cfg.preprocess.wenet_config
@@ -302,7 +376,7 @@ class WenetExtractor(BaseExtractor):
     def extract_content_features(self, wavs, lens):
         """extract content features from a batch of dataloader
         Args:
-            wavs: tensor
+            wavs: tensor, whose shape is (B, T)
             lens: list
         """
         feats_list = []
@@ -365,10 +439,9 @@ class WenetExtractor(BaseExtractor):
         return features
 
 
-class MertExtractor(BaseExtractor):
+class MertExtractor(AudioPretrainedModelFeaturesExtractor):
     def __init__(self, cfg):
-        super(MertExtractor, self).__init__(cfg)
-        self.extractor_type = "mert"
+        super(MertExtractor, self).__init__(cfg, extractor_type="mert")
         self.preprocessor = None
 
     def load_model(self):
@@ -389,11 +462,10 @@ class MertExtractor(BaseExtractor):
         self.model = model
         self.preprocessor = preprocessor
 
-    def extract_content_features(self, wavs, lens):
+    def extract_content_features(self, wavs):
         """extract content features from a batch of dataloader
         Args:
             wavs: tensor (batch, T)
-            lens: list
         """
         with torch.no_grad():
             sample_rate = self.preprocessor.sampling_rate
