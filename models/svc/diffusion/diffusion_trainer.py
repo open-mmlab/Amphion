@@ -75,7 +75,7 @@ class DiffusionTrainer(SVCTrainer):
             # On-the-fly features extraction
             batch = self._extract_svc_features(batch)
 
-            # # TODO: debug
+            # To debug
             # for k, v in batch.items():
             #     print(k, v.shape, v)
             # exit()

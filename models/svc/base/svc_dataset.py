@@ -325,8 +325,9 @@ class SVCTestDataset(BaseTestDataset):
         )
         if cfg.preprocess.mel_min_max_norm:
             if self.cfg.preprocess.features_extraction_mode == "online":
-                # TODO: normalization debug
-                # self.target_mel_extrema = -11.5129, 2.0
+                # TODO: Change the hard code
+
+                # Using an empirical mel extrema to normalize
                 self.target_mel_extrema = load_mel_extrema(cfg.preprocess, "vctk")
             else:
                 self.target_mel_extrema = load_mel_extrema(

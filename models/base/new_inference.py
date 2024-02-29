@@ -134,7 +134,6 @@ class BaseInference(object):
             # Judge whether the min-max normliazation is used
             if self.cfg.preprocess.use_min_max_norm_mel:
                 mel_min, mel_max = self.test_dataset.target_mel_extrema
-                # print("mel_min: {}, mel_max: {}".format(mel_min, mel_max))
                 y_pred = (y_pred + 1.0) / 2.0 * (mel_max - mel_min + EPS) + mel_min
 
             y_ls = y_pred.chunk(self.test_batch_size)
@@ -175,8 +174,7 @@ class BaseInference(object):
                 add_silence=False,
                 turn_up=not is_silence(wav, self.cfg.preprocess.sample_rate),
             )
-            # TODO: debug
-            # os.remove(os.path.join(self.args.output_dir, f"{uid}.pt"))
+            os.remove(os.path.join(self.args.output_dir, f"{uid}.pt"))
 
         return sorted(output_audio_files)
 

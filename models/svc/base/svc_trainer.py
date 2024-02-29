@@ -88,14 +88,9 @@ class SVCTrainer(BaseTrainer):
             # (B, n_mels, n_frames)
             raw_mel = self.audio_features_extractor.get_mel_spectrogram(batch["wav"])
             if self.cfg.preprocess.use_min_max_norm_mel:
-                # TODO: debug
+                # TODO: Change the hard code
 
-                ### Global Norm ###
-                # # Mel extrema: -11.5129 is a theoritical minimum value, 2.0 is an empirical value
-                # m, M = -11.5129, 2.0
-                # mel = (raw_mel - m) / (M - m + EPS) * 2 - 1
-
-                ### Channel Norm ###
+                # Using the empirical mel extrema to denormalize
                 if not hasattr(self, "mel_extrema"):
                     # (n_mels)
                     m, M = load_mel_extrema(self.cfg.preprocess, "vctk")

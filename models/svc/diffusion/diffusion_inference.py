@@ -60,11 +60,4 @@ class DiffusionInference(SVCInference):
         conditioner = self.model[0](batch_data)
         noise = torch.randn_like(batch_data["mel"], device=device)
         y_pred = self.pipeline(noise, conditioner)
-
-        # print("y_pred", y_pred.shape, y_pred)
-        # torch.save(
-        #     y_pred,
-        #     "/mnt/chongqinggeminiceph1fs/geminicephfs/wx-mm-spr-xxxx/xueyaozhang/workspace/AmphionPublic/RMSnow-Amphion-Public/ckpts/svc/opencpop_online_whisper_NoMinMaxNorm/result/0022/raw_mel.pt",
-        # )
-
         return y_pred
