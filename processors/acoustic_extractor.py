@@ -450,6 +450,10 @@ def extract_utt_acoustic_features_vocoder(dataset_output, cfg, utt):
 
 
 def cal_normalized_mel(mel, dataset_name, cfg):
+    """
+    mel: (n_mels, T)
+    """
+    # mel_min, mel_max: (n_mels)
     mel_min, mel_max = load_mel_extrema(cfg, dataset_name)
     mel_norm = normalize_mel_channel(mel, mel_min, mel_max)
     return mel_norm
@@ -529,6 +533,10 @@ def denormalize_mel_channel(mel, mel_min, mel_max):
 
 
 def normalize_mel_channel(mel, mel_min, mel_max):
+    """
+    mel: (n_mels, T)
+    mel_min, mel_max: (n_mels)
+    """
     mel_min = np.expand_dims(mel_min, -1)
     mel_max = np.expand_dims(mel_max, -1)
     return (mel - mel_min) / (mel_max - mel_min + ZERO) * 2 - 1

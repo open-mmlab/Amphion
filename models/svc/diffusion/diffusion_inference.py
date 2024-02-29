@@ -64,7 +64,7 @@ class DiffusionInference(SVCInference):
         # print("y_pred", y_pred.shape, y_pred)
         # torch.save(
         #     y_pred,
-        #     "/mnt/chongqinggeminiceph1fs/geminicephfs/wx-mm-spr-xxxx/xueyaozhang/workspace/AmphionPublic/RMSnow-Amphion-Public/ckpts/svc/opencpop_online_whisper/result/0022/raw_mel.pt",
+        #     "/mnt/chongqinggeminiceph1fs/geminicephfs/wx-mm-spr-xxxx/xueyaozhang/workspace/AmphionPublic/RMSnow-Amphion-Public/ckpts/svc/opencpop_online_whisper_NoMinMaxNorm/result/0022/raw_mel.pt",
         # )
 
         return y_pred
