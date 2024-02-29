@@ -514,34 +514,33 @@ class BaseTrainer(object):
 
     def _check_nan(self, loss, y_pred, y_gt):
         if torch.any(torch.isnan(loss)):
-            self.logger.fatal("Fatal Error: Training is down since loss has Nan!")
+            self.logger.error("Fatal Error: Training is down since loss has Nan!")
             self.logger.error("loss = {:.6f}".format(loss.item()), in_order=True)
+
+            ### y_pred ###
             if torch.any(torch.isnan(y_pred)):
                 self.logger.error(
                     f"y_pred has Nan: {torch.any(torch.isnan(y_pred))}", in_order=True
                 )
+                self.logger.error(f"y_pred: {y_pred}", in_order=True)
             else:
                 self.logger.debug(
                     f"y_pred has Nan: {torch.any(torch.isnan(y_pred))}", in_order=True
                 )
+                self.logger.debug(f"y_pred: {y_pred}", in_order=True)
+
+            ### y_gt ###
             if torch.any(torch.isnan(y_gt)):
                 self.logger.error(
                     f"y_gt has Nan: {torch.any(torch.isnan(y_gt))}", in_order=True
                 )
+                self.logger.error(f"y_gt: {y_gt}", in_order=True)
             else:
                 self.logger.debug(
                     f"y_gt has nan: {torch.any(torch.isnan(y_gt))}", in_order=True
                 )
-            if torch.any(torch.isnan(y_pred)):
-                self.logger.error(f"y_pred: {y_pred}", in_order=True)
-            else:
-                self.logger.debug(f"y_pred: {y_pred}", in_order=True)
-            if torch.any(torch.isnan(y_gt)):
-                self.logger.error(f"y_gt: {y_gt}", in_order=True)
-            else:
                 self.logger.debug(f"y_gt: {y_gt}", in_order=True)
 
-            # TODO: still OK to save tracking?
             self.accelerator.end_training()
             raise RuntimeError("Loss has Nan! See log for more info.")
 

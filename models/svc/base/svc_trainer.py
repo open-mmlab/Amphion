@@ -8,6 +8,7 @@ import os
 
 import torch
 import torch.nn as nn
+import numpy as np
 
 from models.base.new_trainer import BaseTrainer
 from models.svc.base.svc_dataset import (
@@ -17,7 +18,7 @@ from models.svc.base.svc_dataset import (
     SVCOnlineDataset,
 )
 from processors.audio_features_extractor import AudioFeaturesExtractor
-from processors.acoustic_extractor import cal_normalized_mel
+from processors.acoustic_extractor import cal_normalized_mel, load_mel_extrema
 
 EPS = 1.0e-12
 
@@ -87,9 +88,28 @@ class SVCTrainer(BaseTrainer):
             # (B, n_mels, n_frames)
             raw_mel = self.audio_features_extractor.get_mel_spectrogram(batch["wav"])
             if self.cfg.preprocess.use_min_max_norm_mel:
-                # Mel extrema: -11.5129 is a theoritical minimum value, 2.0 is an empirical value
-                m, M = -11.5129, 2.0
+                # TODO: Change the hard code
+
+                # Using the empirical mel extrema to denormalize
+                if not hasattr(self, "mel_extrema"):
+                    # (n_mels)
+                    m, M = load_mel_extrema(self.cfg.preprocess, "vctk")
+                    # (1, n_mels, 1)
+                    m = (
+                        torch.as_tensor(m, device=raw_mel.device)
+                        .unsqueeze(0)
+                        .unsqueeze(-1)
+                    )
+                    M = (
+                        torch.as_tensor(M, device=raw_mel.device)
+                        .unsqueeze(0)
+                        .unsqueeze(-1)
+                    )
+                    self.mel_extrema = m, M
+
+                m, M = self.mel_extrema
                 mel = (raw_mel - m) / (M - m + EPS) * 2 - 1
+
             else:
                 mel = raw_mel
 
