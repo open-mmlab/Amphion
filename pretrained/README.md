@@ -138,6 +138,7 @@ The dependant models of Amphion's evaluation pipeline are as follows (sort alpha
   - [bert-base-uncased](#bert-base-uncased)
   - [facebook/bart-base](#facebookbart-base)
   - [roberta-base](#roberta-base)
+  - [wavlm](#wavlm)
 
 The instructions about how to download them is displayed as follows.
 

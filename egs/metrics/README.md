@@ -168,3 +168,7 @@ If your system is unable to access huggingface.co from the terminal, you might r
 
 3. The script provided is intended to adjust the tokenizer paths in the `data.py` file, found under `/lib/python3.9/site-packages/laion_clap/training/`, within your specific environment. For those utilizing conda, you can determine your environment path by running `conda info --envs`. Then, substitute `[YOUR ENV PATH]` in the script with this path. If your environment is configured differently, you'll need to update the `PYTHON_SCRIPT` variable to correctly point to the `data.py` file.
 4. Run the script. If it executes successfully, the tokenizer paths will be updated, allowing them to be loaded locally.
+
+### WavLM-based Speaker Similarity (Using Offline Models)
+
+If your system is unable to access huggingface.co from the terminal and you want to calculate `WavLM` based speaker similarity, you need to download the pretrained model first, as illustrated [here](../../pretrained/README.md).
