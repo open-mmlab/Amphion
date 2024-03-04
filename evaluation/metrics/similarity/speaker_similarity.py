@@ -103,10 +103,16 @@ def extract_similarity(path_ref, path_deg, **kwargs):
             ).mean(0)
             deg_embds.append(output)
     elif model_name == "wavlm":
-        feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
-            "pretrained/wavlm", sampling_rate=16000
-        )
-        model = WavLMForXVector.from_pretrained("pretrained/wavlm")
+        try:
+            feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
+                "microsoft/wavlm-base-plus-sv"
+            )
+            model = WavLMForXVector.from_pretrained("microsoft/wavlm-base-plus-sv")
+        except:
+            feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
+                "pretrained/wavlm", sampling_rate=16000
+            )
+            model = WavLMForXVector.from_pretrained("pretrained/wavlm")
         model = model.to(device)
 
         for file in tqdm(os.listdir(path_ref)):

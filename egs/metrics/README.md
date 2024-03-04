@@ -27,7 +27,7 @@ Until now, Amphion Evaluation has supported the following objective metrics:
   - Cosine similarity based on:
     - [Rawnet3](https://github.com/Jungjee/RawNet)
     - [Resemblyzer](https://github.com/resemble-ai/Resemblyzer)
-    - [WavLM](https://huggingface.co/microsoft/wavlm-base-sv)
+    - [WavLM](https://huggingface.co/microsoft/wavlm-base-plus-sv)
 
 We provide a recipe to demonstrate how to objectively evaluate your generated audios. There are three steps in total:
 

@@ -215,7 +215,7 @@ Amphion
 
 ## wavlm
 
-The official pretrained wavlm checkpoints can be available [here](https://huggingface.co/microsoft/wavlm-base-sv). The file structure tree is as follows:
+The official pretrained wavlm checkpoints can be available [here](https://huggingface.co/microsoft/wavlm-base-plus-sv). The file structure tree is as follows:
 
 ```
 Amphion
