@@ -77,7 +77,7 @@ def extract_spr(
     f0 = get_f0_features_using_parselmouth(
         audio,
         cfg,
-    )[0]
+    )
 
     # Mel length alignment
     length = min(len(f0), mel1.shape[-1])

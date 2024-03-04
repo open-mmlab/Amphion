@@ -10,7 +10,6 @@ from torch import nn
 from torch.nn import functional as F
 
 from utils.util import *
-from utils.f0 import f0_to_coarse
 
 from modules.transformer.attentions import Encoder
 from models.tts.vits.vits import ResidualCouplingBlock, PosteriorEncoder

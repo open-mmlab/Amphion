@@ -41,7 +41,7 @@
     "mel_min_max_norm": false,
     // lingusitic features
     "extract_phone": false,
-    "lexicon_path": "./text/lexicon/librispeech-lexicon.txt", 
+    "lexicon_path": "./text/lexicon/librispeech-lexicon.txt",
     // content features
     "extract_whisper_feature": false,
     "extract_contentvec_feature": false,
@@ -94,7 +94,7 @@
     "utt2emo": "utt2emo", // used for multi-emotion dataset
     // Features used for model training
     "use_text": false,
-    "use_phone": false,   
+    "use_phone": false,
     "use_phn_seq": false,
     "use_lab": false,
     "use_linear": false,
@@ -118,12 +118,10 @@
     "use_label": false,
     "use_one_hot": false,
     "use_amplitude_phase": false,
-    "data_augment": false,
     "align_mel_duration": false
   },
   "train": {
-    "ddp": false,
-    "random_seed": 970227,
+    "ddp": true,
     "batch_size": 16,
     "max_steps": 1000000,
     // Trackers
@@ -182,39 +180,6 @@
     "save_checkpoints_steps": 10000,
     "valid_interval": 10000,
     "keep_checkpoint_max": 5,
-    "multi_speaker_training": false, // True: train multi-speaker model; False: training single-speaker model;
-    "max_epoch": -1,
-    // -1 means no limit
-    "save_checkpoint_stride": [
-      5,
-      20
-    ],
-    // unit is epoch
-    "keep_last": [
-      3,
-      -1
-    ],
-    // -1 means infinite, if one number will broadcast
-    "run_eval": [
-      false,
-      true
-    ],
-    // Batchsampler
-    "sampler": {
-      "holistic_shuffle": true,
-      "drop_last": true
-    },
-    // Dataloader
-    "dataloader": {
-      "num_worker": 32,
-      "pin_memory": true
-    },
-    // Trackers
-    "tracker": [
-      "tensorboard"
-      // "wandb",
-      // "cometml",
-      // "mlflow",
-    ],
-  },
+    "multi_speaker_training": false // True: train multi-speaker model; False: training single-speaker model;
+  }
 }

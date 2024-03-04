@@ -1,5 +1,5 @@
 {
-    "base_config": "config/base.json",
+    "base_config": "config/svc/base.json",
     "model_type": "DiffComoSVC",
     "task_type": "svc",
     "preprocess": {

@@ -15,8 +15,8 @@ from text.text_token_collation import phoneIDCollation
 from processors.acoustic_extractor import cal_normalized_mel
 
 from models.base.base_dataset import (
-    BaseDataset,
-    BaseCollator,
+    BaseOfflineDataset,
+    BaseOfflineCollator,
     BaseTestDataset,
     BaseTestCollator,
 )
@@ -28,7 +28,7 @@ from processors.content_extractor import (
 )
 
 
-class TTSDataset(BaseDataset):
+class TTSDataset(BaseOfflineDataset):
     def __init__(self, cfg, dataset, is_valid=False):
         """
         Args:
@@ -294,7 +294,7 @@ class TTSDataset(BaseDataset):
         return super().get_metadata()
 
 
-class TTSCollator(BaseCollator):
+class TTSCollator(BaseOfflineCollator):
     """Zero-pads model inputs and targets based on number of frames per step"""
 
     def __init__(self, cfg):

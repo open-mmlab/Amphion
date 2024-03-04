@@ -57,12 +57,28 @@ class DiffusionTrainer(SVCTrainer):
             model_param = sum(p.numel() for p in model.parameters())
         return model_param
 
+    def _check_nan(self, batch, loss, y_pred, y_gt):
+        if torch.any(torch.isnan(loss)):
+            for k, v in batch.items():
+                self.logger.info(k)
+                self.logger.info(v)
+
+            super()._check_nan(loss, y_pred, y_gt)
+
     def _forward_step(self, batch):
         r"""Forward step for training and inference. This function is called
         in ``_train_step`` & ``_test_step`` function.
         """
-
         device = self.accelerator.device
+
+        if self.online_features_extraction:
+            # On-the-fly features extraction
+            batch = self._extract_svc_features(batch)
+
+            # To debug
+            # for k, v in batch.items():
+            #     print(k, v.shape, v)
+            # exit()
 
         mel_input = batch["mel"]
         noise = torch.randn_like(mel_input, device=device, dtype=torch.float32)
@@ -80,9 +96,7 @@ class DiffusionTrainer(SVCTrainer):
 
         y_pred = self.acoustic_mapper(noisy_mel, timesteps, conditioner)
 
-        # TODO: Predict noise or gt should be configurable
         loss = self._compute_loss(self.criterion, y_pred, noise, batch["mask"])
-        self._check_nan(loss, y_pred, noise)
+        self._check_nan(batch, loss, y_pred, noise)
 
-        # FIXME: Clarify that we should not divide it with batch size here
         return loss

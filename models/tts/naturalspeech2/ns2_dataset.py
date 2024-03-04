@@ -10,8 +10,8 @@ from utils.data_utils import *
 from processors.acoustic_extractor import cal_normalized_mel
 from processors.acoustic_extractor import load_normalized
 from models.base.base_dataset import (
-    BaseCollator,
-    BaseDataset,
+    BaseOfflineCollator,
+    BaseOfflineDataset,
     BaseTestDataset,
     BaseTestCollator,
 )
@@ -355,9 +355,9 @@ class NS2Dataset(torch.utils.data.Dataset):
         }
 
 
-class NS2Collator(BaseCollator):
+class NS2Collator(BaseOfflineCollator):
     def __init__(self, cfg):
-        BaseCollator.__init__(self, cfg)
+        BaseOfflineCollator.__init__(self, cfg)
 
     def __call__(self, batch):
         packed_batch_features = dict()

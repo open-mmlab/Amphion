@@ -52,8 +52,6 @@ class MelodyEncoder(nn.Module):
         self.input_dim = self.cfg.input_melody_dim
         self.output_dim = self.cfg.output_melody_dim
         self.n_bins = self.cfg.n_bins_melody
-        self.pitch_min = self.cfg.pitch_min
-        self.pitch_max = self.cfg.pitch_max
 
         if self.input_dim != 0:
             if self.n_bins == 0:
@@ -69,26 +67,18 @@ class MelodyEncoder(nn.Module):
                     padding_idx=None,
                 )
                 self.uv_embedding = nn.Embedding(2, self.output_dim)
-                # self.conformer = Conformer(
-                #     input_dim=self.output_dim,
-                #     num_heads=4,
-                #     ffn_dim=128,
-                #     num_layers=4,
-                #     depthwise_conv_kernel_size=3,
-                # )
 
     def forward(self, x, uv=None, length=None):
-        # x: (N, frame_len)
-        # print(x.shape)
+        # x: (B, frame_len)
         if self.n_bins == 0:
             x = x.unsqueeze(-1)
         else:
             x = f0_to_coarse(x, self.n_bins, self.f0_min, self.f0_max)
             x = self.nn(x)
-            if uv is not None:
+
+            if self.cfg.use_uv:
                 uv = self.uv_embedding(uv)
                 x = x + uv
-            # x, _ = self.conformer(x, length)
         return x
 
 
@@ -106,21 +96,19 @@ class LoudnessEncoder(nn.Module):
                 # Not use quantization
                 self.nn = nn.Linear(self.input_dim, self.output_dim)
             else:
-                # TODO: set trivially now
+                # TODO: set empirically now
                 self.loudness_min = 1e-30
                 self.loudness_max = 1.5
-
-                if cfg.use_log_loudness:
-                    self.energy_bins = nn.Parameter(
-                        torch.exp(
-                            torch.linspace(
-                                np.log(self.loudness_min),
-                                np.log(self.loudness_max),
-                                self.n_bins - 1,
-                            )
-                        ),
-                        requires_grad=False,
-                    )
+                self.energy_bins = nn.Parameter(
+                    torch.exp(
+                        torch.linspace(
+                            np.log(self.loudness_min),
+                            np.log(self.loudness_max),
+                            self.n_bins - 1,
+                        )
+                    ),
+                    requires_grad=False,
+                )
 
                 self.nn = nn.Embedding(
                     num_embeddings=self.n_bins,
@@ -160,50 +148,55 @@ class ConditionEncoder(nn.Module):
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
-
         self.merge_mode = cfg.merge_mode
 
+        ### Semantic Features ###
         if cfg.use_whisper:
             self.whisper_encoder = ContentEncoder(
                 self.cfg, self.cfg.whisper_dim, self.cfg.content_encoder_dim
             )
-
         if cfg.use_contentvec:
             self.contentvec_encoder = ContentEncoder(
                 self.cfg, self.cfg.contentvec_dim, self.cfg.content_encoder_dim
             )
-
         if cfg.use_mert:
             self.mert_encoder = ContentEncoder(
                 self.cfg, self.cfg.mert_dim, self.cfg.content_encoder_dim
             )
-
         if cfg.use_wenet:
             self.wenet_encoder = ContentEncoder(
                 self.cfg, self.cfg.wenet_dim, self.cfg.content_encoder_dim
             )
 
-        self.melody_encoder = MelodyEncoder(self.cfg)
-        self.loudness_encoder = LoudnessEncoder(self.cfg)
+        ### Prosody Features ###
+        if cfg.use_f0:
+            self.melody_encoder = MelodyEncoder(self.cfg)
+        if cfg.use_energy:
+            self.loudness_encoder = LoudnessEncoder(self.cfg)
+
+        ### Speaker Features ###
         if cfg.use_spkid:
             self.singer_encoder = SingerEncoder(self.cfg)
 
     def forward(self, x):
         outputs = []
 
-        if "frame_pitch" in x.keys():
-            if "frame_uv" not in x.keys():
-                x["frame_uv"] = None
-            pitch_enc_out = self.melody_encoder(
-                x["frame_pitch"], uv=x["frame_uv"], length=x["target_len"]
-            )
+        if self.cfg.use_f0:
+            if self.cfg.use_uv:
+                pitch_enc_out = self.melody_encoder(
+                    x["frame_pitch"], uv=x["frame_uv"], length=x["target_len"]
+                )
+            else:
+                pitch_enc_out = self.melody_encoder(
+                    x["frame_pitch"], uv=None, length=x["target_len"]
+                )
             outputs.append(pitch_enc_out)
 
-        if "frame_energy" in x.keys():
+        if self.cfg.use_energy:
             loudness_enc_out = self.loudness_encoder(x["frame_energy"])
             outputs.append(loudness_enc_out)
 
-        if "whisper_feat" in x.keys():
+        if self.cfg.use_whisper:
             # whisper_feat: [b, T, 1024]
             whiser_enc_out = self.whisper_encoder(
                 x["whisper_feat"], length=x["target_len"]
@@ -211,24 +204,24 @@ class ConditionEncoder(nn.Module):
             outputs.append(whiser_enc_out)
             seq_len = whiser_enc_out.shape[1]
 
-        if "contentvec_feat" in x.keys():
+        if self.cfg.use_contentvec:
             contentvec_enc_out = self.contentvec_encoder(
                 x["contentvec_feat"], length=x["target_len"]
             )
             outputs.append(contentvec_enc_out)
             seq_len = contentvec_enc_out.shape[1]
 
-        if "mert_feat" in x.keys():
+        if self.cfg.use_mert:
             mert_enc_out = self.mert_encoder(x["mert_feat"], length=x["target_len"])
             outputs.append(mert_enc_out)
             seq_len = mert_enc_out.shape[1]
 
-        if "wenet_feat" in x.keys():
+        if self.cfg.use_wenet:
             wenet_enc_out = self.wenet_encoder(x["wenet_feat"], length=x["target_len"])
             outputs.append(wenet_enc_out)
             seq_len = wenet_enc_out.shape[1]
 
-        if "spk_id" in x.keys():
+        if self.cfg.use_spkid:
             speaker_enc_out = self.singer_encoder(x["spk_id"])  # [b, 1, 384]
             assert (
                 "whisper_feat" in x.keys()

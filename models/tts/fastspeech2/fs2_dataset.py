@@ -8,17 +8,17 @@ import torch
 from torch.nn.utils.rnn import pad_sequence
 from utils.data_utils import *
 from models.base.base_dataset import (
-    BaseCollator,
-    BaseDataset,
+    BaseOfflineCollator,
+    BaseOfflineDataset,
     BaseTestDataset,
     BaseTestCollator,
 )
 from text import text_to_sequence
 
 
-class FS2Dataset(BaseDataset):
+class FS2Dataset(BaseOfflineDataset):
     def __init__(self, cfg, dataset, is_valid=False):
-        BaseDataset.__init__(self, cfg, dataset, is_valid=is_valid)
+        BaseOfflineDataset.__init__(self, cfg, dataset, is_valid=is_valid)
         self.batch_size = cfg.train.batch_size
         cfg = cfg.preprocess
         # utt2duration
@@ -99,7 +99,7 @@ class FS2Dataset(BaseDataset):
         self.metadata = self.check_metadata()
 
     def __getitem__(self, index):
-        single_feature = BaseDataset.__getitem__(self, index)
+        single_feature = BaseOfflineDataset.__getitem__(self, index)
 
         utt_info = self.metadata[index]
         dataset = utt_info["Dataset"]
@@ -221,11 +221,11 @@ class FS2Dataset(BaseDataset):
         return new_metadata
 
 
-class FS2Collator(BaseCollator):
+class FS2Collator(BaseOfflineCollator):
     """Zero-pads model inputs and targets based on number of frames per step"""
 
     def __init__(self, cfg):
-        BaseCollator.__init__(self, cfg)
+        BaseOfflineCollator.__init__(self, cfg)
         self.sort = cfg.train.sort_sample
         self.batch_size = cfg.train.batch_size
         self.drop_last = cfg.train.drop_last

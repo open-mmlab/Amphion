@@ -1,6 +1,5 @@
 {
-    "base_config": "config/svc/base.json",
-    "model_type": "Transformer",
+    "base_config": "config/base.json",
     "task_type": "svc",
     "preprocess": {
         // data augmentations
@@ -8,6 +7,8 @@
         "use_formant_shift": false,
         "use_time_stretch": false,
         "use_equalizer": false,
+        // Online or offline features extraction ("offline" or "online")
+        "features_extraction_mode": "offline",
         // acoustic features
         "extract_mel": true,
         "mel_min_max_norm": true,
@@ -74,6 +75,7 @@
         "use_min_max_norm_mel": true,
         "use_frame_pitch": true,
         "use_uv": true,
+        "use_interpolation_for_uv": false,
         "use_frame_energy": true,
         "use_log_scale_pitch": false,
         "use_log_scale_energy": false,
@@ -84,96 +86,4 @@
         "spk2id": "singers.json",
         "utt2spk": "utt2singer"
     },
-    "model": {
-        "condition_encoder": {
-            "merge_mode": "add",
-            "input_melody_dim": 1,
-            "use_log_f0": true,
-            "n_bins_melody": 256,
-            //# Quantization (0 for not quantization)
-            "output_melody_dim": 384,
-            "input_loudness_dim": 1,
-            "use_log_loudness": true,
-            "n_bins_loudness": 256,
-            "output_loudness_dim": 384,
-            "use_whisper": false,
-            "use_contentvec": true,
-            "use_wenet": false,
-            "use_mert": false,
-            "whisper_dim": 1024,
-            "contentvec_dim": 256,
-            "mert_dim": 256,
-            "wenet_dim": 512,
-            "content_encoder_dim": 384,
-            "output_singer_dim": 384,
-            "singer_table_size": 512,
-            "output_content_dim": 384,
-            "use_spkid": true
-        },
-        "transformer": {
-            "type": "conformer",
-            // 'conformer' or 'transformer'
-            "input_dim": 384,
-            "output_dim": 100,
-            "n_heads": 2,
-            "n_layers": 6,
-            "filter_channels": 512,
-            "dropout": 0.1,
-        }
-    },
-    "train": {
-        // Basic settings
-        "batch_size": 64,
-        "gradient_accumulation_step": 1,
-        "max_epoch": -1,
-        // -1 means no limit
-        "save_checkpoint_stride": [
-            10,
-            100
-        ],
-        // unit is epoch
-        "keep_last": [
-            3,
-            -1
-        ],
-        // -1 means infinite, if one number will broadcast
-        "run_eval": [
-            false,
-            true
-        ],
-        // if one number will broadcast
-        // Fix the random seed
-        "random_seed": 10086,
-        // Batchsampler
-        "sampler": {
-            "holistic_shuffle": true,
-            "drop_last": true
-        },
-        // Dataloader
-        "dataloader": {
-            "num_worker": 32,
-            "pin_memory": true
-        },
-        // Trackers
-        "tracker": [
-            "tensorboard"
-            // "wandb",
-            // "cometml",
-            // "mlflow",
-        ],
-        // Optimizer
-        "optimizer": "AdamW",
-        "adamw": {
-            "lr": 4.0e-4
-            // nn model lr
-        },
-        // LR Scheduler
-        "scheduler": "ReduceLROnPlateau",
-        "reducelronplateau": {
-            "factor": 0.8,
-            "patience": 10,
-            // unit is epoch
-            "min_lr": 1.0e-4
-        }
-    }
 }

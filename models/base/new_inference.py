@@ -130,8 +130,12 @@ class BaseInference(object):
     def inference(self):
         for i, batch in enumerate(self.test_dataloader):
             y_pred = self._inference_each_batch(batch).cpu()
-            mel_min, mel_max = self.test_dataset.target_mel_extrema
-            y_pred = (y_pred + 1.0) / 2.0 * (mel_max - mel_min + EPS) + mel_min
+
+            # Judge whether the min-max normliazation is used
+            if self.cfg.preprocess.use_min_max_norm_mel:
+                mel_min, mel_max = self.test_dataset.target_mel_extrema
+                y_pred = (y_pred + 1.0) / 2.0 * (mel_max - mel_min + EPS) + mel_min
+
             y_ls = y_pred.chunk(self.test_batch_size)
             tgt_ls = batch["target_len"].cpu().chunk(self.test_batch_size)
             j = 0
