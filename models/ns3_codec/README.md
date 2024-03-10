@@ -60,8 +60,8 @@ fa_decoder = FACodecDecoder(
     use_gr_residual_phone=True,
 )
 
-fa_encoder = torch.load("ns3_facodec_encoder.bin")
-fa_decoder = torch.load("ns3_facodec_decoder.bin")
+fa_encoder.load_state_dict(torch.load("ns3_facodec_encoder.bin"))
+fa_decoder.load_state_dict(torch.load("ns3_facodec_decoder.bin"))
 
 fa_encoder.eval()
 fa_decoder.eval()
