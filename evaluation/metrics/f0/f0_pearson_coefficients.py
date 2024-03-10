@@ -17,15 +17,10 @@ from utils.f0 import get_f0_features_using_parselmouth, get_pitch_sub_median
 def extract_fpc(
     audio_ref,
     audio_deg,
-    fs=None,
     hop_length=256,
     f0_min=50,
     f0_max=1100,
-    pitch_bin=256,
-    pitch_min=50,
-    pitch_max=1100,
-    need_mean=True,
-    method="dtw",
+    **kwargs,
 ):
     """Compute F0 Pearson Distance (FPC) between the predicted and the ground truth audio.
     audio_ref: path to the ground truth audio.
@@ -41,6 +36,12 @@ def extract_fpc(
     method: "dtw" will use dtw algorithm to align the length of the ground truth and predicted audio.
             "cut" will cut both audios into a same length according to the one with the shorter length.
     """
+    # Load hyperparameters
+    kwargs = kwargs["kwargs"]
+    fs = kwargs["fs"]
+    method = kwargs["method"]
+    need_mean = kwargs["need_mean"]
+
     # Initialize method
     pearson = PearsonCorrCoef()
 
@@ -58,9 +59,9 @@ def extract_fpc(
     cfg.hop_size = hop_length
     cfg.f0_min = f0_min
     cfg.f0_max = f0_max
-    cfg.pitch_bin = pitch_bin
-    cfg.pitch_max = pitch_max
-    cfg.pitch_min = pitch_min
+    cfg.pitch_bin = 256
+    cfg.pitch_max = f0_max
+    cfg.pitch_min = f0_min
 
     # Compute f0
     f0_ref = get_f0_features_using_parselmouth(
@@ -108,4 +109,10 @@ def extract_fpc(
     f0_ref = torch.from_numpy(f0_ref)
     f0_deg = torch.from_numpy(f0_deg)
 
-    return pearson(f0_ref, f0_deg).numpy().tolist()
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+        f0_ref = f0_ref.to(device)
+        f0_deg = f0_deg.to(device)
+        pearson = pearson.to(device)
+
+    return pearson(f0_ref, f0_deg).detach().cpu().numpy().tolist()

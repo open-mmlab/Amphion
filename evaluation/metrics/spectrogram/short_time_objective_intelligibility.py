@@ -11,7 +11,7 @@ import numpy as np
 from torchmetrics.audio.stoi import ShortTimeObjectiveIntelligibility
 
 
-def extract_stoi(audio_ref, audio_deg, fs=None, extended=False, method="cut"):
+def extract_stoi(audio_ref, audio_deg, **kwargs):
     """Compute Short-Time Objective Intelligibility between the predicted and the ground truth audio.
     audio_ref: path to the ground truth audio.
     audio_deg: path to the predicted audio.
@@ -19,6 +19,11 @@ def extract_stoi(audio_ref, audio_deg, fs=None, extended=False, method="cut"):
     method: "dtw" will use dtw algorithm to align the length of the ground truth and predicted audio.
             "cut" will cut both audios into a same length according to the one with the shorter length.
     """
+    # Load hyperparameters
+    kwargs = kwargs["kwargs"]
+    fs = kwargs["fs"]
+    method = kwargs["method"]
+
     # Load audio
     if fs != None:
         audio_ref, _ = librosa.load(audio_ref, sr=fs)
@@ -28,7 +33,7 @@ def extract_stoi(audio_ref, audio_deg, fs=None, extended=False, method="cut"):
         audio_deg, fs = librosa.load(audio_deg)
 
     # Initialize method
-    stoi = ShortTimeObjectiveIntelligibility(fs, extended)
+    stoi = ShortTimeObjectiveIntelligibility(fs, extended=False)
 
     # Audio length alignment
     if len(audio_ref) != len(audio_deg):
@@ -53,4 +58,10 @@ def extract_stoi(audio_ref, audio_deg, fs=None, extended=False, method="cut"):
     audio_ref = torch.from_numpy(audio_ref)
     audio_deg = torch.from_numpy(audio_deg)
 
-    return stoi(audio_deg, audio_ref).numpy().tolist()
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+        audio_ref = audio_ref.to(device)
+        audio_deg = audio_deg.to(device)
+        stoi = stoi.to(device)
+
+    return stoi(audio_deg, audio_ref).detach().cpu().numpy().tolist()

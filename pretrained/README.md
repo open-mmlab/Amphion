@@ -138,6 +138,7 @@ The dependant models of Amphion's evaluation pipeline are as follows (sort alpha
   - [bert-base-uncased](#bert-base-uncased)
   - [facebook/bart-base](#facebookbart-base)
   - [roberta-base](#roberta-base)
+  - [wavlm](#wavlm)
 
 The instructions about how to download them is displayed as follows.
 
@@ -211,4 +212,16 @@ Amphion
  ┃ ┃ ┣ tf_model.h5
  ┃ ┃ ┣ tokenizer.json
  ┃ ┃ ┣ vocab.json
+```
+
+## wavlm
+
+The official pretrained wavlm checkpoints can be available [here](https://huggingface.co/microsoft/wavlm-base-plus-sv). The file structure tree is as follows:
+
+```
+Amphion
+ ┣ wavlm
+ ┃ ┣ config.json
+ ┃ ┣ preprocessor_config.json
+ ┃ ┣ pytorch_model.bin
 ```

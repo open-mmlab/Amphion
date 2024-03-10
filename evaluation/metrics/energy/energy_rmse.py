@@ -14,12 +14,10 @@ from numpy import linalg as LA
 def extract_energy_rmse(
     audio_ref,
     audio_deg,
-    fs=None,
     n_fft=1024,
     hop_length=256,
     win_length=1024,
-    method="dtw",
-    db_scale=True,
+    **kwargs,
 ):
     """Compute Energy Root Mean Square Error (RMSE) between the predicted and the ground truth audio.
     audio_ref: path to the ground truth audio.
@@ -32,6 +30,12 @@ def extract_energy_rmse(
             "cut" will cut both audios into a same length according to the one with the shorter length.
     db_scale: the ground truth and predicted audio will be converted to db_scale if "True".
     """
+    # Load hyperparameters
+    kwargs = kwargs["kwargs"]
+    fs = kwargs["fs"]
+    method = kwargs["method"]
+    db_scale = kwargs["db_scale"]
+
     # Load audio
     if fs != None:
         audio_ref, _ = librosa.load(audio_ref, sr=fs)

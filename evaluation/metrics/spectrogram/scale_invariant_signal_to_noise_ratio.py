@@ -11,7 +11,12 @@ import numpy as np
 from torchmetrics import ScaleInvariantSignalNoiseRatio
 
 
-def extract_si_snr(audio_ref, audio_deg, fs=None, method="cut"):
+def extract_si_snr(audio_ref, audio_deg, **kwargs):
+    # Load hyperparameters
+    kwargs = kwargs["kwargs"]
+    fs = kwargs["fs"]
+    method = kwargs["method"]
+
     si_snr = ScaleInvariantSignalNoiseRatio()
 
     if fs != None:
@@ -42,4 +47,10 @@ def extract_si_snr(audio_ref, audio_deg, fs=None, method="cut"):
     audio_ref = torch.from_numpy(audio_ref)
     audio_deg = torch.from_numpy(audio_deg)
 
-    return si_snr(audio_deg, audio_ref)
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+        audio_ref = audio_ref.to(device)
+        audio_deg = audio_deg.to(device)
+        si_snr = si_snr.to(device)
+
+    return si_snr(audio_deg, audio_ref).detach().cpu().numpy().tolist()

@@ -12,11 +12,14 @@ import torch.nn.functional as F
 from tqdm import tqdm
 import librosa
 
-from .models.RawNetModel import RawNet3
-from .models.RawNetBasicBlock import Bottle2neck
+from evaluation.metrics.similarity.models.RawNetModel import RawNet3
+from evaluation.metrics.similarity.models.RawNetBasicBlock import Bottle2neck
+
+from transformers import Wav2Vec2FeatureExtractor, WavLMForXVector
+from resemblyzer import VoiceEncoder, preprocess_wav
 
 
-def extract_speaker_embd(
+def extract_rawnet_speaker_embd(
     model, fn: str, n_samples: int, n_segments: int = 10, gpu: bool = False
 ) -> np.ndarray:
     audio, sample_rate = sf.read(fn)
@@ -26,10 +29,8 @@ def extract_speaker_embd(
         )
 
     if sample_rate != 16000:
-        # resample to 16000kHz
         audio = librosa.resample(audio, orig_sr=sample_rate, target_sr=16000)
-        # print("resample to 16000kHz!")
-    if len(audio) < n_samples:  # RawNet3 was trained using utterances of 3 seconds
+    if len(audio) < n_samples:
         shortage = n_samples - len(audio) + 1
         audio = np.pad(audio, (0, shortage), "wrap")
 
@@ -47,73 +48,137 @@ def extract_speaker_embd(
     return output
 
 
-def extract_speaker_similarity(target_path, reference_path):
-    model = RawNet3(
-        Bottle2neck,
-        model_scale=8,
-        context=True,
-        summed=True,
-        encoder_type="ECA",
-        nOut=256,
-        out_bn=False,
-        sinc_stride=10,
-        log_sinc=True,
-        norm_sinc="mean",
-        grad_mult=1,
-    )
+def extract_similarity(path_ref, path_deg, **kwargs):
+    kwargs = kwargs["kwargs"]
+    model_name = kwargs["model_name"]
 
-    gpu = False
-    model.load_state_dict(
-        torch.load(
-            "pretrained/rawnet3/model.pt",
-            map_location=lambda storage, loc: storage,
-        )["model"]
-    )
-    model.eval()
-    print("RawNet3 initialised & weights loaded!")
+    ref_embds = []
+    deg_embds = []
 
     if torch.cuda.is_available():
-        print("Cuda available, conducting inference on GPU")
-        model = model.to("cuda")
-        gpu = True
-    # for target_path, reference_path in zip(target_paths, ref_paths):
-    # print(f"Extracting embeddings for target singers...")
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
 
-    target_embeddings = []
-    for file in tqdm(os.listdir(target_path)):
-        output = extract_speaker_embd(
-            model,
-            fn=os.path.join(target_path, file),
-            n_samples=48000,
-            n_segments=10,
-            gpu=gpu,
-        ).mean(0)
-        target_embeddings.append(output.detach().cpu().numpy())
-    target_embeddings = np.array(target_embeddings)
-    target_embedding = np.mean(target_embeddings, axis=0)
+    if model_name == "rawnet":
+        model = RawNet3(
+            Bottle2neck,
+            model_scale=8,
+            context=True,
+            summed=True,
+            encoder_type="ECA",
+            nOut=256,
+            out_bn=False,
+            sinc_stride=10,
+            log_sinc=True,
+            norm_sinc="mean",
+            grad_mult=1,
+        )
+        model.load_state_dict(
+            torch.load(
+                "pretrained/rawnet3/model.pt",
+                map_location=lambda storage, loc: storage,
+            )["model"]
+        )
+        model.eval()
+        model = model.to(device)
 
-    # print(f"Extracting embeddings for reference singer...")
+        for file in tqdm(os.listdir(path_ref)):
+            output = extract_rawnet_speaker_embd(
+                model,
+                fn=os.path.join(path_ref, file),
+                n_samples=48000,
+                n_segments=10,
+                gpu=torch.cuda.is_available(),
+            ).mean(0)
+            ref_embds.append(output)
 
-    reference_embeddings = []
-    for file in tqdm(os.listdir(reference_path)):
-        output = extract_speaker_embd(
-            model,
-            fn=os.path.join(reference_path, file),
-            n_samples=48000,
-            n_segments=10,
-            gpu=gpu,
-        ).mean(0)
-        reference_embeddings.append(output.detach().cpu().numpy())
-    reference_embeddings = np.array(reference_embeddings)
+        for file in tqdm(os.listdir(path_deg)):
+            output = extract_rawnet_speaker_embd(
+                model,
+                fn=os.path.join(path_deg, file),
+                n_samples=48000,
+                n_segments=10,
+                gpu=torch.cuda.is_available(),
+            ).mean(0)
+            deg_embds.append(output)
+    elif model_name == "wavlm":
+        try:
+            feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
+                "microsoft/wavlm-base-plus-sv"
+            )
+            model = WavLMForXVector.from_pretrained("microsoft/wavlm-base-plus-sv")
+        except:
+            feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
+                "pretrained/wavlm", sampling_rate=16000
+            )
+            model = WavLMForXVector.from_pretrained("pretrained/wavlm")
+        model = model.to(device)
 
-    # print("Calculating cosine similarity...")
+        for file in tqdm(os.listdir(path_ref)):
+            wav_path = os.path.join(path_ref, file)
+            wav, _ = librosa.load(wav_path, sr=16000)
 
-    cos_sim = F.cosine_similarity(
-        torch.from_numpy(np.mean(target_embeddings, axis=0)).unsqueeze(0),
-        torch.from_numpy(np.mean(reference_embeddings, axis=0)).unsqueeze(0),
-        dim=1,
-    )
+            inputs = feature_extractor(
+                [wav], padding=True, return_tensors="pt", sampling_rate=16000
+            )
+            if torch.cuda.is_available():
+                for key in inputs.keys():
+                    inputs[key] = inputs[key].to(device)
 
-    # print(f"Mean cosine similarity: {cos_sim.item()}")
+            with torch.no_grad():
+                embds = model(**inputs).embeddings
+                embds = embds
+                ref_embds.append(embds[0])
 
-    return cos_sim.item()
+        for file in tqdm(os.listdir(path_deg)):
+            wav_path = os.path.join(path_deg, file)
+            wav, _ = librosa.load(wav_path, sr=16000)
+
+            inputs = feature_extractor(
+                [wav], padding=True, return_tensors="pt", sampling_rate=16000
+            )
+            if torch.cuda.is_available():
+                for key in inputs.keys():
+                    inputs[key] = inputs[key].to(device)
+
+            with torch.no_grad():
+                embds = model(**inputs).embeddings
+                embds = embds
+                deg_embds.append(embds[0])
+    elif model_name == "resemblyzer":
+        encoder = VoiceEncoder().to(device)
+
+        for file in tqdm(os.listdir(path_ref)):
+            wav_path = os.path.join(path_ref, file)
+            wav = preprocess_wav(wav_path)
+
+            output = encoder.embed_utterance(wav)
+            ref_embds.append(torch.from_numpy(output).to(device))
+
+        for file in tqdm(os.listdir(path_deg)):
+            wav_path = os.path.join(path_deg, file)
+            wav = preprocess_wav(wav_path)
+
+            output = encoder.embed_utterance(wav)
+            deg_embds.append(torch.from_numpy(output).to(device))
+
+    similarity_mode = kwargs["similarity_mode"]
+    scores = []
+
+    if similarity_mode == "pairwith":
+        for ref_embd, deg_embd in zip(ref_embds, deg_embds):
+            scores.append(
+                F.cosine_similarity(ref_embd, deg_embd, dim=-1).detach().cpu().numpy()
+            )
+    elif similarity_mode == "overall":
+        for ref_embd in ref_embds:
+            for deg_embd in deg_embds:
+                scores.append(
+                    F.cosine_similarity(ref_embd, deg_embd, dim=-1)
+                    .detach()
+                    .cpu()
+                    .numpy()
+                )
+
+    return np.mean(scores)

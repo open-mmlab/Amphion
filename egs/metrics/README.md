@@ -24,10 +24,10 @@ Until now, Amphion Evaluation has supported the following objective metrics:
   - Scale Invariant Signal to Distortion Ratio (SISDR)
   - Scale Invariant Signal to Noise Ratio (SISNR)
 - **Speaker Similarity**:
-  - Cosine similarity based on [Rawnet3](https://github.com/Jungjee/RawNet)
-  - Cosine similarity based on [Resemblyzer](https://github.com/resemble-ai/Resemblyzer)
-  - Cosine similarity based on [WavLM](https://github.com/microsoft/unilm/tree/master/wavlm)
-  - Cosine similarity based on [WeSpeaker](https://github.com/wenet-e2e/wespeaker) (👨‍💻 developing)
+  - Cosine similarity based on:
+    - [Rawnet3](https://github.com/Jungjee/RawNet)
+    - [Resemblyzer](https://github.com/resemble-ai/Resemblyzer)
+    - [WavLM](https://huggingface.co/microsoft/wavlm-base-plus-sv)
 
 We provide a recipe to demonstrate how to objectively evaluate your generated audios. There are three steps in total:
 
@@ -65,7 +65,12 @@ sh egs/metrics/run.sh \
 	--generated_folder [Your path to the generated audios] \
 	--dump_folder [Your path to dump the objective results] \
 	--metrics [The metrics you need] \
-	--fs [Optional. To calculate all metrics in the specified sampling rate]
+	--fs [Optional. To calculate all metrics in the specified sampling rate] \
+	--similarity_model [Optional. To choose the model for calculating the speaker similarity. Currently "rawnet", "wavlm" and "resemblyzer" are available. Default to "wavlm"] \
+	--similarity_mode [Optional. To choose the mode for calculating the speaker similarity. "pairwith" for calculating a series of ground truth / prediction audio pairs to obtain the speaker similarity, and "overall" for computing the average score with all possible pairs between the refernece folder and generated folder. Default to "pairwith"] \
+	--intelligibility_mode [Optionoal. To choose the mode for computing CER and WER. "gt_audio" means selecting the recognition content of the reference audio as the target, "gt_content" means using transcription as the target. Default to "gt_audio"] \
+	--ltr_path [Optional. Path to the transcription file] \
+	--language [Optional. Language for computing CER and WER. Default to "english"]
 ```
 
 As for the metrics, an example is provided below:
@@ -86,9 +91,7 @@ All currently available metrics keywords are listed below:
 | `energy_pc`               | Energy Pearson Coefficients                |
 | `cer`                     | Character Error Rate                       |
 | `wer`                     | Word Error Rate                            |
-| `rawnet3_similarity`      | Cos Similarity based on RawNet3            |
-| `wavlm_similarity`        | Cos Similarity based on WavLM              |
-| `resemblyzer_similarity`  | Cos Similarity based on Resemblyzer        |
+| `similarity`      | Speaker Similarity
 | `fad`                     | Frechet Audio Distance                     |
 | `mcd`                     | Mel Cepstral Distortion                    |
 | `mstft`                   | Multi-Resolution STFT Distance             |
@@ -97,7 +100,29 @@ All currently available metrics keywords are listed below:
 | `si_snr`                  | Scale Invariant Signal to Noise Ratio      |
 | `stoi`                    | Short Time Objective Intelligibility       |
 
+For example, if want to calculate the speaker similarity between the synthesized audio and the reference audio with the same content, run:
 
+```bash
+sh egs/metrics/run.sh \
+	--reference_folder [Your path to the reference audios] \
+	--generated_folder [Your path to the generated audios] \
+	--dump_folder [Your path to dump the objective results] \
+	--metrics "similarity" \
+	--similarity_model [Optional. To choose the model for calculating the speaker similarity. Currently "rawnet", "wavlm" and "resemblyzer" are available. Default to "wavlm"] \
+	--similarity_mode "pairwith" \
+```
+
+If you don't have the reference audio with the same content, run the following to get the conteng-free similarity score:
+
+```bash
+sh egs/metrics/run.sh \
+	--reference_folder [Your path to the reference audios] \
+	--generated_folder [Your path to the generated audios] \
+	--dump_folder [Your path to dump the objective results] \
+	--metrics "similarity" \
+	--similarity_model [Optional. To choose the model for calculating the speaker similarity. Currently "rawnet", "wavlm" and "resemblyzer" are available. Default to "wavlm"] \
+	--similarity_mode "overall" \
+```
 
 ## Troubleshooting
 ### FAD (Using Offline Models)
@@ -143,3 +168,7 @@ If your system is unable to access huggingface.co from the terminal, you might r
 
 3. The script provided is intended to adjust the tokenizer paths in the `data.py` file, found under `/lib/python3.9/site-packages/laion_clap/training/`, within your specific environment. For those utilizing conda, you can determine your environment path by running `conda info --envs`. Then, substitute `[YOUR ENV PATH]` in the script with this path. If your environment is configured differently, you'll need to update the `PYTHON_SCRIPT` variable to correctly point to the `data.py` file.
 4. Run the script. If it executes successfully, the tokenizer paths will be updated, allowing them to be loaded locally.
+
+### WavLM-based Speaker Similarity (Using Offline Models)
+
+If your system is unable to access huggingface.co from the terminal and you want to calculate `WavLM` based speaker similarity, you need to download the pretrained model first, as illustrated [here](../../pretrained/README.md).

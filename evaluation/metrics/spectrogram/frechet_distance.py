@@ -9,10 +9,7 @@ from frechet_audio_distance import FrechetAudioDistance
 def extract_fad(
     audio_dir1,
     audio_dir2,
-    mode="vggish",
-    use_pca=False,
-    use_activation=False,
-    verbose=False,
+    **kwargs,
 ):
     """Extract Frechet Audio Distance for two given audio folders.
     audio_dir1: path to the ground truth audio folder.
@@ -20,10 +17,10 @@ def extract_fad(
     mode: "vggish", "pann", "clap" for different models.
     """
     frechet = FrechetAudioDistance(
-        model_name=mode,
-        use_pca=use_pca,
-        use_activation=use_activation,
-        verbose=verbose,
+        model_name="vggish",
+        use_pca=False,
+        use_activation=False,
+        verbose=False,
     )
 
     fad_score = frechet.score(audio_dir1, audio_dir2)

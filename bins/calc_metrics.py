@@ -8,6 +8,8 @@ import sys
 import numpy as np
 import json
 import argparse
+import whisper
+import torch
 
 from glob import glob
 from tqdm import tqdm
@@ -24,11 +26,7 @@ from evaluation.metrics.f0.f0_rmse import extract_f0rmse
 from evaluation.metrics.f0.v_uv_f1 import extract_f1_v_uv
 from evaluation.metrics.intelligibility.character_error_rate import extract_cer
 from evaluation.metrics.intelligibility.word_error_rate import extract_wer
-from evaluation.metrics.similarity.speaker_similarity import extract_speaker_similarity
-from evaluation.metrics.similarity.resemblyzer_similarity import (
-    extract_resemblyzer_similarity,
-)
-from evaluation.metrics.similarity.wavlm_similarity import extract_wavlm_similarity
+from evaluation.metrics.similarity.speaker_similarity import extract_similarity
 from evaluation.metrics.spectrogram.frechet_distance import extract_fad
 from evaluation.metrics.spectrogram.mel_cepstral_distortion import extract_mcd
 from evaluation.metrics.spectrogram.multi_resolution_stft_distance import extract_mstft
@@ -52,9 +50,7 @@ METRIC_FUNC = {
     "v_uv_f1": extract_f1_v_uv,
     "cer": extract_cer,
     "wer": extract_wer,
-    "rawnet3_similarity": extract_speaker_similarity,
-    "resemblyzer_similarity": extract_resemblyzer_similarity,
-    "wavlm_similarity": extract_wavlm_similarity,
+    "similarity": extract_similarity,
     "fad": extract_fad,
     "mcd": extract_mcd,
     "mstft": extract_mstft,
@@ -70,31 +66,44 @@ def calc_metric(
     deg_dir,
     dump_dir,
     metrics,
-    fs=None,
-    wer_choose=1,
-    ltr_path=None,
-    language="english",
+    **kwargs,
 ):
     result = defaultdict()
 
     for metric in tqdm(metrics):
-        if metric in ["fad", "rawnet3_similarity", "wavlm_similarity"]:
-            result[metric] = str(METRIC_FUNC[metric](ref_dir, deg_dir))
-            continue
-        elif metric in ["resemblyzer_similarity"]:
-            result[metric] = str(METRIC_FUNC[metric](deg_dir, ref_dir, dump_dir))
+        if metric in ["fad", "similarity"]:
+            result[metric] = str(METRIC_FUNC[metric](ref_dir, deg_dir, kwargs=kwargs))
             continue
 
         audios_ref = []
         audios_deg = []
 
-        files = glob(ref_dir + "/*.wav")
+        files = glob(deg_dir + "/*.wav")
 
         for file in files:
-            audios_ref.append(file)
+            audios_deg.append(file)
             uid = file.split("/")[-1].split(".wav")[0]
-            file_gt = deg_dir + "/{}.wav".format(uid)
-            audios_deg.append(file_gt)
+            file_gt = ref_dir + "/{}.wav".format(uid)
+            audios_ref.append(file_gt)
+
+        if metric in ["wer", "cer"] and kwargs["intelligibility_mode"] == "gt_content":
+            ltr_path = kwargs["ltr_path"]
+            tmpltrs = {}
+            with open(ltr_path, "r") as f:
+                for line in f:
+                    paras = line.replace("\n", "").split("|")
+                    paras[1] = paras[1].replace(" ", "")
+                    paras[1] = paras[1].replace(".", "")
+                    paras[1] = paras[1].replace("'", "")
+                    paras[1] = paras[1].replace("-", "")
+                    paras[1] = paras[1].replace(",", "")
+                    paras[1] = paras[1].replace("!", "")
+                    paras[1] = paras[1].lower()
+                    tmpltrs[paras[0]] = paras[1]
+            ltrs = []
+            files = glob(ref_dir + "/*.wav")
+            for file in files:
+                ltrs.append(tmpltrs[os.path.basename(file)])
 
         if metric in ["v_uv_f1"]:
             tp_total = 0
@@ -104,7 +113,7 @@ def calc_metric(
             for i in tqdm(range(len(audios_ref))):
                 audio_ref = audios_ref[i]
                 audio_deg = audios_deg[i]
-                tp, fp, fn = METRIC_FUNC[metric](audio_ref, audio_deg, fs)
+                tp, fp, fn = METRIC_FUNC[metric](audio_ref, audio_deg, kwargs=kwargs)
                 tp_total += tp
                 fp_total += fp
                 fn_total += fn
@@ -112,62 +121,42 @@ def calc_metric(
             result[metric] = str(tp_total / (tp_total + (fp_total + fn_total) / 2))
         else:
             scores = []
-            if metric == "wer":
-                import whisper
-
-                model = whisper.load_model("large").cuda()
-                if wer_choose == 2:
-                    tmpltrs = {}
-                    with open(ltr_path, "r") as f:
-                        for line in f:
-                            paras = line.replace("\n", "").split("|")
-                            paras[1] = paras[1].replace(" ", "")
-                            paras[1] = paras[1].replace(".", "")
-                            paras[1] = paras[1].replace("'", "")
-                            paras[1] = paras[1].replace("-", "")
-                            paras[1] = paras[1].replace(",", "")
-                            paras[1] = paras[1].replace("!", "")
-                            paras[1] = paras[1].lower()
-                            tmpltrs[paras[0]] = paras[1]
-                    ltrs = []
-                    for file in files:
-                        ltrs.append(tmpltrs[os.path.basename(file)])
             for i in tqdm(range(len(audios_ref))):
                 audio_ref = audios_ref[i]
                 audio_deg = audios_deg[i]
 
-                if metric == "wer":
-                    if wer_choose == 1:
+                if metric in ["wer", "cer"]:
+                    model = whisper.load_model("large")
+                    mode = kwargs["intelligibility_mode"]
+                    if torch.cuda.is_available():
+                        device = torch.device("cuda")
+                        model = model.to(device)
+
+                    if mode == "gt_audio":
+                        kwargs["audio_ref"] = audio_ref
+                        kwargs["audio_deg"] = audio_deg
                         score = METRIC_FUNC[metric](
-                            audio_ref=audio_ref,
-                            audio_deg=audio_deg,
-                            fs=fs,
-                            model=model,
-                            language=language,
+                            model,
+                            kwargs=kwargs,
                         )
-                    elif wer_choose == 2:
-                        content_ref = ltrs[i]
+                    elif mode == "gt_content":
+                        kwargs["content_gt"] = ltrs[i]
+                        kwargs["audio_deg"] = audio_deg
                         score = METRIC_FUNC[metric](
-                            audio_ref=audio_ref,
-                            audio_deg=audio_deg,
-                            fs=fs,
-                            model=model,
-                            content_gt=content_ref,
-                            mode="gt_content",
-                            language=language,
+                            model,
+                            kwargs=kwargs,
                         )
                 else:
                     score = METRIC_FUNC[metric](
-                        audio_ref=audio_ref,
-                        audio_deg=audio_deg,
-                        fs=fs,
+                        audio_ref,
+                        audio_deg,
+                        kwargs=kwargs,
                     )
                 if not np.isnan(score):
                     scores.append(score)
 
             scores = np.array(scores)
-            result["{}_mean".format(metric)] = str(np.mean(scores))
-            result["{}_std".format(metric)] = str(np.std(scores))
+            result["{}".format(metric)] = str(np.mean(scores))
 
     data = json.dumps(result, indent=4)
 
@@ -200,21 +189,58 @@ if __name__ == "__main__":
     parser.add_argument(
         "--fs",
         type=str,
+        default="None",
         help="(Optional) Sampling rate",
     )
     parser.add_argument(
-        "--wer_choose",
-        type=int,
-        default=1,
-        help="(Optional)The method of calculating WER, where choose set to 1 means selecting \
-        the recognition content of the reference audio as the target, and choose set to 2 means \
-        using transcription as the target",
+        "--align_method",
+        type=str,
+        default="dtw",
+        help="(Optional) Method for aligning feature length. ['cut', 'dtw']",
     )
+
+    parser.add_argument(
+        "--db_scale",
+        type=str,
+        default="True",
+        help="(Optional) Wether or not computing energy related metrics in db scale.",
+    )
+    parser.add_argument(
+        "--f0_subtract_mean",
+        type=str,
+        default="True",
+        help="(Optional) Wether or not computing f0 related metrics with mean value subtracted.",
+    )
+
+    parser.add_argument(
+        "--similarity_model",
+        type=str,
+        default="wavlm",
+        help="(Optional)The model for computing speaker similarity. ['rawnet', 'wavlm', 'resemblyzer']",
+    )
+    parser.add_argument(
+        "--similarity_mode",
+        type=str,
+        default="pairwith",
+        help="(Optional)The method of calculating similarity, where set to overall means computing \
+        the speaker similarity between two folder of audios content freely, and set to pairwith means \
+        computing the speaker similarity between a seires of paired gt/pred audios",
+    )
+
     parser.add_argument(
         "--ltr_path",
         type=str,
+        default="None",
         help="(Optional)Path to the transcription file,Note that the format in the transcription \
             file is 'file name|transcription'",
+    )
+    parser.add_argument(
+        "--intelligibility_mode",
+        type=str,
+        default="gt_audio",
+        help="(Optional)The method of calculating WER and CER, where set to gt_audio means selecting \
+        the recognition content of the reference audio as the target, and set to gt_content means \
+        using transcription as the target",
     )
     parser.add_argument(
         "--language",
@@ -230,8 +256,13 @@ if __name__ == "__main__":
         args.deg_dir,
         args.dump_dir,
         args.metrics,
-        args.fs,
-        args.wer_choose,
-        args.ltr_path,
-        args.language,
+        fs=int(args.fs) if args.fs != "None" else None,
+        method=args.align_method,
+        db_scale=True if args.db_scale == "True" else False,
+        need_mean=True if args.f0_subtract_mean == "True" else False,
+        model_name=args.similarity_model,
+        similarity_mode=args.similarity_mode,
+        ltr_path=args.ltr_path,
+        intelligibility_mode=args.intelligibility_mode,
+        language=args.language,
     )

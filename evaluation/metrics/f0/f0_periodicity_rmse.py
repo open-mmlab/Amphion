@@ -14,9 +14,8 @@ import numpy as np
 def extract_f0_periodicity_rmse(
     audio_ref,
     audio_deg,
-    fs=None,
     hop_length=256,
-    method="dtw",
+    **kwargs,
 ):
     """Compute f0 periodicity Root Mean Square Error (RMSE) between the predicted and the ground truth audio.
     audio_ref: path to the ground truth audio.
@@ -26,6 +25,11 @@ def extract_f0_periodicity_rmse(
     method: "dtw" will use dtw algorithm to align the length of the ground truth and predicted audio.
             "cut" will cut both audios into a same length according to the one with the shorter length.
     """
+    # Load hyperparameters
+    kwargs = kwargs["kwargs"]
+    fs = kwargs["fs"]
+    method = kwargs["method"]
+
     # Load audio
     if fs != None:
         audio_ref, _ = librosa.load(audio_ref, sr=fs)
@@ -38,8 +42,13 @@ def extract_f0_periodicity_rmse(
     audio_ref = torch.from_numpy(audio_ref).unsqueeze(0)
     audio_deg = torch.from_numpy(audio_deg).unsqueeze(0)
 
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+    else:
+        device = torch.device("cpu")
+
     # Get periodicity
-    pitch_ref, periodicity_ref = torchcrepe.predict(
+    _, periodicity_ref = torchcrepe.predict(
         audio_ref,
         sample_rate=fs,
         hop_length=hop_length,
@@ -47,9 +56,9 @@ def extract_f0_periodicity_rmse(
         fmax=1500,
         model="full",
         return_periodicity=True,
-        device="cuda:0",
+        device=device,
     )
-    pitch_deg, periodicity_deg = torchcrepe.predict(
+    _, periodicity_deg = torchcrepe.predict(
         audio_deg,
         sample_rate=fs,
         hop_length=hop_length,
@@ -57,7 +66,7 @@ def extract_f0_periodicity_rmse(
         fmax=1500,
         model="full",
         return_periodicity=True,
-        device="cuda:0",
+        device=device,
     )
 
     # Cut silence

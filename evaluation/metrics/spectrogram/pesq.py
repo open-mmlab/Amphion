@@ -10,7 +10,7 @@ import numpy as np
 from pypesq import pesq
 
 
-def extract_pesq(audio_ref, audio_deg, fs=None, method="cut"):
+def extract_pesq(audio_ref, audio_deg, **kwargs):
     """Extract PESQ for a two given audio.
     audio1: the given reference audio. It is a numpy array.
     audio2: the given synthesized audio. It is a numpy array.
@@ -18,6 +18,11 @@ def extract_pesq(audio_ref, audio_deg, fs=None, method="cut"):
     method: "dtw" will use dtw algorithm to align the length of the ground truth and predicted audio.
             "cut" will cut both audios into a same length according to the one with the shorter length.
     """
+    # Load hyperparameters
+    kwargs = kwargs["kwargs"]
+    fs = kwargs["fs"]
+    method = kwargs["method"]
+
     # Load audio
     if fs != None:
         audio_ref, _ = librosa.load(audio_ref, sr=fs)

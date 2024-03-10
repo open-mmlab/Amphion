@@ -16,12 +16,10 @@ from torchmetrics import PearsonCorrCoef
 def extract_energy_pearson_coeffcients(
     audio_ref,
     audio_deg,
-    fs=None,
     n_fft=1024,
     hop_length=256,
     win_length=1024,
-    method="dtw",
-    db_scale=True,
+    **kwargs,
 ):
     """Compute Energy Pearson Coefficients between the predicted and the ground truth audio.
     audio_ref: path to the ground truth audio.
@@ -34,6 +32,12 @@ def extract_energy_pearson_coeffcients(
             "cut" will cut both audios into a same length according to the one with the shorter length.
     db_scale: the ground truth and predicted audio will be converted to db_scale if "True".
     """
+    # Load hyperparameters
+    kwargs = kwargs["kwargs"]
+    fs = kwargs["fs"]
+    method = kwargs["method"]
+    db_scale = kwargs["db_scale"]
+
     # Initialize method
     pearson = PearsonCorrCoef()
 
@@ -88,4 +92,10 @@ def extract_energy_pearson_coeffcients(
     energy_ref = torch.from_numpy(energy_ref)
     energy_deg = torch.from_numpy(energy_deg)
 
-    return pearson(energy_ref, energy_deg).numpy().tolist()
+    if torch.cuda.is_available():
+        device = torch.device("cuda")
+        energy_ref = energy_ref.to(device)
+        energy_deg = energy_deg.to(device)
+        pearson = pearson.to(device)
+
+    return pearson(energy_ref, energy_deg).detach().cpu().numpy().tolist()
