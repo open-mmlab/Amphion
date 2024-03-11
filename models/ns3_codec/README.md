@@ -34,7 +34,7 @@ git https://github.com/open-mmlab/Amphion.git
 
 Few lines of code to use the pre-trained FACodec model
 ```python
-from AmphionOpen.models.ns3_codec import FACodecEncoder, FACodecDecoder
+from Amphion.models.ns3_codec import FACodecEncoder, FACodecDecoder
 
 fa_encoder = FACodecEncoder(
     ngf=32,
@@ -68,7 +68,7 @@ fa_decoder.eval()
 
 ```
 
-Test
+Inference
 ```python
 test_wav_path = "test.wav"
 test_wav = librosa.load(test_wav_path, sr=16000)[0]
@@ -140,13 +140,11 @@ A5: I think the answer is yes. Researchers can use the content code of FACodec a
 If you use our FACodec model, please cite the following paper:
 
 ```bibtex
-@misc{ju2024naturalspeech,
-      title={NaturalSpeech 3: Zero-Shot Speech Synthesis with Factorized Codec and Diffusion Models}, 
-      author={Zeqian Ju and Yuancheng Wang and Kai Shen and Xu Tan and Detai Xin and Dongchao Yang and Yanqing Liu and Yichong Leng and Kaitao Song and Siliang Tang and Zhizheng Wu and Tao Qin and Xiang-Yang Li and Wei Ye and Shikun Zhang and Jiang Bian and Lei He and Jinyu Li and Sheng Zhao},
-      year={2024},
-      eprint={2403.03100},
-      archivePrefix={arXiv},
-      primaryClass={eess.AS}
+@article{ju2024naturalspeech,
+  title={NaturalSpeech 3: Zero-Shot Speech Synthesis with Factorized Codec and Diffusion Models},
+  author={Ju, Zeqian and Wang, Yuancheng and Shen, Kai and Tan, Xu and Xin, Detai and Yang, Dongchao and Liu, Yanqing and Leng, Yichong and Song, Kaitao and Tang, Siliang and others},
+  journal={arXiv preprint arXiv:2403.03100},
+  year={2024}
 }
 
 @article{zhang2023amphion,
