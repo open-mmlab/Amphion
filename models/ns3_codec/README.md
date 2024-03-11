@@ -35,6 +35,7 @@ git https://github.com/open-mmlab/Amphion.git
 Few lines of code to use the pre-trained FACodec model
 ```python
 from Amphion.models.ns3_codec import FACodecEncoder, FACodecDecoder
+from huggingface_hub import hf_hub_download
 
 fa_encoder = FACodecEncoder(
     ngf=32,
@@ -60,8 +61,11 @@ fa_decoder = FACodecDecoder(
     use_gr_residual_phone=True,
 )
 
-fa_encoder.load_state_dict(torch.load("ns3_facodec_encoder.bin"))
-fa_decoder.load_state_dict(torch.load("ns3_facodec_decoder.bin"))
+encoder_ckpt = hf_hub_download(repo_id="amphion/naturalspeech3_facodec", filename="ns3_facodec_encoder.bin")
+decoder_ckpt = hf_hub_download(repo_id="amphion/naturalspeech3_facodec", filename="ns3_facodec_decoder.bin")
+
+fa_encoder.load_state_dict(torch.load(encoder_ckpt))
+fa_decoder.load_state_dict(torch.load(decoder_ckpt))
 
 fa_encoder.eval()
 fa_decoder.eval()
