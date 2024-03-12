@@ -29,12 +29,12 @@ Download the pre-trained FACodec model from HuggingFace: [Pretrained FACodec che
 
 Install Amphion
 ```bash
-git https://github.com/open-mmlab/Amphion.git
+git clone https://github.com/open-mmlab/Amphion.git
 ```
 
 Few lines of code to use the pre-trained FACodec model
 ```python
-from Amphion.models.ns3_codec import FACodecEncoder, FACodecDecoder
+from Amphion.models.codec.ns3_codec import FACodecEncoder, FACodecDecoder
 from huggingface_hub import hf_hub_download
 
 fa_encoder = FACodecEncoder(
@@ -117,7 +117,7 @@ with torch.no_grad():
 
 FACodec can achieve zero-shot voice conversion with FACodecRedecoder 
 ```python
-from Amphion.models.ns3_codec import FACodecRedecoder
+from Amphion.models.codec.ns3_codec import FACodecRedecoder
 
 fa_redecoder = FACodecRedecoder()
 
@@ -139,7 +139,7 @@ with torch.no_grad():
     sf.write("recon_a_to_b.wav", recon_wav_a_to_b[0][0].cpu().numpy(), 16000)
 ```
 
-## Some Q&A
+## Q&A
 
 Q1: What audio sample rate does FACodec support? What is the hop size? How many codes will be generated for each frame?
 
