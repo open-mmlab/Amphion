@@ -591,3 +591,173 @@ class FACodecDecoder(nn.Module):
 
     def reset_parameters(self):
         self.apply(init_weights)
+
+
+class FACodecRedecoder(nn.Module):
+    def __init__(
+        self,
+        in_channels=256,
+        upsample_initial_channel=1280,
+        up_ratios=(5, 5, 4, 2),
+        vq_num_q_c=2,
+        vq_num_q_p=1,
+        vq_num_q_r=3,
+        vq_dim=256,
+        codebook_size_prosody=10,
+        codebook_size_content=10,
+        codebook_size_residual=10,
+    ):
+        super().__init__()
+        self.hop_length = np.prod(up_ratios)
+        self.up_ratios = up_ratios
+
+        self.vq_num_q_p = vq_num_q_p
+        self.vq_num_q_c = vq_num_q_c
+        self.vq_num_q_r = vq_num_q_r
+
+        self.vq_dim = vq_dim
+
+        self.codebook_size_prosody = codebook_size_prosody
+        self.codebook_size_content = codebook_size_content
+        self.codebook_size_residual = codebook_size_residual
+
+        self.prosody_embs = nn.ModuleList()
+        for i in range(self.vq_num_q_p):
+            emb_tokens = nn.Embedding(
+                num_embeddings=2**self.codebook_size_prosody,
+                embedding_dim=self.vq_dim,
+            )
+            emb_tokens.weight.data.normal_(mean=0.0, std=1e-5)
+            self.prosody_embs.append(emb_tokens)
+        self.content_embs = nn.ModuleList()
+        for i in range(self.vq_num_q_c):
+            emb_tokens = nn.Embedding(
+                num_embeddings=2**self.codebook_size_content,
+                embedding_dim=self.vq_dim,
+            )
+            emb_tokens.weight.data.normal_(mean=0.0, std=1e-5)
+            self.content_embs.append(emb_tokens)
+        self.residual_embs = nn.ModuleList()
+        for i in range(self.vq_num_q_r):
+            emb_tokens = nn.Embedding(
+                num_embeddings=2**self.codebook_size_residual,
+                embedding_dim=self.vq_dim,
+            )
+            emb_tokens.weight.data.normal_(mean=0.0, std=1e-5)
+            self.residual_embs.append(emb_tokens)
+
+        # Add first conv layer
+        channels = upsample_initial_channel
+        layers = [WNConv1d(in_channels, channels, kernel_size=7, padding=3)]
+
+        # Add upsampling + MRF blocks
+        for i, stride in enumerate(up_ratios):
+            input_dim = channels // 2**i
+            output_dim = channels // 2 ** (i + 1)
+            layers += [DecoderBlock(input_dim, output_dim, stride)]
+
+        # Add final conv layer
+        layers += [
+            Activation1d(activation=SnakeBeta(output_dim, alpha_logscale=True)),
+            WNConv1d(output_dim, 1, kernel_size=7, padding=3),
+            nn.Tanh(),
+        ]
+
+        self.model = nn.Sequential(*layers)
+
+        self.timbre_linear = nn.Linear(in_channels, in_channels * 2)
+        self.timbre_linear.bias.data[:in_channels] = 1
+        self.timbre_linear.bias.data[in_channels:] = 0
+        self.timbre_norm = nn.LayerNorm(in_channels, elementwise_affine=False)
+
+        self.timbre_cond_prosody_enc = TransformerEncoder(
+            enc_emb_tokens=None,
+            encoder_layer=4,
+            encoder_hidden=256,
+            encoder_head=4,
+            conv_filter_size=1024,
+            conv_kernel_size=5,
+            encoder_dropout=0.1,
+            use_cln=True,
+            cfg=None,
+        )
+
+    def forward(
+        self,
+        vq,
+        speaker_embedding,
+        use_residual_code=False,
+    ):
+
+        x = 0
+
+        x_p = 0
+        for i in range(self.vq_num_q_p):
+            x_p = x_p + self.prosody_embs[i](vq[i])  # (B, T, d)
+        spk_cond = speaker_embedding.unsqueeze(1).expand(-1, x_p.shape[1], -1)
+        x_p = self.timbre_cond_prosody_enc(
+            x_p, key_padding_mask=None, condition=spk_cond
+        )
+        x = x + x_p
+
+        x_c = 0
+        for i in range(self.vq_num_q_c):
+            x_c = x_c + self.content_embs[i](vq[self.vq_num_q_p + i])
+
+        x = x + x_c
+
+        if use_residual_code:
+
+            x_r = 0
+            for i in range(self.vq_num_q_r):
+                x_r = x_r + self.residual_embs[i](
+                    vq[self.vq_num_q_p + self.vq_num_q_c + i]
+                )
+            x = x + x_r
+
+        style = self.timbre_linear(speaker_embedding).unsqueeze(2)  # (B, 2d, 1)
+        gamma, beta = style.chunk(2, 1)  # (B, d, 1)
+        x = x.transpose(1, 2)
+        x = self.timbre_norm(x)
+        x = x.transpose(1, 2)
+        x = x * gamma + beta
+        x = self.model(x)
+
+        return x
+
+    def vq2emb(self, vq, speaker_embedding, use_residual=True):
+
+        out = 0
+
+        x_t = 0
+        for i in range(self.vq_num_q_p):
+            x_t += self.prosody_embs[i](vq[i])  # (B, T, d)
+            spk_cond = speaker_embedding.unsqueeze(1).expand(-1, x_t.shape[1], -1)
+            x_t = self.timbre_cond_prosody_enc(
+                x_t, key_padding_mask=None, condition=spk_cond
+            )
+
+        # prosody
+        out += x_t
+
+        # content
+        for i in range(self.vq_num_q_c):
+            out += self.content_embs[i](vq[self.vq_num_q_p + i])
+
+        # residual
+        if use_residual:
+            for i in range(self.vq_num_q_r):
+                out += self.residual_embs[i](vq[self.vq_num_q_p + self.vq_num_q_c + i])
+
+        out = out.transpose(1, 2)  # (B, T, d) -> (B, d, T)
+        return out
+
+    def inference(self, x, speaker_embedding):
+        style = self.timbre_linear(speaker_embedding).unsqueeze(2)  # (B, 2d, 1)
+        gamma, beta = style.chunk(2, 1)  # (B, d, 1)
+        x = x.transpose(1, 2)
+        x = self.timbre_norm(x)
+        x = x.transpose(1, 2)
+        x = x * gamma + beta
+        x = self.model(x)
+        return x

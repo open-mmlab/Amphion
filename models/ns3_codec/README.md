@@ -115,7 +115,29 @@ with torch.no_grad():
     sf.write("recon.wav", recon_wav[0][0].cpu().numpy(), 16000)
 ```
 
+FACodec can achieve zero-shot voice conversion with FACodecRedecoder 
+```python
+from Amphion.models.ns3_codec import FACodecRedecoder
 
+fa_redecoder = FACodecRedecoder()
+
+redecoder_ckpt = hf_hub_download(repo_id="amphion/naturalspeech3_facodec", filename="ns3_facodec_redecoder.bin")
+
+fa_redecoder.load_state_dict(torch.load(redecoder_ckpt))
+
+with torch.no_grad():
+    enc_out_a = fa_encoder(wav_a)
+    enc_out_b = fa_encoder(wav_b)
+
+    vq_post_emb_a, vq_id_a, _, quantized_a, spk_embs_a = fa_decoder(enc_out_a, eval_vq=False, vq=True)
+    vq_post_emb_b, vq_id_b, _, quantized_b, spk_embs_b = fa_decoder(enc_out_b, eval_vq=False, vq=True)
+
+    # convert speaker
+    vq_post_emb_a_to_b = fa_redecoder.vq2emb(vq_id_a, spk_embs_b, use_residual=False)
+    recon_wav_a_to_b = fa_redecoder.inference(vq_post_emb_a_to_b, spk_embs_b)
+
+    sf.write("recon_a_to_b.wav", recon_wav_a_to_b[0][0].cpu().numpy(), 16000)
+```
 
 ## Some Q&A
 

@@ -14,6 +14,18 @@ class StyleAdaptiveLayerNorm(nn.Module):
         self.style.bias.data[: self.in_dim] = 1
         self.style.bias.data[self.in_dim :] = 0
 
+    def forward(self, x, condition):
+        # x: (B, T, d); condition: (B, T, d)
+
+        style = self.style(torch.mean(condition, dim=1, keepdim=True))
+
+        gamma, beta = style.chunk(2, -1)
+
+        out = self.norm(x)
+
+        out = gamma * out + beta
+        return out
+
 
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, dropout, max_len=5000):
