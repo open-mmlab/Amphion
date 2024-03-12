@@ -13,13 +13,13 @@ Research can use FACodec to develop different modes of TTS models, such as non-a
 
 <br>
 <div align="center">
-<img src="../../imgs/ns3/ns3_overview.png" width="65%">
+<img src="../../../imgs/ns3/ns3_overview.png" width="65%">
 </div>
 <br>
 
 <br>
 <div align="center">
-<img src="../../imgs/ns3/ns3_facodec.png" width="100%">
+<img src="../../../imgs/ns3/ns3_facodec.png" width="100%">
 </div>
 <br>
 
