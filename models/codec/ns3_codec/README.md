@@ -115,7 +115,39 @@ with torch.no_grad():
     sf.write("recon.wav", recon_wav[0][0].cpu().numpy(), 16000)
 ```
 
-FACodec can achieve zero-shot voice conversion with FACodecRedecoder 
+FACodec can achieve zero-shot voice conversion with FACodecEncoderV2/FACodecDecoderV2 or FACodecRedecoder
+```python
+from Amphion.models.codec.ns3_codec import FACodecEncoderV2, FACodecDecoderV2
+
+# Same parameters as FACodecEncoder/FACodecDecoder
+fa_encoder_v2 = FACodecEncoderV2(...)
+fa_decoder_v2 = FACodecDecoderV2(...)
+
+encoder_v2_ckpt = hf_hub_download(repo_id="amphion/naturalspeech3_facodec", filename="ns3_facodec_encoder_v2.bin")
+decoder_v2_ckpt = hf_hub_download(repo_id="amphion/naturalspeech3_facodec", filename="ns3_facodec_decoder_v2.bin")
+
+fa_encoder_v2.load_state_dict(torch.load(encoder_v2_ckpt))
+fa_decoder_v2.load_state_dict(torch.load(decoder_v2_ckpt))
+
+with torch.no_grad():
+  enc_out_a = fa_encoder_v2(wav_a)
+  prosody_a = fa_encoder_v2.get_prosody_feature(wav_a)
+  enc_out_b = fa_encoder_v2(wav_b)
+  prosody_b = fa_encoder_v2.get_prosody_feature(wav_b)
+
+  vq_post_emb_a, vq_id_a, _, quantized, spk_embs_a = fa_decoder_v2(
+      enc_out_a, prosody_a, eval_vq=False, vq=True
+  )
+  vq_post_emb_b, vq_id_b, _, quantized, spk_embs_b = fa_decoder_v2(
+      enc_out_b, prosody_b, eval_vq=False, vq=True
+  )
+
+  vq_post_emb_a_to_b = fa_decoder_v2.vq2emb(vq_id_a, use_residual=False)
+  recon_wav_a_to_b = fa_decoder_v2.inference(vq_post_emb_a_to_b, spk_embs_b)
+```
+
+or
+
 ```python
 from Amphion.models.codec.ns3_codec import FACodecRedecoder
 
