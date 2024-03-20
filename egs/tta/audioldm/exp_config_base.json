@@ -6,6 +6,6 @@
     ],
     "preprocess": {
         "train_file": "train.json",
-        "valid_file": "vaild.json"
+        "valid_file": "valid.json"
     }
 }
