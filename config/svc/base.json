@@ -86,4 +86,34 @@
         "spk2id": "singers.json",
         "utt2spk": "utt2singer"
     },
+    "model": {
+        "condition_encoder": {
+            "merge_mode": "add",
+            // Prosody Features
+            "use_f0": true,
+            "use_uv": true,
+            "use_energy": true,
+            // Quantization (0 for not quantization)
+            "input_melody_dim": 1,
+            "n_bins_melody": 256,
+            "output_melody_dim": 384,
+            "input_loudness_dim": 1,
+            "n_bins_loudness": 256,
+            "output_loudness_dim": 384,
+            // Semantic Features
+            "use_whisper": false,
+            "use_contentvec": false,
+            "use_wenet": false,
+            "use_mert": false,
+            "whisper_dim": 1024,
+            "contentvec_dim": 256,
+            "mert_dim": 256,
+            "wenet_dim": 512,
+            "content_encoder_dim": 384,
+            // Speaker Features
+            "output_singer_dim": 384,
+            "singer_table_size": 512,
+            "use_spkid": true
+        }
+    },
 }

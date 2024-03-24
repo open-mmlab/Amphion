@@ -526,10 +526,7 @@ def extract_utt_content_features_dataloader(cfg, metadata, num_workers):
                 for batch_idx, items in enumerate(tqdm(data_loader)):
                     _metadata, wavs, lens = items
 
-                    batch_content_features = extractor.extract_content_features(
-                        wavs,
-                        lens,
-                    )
+                    batch_content_features = extractor.extract_content_features(wavs)
                     for index, utt in enumerate(_metadata):
                         extractor.save_feature(utt, batch_content_features[index])
 
@@ -561,9 +558,7 @@ def extract_utt_content_features_dataloader(cfg, metadata, num_workers):
                 for batch_idx, items in enumerate(tqdm(data_loader)):
                     _metadata, wavs, lens = items
 
-                    batch_content_features = extractor.extract_content_features(
-                        wavs, lens
-                    )
+                    batch_content_features = extractor.extract_content_features(wavs)
                     for index, utt in enumerate(_metadata):
                         extractor.save_feature(utt, batch_content_features[index])
 
@@ -626,9 +621,6 @@ def extract_utt_content_features_dataloader(cfg, metadata, num_workers):
                 for batch_idx, items in enumerate(tqdm(data_loader)):
                     _metadata, wavs, lens = items
 
-                    batch_content_features = extractor.extract_content_features(
-                        wavs,
-                        lens,
-                    )
+                    batch_content_features = extractor.extract_content_features(wavs)
                     for index, utt in enumerate(_metadata):
                         extractor.save_feature(utt, batch_content_features[index])
