@@ -262,14 +262,6 @@ class VALLETrainer(TTSTrainer):
 
         return total_loss, valid_losses, valid_stats
 
-    def add_arguments(parser: argparse.ArgumentParser):
-        parser.add_argument(
-            "--train_stage",
-            type=int,
-            default="1",
-            help="0: train all modules, 1: AR Decoder, 2: NAR Decoder",
-        )
-
     def _build_dataloader(self):
         if not self.cfg.train.use_dynamic_batchsize:
             return super()._build_dataloader()
@@ -359,3 +351,17 @@ class VALLETrainer(TTSTrainer):
                 self.scheduler[key] = self.accelerator.prepare(self.scheduler[key])
         else:
             self.scheduler = self.accelerator.prepare(self.scheduler)
+
+    def add_arguments(parser: argparse.ArgumentParser):
+        parser.add_argument(
+            "--train_stage",
+            type=int,
+            default="1",
+            help="0: train all modules, 1: AR Decoder, 2: NAR Decoder",
+        )
+        parser.add_argument(
+            "--ar_model_ckpt_dir",
+            type=str,
+            default=None,
+            help="Checkpoint for ar model ckeckpoint in the first training stage.",
+        )

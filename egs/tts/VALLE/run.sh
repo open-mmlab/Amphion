@@ -17,7 +17,7 @@ python setup.py build_ext --inplace
 cd $work_dir
 
 ######## Parse the Given Parameters from the Commond ###########
-options=$(getopt -o c:n:s --long gpu:,config:,infer_expt_dir:,ar_model_ckpt_dir:,infer_output_dir:,infer_mode:,infer_test_list_file:,infer_text:,infer_text_prompt:,infer_audio_prompt:,model_train_stage:,name:,stage: -- "$@")
+options=$(getopt -o c:n:s --long gpu:,config:,infer_expt_dir:,ar_model_ckpt_dir:,infer_output_dir:,infer_mode:,infer_test_list_file:,infer_text:,infer_text_prompt:,infer_audio_prompt:,model_train_stage:,name:,stage:,resume:,resume_from_ckpt_path:,resume_type: -- "$@")
 eval set -- "$options"
 
 while true; do
@@ -51,6 +51,13 @@ while true; do
     --infer_text_prompt) shift; infer_text_prompt=$1 ; shift ;;
     # [Only for Inference] The inference audio prompt. It is only used when the inference model is "single".
     --infer_audio_prompt) shift; infer_audio_prompt=$1 ; shift ;;
+
+    # [Only for Training] Resume configuration
+    --resume) shift; resume=$1 ; shift ;;
+    # [Only for Training] The specific checkpoint path that you want to resume from.
+    --resume_from_ckpt_path) shift; resume_from_ckpt_path=$1 ; shift ;;
+    # [Only for Training] `resume` for loading all the things (including model weights, optimizer, scheduler, and random states). `finetune` for loading only the model weights.
+    --resume_type) shift; resume_type=$1 ; shift ;;
 
     --) shift ; break ;;
     *) echo "Invalid option: $1" exit 1 ;;
@@ -98,13 +105,38 @@ if [ $running_stage -eq 2 ]; then
 
     echo "Exprimental Name: $exp_name"
 
-    CUDA_VISIBLE_DEVICES=$gpu accelerate launch --main_process_port 29510 \
-    "${work_dir}"/bins/tts/train.py \
-        --config $exp_config \
-        --exp_name $exp_name \
-        --log_level debug \
-        --train_stage $model_train_stage \
-        --checkpoint_path $ar_model_ckpt_dir
+    # Add default value
+    if [ -z "$resume_from_ckpt_path" ]; then
+        resume_from_ckpt_path=""
+    fi
+
+    if [ -z "$resume_type" ]; then
+        resume_type="resume"
+    fi
+
+
+    if [ "$resume" = true ]; then
+        echo "Resume from the existing experiment..."
+        CUDA_VISIBLE_DEVICES=$gpu accelerate launch --main_process_port 29510 \
+        "${work_dir}"/bins/tts/train.py \
+            --config $exp_config \
+            --exp_name $exp_name \
+            --log_level debug \
+            --train_stage $model_train_stage \
+            --ar_model_ckpt_dir $ar_model_ckpt_dir \
+            --resume \
+            --checkpoint_path "$resume_from_ckpt_path" \
+            --resume_type "$resume_type"
+    else
+        echo "Start a new experiment..."
+        CUDA_VISIBLE_DEVICES=$gpu accelerate launch --main_process_port 29510 \
+        "${work_dir}"/bins/tts/train.py \
+            --config $exp_config \
+            --exp_name $exp_name \
+            --log_level debug \
+            --train_stage $model_train_stage \
+            --ar_model_ckpt_dir $ar_model_ckpt_dir
+    fi        
 fi
 
 

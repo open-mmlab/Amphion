@@ -36,6 +36,7 @@
         // "scaling_xformers": false, // Apply Reworked Conformer scaling on Transformers 
     },
     "train": {
+        "use_dynamic_batchsize": false, // If use dynamic batch size
         "ddp": false,
         "train_stage": 1, // 0: train all modules, For VALL_E, support 1: AR Decoder 2: NAR Decoder(s)
         "max_epoch": 20, 

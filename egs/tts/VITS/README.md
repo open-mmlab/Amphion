@@ -3,7 +3,7 @@
 [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Spaces-yellow)](https://huggingface.co/spaces/amphion/Text-to-Speech)
 [![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/Text-to-Speech)
 
-In this recipe, we will show how to train VITS using Amphion's infrastructure. [VITS](https://arxiv.org/abs/2106.06103) is an end-to-end TTS architecture that utilizes conditional variational autoencoder with adversarial learning.
+In this recipe, we will show how to train VITS using Amphion's infrastructure. [VITS](https://arxiv.org/abs/2106.06103) is an end-to-end TTS architecture that utilizes a conditional variational autoencoder with adversarial learning.
 
 There are four stages in total:
 
@@ -20,7 +20,7 @@ There are four stages in total:
 ## 1. Data Preparation
 
 ### Dataset Download
-You can use the commonly used TTS dataset to train TTS model, e.g., LJSpeech, VCTK, Hi-Fi TTS, LibriTTS, etc. We strongly recommend using LJSpeech to train single-speaker TTS model for the first time. While for training multi-speaker TTS model for the first time, we would recommend using Hi-Fi TTS. The process of downloading dataset has been detailed [here](../../datasets/README.md).
+You can use the commonly used TTS dataset to train the TTS model, e.g., LJSpeech, VCTK, Hi-Fi TTS, LibriTTS, etc. We strongly recommend using LJSpeech to train the single-speaker TTS model for the first time. While training the multi-speaker TTS model for the first time, we recommend using Hi-Fi TTS. The process of downloading the dataset has been detailed [here](../../datasets/README.md).
 
 ### Configuration
 
@@ -75,7 +75,7 @@ sh egs/tts/VITS/run.sh --stage 1
 
 ### Configuration
 
-We provide the default hyparameters in the `exp_config.json`. They can work on a single NVIDIA-24g GPU. You can adjust them based on your GPU machines.
+We provide the default hyperparameters in the `exp_config.json`. They can work on a single NVIDIA-24g GPU. You can adjust them based on your GPU machines.
 For training the multi-speaker TTS model, specify the `n_speakers` value to be greater (used for new speaker fine-tuning) than or equal to the number of speakers in your dataset(s) and set `multi_speaker_training` to `true`.
 
 ```json
@@ -98,9 +98,9 @@ sh egs/tts/VITS/run.sh --stage 2 --name [YourExptName]
 
 ### Train From Existing Source
 
-We support training from existing source for various purposes. You can resume training the model from a checkpoint or fine-tune a model from another checkpoint.
+We support training from existing sources for various purposes. You can resume training the model from a checkpoint or fine-tune a model from another checkpoint.
 
-Setting `--resume true`, the training will resume from the **latest checkpoint** from the current `[YourExptName]` by default. For example, if you want to resume training from the latest checkpoint in `Amphion/ckpts/tts/[YourExptName]/checkpoint`, run:
+By setting `--resume true`, the training will resume from the **latest checkpoint** from the current `[YourExptName]` by default. For example, if you want to resume training from the latest checkpoint in `Amphion/ckpts/tts/[YourExptName]/checkpoint`, run:
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 2 --name [YourExptName] \
@@ -111,8 +111,8 @@ You can also choose a **specific checkpoint** for retraining by `--resume_from_c
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 2 --name [YourExptName] \
-    --resume true
-    --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificCheckpoint]" \
+    --resume true \
+    --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificCheckpoint]"
 ```
 
 If you want to **fine-tune from another checkpoint**, just use `--resume_type` and set it to `"finetune"`. For example, If you want to fine-tune the model from the checkpoint `Amphion/ckpts/tts/[AnotherExperiment]/checkpoint/[SpecificCheckpoint]`, run:
@@ -120,7 +120,7 @@ If you want to **fine-tune from another checkpoint**, just use `--resume_type` a
 
 ```bash
 sh egs/tts/VITS/run.sh --stage 2 --name [YourExptName] \
-    --resume true
+    --resume true \
     --resume_from_ckpt_path "Amphion/ckpts/tts/[YourExptName]/checkpoint/[SpecificCheckpoint]" \
     --resume_type "finetune"
 ```
@@ -205,6 +205,10 @@ sh egs/tts/VITS/run.sh --stage 3 --gpu "0" \
     --infer_dataset "hifitts" \
     --infer_testing_set "test" 
 ```
+
+
+We released a pre-trained Amphion VITS model trained on LJSpeech. So, you can download the pre-trained model [here](https://huggingface.co/amphion/vits-ljspeech) and generate speech following the above inference instructions. Meanwhile, the pre-trained multi-speaker VITS model trained on Hi-Fi TTS will be released soon. Stay tuned.
+
 
 ```bibtex
 @inproceedings{kim2021conditional,
