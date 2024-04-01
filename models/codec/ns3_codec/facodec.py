@@ -156,10 +156,7 @@ class EncoderBlock(nn.Module):
 
 class FACodecEncoder(nn.Module):
     def __init__(
-        self,
-        ngf=32,
-        up_ratios=(2, 4, 5, 5),
-        out_channels=1024,
+        self, ngf=32, up_ratios=(2, 4, 5, 5), out_channels=1024,
     ):
         super().__init__()
         self.hop_length = np.prod(up_ratios)
@@ -339,7 +336,7 @@ class FACodecDecoder(nn.Module):
 
         # Add upsampling + MRF blocks
         for i, stride in enumerate(up_ratios):
-            input_dim = channels // 2**i
+            input_dim = channels // 2 ** i
             output_dim = channels // 2 ** (i + 1)
             layers += [DecoderBlock(input_dim, output_dim, stride)]
 
@@ -423,7 +420,7 @@ class FACodecDecoder(nn.Module):
         out, q, commit, quantized = phone_quantizer(
             phone_input, n_quantizers=n_quantizers
         )
-        outs += out[:, :, :outs.size(2)]
+        outs += out[:, :, : outs.size(2)]
         qs.append(q)
         quantized_buf.append(quantized.sum(0))
         commit_loss.append(commit)
@@ -435,7 +432,7 @@ class FACodecDecoder(nn.Module):
             out, q, commit, quantized = residual_quantizer(
                 residual_input, n_quantizers=n_quantizers
             )
-            outs += out[:, :, :outs.size(2)]
+            outs += out[:, :, : outs.size(2)]
             qs.append(q)
             quantized_buf.append(quantized.sum(0))  # [L, B, C, T] -> [B, C, T]
             commit_loss.append(commit)
@@ -630,7 +627,7 @@ class FACodecRedecoder(nn.Module):
         self.prosody_embs = nn.ModuleList()
         for i in range(self.vq_num_q_p):
             emb_tokens = nn.Embedding(
-                num_embeddings=2**self.codebook_size_prosody,
+                num_embeddings=2 ** self.codebook_size_prosody,
                 embedding_dim=self.vq_dim,
             )
             emb_tokens.weight.data.normal_(mean=0.0, std=1e-5)
@@ -638,7 +635,7 @@ class FACodecRedecoder(nn.Module):
         self.content_embs = nn.ModuleList()
         for i in range(self.vq_num_q_c):
             emb_tokens = nn.Embedding(
-                num_embeddings=2**self.codebook_size_content,
+                num_embeddings=2 ** self.codebook_size_content,
                 embedding_dim=self.vq_dim,
             )
             emb_tokens.weight.data.normal_(mean=0.0, std=1e-5)
@@ -646,7 +643,7 @@ class FACodecRedecoder(nn.Module):
         self.residual_embs = nn.ModuleList()
         for i in range(self.vq_num_q_r):
             emb_tokens = nn.Embedding(
-                num_embeddings=2**self.codebook_size_residual,
+                num_embeddings=2 ** self.codebook_size_residual,
                 embedding_dim=self.vq_dim,
             )
             emb_tokens.weight.data.normal_(mean=0.0, std=1e-5)
@@ -658,7 +655,7 @@ class FACodecRedecoder(nn.Module):
 
         # Add upsampling + MRF blocks
         for i, stride in enumerate(up_ratios):
-            input_dim = channels // 2**i
+            input_dim = channels // 2 ** i
             output_dim = channels // 2 ** (i + 1)
             layers += [DecoderBlock(input_dim, output_dim, stride)]
 
@@ -689,10 +686,7 @@ class FACodecRedecoder(nn.Module):
         )
 
     def forward(
-        self,
-        vq,
-        speaker_embedding,
-        use_residual_code=False,
+        self, vq, speaker_embedding, use_residual_code=False,
     ):
 
         x = 0
@@ -771,10 +765,7 @@ class FACodecRedecoder(nn.Module):
 
 class FACodecEncoderV2(nn.Module):
     def __init__(
-        self,
-        ngf=32,
-        up_ratios=(2, 4, 5, 5),
-        out_channels=1024,
+        self, ngf=32, up_ratios=(2, 4, 5, 5), out_channels=1024,
     ):
         super().__init__()
         self.hop_length = np.prod(up_ratios)
@@ -945,7 +936,7 @@ class FACodecDecoderV2(nn.Module):
 
         # Add upsampling + MRF blocks
         for i, stride in enumerate(up_ratios):
-            input_dim = channels // 2**i
+            input_dim = channels // 2 ** i
             output_dim = channels // 2 ** (i + 1)
             layers += [DecoderBlock(input_dim, output_dim, stride)]
 
@@ -1036,13 +1027,13 @@ class FACodecDecoderV2(nn.Module):
         out, q, commit, quantized = f0_quantizer(f0_input, n_quantizers=n_quantizers)
         if outs == 0:
             outs += out
-            qs.append(q) 
+            qs.append(q)
             quantized_buf.append(quantized.sum(0))
             commit_loss.append(commit)
         else:
-            out = out[:, :, :outs.size(2)]
-            q = q[:, :, :outs.size(2)]
-            quantized = quantized[:, :, :, :outs.size(2)]
+            out = out[:, :, : outs.size(2)]
+            q = q[:, :, : outs.size(2)]
+            quantized = quantized[:, :, :, : outs.size(2)]
             qs.append(q)
             quantized_buf.append(quantized.sum(0))
             commit_loss.append(commit)
@@ -1053,9 +1044,9 @@ class FACodecDecoderV2(nn.Module):
         out, q, commit, quantized = phone_quantizer(
             phone_input, n_quantizers=n_quantizers
         )
-        out = out[:, :, :outs.size(2)]
-        q = q[:, :, :outs.size(2)]
-        quantized = quantized[:, :, :, :outs.size(2)]
+        out = out[:, :, : outs.size(2)]
+        q = q[:, :, : outs.size(2)]
+        quantized = quantized[:, :, :, : outs.size(2)]
 
         outs += out
         qs.append(q)
@@ -1066,15 +1057,15 @@ class FACodecDecoderV2(nn.Module):
         if self.vq_num_q_r > 0:
             residual_quantizer = self.quantizer[2]
             if x.shape != quantized_buf[0].shape:
-                x = x[:, :, :quantized_buf[0].size(2)]
+                x = x[:, :, : quantized_buf[0].size(2)]
             residual_input = x - (quantized_buf[0] + quantized_buf[1]).detach()
             out, q, commit, quantized = residual_quantizer(
                 residual_input, n_quantizers=n_quantizers
             )
 
-            out = out[:, :, :outs.size(2)]
-            q = q[:, :, :outs.size(2)]
-            quantized = quantized[:, :, :, :outs.size(2)]
+            out = out[:, :, : outs.size(2)]
+            q = q[:, :, : outs.size(2)]
+            quantized = quantized[:, :, :, : outs.size(2)]
             qs.append(q)
             quantized_buf.append(quantized.sum(0))  # [L, B, C, T] -> [B, C, T]
             commit_loss.append(commit)
