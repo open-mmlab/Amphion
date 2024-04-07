@@ -34,7 +34,7 @@ class Corrector(abc.ABC):
         pass
 
 
-@CorrectorRegistry.register(name='langevin')
+@CorrectorRegistry.register(name="langevin")
 class LangevinCorrector(Corrector):
     def __init__(self, sde, score_fn, snr, n_steps):
         super().__init__(sde, score_fn, snr, n_steps)
@@ -56,13 +56,16 @@ class LangevinCorrector(Corrector):
         return x, x_mean
 
 
-@CorrectorRegistry.register(name='ald')
+@CorrectorRegistry.register(name="ald")
 class AnnealedLangevinDynamics(Corrector):
     """The original annealed Langevin dynamics predictor in NCSN/NCSNv2."""
+
     def __init__(self, sde, score_fn, snr, n_steps):
         super().__init__(sde, score_fn, snr, n_steps)
         if not isinstance(sde, (sdes.OUVESDE,)):
-            raise NotImplementedError(f"SDE class {sde.__class__.__name__} not yet supported.")
+            raise NotImplementedError(
+                f"SDE class {sde.__class__.__name__} not yet supported."
+            )
         self.sde = sde
         self.score_fn = score_fn
         self.snr = snr
@@ -83,7 +86,7 @@ class AnnealedLangevinDynamics(Corrector):
         return x, x_mean
 
 
-@CorrectorRegistry.register(name='none')
+@CorrectorRegistry.register(name="none")
 class NoneCorrector(Corrector):
     """An empty corrector that does nothing."""
 

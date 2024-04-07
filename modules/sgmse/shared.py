@@ -27,7 +27,7 @@ class GaussianFourierProjection(nn.Module):
         self.W = nn.Parameter(torch.randn(embed_dim) * scale, requires_grad=False)
 
     def forward(self, t):
-        t_proj = t[:, None] * self.W[None, :] * 2*np.pi
+        t_proj = t[:, None] * self.W[None, :] * 2 * np.pi
         if self.complex_valued:
             return torch.exp(1j * t_proj)
         else:
@@ -49,7 +49,9 @@ class DiffusionStepEmbedding(nn.Module):
         self.embed_dim = embed_dim
 
     def forward(self, t):
-        fac = 10**(4*torch.arange(self.embed_dim, device=t.device) / (self.embed_dim-1))
+        fac = 10 ** (
+            4 * torch.arange(self.embed_dim, device=t.device) / (self.embed_dim - 1)
+        )
         inner = t[:, None] * fac[None, :]
         if self.complex_valued:
             return torch.exp(1j * inner)
@@ -59,6 +61,7 @@ class DiffusionStepEmbedding(nn.Module):
 
 class ComplexLinear(nn.Module):
     """A potentially complex-valued linear layer. Reduces to a regular linear layer if `complex_valued=False`."""
+
     def __init__(self, input_dim, output_dim, complex_valued):
         super().__init__()
         self.complex_valued = complex_valued
@@ -70,7 +73,9 @@ class ComplexLinear(nn.Module):
 
     def forward(self, x):
         if self.complex_valued:
-            return (self.re(x.real) - self.im(x.imag)) + 1j*(self.re(x.imag) + self.im(x.real))
+            return (self.re(x.real) - self.im(x.imag)) + 1j * (
+                self.re(x.imag) + self.im(x.real)
+            )
         else:
             return self.lin(x)
 
@@ -114,10 +119,14 @@ class ArgsComplexMultiplicationWrapper(nn.Module):
 
     def forward(self, x, *args, **kwargs):
         return torch_complex_from_reim(
-            self.re_module(x.real, *args, **kwargs) - self.im_module(x.imag, *args, **kwargs),
-            self.re_module(x.imag, *args, **kwargs) + self.im_module(x.real, *args, **kwargs),
+            self.re_module(x.real, *args, **kwargs)
+            - self.im_module(x.imag, *args, **kwargs),
+            self.re_module(x.imag, *args, **kwargs)
+            + self.im_module(x.real, *args, **kwargs),
         )
 
 
 ComplexConv2d = functools.partial(ArgsComplexMultiplicationWrapper, nn.Conv2d)
-ComplexConvTranspose2d = functools.partial(ArgsComplexMultiplicationWrapper, nn.ConvTranspose2d)
+ComplexConvTranspose2d = functools.partial(
+    ArgsComplexMultiplicationWrapper, nn.ConvTranspose2d
+)

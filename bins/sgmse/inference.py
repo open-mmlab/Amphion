@@ -7,7 +7,9 @@ import argparse
 from argparse import ArgumentParser
 import os
 
-from models.sgmse.dereverberation.dereverberation_inference import DereverberationInference
+from models.sgmse.dereverberation.dereverberation_inference import (
+    DereverberationInference,
+)
 from utils.util import save_config, load_model_config, load_config
 import numpy as np
 import torch
@@ -36,16 +38,27 @@ def build_parser():
         "--checkpoint_path",
         type=str,
     )
-    parser.add_argument("--test_dir", type=str, required=True,
-                        help='Directory containing the test data (must have subdirectory noisy/)')
-    parser.add_argument("--corrector_steps", type=int, default=1, help="Number of corrector steps")
+    parser.add_argument(
+        "--test_dir",
+        type=str,
+        required=True,
+        help="Directory containing the test data (must have subdirectory noisy/)",
+    )
+    parser.add_argument(
+        "--corrector_steps", type=int, default=1, help="Number of corrector steps"
+    )
     parser.add_argument(
         "--output_dir",
         type=str,
         default=None,
         help="Output dir for saving generated results",
     )
-    parser.add_argument("--snr", type=float, default=0.33, help="SNR value for (annealed) Langevin dynmaics.")
+    parser.add_argument(
+        "--snr",
+        type=float,
+        default=0.33,
+        help="SNR value for (annealed) Langevin dynmaics.",
+    )
     parser.add_argument("--N", type=int, default=50, help="Number of reverse steps")
     parser.add_argument("--local_rank", default=0, type=int)
     return parser

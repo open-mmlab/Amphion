@@ -17,7 +17,9 @@ class DereverberationTrainer(BaseTrainer):
         BaseTrainer.__init__(self, args, cfg)
         self.cfg = cfg
         self.save_config_file()
-        self.ema = ExponentialMovingAverage(self.model.parameters(), decay=self.cfg.train.ema_decay)
+        self.ema = ExponentialMovingAverage(
+            self.model.parameters(), decay=self.cfg.train.ema_decay
+        )
         self._error_loading_ema = False
         self.t_eps = self.cfg.train.t_eps
         self.num_eval_files = self.cfg.train.num_eval_files
@@ -49,19 +51,22 @@ class DereverberationTrainer(BaseTrainer):
 
     def build_data_loader(self):
         Dataset = self.build_dataset()
-        train_set = Dataset(self.cfg, subset='train', shuffle_spec=True)
+        train_set = Dataset(self.cfg, subset="train", shuffle_spec=True)
         train_loader = DataLoader(
             train_set,
             batch_size=self.cfg.train.batch_size,
             num_workers=self.args.num_workers,
-            pin_memory=False, shuffle=True
+            pin_memory=False,
+            shuffle=True,
         )
-        self.valid_set = Dataset(self.cfg, subset='valid',  shuffle_spec=False)
+        self.valid_set = Dataset(self.cfg, subset="valid", shuffle_spec=False)
         valid_loader = DataLoader(
             self.valid_set,
             batch_size=self.cfg.train.batch_size,
             num_workers=self.args.num_workers,
-            pin_memory=False, shuffle=False)
+            pin_memory=False,
+            shuffle=False,
+        )
         data_loader = {"train": train_loader, "valid": valid_loader}
         return data_loader
 
@@ -99,7 +104,7 @@ class DereverberationTrainer(BaseTrainer):
             "step": self.step,
             "epoch": self.epoch,
             "batch_size": self.cfg.train.batch_size,
-            "ema": self.ema.state_dict()
+            "ema": self.ema.state_dict(),
         }
         if self.scheduler is not None:
             state_dict["scheduler"] = self.scheduler.state_dict()
@@ -120,24 +125,38 @@ class DereverberationTrainer(BaseTrainer):
         self.model = ScoreModel(self.cfg.model.sgmse)
         return self.model
 
-    def get_pc_sampler(self, predictor_name, corrector_name, y, N=None, minibatch=None, **kwargs):
+    def get_pc_sampler(
+        self, predictor_name, corrector_name, y, N=None, minibatch=None, **kwargs
+    ):
         N = self.model.sde.N if N is None else N
         sde = self.model.sde.copy()
         sde.N = N
 
         kwargs = {"eps": self.t_eps, **kwargs}
         if minibatch is None:
-            return sampling.get_pc_sampler(predictor_name, corrector_name, sde=sde, score_fn=self.model, y=y, **kwargs)
+            return sampling.get_pc_sampler(
+                predictor_name,
+                corrector_name,
+                sde=sde,
+                score_fn=self.model,
+                y=y,
+                **kwargs,
+            )
         else:
             M = y.shape[0]
 
             def batched_sampling_fn():
                 samples, ns = [], []
                 for i in range(int(ceil(M / minibatch))):
-                    y_mini = y[i * minibatch:(i + 1) * minibatch]
-                    sampler = sampling.get_pc_sampler(predictor_name, corrector_name, sde=sde, score_fn=self.model,
-                                                      y=y_mini,
-                                                      **kwargs)
+                    y_mini = y[i * minibatch : (i + 1) * minibatch]
+                    sampler = sampling.get_pc_sampler(
+                        predictor_name,
+                        corrector_name,
+                        sde=sde,
+                        score_fn=self.model,
+                        y=y_mini,
+                        **kwargs,
+                    )
                     sample, n = sampler()
                     samples.append(sample)
                     ns.append(n)
@@ -147,10 +166,13 @@ class DereverberationTrainer(BaseTrainer):
             return batched_sampling_fn
 
     def _step(self, batch):
-        x = batch['X']
-        y = batch['Y']
+        x = batch["X"]
+        y = batch["Y"]
 
-        t = torch.rand(x.shape[0], device=x.device) * (self.model.sde.T - self.t_eps) + self.t_eps
+        t = (
+            torch.rand(x.shape[0], device=x.device) * (self.model.sde.T - self.t_eps)
+            + self.t_eps
+        )
         mean, std = self.model.sde.marginal_prob(x, t, y)
 
         z = torch.randn_like(x)
@@ -173,18 +195,20 @@ class DereverberationTrainer(BaseTrainer):
         # Update the EMA of the model parameters
         self.ema.update(self.model.parameters())
 
-        self.write_summary({'train_loss': loss.item()}, {})
-        return {'train_loss': loss.item()}, {}, loss.item()
+        self.write_summary({"train_loss": loss.item()}, {})
+        return {"train_loss": loss.item()}, {}, loss.item()
 
     def eval_step(self, batch, batch_idx):
         self.ema.store(self.model.parameters())
         self.ema.copy_to(self.model.parameters())
         loss = self._step(batch)
-        self.write_valid_summary({'valid_loss': loss.item()}, {})
+        self.write_valid_summary({"valid_loss": loss.item()}, {})
         if batch_idx == 0 and self.num_eval_files != 0:
             pesq, si_sdr, estoi = evaluate_model(self, self.num_eval_files)
-            self.write_valid_summary({'pesq': pesq, 'si_sdr': si_sdr, 'estoi': estoi}, {})
+            self.write_valid_summary(
+                {"pesq": pesq, "si_sdr": si_sdr, "estoi": estoi}, {}
+            )
             print(f" pesq={pesq}, si_sdr={si_sdr}, estoi={estoi}")
         if self.ema.collected_params is not None:
             self.ema.restore(self.model.parameters())
-        return {'valid_loss': loss.item()}, {}, loss.item()
+        return {"valid_loss": loss.item()}, {}, loss.item()

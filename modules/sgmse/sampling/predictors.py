@@ -35,16 +35,18 @@ class Predictor(abc.ABC):
         pass
 
     def debug_update_fn(self, x, t, *args):
-        raise NotImplementedError(f"Debug update function not implemented for predictor {self}.")
+        raise NotImplementedError(
+            f"Debug update function not implemented for predictor {self}."
+        )
 
 
-@PredictorRegistry.register('euler_maruyama')
+@PredictorRegistry.register("euler_maruyama")
 class EulerMaruyamaPredictor(Predictor):
     def __init__(self, sde, score_fn, probability_flow=False):
         super().__init__(sde, score_fn, probability_flow=probability_flow)
 
     def update_fn(self, x, t, *args):
-        dt = -1. / self.rsde.N
+        dt = -1.0 / self.rsde.N
         z = torch.randn_like(x)
         f, g = self.rsde.sde(x, t, *args)
         x_mean = x + f * dt
@@ -52,7 +54,7 @@ class EulerMaruyamaPredictor(Predictor):
         return x, x_mean
 
 
-@PredictorRegistry.register('reverse_diffusion')
+@PredictorRegistry.register("reverse_diffusion")
 class ReverseDiffusionPredictor(Predictor):
     def __init__(self, sde, score_fn, probability_flow=False):
         super().__init__(sde, score_fn, probability_flow=probability_flow)
@@ -65,7 +67,7 @@ class ReverseDiffusionPredictor(Predictor):
         return x, x_mean
 
 
-@PredictorRegistry.register('none')
+@PredictorRegistry.register("none")
 class NonePredictor(Predictor):
     """An empty predictor that does nothing."""
 

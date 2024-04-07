@@ -5,8 +5,16 @@ import torch
 from torch import nn, Tensor
 from torch.nn.modules.batchnorm import _BatchNorm
 
-from .shared import BackboneRegistry, ComplexConv2d, ComplexConvTranspose2d, ComplexLinear, \
-    DiffusionStepEmbedding, GaussianFourierProjection, FeatureMapDense, torch_complex_from_reim
+from .shared import (
+    BackboneRegistry,
+    ComplexConv2d,
+    ComplexConvTranspose2d,
+    ComplexLinear,
+    DiffusionStepEmbedding,
+    GaussianFourierProjection,
+    FeatureMapDense,
+    torch_complex_from_reim,
+)
 
 
 def get_activation(name):
@@ -23,7 +31,9 @@ def get_activation(name):
 class BatchNorm(_BatchNorm):
     def _check_input_dim(self, input):
         if input.dim() < 2 or input.dim() > 4:
-            raise ValueError("expected 4D or 3D input (got {}D input)".format(input.dim()))
+            raise ValueError(
+                "expected 4D or 3D input (got {}D input)".format(input.dim())
+            )
 
 
 class OnReIm(nn.Module):
@@ -38,6 +48,7 @@ class OnReIm(nn.Module):
 
 # Code for DCUNet largely copied from Danilo's `informedenh` repo, cheers!
 
+
 def unet_decoder_args(encoders, *, skip_connections):
     """Get list of decoder arguments for upsampling (right) side of a symmetric u-net,
     given the arguments used to construct the encoder.
@@ -51,13 +62,27 @@ def unet_decoder_args(encoders, *, skip_connections):
             Arguments to be used to construct decoders
     """
     decoder_args = []
-    for enc_in_chan, enc_out_chan, enc_kernel_size, enc_stride, enc_padding, enc_dilation in reversed(encoders):
+    for (
+        enc_in_chan,
+        enc_out_chan,
+        enc_kernel_size,
+        enc_stride,
+        enc_padding,
+        enc_dilation,
+    ) in reversed(encoders):
         if skip_connections and decoder_args:
             skip_in_chan = enc_out_chan
         else:
             skip_in_chan = 0
         decoder_args.append(
-            (enc_out_chan + skip_in_chan, enc_in_chan, enc_kernel_size, enc_stride, enc_padding, enc_dilation)
+            (
+                enc_out_chan + skip_in_chan,
+                enc_in_chan,
+                enc_kernel_size,
+                enc_stride,
+                enc_padding,
+                enc_dilation,
+            )
         )
     return tuple(decoder_args)
 
@@ -69,8 +94,12 @@ def make_unet_encoder_decoder_args(encoder_args, decoder_args):
             out_chan,
             tuple(kernel_size),
             tuple(stride),
-            tuple([n // 2 for n in kernel_size]) if padding == "auto" else tuple(padding),
-            tuple(dilation)
+            (
+                tuple([n // 2 for n in kernel_size])
+                if padding == "auto"
+                else tuple(padding)
+            ),
+            tuple(dilation),
         )
         for in_chan, out_chan, kernel_size, stride, padding, dilation in encoder_args
     )
@@ -102,11 +131,11 @@ DCUNET_ARCHITECTURES = {
         # Encoders:
         # (in_chan, out_chan, kernel_size, stride, padding, dilation)
         (
-            (1, 32,  (7, 5), (2, 2), "auto", (1,1)),
-            (32, 64, (7, 5), (2, 2), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 2), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 2), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 1), "auto", (1,1)),
+            (1, 32, (7, 5), (2, 2), "auto", (1, 1)),
+            (32, 64, (7, 5), (2, 2), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 2), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 2), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 1), "auto", (1, 1)),
         ),
         # Decoders: automatic inverse
         "auto",
@@ -115,14 +144,14 @@ DCUNET_ARCHITECTURES = {
         # Encoders:
         # (in_chan, out_chan, kernel_size, stride, padding, dilation)
         (
-            (1,  32, (7, 5), (2, 2), "auto", (1,1)),
-            (32, 32, (7, 5), (2, 1), "auto", (1,1)),
-            (32, 64, (7, 5), (2, 2), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 1), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 2), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 1), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 2), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 1), "auto", (1,1)),
+            (1, 32, (7, 5), (2, 2), "auto", (1, 1)),
+            (32, 32, (7, 5), (2, 1), "auto", (1, 1)),
+            (32, 64, (7, 5), (2, 2), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 1), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 2), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 1), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 2), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 1), "auto", (1, 1)),
         ),
         # Decoders: automatic inverse
         "auto",
@@ -131,16 +160,16 @@ DCUNET_ARCHITECTURES = {
         # Encoders:
         # (in_chan, out_chan, kernel_size, stride, padding, dilation)
         (
-            (1,  32, (7, 1), (1, 1), "auto", (1,1)),
-            (32, 32, (1, 7), (1, 1), "auto", (1,1)),
-            (32, 64, (7, 5), (2, 2), "auto", (1,1)),
-            (64, 64, (7, 5), (2, 1), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 2), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 1), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 2), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 1), "auto", (1,1)),
-            (64, 64, (5, 3), (2, 2), "auto", (1,1)),
-            (64, 90, (5, 3), (2, 1), "auto", (1,1)),
+            (1, 32, (7, 1), (1, 1), "auto", (1, 1)),
+            (32, 32, (1, 7), (1, 1), "auto", (1, 1)),
+            (32, 64, (7, 5), (2, 2), "auto", (1, 1)),
+            (64, 64, (7, 5), (2, 1), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 2), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 1), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 2), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 1), "auto", (1, 1)),
+            (64, 64, (5, 3), (2, 2), "auto", (1, 1)),
+            (64, 90, (5, 3), (2, 1), "auto", (1, 1)),
         ),
         # Decoders: automatic inverse
         "auto",
@@ -149,11 +178,11 @@ DCUNET_ARCHITECTURES = {
         # Encoders:
         # (in_chan, out_chan, kernel_size, stride, padding, dilation)
         (
-            (1,  32,   (4, 4), (1, 1), "auto", (1, 1)),
-            (32, 32,   (4, 4), (1, 1), "auto", (1, 1)),
-            (32, 32,   (4, 4), (1, 1), "auto", (1, 1)),
-            (32, 64,   (4, 4), (2, 1), "auto", (2, 1)),
-            (64, 128,  (4, 4), (2, 2), "auto", (4, 1)),
+            (1, 32, (4, 4), (1, 1), "auto", (1, 1)),
+            (32, 32, (4, 4), (1, 1), "auto", (1, 1)),
+            (32, 32, (4, 4), (1, 1), "auto", (1, 1)),
+            (32, 64, (4, 4), (2, 1), "auto", (2, 1)),
+            (64, 128, (4, 4), (2, 2), "auto", (4, 1)),
             (128, 256, (4, 4), (2, 2), "auto", (8, 1)),
         ),
         # Decoders: automatic inverse
@@ -166,16 +195,71 @@ DCUNET_ARCHITECTURES = {
 class DCUNet(nn.Module):
     @staticmethod
     def add_argparse_args(parser):
-        parser.add_argument("--dcunet-architecture", type=str, default="DilDCUNet-v2", choices=DCUNET_ARCHITECTURES.keys(), help="The concrete DCUNet architecture. 'DilDCUNet-v2' by default.")
-        parser.add_argument("--dcunet-time-embedding", type=str, choices=("gfp", "ds", "none"), default="gfp", help="Timestep embedding style. 'gfp' (Gaussian Fourier Projections) by default.")
-        parser.add_argument("--dcunet-temb-layers-global", type=int, default=1, help="Number of global linear+activation layers for the time embedding. 1 by default.")
-        parser.add_argument("--dcunet-temb-layers-local", type=int, default=1, help="Number of local (per-encoder/per-decoder) linear+activation layers for the time embedding. 1 by default.")
-        parser.add_argument("--dcunet-temb-activation", type=str, default="silu", help="The (complex) activation to use between all (global&local) time embedding layers.")
-        parser.add_argument("--dcunet-time-embedding-complex", action="store_true", help="Use complex-valued timestep embedding. Compatible with 'gfp' and 'ds' embeddings.")
-        parser.add_argument("--dcunet-fix-length", type=str, default="pad", choices=("pad", "trim", "none"), help="DCUNet strategy to 'fix' mismatched input timespan. 'pad' by default.")
-        parser.add_argument("--dcunet-mask-bound", type=str, choices=("tanh", "sigmoid", "none"), default="none", help="DCUNet output bounding strategy. 'none' by default.")
-        parser.add_argument("--dcunet-norm-type", type=str, choices=("bN", "CbN"), default="bN", help="The type of norm to use within each encoder and decoder layer. 'bN' (real/imaginary separate batch norm) by default.")
-        parser.add_argument("--dcunet-activation", type=str, choices=("leaky_relu", "relu", "silu"), default="leaky_relu", help="The activation to use within each encoder and decoder layer. 'leaky_relu' by default.")
+        parser.add_argument(
+            "--dcunet-architecture",
+            type=str,
+            default="DilDCUNet-v2",
+            choices=DCUNET_ARCHITECTURES.keys(),
+            help="The concrete DCUNet architecture. 'DilDCUNet-v2' by default.",
+        )
+        parser.add_argument(
+            "--dcunet-time-embedding",
+            type=str,
+            choices=("gfp", "ds", "none"),
+            default="gfp",
+            help="Timestep embedding style. 'gfp' (Gaussian Fourier Projections) by default.",
+        )
+        parser.add_argument(
+            "--dcunet-temb-layers-global",
+            type=int,
+            default=1,
+            help="Number of global linear+activation layers for the time embedding. 1 by default.",
+        )
+        parser.add_argument(
+            "--dcunet-temb-layers-local",
+            type=int,
+            default=1,
+            help="Number of local (per-encoder/per-decoder) linear+activation layers for the time embedding. 1 by default.",
+        )
+        parser.add_argument(
+            "--dcunet-temb-activation",
+            type=str,
+            default="silu",
+            help="The (complex) activation to use between all (global&local) time embedding layers.",
+        )
+        parser.add_argument(
+            "--dcunet-time-embedding-complex",
+            action="store_true",
+            help="Use complex-valued timestep embedding. Compatible with 'gfp' and 'ds' embeddings.",
+        )
+        parser.add_argument(
+            "--dcunet-fix-length",
+            type=str,
+            default="pad",
+            choices=("pad", "trim", "none"),
+            help="DCUNet strategy to 'fix' mismatched input timespan. 'pad' by default.",
+        )
+        parser.add_argument(
+            "--dcunet-mask-bound",
+            type=str,
+            choices=("tanh", "sigmoid", "none"),
+            default="none",
+            help="DCUNet output bounding strategy. 'none' by default.",
+        )
+        parser.add_argument(
+            "--dcunet-norm-type",
+            type=str,
+            choices=("bN", "CbN"),
+            default="bN",
+            help="The type of norm to use within each encoder and decoder layer. 'bN' (real/imaginary separate batch norm) by default.",
+        )
+        parser.add_argument(
+            "--dcunet-activation",
+            type=str,
+            choices=("leaky_relu", "relu", "silu"),
+            default="leaky_relu",
+            help="The activation to use within each encoder and decoder layer. 'leaky_relu' by default.",
+        )
         return parser
 
     def __init__(
@@ -191,16 +275,20 @@ class DCUNet(nn.Module):
         dcunet_norm_type: str = "bN",
         dcunet_activation: str = "relu",
         embed_dim: int = 128,
-        **kwargs
+        **kwargs,
     ):
         super().__init__()
 
         self.architecture = dcunet_architecture
-        self.fix_length_mode = (dcunet_fix_length if dcunet_fix_length != "none" else None)
+        self.fix_length_mode = (
+            dcunet_fix_length if dcunet_fix_length != "none" else None
+        )
         self.norm_type = dcunet_norm_type
         self.activation = dcunet_activation
         self.input_channels = 2  # for x_t and y -- note that this is 2 rather than 4, because we directly treat complex channels in this DNN
-        self.time_embedding = (dcunet_time_embedding if dcunet_time_embedding != "none" else None)
+        self.time_embedding = (
+            dcunet_time_embedding if dcunet_time_embedding != "none" else None
+        )
         self.time_embedding_complex = dcunet_time_embedding_complex
         self.temb_layers_global = dcunet_temb_layers_global
         self.temb_layers_local = dcunet_temb_layers_local
@@ -217,41 +305,63 @@ class DCUNet(nn.Module):
 
         # Prepare kwargs for encoder and decoder (to potentially be modified before layer instantiation)
         encoder_decoder_kwargs = dict(
-            norm_type=self.norm_type, activation=self.activation,
-            temb_layers=self.temb_layers_local, temb_activation=self.temb_activation)
+            norm_type=self.norm_type,
+            activation=self.activation,
+            temb_layers=self.temb_layers_local,
+            temb_activation=self.temb_activation,
+        )
 
         # Instantiate (global) time embedding layer
         embed_ops = []
         if self.time_embedding is not None:
             complex_valued = self.time_embedding_complex
             if self.time_embedding == "gfp":
-                embed_ops += [GaussianFourierProjection(embed_dim=embed_dim, complex_valued=complex_valued)]
+                embed_ops += [
+                    GaussianFourierProjection(
+                        embed_dim=embed_dim, complex_valued=complex_valued
+                    )
+                ]
                 encoder_decoder_kwargs["embed_dim"] = embed_dim
             elif self.time_embedding == "ds":
-                embed_ops += [DiffusionStepEmbedding(embed_dim=embed_dim, complex_valued=complex_valued)]
+                embed_ops += [
+                    DiffusionStepEmbedding(
+                        embed_dim=embed_dim, complex_valued=complex_valued
+                    )
+                ]
                 encoder_decoder_kwargs["embed_dim"] = embed_dim
 
             if self.time_embedding_complex:
-                assert self.time_embedding in ("gfp", "ds"), "Complex timestep embedding only available for gfp and ds"
+                assert self.time_embedding in (
+                    "gfp",
+                    "ds",
+                ), "Complex timestep embedding only available for gfp and ds"
                 encoder_decoder_kwargs["complex_time_embedding"] = True
             for _ in range(self.temb_layers_global):
                 embed_ops += [
                     ComplexLinear(embed_dim, embed_dim, complex_valued=True),
-                    OnReIm(get_activation(dcunet_temb_activation))
+                    OnReIm(get_activation(dcunet_temb_activation)),
                 ]
         self.embed = nn.Sequential(*embed_ops)
 
         ### Instantiate DCUNet layers ###
         output_layer = ComplexConvTranspose2d(*decoders[-1])
-        encoders = [DCUNetComplexEncoderBlock(*args, **encoder_decoder_kwargs) for args in encoders]
-        decoders = [DCUNetComplexDecoderBlock(*args, **encoder_decoder_kwargs) for args in decoders[:-1]]
+        encoders = [
+            DCUNetComplexEncoderBlock(*args, **encoder_decoder_kwargs)
+            for args in encoders
+        ]
+        decoders = [
+            DCUNetComplexDecoderBlock(*args, **encoder_decoder_kwargs)
+            for args in decoders[:-1]
+        ]
 
-        self.mask_bound = (dcunet_mask_bound if dcunet_mask_bound != "none" else None)
+        self.mask_bound = dcunet_mask_bound if dcunet_mask_bound != "none" else None
         if self.mask_bound is not None:
-            raise NotImplementedError("sorry, mask bounding not implemented at the moment")
+            raise NotImplementedError(
+                "sorry, mask bounding not implemented at the moment"
+            )
             # TODO we can't use nn.Sequential since the ComplexConvTranspose2d needs a second `output_size` argument
-        #operations = (output_layer, complex_nn.BoundComplexMask(self.mask_bound))
-        #output_layer = nn.Sequential(*[x for x in operations if x is not None])
+        # operations = (output_layer, complex_nn.BoundComplexMask(self.mask_bound))
+        # output_layer = nn.Sequential(*[x for x in operations if x is not None])
 
         assert len(encoders) == len(decoders) + 1
         self.encoders = nn.ModuleList(encoders)
@@ -273,14 +383,14 @@ class DCUNet(nn.Module):
         # Estimate mask from time-frequency representation.
         x_in = self.fix_input_dims(spec)
         x = x_in
-        t_embed = self.embed(t+0j) if self.time_embedding is not None else None
+        t_embed = self.embed(t + 0j) if self.time_embedding is not None else None
 
         enc_outs = []
         for idx, enc in enumerate(self.encoders):
             x = enc(x, t_embed)
             # UNet skip connection
             enc_outs.append(x)
-        for (enc_out, dec) in zip(reversed(enc_outs[:-1]), self.decoders):
+        for enc_out, dec in zip(reversed(enc_outs[:-1]), self.decoders):
             x = dec(x, t_embed, output_size=enc_out.shape)
             x = torch.cat([x, enc_out], dim=1)
 
@@ -356,7 +466,7 @@ class DCUNetComplexEncoderBlock(nn.Module):
         embed_dim=None,
         complex_time_embedding=False,
         temb_layers=1,
-        temb_activation="silu"
+        temb_activation="silu",
     ):
         super().__init__()
 
@@ -371,7 +481,13 @@ class DCUNetComplexEncoderBlock(nn.Module):
         self.complex_time_embedding = complex_time_embedding
 
         self.conv = ComplexConv2d(
-            in_chan, out_chan, kernel_size, stride, padding, bias=norm_type is None, dilation=dilation
+            in_chan,
+            out_chan,
+            kernel_size,
+            stride,
+            padding,
+            bias=norm_type is None,
+            dilation=dilation,
         )
         self.norm = _get_norm(norm_type)(out_chan)
         self.activation = OnReIm(get_activation(activation))
@@ -381,11 +497,11 @@ class DCUNetComplexEncoderBlock(nn.Module):
             for _ in range(max(0, self.temb_layers - 1)):
                 ops += [
                     ComplexLinear(self.embed_dim, self.embed_dim, complex_valued=True),
-                    OnReIm(get_activation(self.temb_activation))
+                    OnReIm(get_activation(self.temb_activation)),
                 ]
             ops += [
                 FeatureMapDense(self.embed_dim, self.out_chan, complex_valued=True),
-                OnReIm(get_activation(self.temb_activation))
+                OnReIm(get_activation(self.temb_activation)),
             ]
             self.embed_layer = nn.Sequential(*ops)
 
@@ -410,7 +526,7 @@ class DCUNetComplexDecoderBlock(nn.Module):
         activation="leaky_relu",
         embed_dim=None,
         temb_layers=1,
-        temb_activation='swish',
+        temb_activation="swish",
         complex_time_embedding=False,
     ):
         super().__init__()
@@ -427,7 +543,14 @@ class DCUNetComplexDecoderBlock(nn.Module):
         self.temb_activation = temb_activation
 
         self.deconv = ComplexConvTranspose2d(
-            in_chan, out_chan, kernel_size, stride, padding, output_padding, dilation=dilation, bias=norm_type is None
+            in_chan,
+            out_chan,
+            kernel_size,
+            stride,
+            padding,
+            output_padding,
+            dilation=dilation,
+            bias=norm_type is None,
         )
         self.norm = _get_norm(norm_type)(out_chan)
         self.activation = OnReIm(get_activation(activation))
@@ -437,11 +560,11 @@ class DCUNetComplexDecoderBlock(nn.Module):
             for _ in range(max(0, self.temb_layers - 1)):
                 ops += [
                     ComplexLinear(self.embed_dim, self.embed_dim, complex_valued=True),
-                    OnReIm(get_activation(self.temb_activation))
+                    OnReIm(get_activation(self.temb_activation)),
                 ]
             ops += [
                 FeatureMapDense(self.embed_dim, self.out_chan, complex_valued=True),
-                OnReIm(get_activation(self.temb_activation))
+                OnReIm(get_activation(self.temb_activation)),
             ]
             self.embed_layer = nn.Sequential(*ops)
 
@@ -454,39 +577,48 @@ class DCUNetComplexDecoderBlock(nn.Module):
 
 # From https://github.com/chanil1218/DCUnet.pytorch/blob/2dcdd30804be47a866fde6435cbb7e2f81585213/models/layers/complexnn.py
 class ComplexBatchNorm(torch.nn.Module):
-    def __init__(self, num_features, eps=1e-5, momentum=0.1, affine=True, track_running_stats=False):
+    def __init__(
+        self,
+        num_features,
+        eps=1e-5,
+        momentum=0.1,
+        affine=True,
+        track_running_stats=False,
+    ):
         super(ComplexBatchNorm, self).__init__()
-        self.num_features        = num_features
-        self.eps                 = eps
-        self.momentum            = momentum
-        self.affine              = affine
+        self.num_features = num_features
+        self.eps = eps
+        self.momentum = momentum
+        self.affine = affine
         self.track_running_stats = track_running_stats
         if self.affine:
             self.Wrr = torch.nn.Parameter(torch.Tensor(num_features))
             self.Wri = torch.nn.Parameter(torch.Tensor(num_features))
             self.Wii = torch.nn.Parameter(torch.Tensor(num_features))
-            self.Br  = torch.nn.Parameter(torch.Tensor(num_features))
-            self.Bi  = torch.nn.Parameter(torch.Tensor(num_features))
+            self.Br = torch.nn.Parameter(torch.Tensor(num_features))
+            self.Bi = torch.nn.Parameter(torch.Tensor(num_features))
         else:
-            self.register_parameter('Wrr', None)
-            self.register_parameter('Wri', None)
-            self.register_parameter('Wii', None)
-            self.register_parameter('Br',  None)
-            self.register_parameter('Bi',  None)
+            self.register_parameter("Wrr", None)
+            self.register_parameter("Wri", None)
+            self.register_parameter("Wii", None)
+            self.register_parameter("Br", None)
+            self.register_parameter("Bi", None)
         if self.track_running_stats:
-            self.register_buffer('RMr',  torch.zeros(num_features))
-            self.register_buffer('RMi',  torch.zeros(num_features))
-            self.register_buffer('RVrr', torch.ones (num_features))
-            self.register_buffer('RVri', torch.zeros(num_features))
-            self.register_buffer('RVii', torch.ones (num_features))
-            self.register_buffer('num_batches_tracked', torch.tensor(0, dtype=torch.long))
+            self.register_buffer("RMr", torch.zeros(num_features))
+            self.register_buffer("RMi", torch.zeros(num_features))
+            self.register_buffer("RVrr", torch.ones(num_features))
+            self.register_buffer("RVri", torch.zeros(num_features))
+            self.register_buffer("RVii", torch.ones(num_features))
+            self.register_buffer(
+                "num_batches_tracked", torch.tensor(0, dtype=torch.long)
+            )
         else:
-            self.register_parameter('RMr',                 None)
-            self.register_parameter('RMi',                 None)
-            self.register_parameter('RVrr',                None)
-            self.register_parameter('RVri',                None)
-            self.register_parameter('RVii',                None)
-            self.register_parameter('num_batches_tracked', None)
+            self.register_parameter("RMr", None)
+            self.register_parameter("RMi", None)
+            self.register_parameter("RVrr", None)
+            self.register_parameter("RVri", None)
+            self.register_parameter("RVii", None)
+            self.register_parameter("num_batches_tracked", None)
         self.reset_parameters()
 
     def reset_running_stats(self):
@@ -504,12 +636,12 @@ class ComplexBatchNorm(torch.nn.Module):
             self.Br.data.zero_()
             self.Bi.data.zero_()
             self.Wrr.data.fill_(1)
-            self.Wri.data.uniform_(-.9, +.9) # W will be positive-definite
+            self.Wri.data.uniform_(-0.9, +0.9)  # W will be positive-definite
             self.Wii.data.fill_(1)
 
     def _check_input_dim(self, xr, xi):
-        assert(xr.shape == xi.shape)
-        assert(xr.size(1) == self.num_features)
+        assert xr.shape == xi.shape
+        assert xr.size(1) == self.num_features
 
     def forward(self, x):
         xr, xi = x.real, x.imag
@@ -531,8 +663,8 @@ class ComplexBatchNorm(torch.nn.Module):
         #       False: Normalize using running statistics, ignore batch   statistics.
         #
         training = self.training or not self.track_running_stats
-        redux = [i for i in reversed(range(xr.dim())) if i!=1]
-        vdim  = [1] * xr.dim()
+        redux = [i for i in reversed(range(xr.dim())) if i != 1]
+        vdim = [1] * xr.dim()
         vdim[1] = xr.size(1)
 
         #
@@ -551,7 +683,7 @@ class ComplexBatchNorm(torch.nn.Module):
         else:
             Mr = self.RMr.view(vdim)
             Mi = self.RMi.view(vdim)
-        xr, xi = xr-Mr, xi-Mi
+        xr, xi = xr - Mr, xi - Mi
 
         #
         # Variance Matrix V Computation
@@ -575,25 +707,25 @@ class ComplexBatchNorm(torch.nn.Module):
             Vrr = self.RVrr.view(vdim)
             Vri = self.RVri.view(vdim)
             Vii = self.RVii.view(vdim)
-        Vrr   = Vrr + self.eps
-        Vri   = Vri
-        Vii   = Vii + self.eps
+        Vrr = Vrr + self.eps
+        Vri = Vri
+        Vii = Vii + self.eps
 
         #
         # Matrix Inverse Square Root U = V^-0.5
         #
         # sqrt of a 2x2 matrix,
         # - https://en.wikipedia.org/wiki/Square_root_of_a_2_by_2_matrix
-        tau   = Vrr + Vii
+        tau = Vrr + Vii
         delta = torch.addcmul(Vrr * Vii, Vri, Vri, value=-1)
-        s     = delta.sqrt()
-        t     = (tau + 2*s).sqrt()
+        s = delta.sqrt()
+        t = (tau + 2 * s).sqrt()
 
         # matrix inverse, http://mathworld.wolfram.com/MatrixInverse.html
-        rst   = (s * t).reciprocal()
-        Urr   = (s + Vii) * rst
-        Uii   = (s + Vrr) * rst
-        Uri   = (  - Vri) * rst
+        rst = (s * t).reciprocal()
+        Urr = (s + Vii) * rst
+        Uii = (s + Vrr) * rst
+        Uri = (-Vri) * rst
 
         #
         # Optionally left-multiply U by affine weights W to produce combined
@@ -605,7 +737,11 @@ class ComplexBatchNorm(torch.nn.Module):
         #     [Wir Wii][Uir Uii] [xi]   [Bi]
         #
         if self.affine:
-            Wrr, Wri, Wii = self.Wrr.view(vdim), self.Wri.view(vdim), self.Wii.view(vdim)
+            Wrr, Wri, Wii = (
+                self.Wrr.view(vdim),
+                self.Wri.view(vdim),
+                self.Wii.view(vdim),
+            )
             Zrr = (Wrr * Urr) + (Wri * Uri)
             Zri = (Wrr * Uri) + (Wri * Uii)
             Zir = (Wri * Urr) + (Wii * Uri)
@@ -623,5 +759,7 @@ class ComplexBatchNorm(torch.nn.Module):
         return torch.view_as_complex(torch.stack([yr, yi], dim=-1))
 
     def extra_repr(self):
-        return '{num_features}, eps={eps}, momentum={momentum}, affine={affine}, ' \
-                'track_running_stats={track_running_stats}'.format(**self.__dict__)
+        return (
+            "{num_features}, eps={eps}, momentum={momentum}, affine={affine}, "
+            "track_running_stats={track_running_stats}".format(**self.__dict__)
+        )

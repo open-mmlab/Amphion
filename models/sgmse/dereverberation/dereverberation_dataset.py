@@ -7,12 +7,14 @@ import os
 from os.path import join
 
 
-class Specs():
+class Specs:
     def __init__(self, cfg, subset, shuffle_spec):
         self.cfg = cfg
-        self.data_dir = os.path.join(cfg.preprocess.processed_dir, cfg.dataset[0], "audio")
-        self.clean_files = sorted(glob(join(self.data_dir, subset) + '/anechoic/*.wav'))
-        self.noisy_files = sorted(glob(join(self.data_dir, subset) + '/reverb/*.wav'))
+        self.data_dir = os.path.join(
+            cfg.preprocess.processed_dir, cfg.dataset[0], "audio"
+        )
+        self.clean_files = sorted(glob(join(self.data_dir, subset) + "/anechoic/*.wav"))
+        self.noisy_files = sorted(glob(join(self.data_dir, subset) + "/reverb/*.wav"))
         self.dummy = cfg.preprocess.dummy
         self.num_frames = cfg.preprocess.num_frames
         self.shuffle_spec = shuffle_spec
@@ -38,12 +40,12 @@ class Specs():
                 start = int(np.random.uniform(0, current_len - target_len))
             else:
                 start = int((current_len - target_len) / 2)
-            x = x[..., start:start + target_len]
-            y = y[..., start:start + target_len]
+            x = x[..., start : start + target_len]
+            y = y[..., start : start + target_len]
         else:
             # pad audio if the length T is smaller than num_frames
-            x = F.pad(x, (pad // 2, pad // 2 + (pad % 2)), mode='constant')
-            y = F.pad(y, (pad // 2, pad // 2 + (pad % 2)), mode='constant')
+            x = F.pad(x, (pad // 2, pad // 2 + (pad % 2)), mode="constant")
+            y = F.pad(y, (pad // 2, pad // 2 + (pad % 2)), mode="constant")
 
         # normalize w.r.t to the noisy or the clean signal or not at all
         # to ensure same clean signal power in x and y.
@@ -59,7 +61,7 @@ class Specs():
         X = torch.stft(x, **self.stft_kwargs())
         Y = torch.stft(y, **self.stft_kwargs())
         X, Y = self.spec_transform(X), self.spec_transform(Y)
-        return {'X': X, 'Y': Y}
+        return {"X": X, "Y": Y}
 
     def __len__(self):
         if self.dummy:
@@ -80,8 +82,11 @@ class Specs():
 
     def istft_kwargs(self):
         return dict(
-            n_fft=self.n_fft, hop_length=self.hop_length,
-            window=self.window, center=True)
+            n_fft=self.n_fft,
+            hop_length=self.hop_length,
+            window=self.window,
+            center=True,
+        )
 
     def stft(self, sig):
         window = self._get_window(sig)
@@ -89,7 +94,9 @@ class Specs():
 
     def istft(self, spec, length=None):
         window = self._get_window(spec)
-        return torch.istft(spec, **{**self.istft_kwargs(), "window": window, "length": length})
+        return torch.istft(
+            spec, **{**self.istft_kwargs(), "window": window, "length": length}
+        )
 
     @staticmethod
     def get_window(window_length):

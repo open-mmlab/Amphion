@@ -18,6 +18,7 @@ class ScoreModel(nn.Module):
         sde_cls = SDERegistry.get_by_name(cfg.sde)
         sde_cfg = cfg[cfg.sde]
         self.sde = sde_cls(**sde_cfg)
+
     def forward(self, x, t, y):
         # Concatenate y as an extra channel
         dnn_input = torch.cat([x, y], dim=1)

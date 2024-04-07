@@ -41,10 +41,10 @@ class DereverberationInference:
         N = self.args.N
         corrector_steps = self.args.corrector_steps
         self.model.eval()
-        noisy_dir = join(self.test_dir, 'noisy/')
-        noisy_files = sorted(glob.glob('{}/*.wav'.format(noisy_dir)))
+        noisy_dir = join(self.test_dir, "noisy/")
+        noisy_files = sorted(glob.glob("{}/*.wav".format(noisy_dir)))
         for noisy_file in tqdm(noisy_files):
-            filename = noisy_file.split('/')[-1]
+            filename = noisy_file.split("/")[-1]
 
             # Load wav
             y, _ = load(noisy_file)
@@ -55,14 +55,20 @@ class DereverberationInference:
             y = y / norm_factor
 
             # Prepare DNN input
-            spec = Specs(self.cfg, subset='', shuffle_spec=False)
+            spec = Specs(self.cfg, subset="", shuffle_spec=False)
             Y = torch.unsqueeze(spec.spec_transform(spec.stft(sig=y.cuda())), 0)
             Y = pad_spec(Y)
 
             # Reverse sampling
-            sampler = DereverberationTrainer.get_pc_sampler(self,
-                                                            'reverse_diffusion', 'ald', Y.cuda(), N=N,
-                                                            corrector_steps=corrector_steps, snr=snr)
+            sampler = DereverberationTrainer.get_pc_sampler(
+                self,
+                "reverse_diffusion",
+                "ald",
+                Y.cuda(),
+                N=N,
+                corrector_steps=corrector_steps,
+                snr=snr,
+            )
             sample, _ = sampler()
 
             # Backward transform in time domain
