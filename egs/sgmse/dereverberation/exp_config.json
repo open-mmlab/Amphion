@@ -1,0 +1,69 @@
+{
+  "base_config": "config/sgmse.json",
+  "model_type": "dereverberation",
+  "dataset": [
+    "wsj0reverb"
+  ],
+  "dataset_path": {
+    // TODO: Fill in your dataset path
+    "wsj0reverb": ""
+  },
+  "log_dir": "",
+  "preprocess": {
+    "processed_dir": "",
+    "sample_rate": 16000
+  },
+  "model": {
+    "sgmse": {
+      "backbone": "ncsnpp",
+      "sde": "ouve",
+      "ncsnpp": {
+        "scale_by_sigma": true,
+        "nonlinearity": "swish",
+        "nf": 128,
+        "ch_mult": [1, 1, 2, 2, 2, 2, 2],
+        "num_res_blocks": 2,
+        "attn_resolutions": [16],
+        "resamp_with_conv": true,
+        "conditional": true,
+        "fir": true,
+        "fir_kernel": [1, 3, 3, 1],
+        "skip_rescale": true,
+        "resblock_type": "biggan",
+        "progressive": "output_skip",
+        "progressive_input": "input_skip",
+        "progressive_combine": "sum",
+        "init_scale": 0.0,
+        "fourier_scale": 16,
+        "image_size": 256,
+        "embedding_type": "fourier",
+        "dropout": 0.0,
+        "centered": true
+      },
+      "ouve": {
+        "theta": 1.5,
+        "sigma_min": 0.05,
+        "sigma_max": 0.5,
+        "N": 1000
+      },
+      "gpus": 1
+    }
+  },
+    "train": {
+      "checkpoint": "",
+      "adam": {
+         "lr": 1e-4
+      },
+      "ddp": false,
+      "batch_size": 8,
+      "epochs": 200000,
+      "save_checkpoints_steps": 800,
+      "save_summary_steps": 1000,
+      "max_steps": 1000000,
+      "ema_decay": 0.999,
+      "valid_interval": 800,
+       "t_eps": 3e-2,
+       "num_eval_files": 20
+
+  }
+}

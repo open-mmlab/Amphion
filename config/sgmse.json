@@ -1,0 +1,42 @@
+{
+  "base_config": "config/base.json",
+  "dataset": [
+    "wsj0reverb"
+  ],
+  "task_type": "sgmse",
+  "preprocess": {
+       "dummy": false,
+       "num_frames":256,
+       "normalize": "noisy",
+       "hop_length": 128,
+        "n_fft": 510,
+       "spec_abs_exponent": 0.5,
+      "spec_factor": 0.15,
+        "use_spkid": false,
+       "use_uv": false,
+      "use_frame_pitch": false,
+       "use_phone_pitch": false,
+       "use_frame_energy": false,
+       "use_phone_energy": false,
+       "use_mel": false,
+       "use_audio": false,
+       "use_label": false,
+       "use_one_hot": false
+  },
+  "model": {
+        "sgmse": {
+            "backbone": "ncsnpp",
+            "sde": "ouve",
+
+            "gpus": 1
+        }
+    },
+  "train": {
+      "batch_size": 8,
+      "lr": 1e-4,
+      "ema_decay": 0.999,
+       "t_eps": 3e-2,
+       "num_eval_files": 20
+  }
+
+}

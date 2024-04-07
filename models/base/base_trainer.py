@@ -78,9 +78,11 @@ class BaseTrainer(object):
         self.criterion = self.build_criterion()
         if isinstance(self.criterion, dict):
             for key, value in self.criterion.items():
-                self.criterion[key].cuda(args.local_rank)
+                if not callable(value):
+                    self.criterion[key].cuda(args.local_rank)
         else:
-            self.criterion.cuda(self.args.local_rank)
+            if not callable(self.criterion):
+                self.criterion.cuda(self.args.local_rank)
 
         # optimizer
         self.optimizer = self.build_optimizer()
