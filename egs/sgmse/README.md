@@ -6,8 +6,7 @@
   <img src="../../imgs/sgmse/diffusion_process.png" width="90%">
 </div>
 <br>
-
-This repository contains the official PyTorch implementations for the 2023 papers:
+This repository contains the PyTorch implementations for the 2023 papers and also adapted from [sgmse](https://github.com/sp-uhh/sgmse):
 - Julius Richter, Simon Welker, Jean-Marie Lemercier, Bunlong Lay, Timo Gerkmann. [*"Speech Enhancement and Dereverberation with Diffusion-Based Generative Models"*](https://ieeexplore.ieee.org/abstract/document/10149431), IEEE/ACM Transactions on Audio, Speech, and Language Processing, vol. 31, pp. 2351-2364, 2023.
 
 
