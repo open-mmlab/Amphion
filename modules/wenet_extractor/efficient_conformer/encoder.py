@@ -158,11 +158,13 @@ class EfficientConformerEncoder(torch.nn.Module):
 
         # efficient conformer configs
         self.stride_layer_idx = (
-            [stride_layer_idx] if type(stride_layer_idx) == int else stride_layer_idx
+            [stride_layer_idx]
+            if isinstance(stride_layer_idx, int)
+            else stride_layer_idx
         )
-        self.stride = [stride] if type(stride) == int else stride
+        self.stride = [stride] if isinstance(stride, int) else stride
         self.group_layer_idx = (
-            [group_layer_idx] if type(group_layer_idx) == int else group_layer_idx
+            [group_layer_idx] if isinstance(group_layer_idx, int) else group_layer_idx
         )
         self.grouped_size = group_size  # group size of every GroupedAttention layer
 

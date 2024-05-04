@@ -461,7 +461,7 @@ def tensorize(data, device, n_samples):
     """
     data: a list of numpy array
     """
-    assert type(data) == list
+    assert isinstance(data, list)
     if n_samples:
         data = data[:n_samples]
     data = [torch.as_tensor(x, device=device) for x in data]
