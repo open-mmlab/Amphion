@@ -158,7 +158,7 @@ class TTSInference(object):
             assert checkpoint_dir is not None
             # Load the latest accelerator state dicts
             ls = [
-                str(i) for i in Path(checkpoint_dir).glob("*") if not "audio" in str(i)
+                str(i) for i in Path(checkpoint_dir).glob("*") if "audio" not in str(i)
             ]
             ls.sort(key=lambda x: int(x.split("_")[-3].split("-")[-1]), reverse=True)
             checkpoint_path = ls[0]

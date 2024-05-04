@@ -149,7 +149,7 @@ def load_frame_pitch(
         pitch_statistic = []
         for utt_info in meta_data:
             utt = utt_info["Dataset"] + "_" + utt_info["Uid"]
-            if not utt2spk[utt] in spk2utt:
+            if utt2spk[utt] not in spk2utt:
                 spk2utt[utt2spk[utt]] = []
             spk2utt[utt2spk[utt]].append(utt)
 
@@ -242,7 +242,7 @@ def load_phone_pitch(
         pitch_statistic = []
         for utt_info in tqdm(meta_data):
             utt = utt_info["Dataset"] + "_" + utt_info["Uid"]
-            if not utt2spk[utt] in spk2utt:
+            if utt2spk[utt] not in spk2utt:
                 spk2utt[utt2spk[utt]] = []
             spk2utt[utt2spk[utt]].append(utt)
 
@@ -364,7 +364,7 @@ def load_energy(
         energy_statistic = []
         for utt_info in meta_data:
             utt = utt_info["Dataset"] + "_" + utt_info["Uid"]
-            if not utt2spk[utt] in spk2utt:
+            if utt2spk[utt] not in spk2utt:
                 spk2utt[utt2spk[utt]] = []
             spk2utt[utt2spk[utt]].append(utt)
 
@@ -438,7 +438,7 @@ def load_frame_energy(
         energy_statistic = []
         for utt_info in meta_data:
             utt = utt_info["Dataset"] + "_" + utt_info["Uid"]
-            if not utt2spk[utt] in spk2utt:
+            if utt2spk[utt] not in spk2utt:
                 spk2utt[utt2spk[utt]] = []
             spk2utt[utt2spk[utt]].append(utt)
 
