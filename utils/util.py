@@ -20,7 +20,7 @@ from torch.nn import functional as F
 
 try:
     from ruamel.yaml import YAML as yaml
-except:
+except ImportError:
     from ruamel_yaml import YAML as yaml
 
 import torch

@@ -101,7 +101,7 @@ def preprocess(cfg, args):
                 new_datasets_list.extend(new_datasets)
             cfg.dataset.extend(new_datasets_list)
             print("Augmentation datasets: ", cfg.dataset)
-    except:
+    except Exception:  # TODO: better exception handling
         print("No Data Augmentation.")
 
     # Dump metadata of datasets (singers, train/test durations, etc.)

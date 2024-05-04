@@ -481,7 +481,7 @@ class SVCTestDataset(BaseTestDataset):
             if self.trans_key:
                 try:
                     self.trans_key = int(self.trans_key)
-                except:
+                except Exception:  # TODO: better exception handling
                     pass
                 if isinstance(self.trans_key, int):
                     frame_pitch = transpose_key(frame_pitch, self.trans_key)

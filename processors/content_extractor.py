@@ -129,7 +129,7 @@ class AudioPretrainedModelFeaturesExtractor:
             try:
                 with open(err_log_dir, "r") as f:
                     err_num = int(f.read())
-            except:
+            except Exception:  # TODO: better exception handling
                 with open(err_log_dir, "w") as f:
                     f.write("0")
                 err_num = 0
@@ -154,7 +154,7 @@ class AudioPretrainedModelFeaturesExtractor:
         try:
             with open(err_log_dir, "r") as f:
                 err_num = int(f.read())
-        except:
+        except Exception:  # TODO: better exception handling
             with open(err_log_dir, "w") as f:
                 f.write("0")
             err_num = 0
