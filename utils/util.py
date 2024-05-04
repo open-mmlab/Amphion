@@ -14,7 +14,6 @@ from collections import OrderedDict
 
 import json5
 import numpy as np
-import glob
 from torch.nn import functional as F
 
 

@@ -13,7 +13,6 @@ import diffsptk
 import os
 from tqdm import tqdm
 import pickle
-import torchaudio
 
 
 def get_mcep_params(fs):

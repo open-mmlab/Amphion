@@ -15,7 +15,6 @@ from tqdm import tqdm
 import pickle
 import json
 import re
-import torchaudio
 
 from cuhkszsvc.configs.config_parse import get_wav_path, get_wav_file_path
 from utils.io import has_existed

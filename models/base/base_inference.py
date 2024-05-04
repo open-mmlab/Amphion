@@ -14,7 +14,6 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from models.vocoders.vocoder_inference import synthesis
-from torch.utils.data import DataLoader
 from utils.util import set_all_random_seed
 from utils.util import load_config
 

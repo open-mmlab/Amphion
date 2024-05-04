@@ -7,7 +7,6 @@ import torch
 import torch.nn.functional as F
 import torch.nn as nn
 from torch.nn.utils import weight_norm, remove_weight_norm, spectral_norm
-from torch import nn
 
 LRELU_SLOPE = 0.1
 

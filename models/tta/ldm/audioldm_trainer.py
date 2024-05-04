@@ -15,7 +15,6 @@ import torch.nn.functional as F
 from torch.utils.data import ConcatDataset, DataLoader
 
 from transformers import T5EncoderModel
-from diffusers import DDPMScheduler
 
 
 class AudioLDMTrainer(BaseTrainer):

@@ -5,8 +5,6 @@
 
 import os
 import json
-import os
-import glob
 from tqdm import tqdm
 import torchaudio
 import pandas as pd

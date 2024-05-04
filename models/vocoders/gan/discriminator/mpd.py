@@ -8,7 +8,6 @@ import torch.nn.functional as F
 import torch.nn as nn
 from torch.nn import Conv2d, Conv1d
 from torch.nn.utils import weight_norm, spectral_norm
-from torch import nn
 from modules.vocoder_blocks import *
 
 LRELU_SLOPE = 0.1

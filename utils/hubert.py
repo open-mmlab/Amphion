@@ -11,7 +11,6 @@ import torch
 import numpy as np
 from fairseq import checkpoint_utils
 from tqdm import tqdm
-import torch
 
 
 def load_hubert_model(hps):

@@ -77,9 +77,6 @@ class AutoencoderKLDataset(BaseOfflineDataset):
     def __len__(self):
         return len(self.metadata)
 
-    def __len__(self):
-        return len(self.metadata)
-
 
 class AutoencoderKLCollator(BaseOfflineCollator):
     def __init__(self, cfg):
