@@ -37,7 +37,7 @@ def extract_spr(
     pitch_min: lower limit for f0 quantization.
     """
     # Load audio
-    if fs != None:
+    if fs is not None:
         audio, _ = librosa.load(audio, sr=fs)
     else:
         audio, fs = librosa.load(audio)

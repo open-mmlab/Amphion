@@ -98,7 +98,7 @@ class ResidualBlock(nn.Module):
         cond = self.cond_proj(cond)  # (B, 2*d, T)
 
         y = x + diffusion_step
-        if x_mask != None:
+        if x_mask is not None:
             y = y * x_mask.to(y.dtype)[:, None, :]  # (B, 2*d, T)
 
         if self.has_cattn:
@@ -120,7 +120,7 @@ class ResidualBlock(nn.Module):
 
         residual, skip = torch.chunk(y, 2, dim=1)
 
-        if x_mask != None:
+        if x_mask is not None:
             residual = residual * x_mask.to(y.dtype)[:, None, :]
             skip = skip * x_mask.to(y.dtype)[:, None, :]
 

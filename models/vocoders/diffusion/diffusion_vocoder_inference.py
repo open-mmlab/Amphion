@@ -87,10 +87,10 @@ def synthesis_audios(cfg, model, mels, f0s=None, batch_size=None, fast_inference
 
     # Pad the given list into tensors
     mel_batches, mel_frames = pad_mels_to_tensors(mels, batch_size)
-    if f0s != None:
+    if f0s is not None:
         f0_batches = pad_f0_to_tensors(f0s, batch_size)
 
-    if f0s == None:
+    if f0s is None:
         for mel_batch, mel_frame in zip(mel_batches, mel_frames):
             for i in range(mel_batch.shape[0]):
                 mel = mel_batch[i]

@@ -62,7 +62,7 @@ def pad_f0_to_tensors(f0s, batched=None):
     # Initialize
     tensors = []
 
-    if batched == None:
+    if batched is None:
         # Get the max frame for padding
         size = -1
         for f0 in f0s:
@@ -124,7 +124,7 @@ def pad_mels_to_tensors(mels, batched=None):
     mel_frames = []
 
     # Split mel-specs into batches to avoid cuda memory exceed
-    if batched == None:
+    if batched is None:
         # Get the max frame for padding
         size = -1
         for mel in mels:

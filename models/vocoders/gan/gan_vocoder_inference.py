@@ -19,10 +19,10 @@ def vocoder_inference(cfg, model, mels, f0s=None, device=None, fast_inference=Fa
 
     with torch.no_grad():
         mels = mels.to(device)
-        if f0s != None:
+        if f0s is not None:
             f0s = f0s.to(device)
 
-        if f0s == None and not cfg.preprocess.extract_amplitude_phase:
+        if f0s is None and not cfg.preprocess.extract_amplitude_phase:
             output = model.forward(mels)
         elif cfg.preprocess.extract_amplitude_phase:
             (
@@ -52,10 +52,10 @@ def synthesis_audios(cfg, model, mels, f0s=None, batch_size=None, fast_inference
 
     # Pad the given list into tensors
     mel_batches, mel_frames = pad_mels_to_tensors(mels, batch_size)
-    if f0s != None:
+    if f0s is not None:
         f0_batches = pad_f0_to_tensors(f0s, batch_size)
 
-    if f0s == None:
+    if f0s is None:
         for mel_batch, mel_frame in zip(mel_batches, mel_frames):
             for i in range(mel_batch.shape[0]):
                 mel = mel_batch[i]

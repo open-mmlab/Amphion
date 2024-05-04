@@ -129,7 +129,7 @@ class TransformerEncoderLayer(nn.Module):
         else:
             x = self.ln_1(x)
 
-        if key_padding_mask != None:
+        if key_padding_mask is not None:
             key_padding_mask_input = ~(key_padding_mask.bool())
         else:
             key_padding_mask_input = None
@@ -186,7 +186,7 @@ class TransformerEncoder(nn.Module):
         )
         self.use_cln = use_cln if use_cln is not None else cfg.use_cln
 
-        if enc_emb_tokens != None:
+        if enc_emb_tokens is not None:
             self.use_enc_emb = True
             self.enc_emb_tokens = enc_emb_tokens
         else:

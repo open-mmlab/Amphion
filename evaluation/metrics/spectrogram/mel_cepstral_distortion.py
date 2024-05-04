@@ -17,7 +17,7 @@ def extract_mcd(audio_ref, audio_deg, **kwargs):
     fs = kwargs["fs"]
 
     mcd_toolbox = Calculate_MCD(MCD_mode="dtw_sl")
-    if fs != None:
+    if fs is not None:
         mcd_toolbox.SAMPLING_RATE = fs
     mcd_value = mcd_toolbox.calculate_mcd(audio_ref, audio_deg)
 

@@ -31,7 +31,7 @@ def extract_f0_periodicity_rmse(
     method = kwargs["method"]
 
     # Load audio
-    if fs != None:
+    if fs is not None:
         audio_ref, _ = librosa.load(audio_ref, sr=fs)
         audio_deg, _ = librosa.load(audio_deg, sr=fs)
     else:

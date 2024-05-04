@@ -42,7 +42,7 @@ def extract_energy_pearson_coeffcients(
     pearson = PearsonCorrCoef()
 
     # Load audio
-    if fs != None:
+    if fs is not None:
         audio_ref, _ = librosa.load(audio_ref, sr=fs)
         audio_deg, _ = librosa.load(audio_deg, sr=fs)
     else:

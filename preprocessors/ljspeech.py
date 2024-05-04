@@ -98,9 +98,9 @@ def get_uid2utt(ljspeech_path, dataset, cfg):
 def split_dataset(
     lines, test_rate=0.05, valid_rate=0.05, test_size=None, valid_size=None
 ):
-    if test_size == None:
+    if test_size is None:
         test_size = int(len(lines) * test_rate)
-    if valid_size == None:
+    if valid_size is None:
         valid_size = int(len(lines) * valid_rate)
     random.shuffle(lines)
 

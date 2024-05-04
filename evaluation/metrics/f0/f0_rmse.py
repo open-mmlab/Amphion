@@ -45,7 +45,7 @@ def extract_f0rmse(
     need_mean = kwargs["need_mean"]
 
     # Load audio
-    if fs != None:
+    if fs is not None:
         audio_ref, _ = librosa.load(audio_ref, sr=fs)
         audio_deg, _ = librosa.load(audio_deg, sr=fs)
     else:
