@@ -278,10 +278,10 @@ def wav_manipulation(
     ], "aug_type must be one of formant_shift, pitch_shift, time_stretch, equalizer"
 
     assert aug_type == "None" or (
-        formant_shift == False
-        and pitch_shift == False
-        and time_stretch == False
-        and equalizer == False
+        formant_shift is False
+        and pitch_shift is False
+        and time_stretch is False
+        and equalizer is False
     ), "if aug_type is specified, other argument must be False"
 
     if aug_type != "None":

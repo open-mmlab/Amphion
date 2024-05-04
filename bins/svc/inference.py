@@ -50,7 +50,7 @@ def prepare_for_audio_file(args, cfg, num_workers=1):
     acoustic_extractor.extract_utt_acoustic_features_serial(
         metadata, temp_audio_dir, cfg
     )
-    if cfg.preprocess.use_min_max_norm_mel == True:
+    if cfg.preprocess.use_min_max_norm_mel is True:
         acoustic_extractor.cal_mel_min_max(
             dataset=audio_name, output_path=preprocess_path, cfg=cfg, metadata=metadata
         )

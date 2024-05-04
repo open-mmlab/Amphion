@@ -91,7 +91,7 @@ def get_f0_features_using_pyin(audio, cfg):
         hop_length=cfg.hop_size,
     )
     # Set nan to 0
-    f0[voiced_flag == False] = 0
+    f0[voiced_flag is False] = 0
     return f0
 
 

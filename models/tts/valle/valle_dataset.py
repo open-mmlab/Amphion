@@ -35,7 +35,7 @@ class VALLEDataset(TTSDataset):
 
         assert isinstance(dataset, str)
 
-        assert cfg.preprocess.use_acoustic_token == True
+        assert cfg.preprocess.use_acoustic_token is True
         if cfg.preprocess.use_acoustic_token:
             self.utt2acousticToken_path = {}
             for utt_info in self.metadata:
@@ -121,7 +121,7 @@ class VALLETestDataset(TTSTestDataset):
         super().__init__(args, cfg)
 
         # prepare data
-        assert cfg.preprocess.use_acoustic_token == True
+        assert cfg.preprocess.use_acoustic_token is True
         if cfg.preprocess.use_acoustic_token:
             self.utt2acousticToken = {}
             for utt_info in self.metadata:
