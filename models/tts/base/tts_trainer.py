@@ -9,7 +9,6 @@ import shutil
 import torch
 import time
 from pathlib import Path
-import torch
 from tqdm import tqdm
 import re
 import logging
@@ -175,7 +174,7 @@ class TTSTrainer(BaseTrainer):
                     self.args.resume_type = "finetune"
                     checkpoint_dir = self.args.ar_model_ckpt_dir
                     self.logger.info(
-                        f"Training NAR model at stage 2 using the checkpoint of AR model at stage 1."
+                        "Training NAR model at stage 2 using the checkpoint of AR model at stage 1."
                     )
 
             self.logger.info(f"Resuming from checkpoint: {checkpoint_dir}")

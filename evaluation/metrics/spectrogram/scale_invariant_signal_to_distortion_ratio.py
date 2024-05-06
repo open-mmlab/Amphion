@@ -19,7 +19,7 @@ def extract_si_sdr(audio_ref, audio_deg, **kwargs):
 
     si_sdr = ScaleInvariantSignalDistortionRatio()
 
-    if fs != None:
+    if fs is not None:
         audio_ref, _ = librosa.load(audio_ref, sr=fs)
         audio_deg, _ = librosa.load(audio_deg, sr=fs)
     else:

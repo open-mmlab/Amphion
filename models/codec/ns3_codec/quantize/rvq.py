@@ -15,7 +15,7 @@ class ResidualVQ(nn.Module):
     def __init__(self, *, num_quantizers, codebook_size, **kwargs):
         super().__init__()
         VQ = FactorizedVectorQuantize
-        if type(codebook_size) == int:
+        if isinstance(codebook_size, int):
             codebook_size = [codebook_size] * num_quantizers
         self.layers = nn.ModuleList(
             [VQ(codebook_size=2**size, **kwargs) for size in codebook_size]

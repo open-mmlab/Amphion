@@ -108,10 +108,10 @@ class SqueezeformerEncoder(nn.Module):
         super(SqueezeformerEncoder, self).__init__()
         self.global_cmvn = global_cmvn
         self.reduce_idx: Optional[Union[int, List[int]]] = (
-            [reduce_idx] if type(reduce_idx) == int else reduce_idx
+            [reduce_idx] if isinstance(reduce_idx, int) else reduce_idx
         )
         self.recover_idx: Optional[Union[int, List[int]]] = (
-            [recover_idx] if type(recover_idx) == int else recover_idx
+            [recover_idx] if isinstance(recover_idx, int) else recover_idx
         )
         self.check_ascending_list()
         if reduce_idx is None:

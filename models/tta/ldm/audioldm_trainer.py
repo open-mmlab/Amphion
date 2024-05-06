@@ -15,7 +15,6 @@ import torch.nn.functional as F
 from torch.utils.data import ConcatDataset, DataLoader
 
 from transformers import T5EncoderModel
-from diffusers import DDPMScheduler
 
 
 class AudioLDMTrainer(BaseTrainer):
@@ -122,7 +121,7 @@ class AudioLDMTrainer(BaseTrainer):
         return criterion
 
     def get_state_dict(self):
-        if self.scheduler != None:
+        if self.scheduler is not None:
             state_dict = {
                 "model": self.model.state_dict(),
                 "optimizer": self.optimizer.state_dict(),
@@ -147,7 +146,7 @@ class AudioLDMTrainer(BaseTrainer):
 
         self.model.load_state_dict(checkpoint["model"])
         self.optimizer.load_state_dict(checkpoint["optimizer"])
-        if self.scheduler != None:
+        if self.scheduler is not None:
             self.scheduler.load_state_dict(checkpoint["scheduler"])
 
     def build_model(self):

@@ -317,7 +317,7 @@ class SVCTestDataset(BaseTestDataset):
         target_singer = args.target_singer
         self.cfg = cfg
         self.trans_key = args.trans_key
-        assert type(target_singer) == str
+        assert isinstance(target_singer, str)
 
         self.target_singer = target_singer.split("_")[-1]
         self.target_dataset = target_singer.replace(
@@ -481,9 +481,9 @@ class SVCTestDataset(BaseTestDataset):
             if self.trans_key:
                 try:
                     self.trans_key = int(self.trans_key)
-                except:
+                except Exception:  # TODO: better exception handling
                     pass
-                if type(self.trans_key) == int:
+                if isinstance(self.trans_key, int):
                     frame_pitch = transpose_key(frame_pitch, self.trans_key)
                 elif self.trans_key:
                     assert self.target_singer

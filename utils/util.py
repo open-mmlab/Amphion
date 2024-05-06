@@ -14,13 +14,12 @@ from collections import OrderedDict
 
 import json5
 import numpy as np
-import glob
 from torch.nn import functional as F
 
 
 try:
     from ruamel.yaml import YAML as yaml
-except:
+except ImportError:
     from ruamel_yaml import YAML as yaml
 
 import torch
@@ -62,7 +61,7 @@ def pad_f0_to_tensors(f0s, batched=None):
     # Initialize
     tensors = []
 
-    if batched == None:
+    if batched is None:
         # Get the max frame for padding
         size = -1
         for f0 in f0s:
@@ -124,7 +123,7 @@ def pad_mels_to_tensors(mels, batched=None):
     mel_frames = []
 
     # Split mel-specs into batches to avoid cuda memory exceed
-    if batched == None:
+    if batched is None:
         # Get the max frame for padding
         size = -1
         for mel in mels:
@@ -393,7 +392,7 @@ def override_config(base_config, new_config):
         dict: updated configuration dict
     """
     for k, v in new_config.items():
-        if type(v) == dict:
+        if isinstance(v, dict):
             if k not in base_config.keys():
                 base_config[k] = {}
             base_config[k] = override_config(base_config[k], v)
@@ -413,7 +412,7 @@ def get_lowercase_keys_config(cfg):
     """
     updated_cfg = dict()
     for k, v in cfg.items():
-        if type(v) == dict:
+        if isinstance(v, dict):
             v = get_lowercase_keys_config(v)
         updated_cfg[k.lower()] = v
     return updated_cfg
@@ -475,7 +474,7 @@ def save_config(save_path, cfg):
 class JsonHParams:
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
-            if type(v) == dict:
+            if isinstance(v, dict):
                 v = JsonHParams(**v)
             self[k] = v
 

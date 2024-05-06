@@ -80,7 +80,7 @@ def main():
 
     # Data Augmentation
     if (
-        type(cfg.preprocess.data_augment) == list
+        isinstance(cfg.preprocess.data_augment, list)
         and len(cfg.preprocess.data_augment) > 0
     ):
         new_datasets_list = []

@@ -108,7 +108,7 @@ def extract_similarity(path_ref, path_deg, **kwargs):
                 "microsoft/wavlm-base-plus-sv"
             )
             model = WavLMForXVector.from_pretrained("microsoft/wavlm-base-plus-sv")
-        except:
+        except Exception:  # TODO: better exception handling
             feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
                 "pretrained/wavlm", sampling_rate=16000
             )

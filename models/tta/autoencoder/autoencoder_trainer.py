@@ -91,7 +91,7 @@ class AutoencoderKLTrainer(BaseTrainer):
         return AutoencoderLossWithDiscriminator(self.cfg.model.loss)
 
     def get_state_dict(self):
-        if self.scheduler != None:
+        if self.scheduler is not None:
             state_dict = {
                 "model": self.model.state_dict(),
                 "optimizer_ae": self.optimizer["opt_ae"].state_dict(),
@@ -119,7 +119,7 @@ class AutoencoderKLTrainer(BaseTrainer):
         self.model.load_state_dict(checkpoint["model"])
         self.optimizer["opt_ae"].load_state_dict(checkpoint["optimizer_ae"])
         self.optimizer["opt_disc"].load_state_dict(checkpoint["optimizer_disc"])
-        if self.scheduler != None:
+        if self.scheduler is not None:
             self.scheduler.load_state_dict(checkpoint["scheduler"])
 
     def build_model(self):

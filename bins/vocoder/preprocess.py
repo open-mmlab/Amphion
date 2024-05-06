@@ -78,7 +78,7 @@ def preprocess(cfg, args):
                 new_datasets_list.extend(new_datasets)
             cfg.dataset.extend(new_datasets_list)
             print("Augmentation datasets: ", cfg.dataset)
-    except:
+    except Exception:  # TODO: better exception handling
         print("No Data Augmentation.")
 
     # Dump metadata of datasets (singers, train/test durations, etc.)
@@ -119,7 +119,7 @@ def preprocess(cfg, args):
             continue
         dataset_dir = os.path.join(output_path, dataset)
         metadata = []
-        for split in ["train", "test"] if not "eval" in dataset else ["test"]:
+        for split in ["train", "test"] if "eval" not in dataset else ["test"]:
             metadata_file_path = os.path.join(src_dataset_dir, "{}.json".format(split))
             with open(metadata_file_path, "r") as f:
                 metadata.extend(json.load(f))

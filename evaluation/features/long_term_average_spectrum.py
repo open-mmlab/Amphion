@@ -9,7 +9,7 @@ from scipy import signal
 
 def extract_ltas(audio, fs=None, n_fft=1024, hop_length=256):
     """Extract Long-Term Average Spectrum for a given audio."""
-    if fs != None:
+    if fs is not None:
         y, _ = librosa.load(audio, sr=fs)
     else:
         y, fs = librosa.load(audio)

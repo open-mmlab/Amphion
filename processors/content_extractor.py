@@ -129,7 +129,7 @@ class AudioPretrainedModelFeaturesExtractor:
             try:
                 with open(err_log_dir, "r") as f:
                     err_num = int(f.read())
-            except:
+            except Exception:  # TODO: better exception handling
                 with open(err_log_dir, "w") as f:
                     f.write("0")
                 err_num = 0
@@ -154,7 +154,7 @@ class AudioPretrainedModelFeaturesExtractor:
         try:
             with open(err_log_dir, "r") as f:
                 err_num = int(f.read())
-        except:
+        except Exception:  # TODO: better exception handling
             with open(err_log_dir, "w") as f:
                 f.write("0")
             err_num = 0
@@ -249,7 +249,7 @@ class AudioPretrainedModelFeaturesExtractor:
             content_feature (tensor): content feature of one utterance
         """
         uid = utt["Uid"]
-        assert self.extractor_type != None
+        assert self.extractor_type is not None
         out_dir = os.path.join(
             self.cfg.preprocess.processed_dir, utt["Dataset"], self.extractor_type
         )
@@ -315,7 +315,7 @@ class ContentvecExtractor(AudioPretrainedModelFeaturesExtractor):
         super(ContentvecExtractor, self).__init__(cfg, extractor_type="contentvec")
 
     def load_model(self):
-        assert self.model == None
+        assert self.model is None
         # Load model
         ckpt_path = self.cfg.preprocess.contentvec_file
         print("Load Contentvec Model...")
@@ -445,8 +445,8 @@ class MertExtractor(AudioPretrainedModelFeaturesExtractor):
         self.preprocessor = None
 
     def load_model(self):
-        assert self.model == None
-        assert self.preprocessor == None
+        assert self.model is None
+        assert self.preprocessor is None
 
         print("Loading MERT Model: ...", self.cfg.preprocess.mert_model)
 

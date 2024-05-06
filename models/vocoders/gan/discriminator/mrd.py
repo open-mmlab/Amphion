@@ -7,7 +7,6 @@ import torch
 import torch.nn.functional as F
 import torch.nn as nn
 from torch.nn.utils import weight_norm, remove_weight_norm, spectral_norm
-from torch import nn
 
 LRELU_SLOPE = 0.1
 
@@ -27,7 +26,7 @@ class DiscriminatorR(nn.Module):
         self.lrelu_slope = LRELU_SLOPE
 
         norm_f = (
-            weight_norm if cfg.model.mrd.use_spectral_norm == False else spectral_norm
+            weight_norm if cfg.model.mrd.use_spectral_norm is False else spectral_norm
         )
         if cfg.model.mrd.mrd_override:
             print(
@@ -37,7 +36,7 @@ class DiscriminatorR(nn.Module):
             )
             norm_f = (
                 weight_norm
-                if cfg.model.mrd.mrd_use_spectral_norm == False
+                if cfg.model.mrd.mrd_use_spectral_norm is False
                 else spectral_norm
             )
         self.d_mult = cfg.model.mrd.discriminator_channel_mult_factor

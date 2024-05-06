@@ -8,7 +8,6 @@ import torch.nn.functional as F
 import torch.nn as nn
 from torch.nn import Conv2d, Conv1d
 from torch.nn.utils import weight_norm, spectral_norm
-from torch import nn
 from modules.vocoder_blocks import *
 
 LRELU_SLOPE = 0.1
@@ -19,7 +18,7 @@ class DiscriminatorP(torch.nn.Module):
         super(DiscriminatorP, self).__init__()
         self.period = period
         self.d_mult = cfg.model.mpd.discriminator_channel_mult_factor
-        norm_f = weight_norm if use_spectral_norm == False else spectral_norm
+        norm_f = weight_norm if use_spectral_norm is False else spectral_norm
         self.convs = nn.ModuleList(
             [
                 norm_f(
@@ -130,7 +129,7 @@ class DiscriminatorP_vits(torch.nn.Module):
         super(DiscriminatorP_vits, self).__init__()
         self.period = period
         self.use_spectral_norm = use_spectral_norm
-        norm_f = weight_norm if use_spectral_norm == False else spectral_norm
+        norm_f = weight_norm if use_spectral_norm is False else spectral_norm
         self.convs = nn.ModuleList(
             [
                 norm_f(
@@ -207,7 +206,7 @@ class DiscriminatorP_vits(torch.nn.Module):
 class DiscriminatorS(torch.nn.Module):
     def __init__(self, use_spectral_norm=False):
         super(DiscriminatorS, self).__init__()
-        norm_f = weight_norm if use_spectral_norm == False else spectral_norm
+        norm_f = weight_norm if use_spectral_norm is False else spectral_norm
         self.convs = nn.ModuleList(
             [
                 norm_f(Conv1d(1, 16, 15, 1, padding=7)),

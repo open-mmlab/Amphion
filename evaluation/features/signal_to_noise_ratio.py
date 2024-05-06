@@ -79,7 +79,7 @@ def getHarmonics(fund, sr, nHarmonics=6, aliased=False):
 
 def extract_snr(audio, sr=None):
     """Extract Signal-to-Noise Ratio for a given audio."""
-    if sr != None:
+    if sr is not None:
         audio, _ = librosa.load(audio, sr=sr)
     else:
         audio, sr = librosa.load(audio, sr=sr)

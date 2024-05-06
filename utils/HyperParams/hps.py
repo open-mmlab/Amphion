@@ -14,7 +14,7 @@ class HyperParams:
 
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
-            if type(v) == dict:
+            if isinstance(v, dict):
                 v = HyperParams(**v)
             self[k] = v
 

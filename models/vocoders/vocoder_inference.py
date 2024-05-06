@@ -281,7 +281,7 @@ class VocoderInference(object):
                 ls = [
                     str(i)
                     for i in Path(checkpoint_dir).glob("*")
-                    if not "audio" in str(i)
+                    if "audio" not in str(i)
                 ]
                 ls.sort(
                     key=lambda x: int(x.split("/")[-1].split("_")[0].split("-")[-1]),
@@ -443,7 +443,7 @@ def load_nnvocoder(
     else:
         # Load from accelerator state dict
         weights_file = os.path.join(weights_file, "checkpoint")
-        ls = [str(i) for i in Path(weights_file).glob("*") if not "audio" in str(i)]
+        ls = [str(i) for i in Path(weights_file).glob("*") if "audio" not in str(i)]
         ls.sort(key=lambda x: int(x.split("_")[-3].split("-")[-1]), reverse=True)
         checkpoint_path = ls[0]
         accelerator = accelerate.Accelerator()
@@ -461,7 +461,7 @@ def tensorize(data, device, n_samples):
     """
     data: a list of numpy array
     """
-    assert type(data) == list
+    assert isinstance(data, list)
     if n_samples:
         data = data[:n_samples]
     data = [torch.as_tensor(x, device=device) for x in data]

@@ -36,7 +36,7 @@ class NS2Dataset(torch.utils.data.Dataset):
 
         self.cfg = cfg
 
-        assert cfg.preprocess.use_mel == False
+        assert cfg.preprocess.use_mel is False
         if cfg.preprocess.use_mel:
             self.utt2melspec_path = {}
             for utt_info in self.metadata:
@@ -52,7 +52,7 @@ class NS2Dataset(torch.utils.data.Dataset):
                     uid + ".npy",
                 )
 
-        assert cfg.preprocess.use_code == True
+        assert cfg.preprocess.use_code is True
         if cfg.preprocess.use_code:
             self.utt2code_path = {}
             for utt_info in self.metadata:
@@ -68,7 +68,7 @@ class NS2Dataset(torch.utils.data.Dataset):
                     uid + ".npy",
                 )
 
-        assert cfg.preprocess.use_spkid == True
+        assert cfg.preprocess.use_spkid is True
         if cfg.preprocess.use_spkid:
             self.utt2spkid = {}
             for utt_info in self.metadata:
@@ -78,7 +78,7 @@ class NS2Dataset(torch.utils.data.Dataset):
 
                 self.utt2spkid[utt] = utt_info["speaker"]
 
-        assert cfg.preprocess.use_pitch == True
+        assert cfg.preprocess.use_pitch is True
         if cfg.preprocess.use_pitch:
             self.utt2pitch_path = {}
             for utt_info in self.metadata:
@@ -94,7 +94,7 @@ class NS2Dataset(torch.utils.data.Dataset):
                     uid + ".npy",
                 )
 
-        assert cfg.preprocess.use_duration == True
+        assert cfg.preprocess.use_duration is True
         if cfg.preprocess.use_duration:
             self.utt2duration_path = {}
             for utt_info in self.metadata:
@@ -110,7 +110,7 @@ class NS2Dataset(torch.utils.data.Dataset):
                     uid + ".npy",
                 )
 
-        assert cfg.preprocess.use_phone == True
+        assert cfg.preprocess.use_phone is True
         if cfg.preprocess.use_phone:
             self.utt2phone = {}
             for utt_info in self.metadata:
@@ -120,7 +120,7 @@ class NS2Dataset(torch.utils.data.Dataset):
 
                 self.utt2phone[utt] = utt_info["phones"]
 
-        assert cfg.preprocess.use_len == True
+        assert cfg.preprocess.use_len is True
         if cfg.preprocess.use_len:
             self.utt2len = {}
             for utt_info in self.metadata:

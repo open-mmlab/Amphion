@@ -8,7 +8,6 @@ import torch.nn.functional as F
 import torch.nn as nn
 from torch.nn import Conv1d, AvgPool1d
 from torch.nn.utils import weight_norm, spectral_norm
-from torch import nn
 from modules.vocoder_blocks import *
 
 
@@ -19,7 +18,7 @@ class DiscriminatorS(nn.Module):
     def __init__(self, use_spectral_norm=False):
         super(DiscriminatorS, self).__init__()
 
-        norm_f = weight_norm if use_spectral_norm == False else spectral_norm
+        norm_f = weight_norm if use_spectral_norm is False else spectral_norm
 
         self.convs = nn.ModuleList(
             [
