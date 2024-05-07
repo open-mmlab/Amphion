@@ -22,7 +22,6 @@ class FreeVCDataset(Dataset):
     def __init__(self, audiopaths, hparams):
         self.audiopaths = read_txt_lines(audiopaths)
 
-        self.max_wav_value = hparams.data.max_wav_value
         self.sampling_rate = hparams.data.sampling_rate
         self.filter_length = hparams.data.filter_length
         self.hop_length = hparams.data.hop_length
@@ -63,10 +62,8 @@ class FreeVCDataset(Dataset):
                 f"{sampling_rate} SR doesn't match target {self.sampling_rate} SR"
             )
 
-        audio_norm = audio / self.max_wav_value
-
         spec = spectrogram_torch(
-            audio_norm,
+            audio,
             self.filter_length,
             self.sampling_rate,
             self.hop_length,
@@ -88,7 +85,7 @@ class FreeVCDataset(Dataset):
             ssl_path = os.path.join(self.sr_dir, filename.replace(".wav", f"_{h}.pt"))
             ssl = torch.load(ssl_path).squeeze_(0)
 
-        return ssl, spec, audio_norm, spk
+        return ssl, spec, audio, spk
 
     def __getitem__(self, index):
         return self.load_sample(self.audiopaths[index])

@@ -150,14 +150,16 @@ def train_and_evaluate(
     net_g.train()
     net_d.train()
     for batch_idx, items in enumerate(train_loader):
+        c, spec, y, spk = items
         if cfg.model.use_spk:
-            c, spec, y, spk = items
             g = spk.cuda(non_blocking=True)
         else:
-            c, spec, y = items
             g = None
         spec, y = spec.cuda(non_blocking=True), y.cuda(non_blocking=True)
         c = c.cuda(non_blocking=True)
+
+        torch.cuda.synchronize()
+
         mel = spec_to_mel_torch(
             spec,
             cfg.data.filter_length,
@@ -287,11 +289,10 @@ def evaluate(cfg, generator, eval_loader, writer_eval):
     generator.eval()
     with torch.no_grad():
         for batch_idx, items in enumerate(eval_loader):
+            c, spec, y, spk = items
             if cfg.model.use_spk:
-                c, spec, y, spk = items
                 g = spk[:1].cuda(0)
             else:
-                c, spec, y = items
                 g = None
             spec, y = spec[:1].cuda(0), y[:1].cuda(0)
             c = c[:1].cuda(0)
