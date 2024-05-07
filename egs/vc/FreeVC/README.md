@@ -46,6 +46,10 @@ The code will automatically download pretrained [WavLM-Large](https://huggingfac
 huggingface-cli download microsoft/wavlm-large
 ```
 
+The pretrained speaker encoder is available at: <https://github.com/liusongxiang/ppg-vc/tree/main/speaker_encoder/ckpt>
+
+The weight should be put in `models/vc/FreeVC/speaker_encoder/ckpt/` since it is excluded from the git history.
+
 ### Configuration
 
 Specify the data path and the checkpoint path for saving the processed data in `exp_config.json`:

@@ -1,8 +1,8 @@
 from models.tts.vits.vits import (
     slice_segments,
-    rand_slice_segments,
-    get_padding,
-)  # noqa: F401
+    rand_slice_segments,  # noqa: F401
+    get_padding,  # noqa: F401
+)
 
 import torch
 
