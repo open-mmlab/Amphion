@@ -91,14 +91,11 @@ def processing_audio(infsource, tarsource, shifts):
 
 
 def main():
-    
+    infsource_audio = gr.Audio(label="Source Audio", type="filepath")
     tarsource_audio = gr.Audio(label="Target Audio", type="filepath")
-    infsource_audio = gr.Audio(label="Infsource Audio", type="filepath")
     options1 = gr.Dropdown(["autoshift", "-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"], label="How many semitones you want to transpose?")
-    #options1 = gr.Textbox(label="How many semitones you want to transpose?", lines=1)
-    #output_audio = gr.Audio(label="Output Audio", type='filepath')
     outputs =  gr.Audio(label="Output Audio")
-    inputs = [infsource_audio, tarsource_audio, options1]
+    inputs = [tarsource_audio, infsource_audio, options1]
     title = "Amphion-QuickVC"
     
     gr.Interface(processing_audio, inputs, outputs, title=title).queue().launch(server_name="0.0.0.0", share=True)
