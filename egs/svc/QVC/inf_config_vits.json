@@ -1,0 +1,102 @@
+{
+    "base_config": "config/vitssvc.json",
+    "model_type": "VitsSVC",
+    "dataset": [
+       //  "m4singer",
+       //  "vctk",
+         "temp1"
+    ],
+    "dataset_path": {
+        // TODO: Fill in your dataset path
+       //  "m4singer": "[M4Singer dataset path]",
+       //   "vctk": "[VCTK dataset path]",
+         "temp1": "temp/temp1"
+    },
+    "use_custom_dataset": ["temp1"],
+    // TODO: Fill in the output log path. The default value is "Amphion/ckpts/svc"
+    "log_dir": "temp/ckpts/svc",
+    "preprocess": {
+        // TODO: Fill in the output data path. The default value is "Amphion/data"
+        "processed_dir": "temp/data",
+        
+        "n_mel": 100,
+        "sample_rate": 24000,
+
+        // contentvec
+        "extract_contentvec_feature": true,
+        "contentvec_sample_rate": 16000,
+        "contentvec_batch_size": 1,
+        "contentvec_frameshift": 0.02,
+        // whisper
+        "extract_whisper_feature": true,
+        "whisper_sample_rate": 16000,
+        "whisper_frameshift": 0.01,
+        "whisper_downsample_rate": 2,
+        // wenet
+        "extract_wenet_feature": false,
+        "wenet_downsample_rate": 4,
+        "wenet_frameshift": 0.01,
+        "wenet_sample_rate": 16000,
+        // Fill in the content-based pretrained model's path
+        "contentvec_file": "pretrained/contentvec/checkpoint_best_legacy_500.pt",
+        "wenet_model_path": "pretrained/wenet/20220506_u2pp_conformer_exp/final.pt",
+        "wenet_config": "pretrained/wenet/20220506_u2pp_conformer_exp/train.yaml",
+        "whisper_model": "medium",
+        "whisper_model_path": "pretrained/whisper/medium.pt",
+
+        "use_contentvec": true,
+        "use_whisper": true,
+        "use_wenet": false,
+        
+        // Extract content features using dataloader
+        "pin_memory": true,
+        "num_workers": 8,
+        "content_feature_batch_size": 16,
+
+    },
+    "model": {
+        "condition_encoder": {
+            // Config for features usage
+            "merge_mode": "add",
+            "use_log_loudness": true,
+            "use_contentvec": true,
+            "use_whisper": true,
+            "use_wenet": false,
+            "whisper_dim": 1024,
+            "contentvec_dim": 256,
+            "wenet_dim": 512,
+        },
+        "vits": {
+            "inter_channels": 384,
+            "hidden_channels": 384,
+            "filter_channels": 256,
+            "n_heads": 2,
+            "n_layers": 6,
+            "kernel_size": 3,
+            "p_dropout": 0.1,
+            "n_flow_layer": 4,
+            "n_layers_q": 3,
+            "gin_channels": 256,
+            "n_speakers": 512,
+            "use_spectral_norm": false,
+        },
+        "generator": "nsfhifigan",
+    },
+    "train": {
+        "batch_size": 2,
+        "learning_rate": 2e-4,
+        "gradient_accumulation_step": 1,
+        "max_epoch": 11, // -1 means no limit
+        "save_checkpoint_stride": [
+            10,
+            50
+        ],
+        "keep_last": [
+            3,
+            2
+        ],
+    },
+    "inference": {
+        "batch_size": 1,
+    }
+}
