@@ -137,9 +137,9 @@ Then you should run `run.sh`,  you need to specify the following configurations:
 For example:
 
 ```bash
-sh egs/svc/VitsSVC/run.sh --stage 3 \
+sh egs/vc/FreeVC/run.sh --stage 3 \
 	--config egs/vc/FreeVC/exp_config.json \
-	--ckpt ckpts/vc/FreeVC/[YourExptName]/G_5.ckpt \
+	--ckpt ckpts/vc/FreeVC/[YourExptName]/G_100000.ckpt \
 	--convert ckpts/vc/FreeVC/[YourExptName] \
 	--outdir ckpts/vc/FreeVC/[YourExptName]/result \
 ```
