@@ -1,19 +1,10 @@
 # Copied from https://github.com/OlaWod/FreeVC/tree/81c169cdbfc97ff07ee2f501e9b88d543fc46126
 
+from utils.mel import spectral_normalize_torch
+
 import torch
 import torch.utils.data
 from librosa.filters import mel as librosa_mel_fn
-
-MAX_WAV_VALUE = 32768.0
-
-
-def dynamic_range_compression_torch(x, C=1, clip_val=1e-5):
-    """
-    PARAMS
-    ------
-    C: compression factor
-    """
-    return torch.log(torch.clamp(x, min=clip_val) * C)
 
 
 def dynamic_range_decompression_torch(x, C=1):
@@ -25,11 +16,6 @@ def dynamic_range_decompression_torch(x, C=1):
     return torch.exp(x) / C
 
 
-def spectral_normalize_torch(magnitudes):
-    output = dynamic_range_compression_torch(magnitudes)
-    return output
-
-
 def spectral_de_normalize_torch(magnitudes):
     output = dynamic_range_decompression_torch(magnitudes)
     return output
@@ -39,6 +25,7 @@ mel_basis = {}
 hann_window = {}
 
 
+# TODO: merge with `utils.mel.extract_linear_features`
 def spectrogram_torch(y, n_fft, sampling_rate, hop_size, win_size, center=False):
     if torch.min(y) < -1.0:
         print("min value is ", torch.min(y))
@@ -94,6 +81,7 @@ def spec_to_mel_torch(spec, n_fft, num_mels, sampling_rate, fmin, fmax):
     return spec
 
 
+# TODO: merge with `utils.mel.extract_mel_features`
 def mel_spectrogram_torch(
     y, n_fft, num_mels, sampling_rate, hop_size, win_size, fmin, fmax, center=False
 ):
