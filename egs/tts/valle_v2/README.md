@@ -1,6 +1,6 @@
 # VALLE
 ## Introduction
-This is an unofficial PyTorch implementation of VALL-E, a zero-shot voice cloning model via neural codec language modeling. 
+This is an unofficial PyTorch implementation of VALL-E, a zero-shot voice cloning model via neural codec language modeling ([paper link](https://arxiv.org/abs/2301.02111)). 
 If trained properly, this model could match the performance specified in the original paper.
 
 ## Change notes
