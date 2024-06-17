@@ -14,6 +14,8 @@ pip install setuptools ruamel.yaml tqdm colorama easydict tabulate loguru json5 
 
 pip install tensorboard tensorboardX torch==2.0.1 torchaudio==2.0.2 torchvision==0.15.2 accelerate==0.24.1 transformers diffusers praat-parselmouth audiomentations pedalboard ffmpeg-python==0.2.0 pyworld diffsptk==1.0.1 nnAudio unidecode inflect ptwt
 
+pip install encodec vocos speechtokenizer g2p_en
+
 pip install torchmetrics pymcd openai-whisper frechet_audio_distance asteroid resemblyzer vector-quantize-pytorch==1.12.5
 
 pip install https://github.com/vBaiCai/python-pesq/archive/master.zip
