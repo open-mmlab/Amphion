@@ -75,7 +75,7 @@ For your reference, our unzipped dataset files has a file structure like this:
 │   │   │   ├── 2412_153947_000017_000001.original.txt
 │   │   │   ├── 2412_153947_000017_000001.wav
 │   │   │   ├── 2412_153947_000017_000005.normalized.txt
-├── test-clean
+├── train-clean-360
     ├── 422
 │   │   └── 122949
 │   │       ├── 422_122949_000009_000007.normalized.txt
