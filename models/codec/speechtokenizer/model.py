@@ -1,8 +1,10 @@
-# This code is from https://github.com/ZhangXInFD/SpeechTokenizer/blob/main/speechtokenizer/model.py
+# Copyright (c) 2023 Amphion.
+#
+# This code is modified from https://github.com/ZhangXInFD/SpeechTokenizer/blob/main/speechtokenizer/model.py
 # Licensed under Apache License 2.0
 
-from .modules.seanet import SEANetEncoder, SEANetDecoder
-from .quantization import ResidualVectorQuantizer
+from encodec.modules.seanet import SEANetEncoder, SEANetDecoder
+from encodec.quantization import ResidualVectorQuantizer
 import torch.nn as nn
 from einops import rearrange
 import torch
