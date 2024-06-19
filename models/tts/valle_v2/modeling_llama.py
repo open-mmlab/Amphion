@@ -1,3 +1,10 @@
+# Copyright (c) 2023 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+# This code is modified from https://github.com/huggingface/transformers/blob/main/src/transformers/models/llama/modeling_llama.py
+
+# Original work copyright
 # Copyright 2022 EleutherAI and the HuggingFace Inc. team. All rights reserved.
 #
 # This code is based on EleutherAI's GPT-NeoX library and the GPT-NeoX
