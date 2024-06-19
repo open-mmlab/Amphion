@@ -1,10 +1,10 @@
-# VALLE
+# VALL-E
 ## Introduction
 This is an unofficial PyTorch implementation of VALL-E, a zero-shot voice cloning model via neural codec language modeling ([paper link](https://arxiv.org/abs/2301.02111)). 
 If trained properly, this model could match the performance specified in the original paper.
 
 ## Change notes
-This is a refined version compared to the first version of VALLE in Amphion, we have changed the underlying implementation to Llama
+This is a refined version compared to the first version of VALL-E in Amphion, we have changed the underlying implementation to Llama
 to provide better model performance, faster training speed, and more readable codes.
 This can be a great tool if you want to learn speech language models and its implementation.
 
@@ -24,7 +24,7 @@ For Linux, it should be `sudo apt-get install espeak-ng`.
 For Windows, refer to the above link.
 If you do not have sudo privilege, you could build the library by following the last section of this readme. -->
 
-## Inferencing pretrained VALLE models
+## Inferencing pretrained VALL-E models
 ### Download pretrained weights
 You need to download our pretrained weights from huggingface. 
 
@@ -39,11 +39,11 @@ huggingface-cli download amphion/valle speechtokenizer_hubert_avg/SpeechTokenize
 
 ### Inference in IPython notebook
 
-We provide our pretrained VALLE model that is trained on 45k hours MLS dataset.
+We provide our pretrained VALL-E model that is trained on 45k hours MLS dataset.
 The "demo.ipynb" file provides a working example of inferencing our pretrained VALL-E model. Give it a try!
 
 ## Examining the model files
-Examining the model files of VALLE is a great way to learn how it works.
+Examining the model files of VALL-E is a great way to learn how it works.
 We provide examples that allows you to overfit a single batch (so no dataset downloading is required). 
 
 The AR model is essentially a causal language model that "continues" a speech. The NAR model is a modification from the AR model that allows for bidirectional attention.
@@ -52,7 +52,7 @@ The AR model is essentially a causal language model that "continues" a speech. T
 File `valle_ar.py` and `valle_nar.py` in "models/tts/VALLE_V2" folder are models files, these files can be run directly via `python -m models.tts.VALLE_V2.valle_ar` (or `python -m models.tts.VALLE_V2.valle_nar`).
 This will invoke a test which overfits it to a single example.
 
-## Training VALLE from scratch
+## Training VALL-E from scratch
 ### Preparing LibriTTS or LibriTTS-R dataset files
 
 We have tested our training script on LibriTTS and LibriTTS-R.
@@ -95,7 +95,7 @@ It should return a dict of a 1-dimensional tensor 'speech', which is a 16kHz spe
 As long as your dataset returns this in `__getitem__`, it should work.
 
 ### Changing batch size and dataset path in configuration file
-Our configuration file for training VALLE AR model is at "egs/tts/VALLE_V2/exp_ar_libritts.json", and NAR model at "egs/tts/VALLE_V2/exp_nar_libritts.json"
+Our configuration file for training VALL-E AR model is at "egs/tts/VALLE_V2/exp_ar_libritts.json", and NAR model at "egs/tts/VALLE_V2/exp_nar_libritts.json"
 
 To train your model, you need to modify the `dataset` variable in the json configurations.
 Currently it's at line 40, you should modify the "data_dir" to your dataset's root directory.
