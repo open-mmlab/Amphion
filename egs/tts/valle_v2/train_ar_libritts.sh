@@ -1,7 +1,7 @@
 export PYTHONPATH="./"
 
 ######## Build Experiment Environment ###########
-exp_dir="./egs/tts/valle_v2"
+exp_dir="./egs/tts/VALLE_V2"
 echo exp_dir: $exp_dir
 work_dir="./" # Amphion root folder
 echo work_dir: $work_dir

@@ -258,7 +258,7 @@ def batch_by_size(
 def test():
     from utils.util import load_config
 
-    cfg = load_config("./egs/tts/valle_v2/exp_ar_libritts.json")
+    cfg = load_config("./egs/tts/VALLE_V2/exp_ar_libritts.json")
     dataset = VALLEDataset(cfg.dataset)
     metadata_cache = dataset.metadata_cache
     trans_cache = dataset.trans_cache

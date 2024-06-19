@@ -1,6 +1,6 @@
 {
     "model_type": "VALLE_V2_NAR",
-    "log_dir": "./ckpt/valle_v2",
+    "log_dir": "./ckpt/VALLE_V2",
     "use_speechtokenizer": true,
     "train": {
         "gradient_accumulation_step": 1,

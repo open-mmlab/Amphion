@@ -49,7 +49,7 @@ We provide examples that allows you to overfit a single batch (so no dataset dow
 The AR model is essentially a causal language model that "continues" a speech. The NAR model is a modification from the AR model that allows for bidirectional attention.
 
 
-File `valle_ar.py` and `valle_nar.py` in "models/tts/valle_v2" folder are models files, these files can be run directly via `python -m models.tts.valle_v2.valle_ar` (or `python -m models.tts.valle_v2.valle_nar`).
+File `valle_ar.py` and `valle_nar.py` in "models/tts/VALLE_V2" folder are models files, these files can be run directly via `python -m models.tts.VALLE_V2.valle_ar` (or `python -m models.tts.VALLE_V2.valle_nar`).
 This will invoke a test which overfits it to a single example.
 
 ## Training VALLE from scratch
@@ -58,7 +58,7 @@ This will invoke a test which overfits it to a single example.
 We have tested our training script on LibriTTS and LibriTTS-R.
 You could download LibriTTS-R at [this link](https://www.openslr.org/141/) and LibriTTS at [this link](https://www.openslr.org/60).
 The "train-clean-360" split is currently used by our configuration.
-You can test dataset.py by run `python -m models.tts.valle_v2.libritts_dataset`.
+You can test dataset.py by run `python -m models.tts.VALLE_V2.libritts_dataset`.
 
 For your reference, our unzipped dataset files has a file structure like this:
 ```
@@ -90,12 +90,12 @@ For your reference, our unzipped dataset files has a file structure like this:
 
 
 Alternativelly, you could write your own dataloader for your dataset. 
-You can reference the `__getitem__` method in `models/tts/valle_v2/mls_dataset.py`
+You can reference the `__getitem__` method in `models/tts/VALLE_V2/mls_dataset.py`
 It should return a dict of a 1-dimensional tensor 'speech', which is a 16kHz speech; and a 1-dimensional tensor of 'phone', which is the phoneme sequence of the speech.
 As long as your dataset returns this in `__getitem__`, it should work.
 
 ### Changing batch size and dataset path in configuration file
-Our configuration file for training VALLE AR model is at "egs/tts/valle_v2/exp_ar_libritts.json", and NAR model at "egs/tts/valle_v2/exp_nar_libritts.json"
+Our configuration file for training VALLE AR model is at "egs/tts/VALLE_V2/exp_ar_libritts.json", and NAR model at "egs/tts/VALLE_V2/exp_nar_libritts.json"
 
 To train your model, you need to modify the `dataset` variable in the json configurations.
 Currently it's at line 40, you should modify the "data_dir" to your dataset's root directory.
@@ -109,7 +109,7 @@ Currently it's at line 40, you should modify the "data_dir" to your dataset's ro
 You should also select a reasonable batch size at the "batch_size" entry (currently it's set at 5).
 
 
-You can change other experiment settings in the `/egs/tts/valle_v2/exp_ar_libritts.json` such as the learning rate, optimizer and the dataset.
+You can change other experiment settings in the `/egs/tts/VALLE_V2/exp_ar_libritts.json` such as the learning rate, optimizer and the dataset.
 
 Here we choose `libritts` dataset we added and set `use_dynamic_dataset` false.
 
@@ -140,9 +140,9 @@ I used batch_size=3 to successfully run on a single card, if you'r out of memory
 (Make sure your current directory is at the Amphion root directory).
 Run:
 ```sh
-sh egs/tts/valle_v2/train_ar_libritts.sh
+sh egs/tts/VALLE_V2/train_ar_libritts.sh
 ```
-Your model checkpoint could be found in `ckpt/valle_v2/ar_libritts/checkpoint/epoch-0000_step-0000000_loss-7.397293/pytorch_model.bin`
+Your model checkpoint could be found in `ckpt/VALLE_V2/ar_libritts/checkpoint/epoch-0000_step-0000000_loss-7.397293/pytorch_model.bin`
 
 
 ### Resume from existing checkpoint
@@ -150,14 +150,14 @@ Our framework supports resuming from existing checkpoint.
 
 Run:
 ```sh
-sh egs/tts/valle_v2/train_ar_libritts.sh --resume
+sh egs/tts/VALLE_V2/train_ar_libritts.sh --resume
 ```
 
 ### Run the command to Train NAR model
 (Make sure your current directory is at the Amphion root directory).
 Run:
 ```sh
-sh egs/tts/valle_v2/train_nar_libritts.sh
+sh egs/tts/VALLE_V2/train_nar_libritts.sh
 ```
 
 ### Inference your models
