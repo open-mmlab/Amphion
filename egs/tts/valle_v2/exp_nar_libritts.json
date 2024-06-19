@@ -1,5 +1,5 @@
 {
-    "model_type": "valle_v2_nar",
+    "model_type": "VALLE_V2_NAR",
     "log_dir": "./ckpt/valle_v2",
     "use_speechtokenizer": true,
     "train": {
