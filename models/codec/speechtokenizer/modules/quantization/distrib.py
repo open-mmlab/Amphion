@@ -49,14 +49,16 @@ def _check_number_of_params(params: tp.List[torch.Tensor]):
     # and thus avoid a deadlock with distributed all reduce.
     if not is_distributed() or not params:
         return
-    #print('params[0].device ', params[0].device)
+    # print('params[0].device ', params[0].device)
     tensor = torch.tensor([len(params)], device=params[0].device, dtype=torch.long)
     all_reduce(tensor)
     if tensor.item() != len(params) * world_size():
         # If not all the workers have the same number, for at least one of them,
         # this inequality will be verified.
-        raise RuntimeError(f"Mismatch in number of params: ours is {len(params)}, "
-                           "at least one worker has a different one.")
+        raise RuntimeError(
+            f"Mismatch in number of params: ours is {len(params)}, "
+            "at least one worker has a different one."
+        )
 
 
 def broadcast_tensors(tensors: tp.Iterable[torch.Tensor], src: int = 0):
@@ -87,10 +89,10 @@ def sync_buffer(buffers, average=True):
         if torch.is_floating_point(buffer.data):
             if average:
                 handle = torch.distributed.all_reduce(
-                    buffer.data, op=torch.distributed.ReduceOp.SUM, async_op=True)
+                    buffer.data, op=torch.distributed.ReduceOp.SUM, async_op=True
+                )
             else:
-                handle = torch.distributed.broadcast(
-                    buffer.data, src=0, async_op=True)
+                handle = torch.distributed.broadcast(buffer.data, src=0, async_op=True)
             handles.append((buffer, handle))
     for buffer, handle in handles:
         handle.wait()
@@ -110,21 +112,22 @@ def sync_grad(params):
     for p in params:
         if p.grad is not None:
             handle = torch.distributed.all_reduce(
-                p.grad.data, op=torch.distributed.ReduceOp.SUM, async_op=True)
+                p.grad.data, op=torch.distributed.ReduceOp.SUM, async_op=True
+            )
             handles.append((p, handle))
     for p, handle in handles:
         handle.wait()
         p.grad.data /= world_size()
 
 
-def average_metrics(metrics: tp.Dict[str, float], count=1.):
+def average_metrics(metrics: tp.Dict[str, float], count=1.0):
     """Average a dictionary of metrics across all workers, using the optional
     `count` as unormalized weight.
     """
     if not is_distributed():
         return metrics
     keys, values = zip(*metrics.items())
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     tensor = torch.tensor(list(values) + [1], device=device, dtype=torch.float32)
     tensor *= count
     all_reduce(tensor)

@@ -20,11 +20,20 @@ class SLSTM(nn.Module):
     LSTM without worrying about the hidden state, nor the layout of the data.
     Expects input as convolutional layout.
     """
-    def __init__(self, dimension: int, num_layers: int = 2, skip: bool = True, bidirectional: bool=False):
+
+    def __init__(
+        self,
+        dimension: int,
+        num_layers: int = 2,
+        skip: bool = True,
+        bidirectional: bool = False,
+    ):
         super().__init__()
         self.bidirectional = bidirectional
         self.skip = skip
-        self.lstm = nn.LSTM(dimension, dimension, num_layers, bidirectional=bidirectional)
+        self.lstm = nn.LSTM(
+            dimension, dimension, num_layers, bidirectional=bidirectional
+        )
 
     def forward(self, x):
         x = x.permute(2, 0, 1)
