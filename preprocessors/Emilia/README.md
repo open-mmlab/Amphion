@@ -1,6 +1,6 @@
-## Emilia Pipeline
+## Emilia
 
-This is the source code of the Emilia Pipeline. This README file will introduce the project and provide an installation guide.
+This is the official code for the **Emilia** dataset, and the source code of the *Emilia-Pipe*. This README file will introduce the project and provide an installation guide.
 
 ### Pipeline
 
