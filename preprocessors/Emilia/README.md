@@ -9,7 +9,7 @@ This is the source code of the Emilia Pipeline. This README file will introduce 
 2. Generate Speaker Diarization: Speaker diarization of long audio to get medium-length single-speaker audio
 3. VAD (silero-vad): Short-length single-speaker audio
 4. ASR: Process short single-speaker audio to get text
-5. MOS Predictions: Assign a MOS score
+5. MOS Predictions: Assign a DNSMOS score
 
 ## Setup Steps
 
@@ -26,8 +26,6 @@ bash env.sh
 ```
 
 3. Download the model files.
-
-P.S. If Huggingface is not accessible, try: `export HF_ENDPOINT=https://hf-mirror.com`
 
 ### 1. Config File
 
@@ -62,7 +60,7 @@ P.S. If Huggingface is not accessible, try: `export HF_ENDPOINT=https://hf-mirro
     "mos_model": {
         "primary_model_path": "/path/to/model/mos_model/DNSMOS/sig_bak_ovr.onnx" // #3: Model path
     }, 
-    "huggingface_token": "<HUGGINGFACE_ACCESS_TOKEN>" // #4: Huggingface access token
+    "huggingface_token": "<HUGGINGFACE_ACCESS_TOKEN>" // #4: Huggingface access token for pyannote
 }
 ```
 
@@ -83,12 +81,12 @@ export CUDA_VISIBLE_DEVICES=0  # Setting the GPU to run the pipeline
 python main.py
 ```
 
-3. Processed audio will be saved into `input_folder_path`_processed.
+3. Processed audio will be saved into `input_folder_path_processed`.
 
 
 ### 3. Check the Results
 
-The processed audio files will be saved into `input_folder_path`_processed. The results will be saved in the same folder and include the following information:
+The processed audio files will be saved into `input_folder_path_processed`. The results will be saved in the same folder and include the following information:
 
 1. **MP3 file**: `<original_name>_<idx>.mp3`
 2. **JSON file**: `<original_name>.json`
@@ -96,11 +94,11 @@ The processed audio files will be saved into `input_folder_path`_processed. The 
 ```json
 [
     {
-        "text": "So, don't worry about that. But, like for instance, like yesterday was very hard for me to say, you know what, I should go to bed.", // Text
+        "text": "So, don't worry about that. But, like for instance, like yesterday was very hard for me to say, you know what, I should go to bed.", // Transcription
         "start": 67.18, // Start time in seconds
         "end": 74.41, // End time in seconds
         "language": "en", // Language
-        "dnsmos": 3.44 // MOS score
+        "dnsmos": 3.44 // DNSMOS score
     }
 ]
 ```
