@@ -90,7 +90,7 @@ python main.py
 
 The processed audio files will be saved into `input_folder_path`_processed. The results will be saved in the same folder and include the following information:
 
-1. **Wav file**: `<original_name>_<idx>.wav`
+1. **MP3 file**: `<original_name>_<idx>.mp3`
 2. **JSON file**: `<original_name>.json`
 
 ```json
