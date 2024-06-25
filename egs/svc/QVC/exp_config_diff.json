@@ -1,0 +1,127 @@
+{
+    "base_config": "config/svc/diffusion.json",
+    "model_type": "DiffWaveNetSVC",
+    "dataset": [
+        "m4singer",
+        "opencpop",
+        "opensinger",
+        "svcc",
+        "vctk"
+    ],
+    "dataset_path": {
+        // TODO: Fill in your dataset path
+        "m4singer": "[M4Singer dataset path]",
+        "opencpop": "[Opencpop dataset path]",
+        "opensinger": "[OpenSinger dataset path]",
+        "svcc": "[SVCC dataset path]",
+        "vctk": "[VCTK dataset path]"
+    },
+    // TODO: Fill in the output log path. The default value is "Amphion/ckpts/svc"
+    "log_dir": "ckpts/svc",
+    "preprocess": {
+        // TODO: Fill in the output data path. The default value is "Amphion/data"
+        "processed_dir": "data",
+        // Config for features extraction
+        "features_extraction_mode": "offline", // Online or offline features extraction ("offline" or "online")
+        "extract_mel": true,
+        "extract_pitch": true,
+        "extract_energy": true,
+        "extract_whisper_feature": true,
+        "extract_contentvec_feature": true,
+        "extract_wenet_feature": false,
+        "whisper_batch_size": 30, // decrease it if your GPU is out of memory
+        "contentvec_batch_size": 1,
+        // Fill in the content-based pretrained model's path
+        "contentvec_file": "pretrained/contentvec/checkpoint_best_legacy_500.pt",
+        "wenet_model_path": "pretrained/wenet/20220506_u2pp_conformer_exp/final.pt",
+        "wenet_config": "pretrained/wenet/20220506_u2pp_conformer_exp/train.yaml",
+        "whisper_model": "medium",
+        "whisper_model_path": "pretrained/whisper/medium.pt",
+        // Config for features usage
+        "use_mel": true,
+        "use_min_max_norm_mel": true,
+        "use_frame_pitch": true,
+        "use_frame_energy": true,
+        "use_spkid": true,
+        "use_whisper": true,
+        "use_contentvec": true,
+        "use_wenet": false,
+        "n_mel": 100,
+        "sample_rate": 24000
+    },
+    "model": {
+        "condition_encoder": {
+            // Config for features usage
+            "use_whisper": true,
+            "use_contentvec": true,
+            "use_wenet": false,
+            "whisper_dim": 1024,
+            "contentvec_dim": 256,
+            "wenet_dim": 512,
+            "use_singer_encoder": false,
+            "pitch_min": 50,
+            "pitch_max": 1100
+        },
+        "diffusion": {
+            "scheduler": "ddpm",
+            "scheduler_settings": {
+                "num_train_timesteps": 1000,
+                "beta_start": 1.0e-4,
+                "beta_end": 0.02,
+                "beta_schedule": "linear"
+            },
+            // Diffusion steps encoder
+            "step_encoder": {
+                "dim_raw_embedding": 128,
+                "dim_hidden_layer": 512,
+                "activation": "SiLU",
+                "num_layer": 2,
+                "max_period": 10000
+            },
+            // Diffusion decoder
+            "model_type": "bidilconv",
+            // bidilconv, unet2d, TODO: unet1d
+            "bidilconv": {
+                "base_channel": 512,
+                "n_res_block": 40,
+                "conv_kernel_size": 3,
+                "dilation_cycle_length": 4,
+                // specially, 1 means no dilation
+                "conditioner_size": 384
+            }
+        }
+    },
+    "train": {
+        "batch_size": 32,
+        "gradient_accumulation_step": 1,
+        "max_epoch": -1, // -1 means no limit
+        "save_checkpoint_stride": [
+            3,
+            50
+        ],
+        "keep_last": [
+            3,
+            2
+        ],
+        "run_eval": [
+            true,
+            true
+        ],
+        "adamw": {
+            "lr": 2.0e-4
+        },
+        "reducelronplateau": {
+            "factor": 0.8,
+            "patience": 30,
+            "min_lr": 1.0e-4
+        },
+        "dataloader": {
+            "num_worker": 8,
+            "pin_memory": true
+        },
+        "sampler": {
+            "holistic_shuffle": false,
+            "drop_last": true
+        }
+    }
+}
