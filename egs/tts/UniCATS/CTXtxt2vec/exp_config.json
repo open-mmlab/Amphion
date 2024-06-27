@@ -1,0 +1,30 @@
+{
+    "model":{
+        "params":{
+            "diffusion_config":{
+                "params":{
+                    "transformer_config":{
+                        "params": {
+                            "codebook_path": "feats/vqidx/codebook.npy", 
+                            "label2vqidx_path": "feats/vqidx/label2vqidx"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "dataloader":{
+        "train_datasets":[{
+            "params":{
+                "data_root": "data/train_all",
+                "lexicon_path": "data/lang_1phn/train_all_units.txt"
+            }
+        }],
+        "validation_datasets":[{
+            "params":{
+                "data_root": "data/dev_all",
+                "lexicon_path": "data/lang_1phn/train_all_units.txt"
+            }
+        }]
+    }
+}
