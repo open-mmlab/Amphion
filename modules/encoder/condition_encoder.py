@@ -52,6 +52,8 @@ class MelodyEncoder(nn.Module):
         self.input_dim = self.cfg.input_melody_dim
         self.output_dim = self.cfg.output_melody_dim
         self.n_bins = self.cfg.n_bins_melody
+        self.pitch_min = self.cfg.pitch_min
+        self.pitch_max = self.cfg.pitch_max
 
         if self.input_dim != 0:
             if self.n_bins == 0:
@@ -167,6 +169,15 @@ class ConditionEncoder(nn.Module):
             self.wenet_encoder = ContentEncoder(
                 self.cfg, self.cfg.wenet_dim, self.cfg.content_encoder_dim
             )
+        if cfg.use_hubert:
+            self.hubert_lookup = nn.Embedding(
+                num_embeddings=1000,
+                embedding_dim=self.cfg.content_encoder_dim,
+                padding_idx=None,
+            )
+            self.hubert_encoder = ContentEncoder(
+                self.cfg, self.cfg.content_encoder_dim, self.cfg.content_encoder_dim
+            )
 
         ### Prosody Features ###
         if cfg.use_f0:
@@ -177,6 +188,10 @@ class ConditionEncoder(nn.Module):
         ### Speaker Features ###
         if cfg.use_spkid:
             self.singer_encoder = SingerEncoder(self.cfg)
+        if cfg.use_spkemb:
+            self.speaker_project = nn.Linear(
+                self.cfg.spkemb_dim, self.cfg.content_encoder_dim
+            )
 
     def forward(self, x):
         outputs = []
@@ -221,6 +236,12 @@ class ConditionEncoder(nn.Module):
             outputs.append(wenet_enc_out)
             seq_len = wenet_enc_out.shape[1]
 
+        if self.cfg.use_hubert:
+            hubert_enc_out = self.hubert_lookup(x["hubert_feat"].squeeze(-1))
+            hubert_enc_out = self.hubert_encoder(hubert_enc_out, length=x["target_len"])
+            outputs.append(hubert_enc_out)
+            seq_len = hubert_enc_out.shape[1]
+
         if self.cfg.use_spkid:
             speaker_enc_out = self.singer_encoder(x["spk_id"])  # [b, 1, 384]
             assert (
@@ -228,9 +249,17 @@ class ConditionEncoder(nn.Module):
                 or "contentvec_feat" in x.keys()
                 or "mert_feat" in x.keys()
                 or "wenet_feat" in x.keys()
+                or "hubert_feat" in x.keys()
             )
             singer_info = speaker_enc_out.expand(-1, seq_len, -1)
             outputs.append(singer_info)
+
+        if self.cfg.use_spkemb:
+            speaker_embedding = self.speaker_project(
+                x["spkemb"].unsqueeze(1)
+            )  # [b, 1, 384]
+            speaker_embedding = speaker_embedding.expand(-1, seq_len, -1)
+            outputs.append(speaker_embedding)
 
         encoder_output = None
         if self.merge_mode == "concat":

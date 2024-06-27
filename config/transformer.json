@@ -24,6 +24,8 @@
         "wenet_sample_rate": 16000,
         "extract_mert_feature": false,
         "mert_sample_rate": 16000,
+        "extract_hubert_feature": false,
+        "hubert_sample_rate": 16000,
         // Default config for whisper
         "whisper_frameshift": 0.01,
         "whisper_downsample_rate": 2,
@@ -39,6 +41,8 @@
         "wenet_frameshift": 0.01,
         // wenetspeech is 4, gigaspeech is 6
         "wenet_downsample_rate": 4,
+        // Default config for hubert
+        "hubert_frameshift": 0.02,
         // Default config
         "n_mel": 100,
         "win_size": 1024,
@@ -65,6 +69,7 @@
         "contentvec_dir": "contentvec",
         "wenet_dir": "wenet",
         "mert_dir": "mert",
+        "hubert_dir": "hubert",
         // Extract content features using dataloader
         "pin_memory": true,
         "num_workers": 8,
@@ -97,9 +102,10 @@
             "n_bins_loudness": 256,
             "output_loudness_dim": 384,
             "use_whisper": false,
-            "use_contentvec": true,
+            "use_contentvec": false,
             "use_wenet": false,
             "use_mert": false,
+            "use_hubert": false,
             "whisper_dim": 1024,
             "contentvec_dim": 256,
             "mert_dim": 256,

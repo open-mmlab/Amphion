@@ -1,0 +1,193 @@
+{
+    "base_config": "config/base.json",
+    "model_type": "VITS",
+    "task_type": "svc",
+    "preprocess": {
+        "extract_phone": false,
+        "extract_mel": true,
+        "extract_linear_spec": true,
+        "extract_audio": true,
+        "use_linear": true,
+        "use_mel": true,
+        "use_audio": true,
+        "use_text": false,
+        "use_phone": true,
+        
+        "fmin": 0,
+        "fmax": null,
+        "f0_min": 50,
+        "f0_max": 1100,
+        // f0_bin in sovits
+        "pitch_bin": 256,
+        // filter_length in sovits
+        "n_fft": 2048,
+        // hop_length in sovits
+        "hop_size": 512,
+        // win_length in sovits
+        "win_size": 2048,
+        "segment_size": 8192,
+        "n_mel": 100,
+        "sample_rate": 44100,
+
+        "mel_min_max_stats_dir": "mel_min_max_stats",
+        "whisper_dir": "whisper",
+        "contentvec_dir": "contentvec",
+        "wenet_dir": "wenet",
+        "mert_dir": "mert",
+        "hubert_dir": "hubert",
+    },
+    "model": {
+        "condition_encoder": {
+            "merge_mode": "add",
+            "input_melody_dim": 1,
+            "use_log_f0": true,
+            "n_bins_melody": 256,
+            //# Quantization (0 for not quantization)
+            "output_melody_dim": 196,
+            "input_loudness_dim": 1,
+            "use_log_loudness": false,
+            "n_bins_loudness": 256,
+            "output_loudness_dim": 196,
+            "use_whisper": false,
+            "use_contentvec": false,
+            "use_wenet": false,
+            "use_mert": false,
+            "whisper_dim": 1024,
+            "contentvec_dim": 256,
+            "mert_dim": 256,
+            "wenet_dim": 512,
+            "content_encoder_dim": 196,
+            "output_singer_dim": 196,
+            "singer_table_size": 512,
+            "output_content_dim": 196,
+            "use_spkid": true
+        },
+        "vits": {
+            "filter_channels": 256,
+            "gin_channels": 256,
+            "hidden_channels": 192,
+            "inter_channels": 192,
+            "kernel_size": 3,
+            "n_flow_layer": 4,
+            "n_heads": 2,
+            "n_layers": 6,
+            "n_layers_q": 3,
+            "n_speakers": 512,
+            "p_dropout": 0.1,
+            "ssl_dim": 256,
+            "use_spectral_norm": false,
+        },
+        "generator": "hifigan",
+        "generator_config": {
+            "hifigan": {
+                "resblock": "1",
+                "resblock_kernel_sizes": [
+                    3,
+                    5,
+                    7
+                ],
+                "upsample_rates": [
+                    8,4,2,2,2
+                ],
+                "upsample_kernel_sizes": [
+                    16,8,4,4,4
+                ],
+                "upsample_initial_channel": 512,
+                "resblock_dilation_sizes": [
+                    [1,3,5],
+                    [1,3,5],
+                    [1,3,5]
+                ]
+            },
+            "melgan": {
+                "ratios": [8, 8, 2, 2, 2],
+                "ngf": 32,
+                "n_residual_layers": 3,
+                "num_D": 3,
+                "ndf": 16,
+                "n_layers": 4,
+                "downsampling_factor": 4
+            },
+            "bigvgan": {
+                "resblock": "1",
+                "activation": "snakebeta",
+                "snake_logscale": true,
+                "upsample_rates": [
+                    8,8,2,2,2,
+                ],
+                "upsample_kernel_sizes": [
+                    16,16,4,4,4,
+                ],
+                "upsample_initial_channel": 512,
+                "resblock_kernel_sizes": [
+                    3,
+                    7,
+                    11
+                ],
+                "resblock_dilation_sizes": [
+                    [1,3,5],
+                    [1,3,5],
+                    [1,3,5]
+                ]
+            },
+            "nsfhifigan": {
+                "resblock": "1",
+                "harmonic_num": 8,
+                "upsample_rates": [
+                    8,4,2,2,2,
+                ],
+                "upsample_kernel_sizes": [
+                    16,8,4,4,4,
+                ],
+                "upsample_initial_channel": 768,
+                "resblock_kernel_sizes": [
+                    3,
+                    5,
+                    7
+                ],
+                "resblock_dilation_sizes": [
+                    [1,3,5],
+                    [1,3,5],
+                    [1,3,5]
+                ]
+            },
+            "apnet": {
+              "ASP_channel": 512,
+              "ASP_resblock_kernel_sizes": [3,7,11],
+              "ASP_resblock_dilation_sizes": [[1,3,5], [1,3,5], [1,3,5]],
+              "ASP_input_conv_kernel_size": 7,
+              "ASP_output_conv_kernel_size": 7,
+        
+              "PSP_channel": 512,
+              "PSP_resblock_kernel_sizes": [3,7,11],
+              "PSP_resblock_dilation_sizes": [[1,3,5], [1,3,5], [1,3,5]], 
+              "PSP_input_conv_kernel_size": 7,
+              "PSP_output_R_conv_kernel_size": 7,
+              "PSP_output_I_conv_kernel_size": 7,
+            }
+        },
+    },
+    "train": {
+        "fp16_run": true,
+        "learning_rate": 2e-4,
+        "betas": [
+            0.8,
+            0.99
+        ],
+        "eps": 1e-9,
+        "batch_size": 16,
+        "lr_decay": 0.999875,
+        // "segment_size": 8192,
+        "init_lr_ratio": 1,
+        "warmup_epochs": 0,
+        "c_mel": 45,
+        "c_kl": 1.0,
+        "AdamW": {
+            "betas": [
+                0.8,
+                0.99
+            ],
+            "eps": 1e-9,
+        }
+    }
+}
