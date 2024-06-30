@@ -11,7 +11,7 @@
   "preprocess": {
     "processed_dir": "data",
     "sample_rate": 22050,
-    "use_audio": true,
+    "use_audios": true,
     "extract_audio": true,
 },
   "train": {

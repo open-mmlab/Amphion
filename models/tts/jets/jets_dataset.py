@@ -98,7 +98,7 @@ class FS2Dataset(BaseOfflineDataset):
                 self.speaker_map = json.load(f)
 
         self.metadata = self.check_metadata()
-        if cfg.use_audio:
+        if cfg.use_audios:
             self.utt2audio_path = {}
             for utt_info in self.metadata:
                 dataset = utt_info["Dataset"]
@@ -161,7 +161,7 @@ class FS2Dataset(BaseOfflineDataset):
             }
         )
         
-        if self.cfg.preprocess.use_audio:
+        if self.cfg.preprocess.use_audios:
             audio, sr = torchaudio.load(self.utt2audio_path[utt])
             audio = audio.cpu().numpy().squeeze()
             single_feature["audio"] = audio
