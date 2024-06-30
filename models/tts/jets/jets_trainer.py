@@ -11,7 +11,7 @@ from tqdm import tqdm
 from models.tts.base import TTSTrainer
 from models.tts.jets.jets import Jets
 from models.tts.jets.jets_loss import GeneratorLoss, DiscriminatorLoss
-from models.tts.jets.jets_dataset import FS2Dataset, FS2Collator
+from models.tts.jets.jets_dataset import JetsDataset, JetsCollator
 from optimizer.optimizers import NoamLR
 from torch.optim.lr_scheduler import ExponentialLR
 from models.vocoders.gan.discriminator.mpd import MultiScaleMultiPeriodDiscriminator
@@ -44,7 +44,7 @@ class JetsTrainer(TTSTrainer):
         self.cfg = cfg
 
     def _build_dataset(self):
-        return FS2Dataset, FS2Collator
+        return JetsDataset, JetsCollator
 
     def __build_scheduler(self):
         return NoamLR(self.optimizer, **self.cfg.train.lr_scheduler)

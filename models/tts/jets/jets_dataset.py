@@ -17,7 +17,7 @@ from models.base.base_dataset import (
 from text import text_to_sequence
 
 
-class FS2Dataset(BaseOfflineDataset):
+class JetsDataset(BaseOfflineDataset):
     def __init__(self, cfg, dataset, is_valid=False):
         BaseOfflineDataset.__init__(self, cfg, dataset, is_valid=is_valid)
         self.batch_size = cfg.train.batch_size
@@ -244,7 +244,7 @@ class FS2Dataset(BaseOfflineDataset):
         return new_metadata
 
 
-class FS2Collator(BaseOfflineCollator):
+class JetsCollator(BaseOfflineCollator):
     """Zero-pads model inputs and targets based on number of frames per step"""
 
     def __init__(self, cfg):
@@ -300,7 +300,7 @@ class FS2Collator(BaseOfflineCollator):
         return packed_batch_features
 
 
-class FS2TestDataset(BaseTestDataset):
+class JetsTestDataset(BaseTestDataset):
     def __init__(self, args, cfg, infer_type=None):
         datasets = cfg.dataset
         cfg = cfg.preprocess
@@ -402,7 +402,7 @@ class FS2TestDataset(BaseTestDataset):
         return metadata
 
 
-class FS2TestCollator(BaseTestCollator):
+class JetsTestCollator(BaseTestCollator):
     """Zero-pads model inputs and targets based on number of frames per step"""
 
     def __init__(self, cfg):

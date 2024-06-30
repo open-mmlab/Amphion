@@ -9,7 +9,7 @@ from tqdm import tqdm
 from collections import OrderedDict
 
 from models.tts.base.tts_inferece import TTSInference
-from models.tts.jets.jets_dataset import FS2TestDataset, FS2TestCollator
+from models.tts.jets.jets_dataset import JetsTestDataset, JetsTestCollator
 from utils.util import load_config
 from utils.io import save_audio
 from models.tts.jets.jets import Jets
@@ -34,7 +34,7 @@ class JetsInference(TTSInference):
         return self.model
 
     def _build_test_dataset(self):
-        return FS2TestDataset, FS2TestCollator
+        return JetsTestDataset, JetsTestCollator
 
     def inference_for_batches(
         self
