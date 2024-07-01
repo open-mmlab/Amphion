@@ -22,7 +22,7 @@ def build_inference(args, cfg):
         "VITS": VitsInference,
         "VALLE": VALLEInference,
         "NaturalSpeech2": NS2Inference,
-        "JETS": JetsInference,
+        "Jets": JetsInference,
     }
 
     inference_class = supported_inference[cfg.model_type]
