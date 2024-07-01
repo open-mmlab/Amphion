@@ -218,12 +218,11 @@ class JetsTrainer(TTSTrainer):
         # Train Discriminator
         # Generator output
         outputs_g = self.model["generator"](batch)
-        speech_hat_, *_ = outputs_g
+        speech_hat_, _, _, start_idxs, *_ = outputs_g
 
         # Discriminator output
         speech = batch["audio"].unsqueeze(1)
         upsample_factor = self.cfg.train.upsample_factor
-        _, _, _, start_idxs, *_ = outputs_g
         speech_ = get_segments(
             x=speech,
             start_idxs=start_idxs * upsample_factor,
@@ -232,7 +231,7 @@ class JetsTrainer(TTSTrainer):
         p_hat = self.model["discriminator"](speech_hat_.detach())
         p = self.model["discriminator"](speech_)
 
-        ##  Discriminator loss
+        # Discriminator loss
         loss_d = self.criterion["discriminator"](p, p_hat)
         train_losses.update(loss_d)
 
@@ -241,7 +240,7 @@ class JetsTrainer(TTSTrainer):
         self.accelerator.backward(loss_d["loss_disc_all"])
         self.optimizer["optimizer_d"].step()
 
-        ## Train Generator
+        # Train Generator
         p_hat = self.model["discriminator"](speech_hat_)
         with torch.no_grad():
             p = self.model["discriminator"](speech_)
@@ -275,12 +274,11 @@ class JetsTrainer(TTSTrainer):
         # Discriminator
         # Generator output
         outputs_g = self.model["generator"](batch)
-        speech_hat_, *_ = outputs_g
+        speech_hat_, _, _, start_idxs, *_ = outputs_g
 
         # Discriminator output
         speech = batch["audio"].unsqueeze(1)
         upsample_factor = self.cfg.train.upsample_factor
-        _, _, _, start_idxs, *_ = outputs_g
         speech_ = get_segments(
             x=speech,
             start_idxs=start_idxs * upsample_factor,
@@ -289,11 +287,11 @@ class JetsTrainer(TTSTrainer):
         p_hat = self.model["discriminator"](speech_hat_.detach())
         p = self.model["discriminator"](speech_)
 
-        ##  Discriminator loss
+        # Discriminator loss
         loss_d = self.criterion["discriminator"](p, p_hat)
         valid_losses.update(loss_d)
 
-        ## Generator
+        # Generator loss
         p_hat = self.model["discriminator"](speech_hat_)
         with torch.no_grad():
             p = self.model["discriminator"](speech_)

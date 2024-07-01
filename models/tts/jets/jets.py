@@ -481,7 +481,6 @@ class Jets(nn.Module):
         max_mel_len = max(mel_lens) if "target_len" in data else None
         p_targets = data["pitch"] if "pitch" in data else None
         e_targets = data["energy"] if "energy" in data else None
-        # d_targets = data["durations"] if "durations" in data else None
         src_masks = get_mask_from_lengths(src_lens, max_src_len)
         mel_masks = (
             get_mask_from_lengths(mel_lens, max_mel_len)
@@ -496,18 +495,16 @@ class Jets(nn.Module):
                 -1, max_src_len, -1
             )
 
-        # forward alignment module and obtain duration, averaged pitch, energy
-        # h_masks = make_pad_mask(text_lengths).to(hs.device)
+        # Forward alignment module and obtain duration, averaged pitch, energy
         h_masks = make_pad_mask(src_lens).to(output.device)
-        # log_p_attn = self.alignment_module(hs, feats, h_masks)
         log_p_attn = self.alignment_module(output, feats, src_lens, feats_lengths, h_masks)
         ds, bin_loss = viterbi_decode(log_p_attn, src_lens, feats_lengths)
-        # ps = average_by_duration(ds, pitch.squeeze(-1), text_lengths, feats_lengths).unsqueeze(-1)
         ps = average_by_duration(ds, p_targets.squeeze(-1), src_lens, feats_lengths).unsqueeze(-1)
-        # es = average_by_duration(ds, energy.squeeze(-1), text_lengths, feats_lengths).unsqueeze(-1)
         es = average_by_duration(ds, e_targets.squeeze(-1), src_lens, feats_lengths).unsqueeze(-1)
         p_embs = self.pitch_embed(ps.transpose(1, 2)).transpose(1, 2)
         e_embs = self.energy_embed(es.transpose(1, 2)).transpose(1, 2)
+
+        # FastSpeech2 variance adaptor
         (
             output,
             p_predictions,
@@ -532,7 +529,6 @@ class Jets(nn.Module):
         )
 
         # forward decoder
-        # h_masks = self._source_mask(feats_lengths)
         zs, _ = self.decoder(output, mel_masks)  # (B, T_feats, adim)
 
         # get random segments
@@ -588,21 +584,8 @@ class Jets(nn.Module):
             ).long()  # avoid negative value
 
         # forward decoder
-        # h_masks = self._source_mask(feats_lengths)
-        # upsampling
-        if feats_lengths is not None:
-            h_masks = make_non_pad_mask(feats_lengths).to(hs.device)
-        else:
-            h_masks = None
-        d_masks = make_non_pad_mask(src_lens).to(d_outs.device)
-        # hs = self.length_regulator(hs, d_outs, h_masks, d_masks)  # (B, T_feats, adim)
         hs, mel_len = self.length_regulator_infer(hs, d_predictions, max_mel_len)
         mel_mask = get_mask_from_lengths(mel_len)
-        # forward decoder
-        if feats_lengths is not None:
-            h_masks = self._source_mask(feats_lengths)
-        else:
-            h_masks = None
         zs, _ = self.decoder(hs, mel_mask)  # (B, T_feats, adim)
 
         # forward generator
