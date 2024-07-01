@@ -1,0 +1,55 @@
+{
+    "model_type": "VALLE_V2_AR",
+    "log_dir": "./ckpt/VALLE_V2",
+    "use_speechtokenizer": true,
+    "train": {
+        "gradient_accumulation_step": 1,
+        "find_unused_parameters": false,
+        "tracker": ["tensorboard"],
+        "max_epoch": 1000,
+        "save_checkpoint_stride": [500],
+        "keep_last": [1],
+        "run_eval": [true],
+        "dataloader": {
+          "num_worker": 4,
+          "pin_memory": true,
+          "persistent_workers": true
+        },
+        "dataset": {
+          "use_dynamic_batchsize": false,
+          "name": "libritts"
+        },
+        "optimizer": "adamW",
+        "adamw": {
+          "lr": 1e-4
+        },
+        "scheduler": {
+          "warmup_steps": 25000,
+          "total_steps": 800000,
+          "min_lr": 1e-5
+        },
+        "exponentiallr": {
+          "gamma": 0.999999
+        },
+        "batch_size": 5,
+        "max_tokens": 5000,
+        "max_sentences": 64,
+        "random_seed": 0
+    }, 
+    "dataset": {
+      "dataset_list":["train-clean-360"],
+      "data_dir": "/path/to/your/libritts"  // You can also change to other splits like "dev-clean"
+    },
+    "model": {
+      "phone_vocab_size": 300,
+      "target_vocab_size": 1024,
+      "pad_token_id": 1324,
+      "bos_target_id": 1325,
+      "eos_target_id": 1326,
+      "bos_phone_id": 1327,
+      "eos_phone_id": 1328,
+      "bos_prompt_id": 1329,
+      "eos_prompt_id": 1330,
+      "num_hidden_layers": 16
+    }
+    }
