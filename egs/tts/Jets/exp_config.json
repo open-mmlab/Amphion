@@ -27,5 +27,6 @@
     },
     "lr_decay": 0.999875,
     "segment_size": 64,
+    "upsample_factor": 256
   }
 }

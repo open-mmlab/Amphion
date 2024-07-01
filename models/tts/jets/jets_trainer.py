@@ -222,7 +222,7 @@ class JetsTrainer(TTSTrainer):
 
         # Discriminator output
         speech = batch["audio"].unsqueeze(1)
-        upsample_factor = 256
+        upsample_factor = self.cfg.train.upsample_factor
         _, _, _, start_idxs, *_ = outputs_g
         speech_ = get_segments(
             x=speech,
@@ -279,7 +279,7 @@ class JetsTrainer(TTSTrainer):
 
         # Discriminator output
         speech = batch["audio"].unsqueeze(1)
-        upsample_factor = 256
+        upsample_factor = self.cfg.train.upsample_factor
         _, _, _, start_idxs, *_ = outputs_g
         speech_ = get_segments(
             x=speech,
