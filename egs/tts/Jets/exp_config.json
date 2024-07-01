@@ -13,6 +13,7 @@
     "sample_rate": 22050,
     "use_audios": true,
     "extract_audio": true,
+    "segment_size": 64,
 },
   "train": {
     "batch_size": 16,

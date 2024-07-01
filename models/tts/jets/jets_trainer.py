@@ -170,8 +170,8 @@ class JetsTrainer(TTSTrainer):
             disable=not self.accelerator.is_main_process,
         ):
             with self.accelerator.accumulate(self.model):
-                segment_size = 64
-                if batch["target_len"].min() < segment_size:
+                # segment_size = 64
+                if batch["target_len"].min() < self.cfg.preprocess.segment_size:
                     continue
                 total_loss, train_losses, training_stats = self._train_step(batch)
             self.batch_count += 1
@@ -187,12 +187,6 @@ class JetsTrainer(TTSTrainer):
                     self.accelerator.log(
                         {
                             "Step/Train {} Loss".format(key): value,
-                            # "Step/Generator Learning Rate": self.optimizer[
-                            #     "optimizer_d"
-                            # ].param_groups[0]["lr"],
-                            # "Step/Discriminator Learning Rate": self.optimizer[
-                            #     "optimizer_g"
-                            # ].param_groups[0]["lr"],
                         },
                         step=self.step,
                     )
@@ -227,34 +221,15 @@ class JetsTrainer(TTSTrainer):
         outputs_g = self.model["generator"](batch)
         speech_hat_, *_ = outputs_g
 
-        # output temp generator waveform during trainning (for debug)
-        # out_dir = os.path.join(self.args.output_dir, "temp")
-        # os.makedirs(out_dir, exist_ok=True)
-
-        # if (self.epoch % 10 == 0 and self.step % 100 == 0):
-        #     for i, wav in enumerate(speech_hat_):
-        #         uid = i
-        #         save_audio(
-        #             os.path.join(out_dir, f"{uid}.wav"),
-        #             wav.numpy(),
-        #             self.cfg.preprocess.sample_rate,
-        #             add_silence=True,
-        #             turn_up=True,
-        #         )
-        #         tmp_file = os.path.join(out_dir, f"{uid}.pt")
-        #         if os.path.exists(tmp_file):
-        #             os.remove(tmp_file)
-        #     print("Current Epoch: ", self.epoch, "Current step: ", self.step, "Saved to: ", out_dir)
-
         # Discriminator output
         speech = batch["audio"].unsqueeze(1)
         upsample_factor = 256
-        segment_size = 64
+        # segment_size = 64
         _, _, _, start_idxs, *_ = outputs_g
         speech_ = get_segments(
             x=speech,
             start_idxs=start_idxs * upsample_factor,
-            segment_size=segment_size * upsample_factor,
+            segment_size=self.cfg.preprocess.segment_size * upsample_factor,
         )
         p_hat = self.model["discriminator"](speech_hat_.detach())
         p = self.model["discriminator"](speech_)
@@ -307,12 +282,12 @@ class JetsTrainer(TTSTrainer):
         # Discriminator output
         speech = batch["audio"].unsqueeze(1)
         upsample_factor = 256
-        segment_size = 64
+        # segment_size = 64
         _, _, _, start_idxs, *_ = outputs_g
         speech_ = get_segments(
             x=speech,
             start_idxs=start_idxs * upsample_factor,
-            segment_size=segment_size * upsample_factor,
+            segment_size=self.cfg.preprocess.segment_size * upsample_factor,
         )
         p_hat = self.model["discriminator"](speech_hat_.detach())
         p = self.model["discriminator"](speech_)
@@ -376,12 +351,6 @@ class JetsTrainer(TTSTrainer):
                     self.accelerator.log(
                         {
                             "Step/Valid {} Loss".format(key): value,
-                            # "Step/Generator Learning Rate": self.optimizer[
-                            #     "optimizer_d"
-                            # ].param_groups[0]["lr"],
-                            # "Step/Discriminator Learning Rate": self.optimizer[
-                            #     "optimizer_g"
-                            # ].param_groups[0]["lr"],
                         },
                         step=self.step,
                     )

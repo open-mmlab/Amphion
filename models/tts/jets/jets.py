@@ -441,7 +441,7 @@ class Jets(nn.Module):
         # define length regulator
         self.length_regulator = GaussianUpsampling()
 
-        self.segment_size: int = 64
+        self.segment_size = cfg.preprocess.segment_size
 
         # Define HiFiGAN generator
         hifi_cfg = load_config("egs/vocoder/gan/hifigan/exp_config.json")
