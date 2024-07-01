@@ -86,7 +86,7 @@ python main.py
 
 ### 3. Check the Results
 
-The processed audio files will be saved into `input_folder_path_processed`. The results will be saved in the same folder and include the following information:
+The processed audio (default 24k sample rate) files will be saved into `input_folder_path_processed`. The results will be saved in the same folder and include the following information:
 
 1. **MP3 file**: `<original_name>_<idx>.mp3`
 2. **JSON file**: `<original_name>.json`
