@@ -9,6 +9,7 @@ import librosa
 from models.vocoders.gan.discriminator.mpd import MultiScaleMultiPeriodDiscriminator
 from models.tts.jets.alignments import make_non_pad_mask, make_pad_mask
 
+
 class GeneratorAdversarialLoss(torch.nn.Module):
     """Generator adversarial loss module."""
 
@@ -16,13 +17,6 @@ class GeneratorAdversarialLoss(torch.nn.Module):
         super().__init__()
 
     def forward(self, outputs) -> torch.Tensor:
-        # adv_loss = 0.0
-        # for x in outputs:
-        #     l = F.mse_loss(x, x.new_ones(x.size()))
-        #     adv_loss += l
-
-        # return adv_loss
-
         if isinstance(outputs, (tuple, list)):
             adv_loss = 0.0
             for i, outputs_ in enumerate(outputs):
@@ -36,7 +30,8 @@ class GeneratorAdversarialLoss(torch.nn.Module):
             adv_loss = F.mse_loss(outputs, outputs.new_ones(outputs.size()))
 
         return adv_loss
-    
+
+
 class FeatureMatchLoss(torch.nn.Module):
     """Feature matching loss module."""
 
@@ -97,6 +92,7 @@ class FeatureMatchLoss(torch.nn.Module):
 
         return feat_match_loss
 
+
 class DurationPredictorLoss(torch.nn.Module):
     """Loss function module for duration predictor.
 
@@ -122,8 +118,10 @@ class DurationPredictorLoss(torch.nn.Module):
 
         return loss
 
+
 class VarianceLoss(torch.nn.Module):
     def __init__(self):
+        """Initialize JETS variance loss module."""
         super().__init__()
 
         # define criterions
@@ -141,6 +139,23 @@ class VarianceLoss(torch.nn.Module):
         es: torch.Tensor,
         ilens: torch.Tensor,
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        """Calculate forward propagation.
+
+        Args:
+            d_outs (LongTensor): Batch of outputs of duration predictor (B, T_text).
+            ds (LongTensor): Batch of durations (B, T_text).
+            p_outs (Tensor): Batch of outputs of pitch predictor (B, T_text, 1).
+            ps (Tensor): Batch of target token-averaged pitch (B, T_text, 1).
+            e_outs (Tensor): Batch of outputs of energy predictor (B, T_text, 1).
+            es (Tensor): Batch of target token-averaged energy (B, T_text, 1).
+            ilens (LongTensor): Batch of the lengths of each input (B,).
+
+        Returns:
+            Tensor: Duration predictor loss value.
+            Tensor: Pitch predictor loss value.
+            Tensor: Energy predictor loss value.
+
+        """
         # apply mask to remove padded part
         duration_masks = make_non_pad_mask(ilens).to(ds.device)
         d_outs = d_outs.masked_select(duration_masks)
@@ -159,10 +174,12 @@ class VarianceLoss(torch.nn.Module):
 
         return duration_loss, pitch_loss, energy_loss
 
+
 class ForwardSumLoss(torch.nn.Module):
     """Forwardsum loss described at https://openreview.net/forum?id=0NQwnnwAORi"""
 
     def __init__(self):
+        """Initialize forwardsum loss module."""
         super().__init__()
 
     def forward(
@@ -172,6 +189,19 @@ class ForwardSumLoss(torch.nn.Module):
         olens: torch.Tensor,
         blank_prob: float = np.e**-1,
     ) -> torch.Tensor:
+        """Calculate forward propagation.
+
+        Args:
+            log_p_attn (Tensor): Batch of log probability of attention matrix
+                (B, T_feats, T_text).
+            ilens (Tensor): Batch of the lengths of each input (B,).
+            olens (Tensor): Batch of the lengths of each target (B,).
+            blank_prob (float): Blank symbol probability.
+
+        Returns:
+            Tensor: forwardsum loss value.
+
+        """
         B = log_p_attn.size(0)
 
         # a row must be added to the attention matrix to account for
@@ -197,6 +227,7 @@ class ForwardSumLoss(torch.nn.Module):
             )
         loss = loss / B
         return loss
+
 
 class MelSpectrogramLoss(torch.nn.Module):
     """Mel-spectrogram loss."""
@@ -331,7 +362,9 @@ class MelSpectrogramLoss(torch.nn.Module):
 
         return mel_loss
 
+
 class GeneratorLoss(nn.Module):
+    """The total loss of the generator"""
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
@@ -356,6 +389,7 @@ class GeneratorLoss(nn.Module):
     ):
         loss_g = {}
         
+        # parse generator output
         (
         speech_hat_,
         bin_loss,
@@ -370,12 +404,14 @@ class GeneratorLoss(nn.Module):
         text_lengths,
         feats_lengths
         ) = outputs_g
-        
+
+        # parse discriminator output
         (
         p_hat,
         p
         ) = outputs_d
         
+        # calculate losses
         mel_loss = self.mel_loss(speech_hat_, speech_)
         adv_loss = self.generator_adv_loss(p_hat)
         feat_match_loss = self.feat_match_loss(p_hat, p)
@@ -384,6 +420,7 @@ class GeneratorLoss(nn.Module):
         )
         forwardsum_loss = self.forwardsum_loss(log_p_attn, text_lengths, feats_lengths)
 
+        # calculate total loss
         mel_loss = mel_loss * self.lambda_mel
         loss_g["mel_loss"] = mel_loss
         adv_loss = adv_loss * self.lambda_adv
@@ -402,7 +439,8 @@ class GeneratorLoss(nn.Module):
         loss_g["g_total_loss"] = g_total_loss
 
         return loss_g
-    
+
+
 class DiscriminatorAdversarialLoss(torch.nn.Module):
     """Discriminator adversarial loss module."""
 
@@ -480,7 +518,9 @@ class DiscriminatorAdversarialLoss(torch.nn.Module):
     def _hinge_fake_loss(self, x: torch.Tensor) -> torch.Tensor:
         return -torch.mean(torch.min(-x - 1, x.new_zeros(x.size())))
 
+
 class DiscriminatorLoss(torch.nn.Module):
+    """The total loss of the discriminator"""
     def __init__(self, cfg):
         super(DiscriminatorLoss, self).__init__()
         self.cfg = cfg
