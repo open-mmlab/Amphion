@@ -170,8 +170,7 @@ class JetsTrainer(TTSTrainer):
             disable=not self.accelerator.is_main_process,
         ):
             with self.accelerator.accumulate(self.model):
-                # segment_size = 64
-                if batch["target_len"].min() < self.cfg.preprocess.segment_size:
+                if batch["target_len"].min() < self.cfg.train.segment_size:
                     continue
                 total_loss, train_losses, training_stats = self._train_step(batch)
             self.batch_count += 1
@@ -224,12 +223,11 @@ class JetsTrainer(TTSTrainer):
         # Discriminator output
         speech = batch["audio"].unsqueeze(1)
         upsample_factor = 256
-        # segment_size = 64
         _, _, _, start_idxs, *_ = outputs_g
         speech_ = get_segments(
             x=speech,
             start_idxs=start_idxs * upsample_factor,
-            segment_size=self.cfg.preprocess.segment_size * upsample_factor,
+            segment_size=self.cfg.train.segment_size * upsample_factor,
         )
         p_hat = self.model["discriminator"](speech_hat_.detach())
         p = self.model["discriminator"](speech_)
@@ -282,12 +280,11 @@ class JetsTrainer(TTSTrainer):
         # Discriminator output
         speech = batch["audio"].unsqueeze(1)
         upsample_factor = 256
-        # segment_size = 64
         _, _, _, start_idxs, *_ = outputs_g
         speech_ = get_segments(
             x=speech,
             start_idxs=start_idxs * upsample_factor,
-            segment_size=self.cfg.preprocess.segment_size * upsample_factor,
+            segment_size=self.cfg.train.segment_size * upsample_factor,
         )
         p_hat = self.model["discriminator"](speech_hat_.detach())
         p = self.model["discriminator"](speech_)
