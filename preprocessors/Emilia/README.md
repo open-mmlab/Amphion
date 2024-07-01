@@ -1,15 +1,15 @@
 ## Emilia
 
-This is the official code for the **Emilia** dataset, and the source code of the *Emilia-Pipe*. This README file will introduce the project and provide an installation guide.
+This is the official repository for the **Emilia** dataset, and the source code of the **Emilia-Pipe**. This README file will introduce the project and provide an installation guide.
 
 ### Pipeline
 
-0. Preprocess
+0. Standardization
 1. Source Separation: Long audio -> Long audio without BGM
-2. Generate Speaker Diarization: Speaker diarization of long audio to get medium-length single-speaker audio
-3. VAD (silero-vad): Short-length single-speaker audio
-4. ASR: Process short single-speaker audio to get text
-5. MOS Predictions: Assign a DNSMOS score
+2. Speaker Diarization: Get medium-length single-speaker speech data
+3. Fine-grained Segmentation by VAD: Get 3-30s single-speaker speech segments
+4. ASR: Get transcriptions of the speech segments
+5. Filtering: Get the resulting dataset
 
 ## Setup Steps
 
