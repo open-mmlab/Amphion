@@ -4,7 +4,7 @@ This is the official repository for the **Emilia** dataset, and the source code 
 
 ### Pipeline
 
-0. Standardization
+0. Standardization：Audio normalization
 1. Source Separation: Long audio -> Long audio without BGM
 2. Speaker Diarization: Get medium-length single-speaker speech data
 3. Fine-grained Segmentation by VAD: Get 3-30s single-speaker speech segments
