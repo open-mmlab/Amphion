@@ -16,8 +16,8 @@ from accelerate.utils import ProjectConfiguration
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from models.codec.codec_dataset import VocoderConcatDataset
-from models.codec.codec_sampler import build_samplers
+from models.vocoders.vocoder_dataset import VocoderConcatDataset
+from models.vocoders.vocoder_sampler import build_samplers
 
 
 class VocoderTrainer:
