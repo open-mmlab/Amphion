@@ -1,10 +1,10 @@
 # Source: https://github.com/snakers4/silero-vad
 #
 # Copyright (c) 2024 snakers4
-# 
+#
 # This code is from a MIT-licensed repository. The full license text is available at the root of the source repository.
 #
-# Note: This code has been modified to fit the context of this repository. 
+# Note: This code has been modified to fit the context of this repository.
 
 import librosa
 import torch
