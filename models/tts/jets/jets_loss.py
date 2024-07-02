@@ -24,8 +24,6 @@ class GeneratorAdversarialLoss(torch.nn.Module):
                     # NOTE(kan-bayashi): case including feature maps
                     outputs_ = outputs_[-1]
                 adv_loss += F.mse_loss(outputs_, outputs_.new_ones(outputs_.size()))
-            # if self.average_by_discriminators:
-            #     adv_loss /= i + 1
         else:
             adv_loss = F.mse_loss(outputs, outputs.new_ones(outputs.size()))
 
@@ -530,30 +528,7 @@ class DiscriminatorLoss(torch.nn.Module):
     def forward(self, speech_real, speech_generated):
         loss_d = {}
 
-        # loss = 0
-        # r_losses = []
-        # g_losses = []
-        # for dr, dg in zip(speech_real, speech_generated):
-        #     dr = dr.float()
-        #     dg = dg.float()
-        #     r_loss = torch.mean((1 - dr) ** 2)
-        #     g_loss = torch.mean(dg**2)
-        #     loss += r_loss + g_loss
-        #     r_losses.append(r_loss.item())
-        #     g_losses.append(g_loss.item())
-
-        # loss_d["loss_disc_all"] = loss
-
-        # jets original
         real_loss, fake_loss = self.discriminator_adv_loss(speech_generated, speech_real)
         loss_d["loss_disc_all"] = real_loss + fake_loss
-
-        # stats = dict(
-        #     discriminator_loss=loss.item(),
-        #     discriminator_real_loss=real_loss.item(),
-        #     discriminator_fake_loss=fake_loss.item(),
-        # )
-        # loss, stats, weight = force_gatherable((loss, stats, batch_size), loss.device)
-
 
         return loss_d
