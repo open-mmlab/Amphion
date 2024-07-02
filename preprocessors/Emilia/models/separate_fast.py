@@ -1,7 +1,12 @@
-# Copyright (c) 2024 Amphion.
+# Source: https://github.com/seanghay/uvr-mdx-infer/blob/main/separate.py
 #
-# This source code is licensed under the MIT license found in the
-# LICENSE file in the root directory of this source tree.
+# Copyright (c) 2023 seanghay
+# 
+# This code is from an unliscensed repository.
+#
+# Note: This code has been modified to fit the context of this repository. 
+#       This code is included in an MIT-licensed repository.
+#       The repository's MIT license does not apply to this code.
 
 import torch
 import numpy as np

@@ -1,7 +1,10 @@
-# Copyright (c) 2024 Amphion.
+# Source: https://github.com/snakers4/silero-vad
 #
-# This source code is licensed under the MIT license found in the
-# LICENSE file in the root directory of this source tree.
+# Copyright (c) 2024 snakers4
+# 
+# This code is from a MIT-licensed repository. The full license text is available at the root of the source repository.
+#
+# Note: This code has been modified to fit the context of this repository. 
 
 import librosa
 import torch

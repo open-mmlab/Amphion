@@ -11,11 +11,13 @@
         ]
     },
     "entrypoint": {
+        // TODO: Fill in the input_folder_path. 
         "input_folder_path": "examples",
         "SAMPLE_RATE": 24000
     },
     "separate": {
         "step1": {
+            // TODO: Fill in the source separation model's path. 
             "model_path": "/path/to/model/separate_model/UVR-MDX-NET-Inst_HQ_3.onnx",
             "denoise": true,
             "margin": 44100,
@@ -26,7 +28,7 @@
         }
     },
     "mos_model": {
-        "p808_model_path": "/path/to/model/mos_model/DNSMOS/model_v8.onnx",
+        // TODO: Fill in the DNSMOS prediction model's path. 
         "primary_model_path": "/path/to/model/mos_model/DNSMOS/sig_bak_ovr.onnx"
     },
     "huggingface_token": "<HUGGINGFACE_ACCESS_TOKEN>"

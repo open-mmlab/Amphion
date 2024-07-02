@@ -1,7 +1,13 @@
-# Copyright (c) 2024 Amphion.
+# Source: https://github.com/microsoft/DNS-Challenge/tree/master/DNSMOS
 #
-# This source code is licensed under the MIT license found in the
-# LICENSE file in the root directory of this source tree.
+# Copyright (c) 2022 Microsoft
+# 
+# This code is licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) license.
+# The full license text is available at the root of the source repository.
+#
+# Note: This code has been modified to fit the context of this repository. 
+#       This code is included in an MIT-licensed repository.
+#       The repository's MIT license does not apply to this code. 
 
 import os
 import librosa
