@@ -36,11 +36,11 @@ bash env.sh
 ```
 
 3. Download the model files.
-Bgm Separator:[UVR-MDX-NET-Inst_HQ_3](https://github.com/TRvlvr/model_repo/releases/tag/all_public_uvr_models)
-VAD:[Silero](https://github.com/snakers4/silero-vad)
-SpeakerDiarization: [pyannote](https://github.com/pyannote/pyannote-audio)
+Bgm Separator: [UVR-MDX-NET-Inst_HQ_3](https://github.com/TRvlvr/model_repo/releases/tag/all_public_uvr_models)
+VAD: [Silero](https://github.com/snakers4/silero-vad)
+Speaker Diarization: [pyannote](https://github.com/pyannote/pyannote-audio)
 ASR: [whisperx-medium](https://github.com/m-bain/whisperX)
-AutoMOS:[DNSMOS P. 835](https://github.com/microsoft/DNS-Challenge)
+AutoMOS: [DNSMOS P. 835](https://github.com/microsoft/DNS-Challenge)
 
 ### 1. Config File
 
