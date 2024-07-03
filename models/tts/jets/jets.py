@@ -12,7 +12,14 @@ import torch.nn.functional as F
 from modules.transformer.Models import Encoder, Decoder
 from modules.transformer.Layers import PostNet
 from collections import OrderedDict
-from models.tts.jets.alignments import AlignmentModule, viterbi_decode, average_by_duration, make_pad_mask, make_non_pad_mask, get_random_segments
+from models.tts.jets.alignments import (
+    AlignmentModule,
+    viterbi_decode,
+    average_by_duration,
+    make_pad_mask,
+    make_non_pad_mask,
+    get_random_segments,
+)
 from models.tts.jets.length_regulator import GaussianUpsampling
 from models.vocoders.gan.generator.hifigan import HiFiGAN
 import os
@@ -31,6 +38,7 @@ def get_mask_from_lengths(lengths, max_len=None):
     mask = ids >= lengths.unsqueeze(1).expand(-1, max_len)
 
     return mask
+
 
 def pad(input_ele, mel_max_length=None):
     if mel_max_length:
@@ -188,7 +196,7 @@ class VarianceAdaptor(nn.Module):
         e_control=1.0,
         d_control=1.0,
         pitch_embedding=None,
-        energy_embedding=None
+        energy_embedding=None,
     ):
         log_duration_prediction = self.duration_predictor(x, src_mask)
 
@@ -218,6 +226,7 @@ class VarianceAdaptor(nn.Module):
             mel_len,
             mel_mask,
         )
+
     def inference(
         self,
         x,
@@ -231,9 +240,9 @@ class VarianceAdaptor(nn.Module):
         e_control=1.0,
         d_control=1.0,
         pitch_embedding=None,
-        energy_embedding=None
-        ):
-        
+        energy_embedding=None,
+    ):
+
         p_outs = self.pitch_predictor(x, src_mask)
         e_outs = self.energy_predictor(x, src_mask)
         d_outs = self.duration_predictor(x, src_mask)
@@ -424,7 +433,7 @@ class Jets(nn.Module):
             ),
             torch.nn.Dropout(pitch_embed_dropout),
         )
-        
+
         # NOTE(kan-bayashi): We use continuous enegy + FastPitch style avg
         energy_embed_kernel_size: int = 9
         energy_embed_dropout: float = 0.5
@@ -469,7 +478,7 @@ class Jets(nn.Module):
         """
         x_masks = make_non_pad_mask(ilens).to(next(self.parameters()).device)
         return x_masks.unsqueeze(-2)
-    
+
     def forward(self, data, p_control=1.0, e_control=1.0, d_control=1.0):
         speakers = data["spk_id"]
         texts = data["texts"]
@@ -497,10 +506,16 @@ class Jets(nn.Module):
 
         # Forward alignment module and obtain duration, averaged pitch, energy
         h_masks = make_pad_mask(src_lens).to(output.device)
-        log_p_attn = self.alignment_module(output, feats, src_lens, feats_lengths, h_masks)
+        log_p_attn = self.alignment_module(
+            output, feats, src_lens, feats_lengths, h_masks
+        )
         ds, bin_loss = viterbi_decode(log_p_attn, src_lens, feats_lengths)
-        ps = average_by_duration(ds, p_targets.squeeze(-1), src_lens, feats_lengths).unsqueeze(-1)
-        es = average_by_duration(ds, e_targets.squeeze(-1), src_lens, feats_lengths).unsqueeze(-1)
+        ps = average_by_duration(
+            ds, p_targets.squeeze(-1), src_lens, feats_lengths
+        ).unsqueeze(-1)
+        es = average_by_duration(
+            ds, e_targets.squeeze(-1), src_lens, feats_lengths
+        ).unsqueeze(-1)
         p_embs = self.pitch_embed(ps.transpose(1, 2)).transpose(1, 2)
         e_embs = self.energy_embed(es.transpose(1, 2)).transpose(1, 2)
 
@@ -525,7 +540,7 @@ class Jets(nn.Module):
             e_control,
             d_control,
             ps,
-            es
+            es,
         )
 
         # forward decoder
@@ -533,7 +548,7 @@ class Jets(nn.Module):
 
         # get random segments
         z_segments, z_start_idxs = get_random_segments(
-            zs.transpose(1,2),
+            zs.transpose(1, 2),
             feats_lengths,
             self.segment_size,
         )
@@ -541,7 +556,20 @@ class Jets(nn.Module):
         # forward generator
         wav = self.generator(z_segments)
 
-        return wav, bin_loss, log_p_attn, z_start_idxs, log_d_predictions, ds, p_predictions, ps, e_predictions, es, src_lens, feats_lengths
+        return (
+            wav,
+            bin_loss,
+            log_p_attn,
+            z_start_idxs,
+            log_d_predictions,
+            ds,
+            p_predictions,
+            ps,
+            e_predictions,
+            es,
+            src_lens,
+            feats_lengths,
+        )
 
     def inference(self, data, p_control=1.0, e_control=1.0, d_control=1.0):
         speakers = data["spk_id"]
@@ -564,11 +592,7 @@ class Jets(nn.Module):
         x_masks = self._source_mask(src_lens)
         hs = self.encoder(texts, src_masks)
 
-        (
-            p_outs,
-            e_outs,
-            d_outs,
-        ) = self.variance_adaptor.inference(
+        (p_outs, e_outs, d_outs,) = self.variance_adaptor.inference(
             hs,
             src_masks,
         )
@@ -580,8 +604,8 @@ class Jets(nn.Module):
         # Duration predictor inference mode: log_d_pred to d_pred
         offset = 1.0
         d_predictions = torch.clamp(
-                torch.round(d_outs.exp() - offset), min=0
-            ).long()  # avoid negative value
+            torch.round(d_outs.exp() - offset), min=0
+        ).long()  # avoid negative value
 
         # forward decoder
         hs, mel_len = self.length_regulator_infer(hs, d_predictions, max_mel_len)

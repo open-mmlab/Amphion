@@ -36,9 +36,7 @@ class JetsInference(TTSInference):
     def _build_test_dataset(self):
         return JetsTestDataset, JetsTestCollator
 
-    def inference_for_batches(
-        self
-    ):
+    def inference_for_batches(self):
         ###### Construct test_batch ######
         n_batch = len(self.test_dataloader)
         now = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time()))

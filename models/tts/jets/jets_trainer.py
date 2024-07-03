@@ -16,6 +16,7 @@ from optimizer.optimizers import NoamLR
 from torch.optim.lr_scheduler import ExponentialLR
 from models.vocoders.gan.discriminator.mpd import MultiScaleMultiPeriodDiscriminator
 
+
 def get_segments(
     x: torch.Tensor,
     start_idxs: torch.Tensor,
@@ -37,6 +38,7 @@ def get_segments(
     for i, start_idx in enumerate(start_idxs):
         segments[i] = x[i, :, start_idx : start_idx + segment_size]
     return segments
+
 
 class JetsTrainer(TTSTrainer):
     def __init__(self, args, cfg):
@@ -189,7 +191,7 @@ class JetsTrainer(TTSTrainer):
                         },
                         step=self.step,
                     )
-                
+
                 self.step += 1
                 epoch_step += 1
 
@@ -244,7 +246,7 @@ class JetsTrainer(TTSTrainer):
         p_hat = self.model["discriminator"](speech_hat_)
         with torch.no_grad():
             p = self.model["discriminator"](speech_)
-        
+
         outputs_d = (p_hat, p)
         loss_g = self.criterion["generator"](outputs_g, outputs_d, speech_)
         train_losses.update(loss_g)
@@ -295,7 +297,7 @@ class JetsTrainer(TTSTrainer):
         p_hat = self.model["discriminator"](speech_hat_)
         with torch.no_grad():
             p = self.model["discriminator"](speech_)
-        
+
         outputs_d = (p_hat, p)
         loss_g = self.criterion["generator"](outputs_g, outputs_d, speech_)
         valid_losses.update(loss_g)

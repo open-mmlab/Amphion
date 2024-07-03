@@ -55,7 +55,7 @@ class AlignmentModule(nn.Module):
         text = F.relu(self.t_conv1(text))
         text = self.t_conv2(text)
         text = text.transpose(1, 2)
-        
+
         feats = feats.transpose(1, 2)
         feats = F.relu(self.f_conv1(feats))
         feats = F.relu(self.f_conv2(feats))
@@ -227,6 +227,7 @@ def average_by_duration(ds, xs, text_lengths, feats_lengths):
     xs_avg = torch.from_numpy(xs_avg).to(device)
     return xs_avg
 
+
 def make_pad_mask(lengths, xs=None, length_dim=-1, maxlen=None):
     """Make mask tensor containing indices of padded part.
 
@@ -345,6 +346,7 @@ def make_pad_mask(lengths, xs=None, length_dim=-1, maxlen=None):
         mask = mask[ind].expand_as(xs).to(xs.device)
     return mask
 
+
 def make_non_pad_mask(lengths, xs=None, length_dim=-1):
     """Make mask tensor containing indices of non-padded part.
 
@@ -433,6 +435,7 @@ def make_non_pad_mask(lengths, xs=None, length_dim=-1):
     """
     return ~make_pad_mask(lengths, xs, length_dim)
 
+
 def get_random_segments(
     x: torch.Tensor,
     x_lengths: torch.Tensor,
@@ -457,6 +460,7 @@ def get_random_segments(
     )
     segments = get_segments(x, start_idxs, segment_size)
     return segments, start_idxs
+
 
 def get_segments(
     x: torch.Tensor,

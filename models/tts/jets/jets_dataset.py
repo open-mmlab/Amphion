@@ -160,12 +160,12 @@ class JetsDataset(BaseOfflineDataset):
                 "uid": uid,
             }
         )
-        
+
         if self.cfg.preprocess.use_audios:
             audio, sr = torchaudio.load(self.utt2audio_path[utt])
             audio = audio.cpu().numpy().squeeze()
             single_feature["audio"] = audio
-            single_feature["audio_len"] = audio.shape[0]        
+            single_feature["audio_len"] = audio.shape[0]
         return self.clip_if_too_long(single_feature)
 
     def read_duration(self):

@@ -214,7 +214,9 @@ class ForwardSumLoss(torch.nn.Module):
             target_seq = torch.arange(1, ilens[bidx] + 1).unsqueeze(0)
             cur_log_p_attn_pd = log_p_attn_pd[
                 bidx, : olens[bidx], : ilens[bidx] + 1
-            ].unsqueeze(1)  # (T_feats,1,T_text+1)
+            ].unsqueeze(
+                1
+            )  # (T_feats,1,T_text+1)
             cur_log_p_attn_pd = F.log_softmax(cur_log_p_attn_pd, dim=-1)
             loss += F.ctc_loss(
                 log_probs=cur_log_p_attn_pd,
@@ -262,20 +264,20 @@ class MelSpectrogramLoss(torch.nn.Module):
 
         """
         super().__init__()
-        
-        self.fs=fs
-        self.n_fft=n_fft
-        self.hop_length=hop_length
-        self.win_length=n_fft
-        self.window=window
-        self.n_mels=n_mels
+
+        self.fs = fs
+        self.n_fft = n_fft
+        self.hop_length = hop_length
+        self.win_length = n_fft
+        self.window = window
+        self.n_mels = n_mels
         self.fmin = 0 if fmin is None else fmin
         self.fmax = fs / 2 if fmax is None else fmax
-        self.center=center
-        self.normalized=normalized
-        self.onesided=onesided
-        self.htk=htk
-    
+        self.center = center
+        self.normalized = normalized
+        self.onesided = onesided
+        self.htk = htk
+
     def logmel(self, feat, ilens):
         mel_options = dict(
             sr=self.fs,
@@ -289,7 +291,7 @@ class MelSpectrogramLoss(torch.nn.Module):
         melmat = torch.from_numpy(melmat.T).float().to(feat.device)
         mel_feat = torch.matmul(feat, melmat)
         mel_feat = torch.clamp(mel_feat, min=1e-10)
-        logmel_feat = mel_feat.log10() 
+        logmel_feat = mel_feat.log10()
 
         # Zero padding
         if ilens is not None:
@@ -301,14 +303,14 @@ class MelSpectrogramLoss(torch.nn.Module):
                 [feat.size(0)], fill_value=feat.size(1), dtype=torch.long
             )
         return logmel_feat
-    
-    def wav_to_mel(self, input, input_lengths = None):
+
+    def wav_to_mel(self, input, input_lengths=None):
         if self.window is not None:
             window_func = getattr(torch, f"{self.window}_window")
             window = window_func(
                 self.win_length, dtype=input.dtype, device=input.device
             )
-        
+
         stft_kwargs = dict(
             n_fft=self.n_fft,
             win_length=self.win_length,
@@ -319,7 +321,7 @@ class MelSpectrogramLoss(torch.nn.Module):
             onesided=self.onesided,
             return_complex=True,
         )
-        
+
         bs = input.size(0)
         if input.dim() == 3:
             multi_channel = True
@@ -327,14 +329,14 @@ class MelSpectrogramLoss(torch.nn.Module):
             input = input.transpose(1, 2).reshape(-1, input.size(1))
         else:
             multi_channel = False
-        
+
         input_stft = torch.stft(input, **stft_kwargs)
         input_stft = torch.view_as_real(input_stft)
         input_stft = input_stft.transpose(1, 2)
         if multi_channel:
-            input_stft = input_stft.view(bs, -1, input_stft.size(1), input_stft.size(2), 2).transpose(
-                1, 2
-            )
+            input_stft = input_stft.view(
+                bs, -1, input_stft.size(1), input_stft.size(2), 2
+            ).transpose(1, 2)
         if input_lengths is not None:
             if self.center:
                 pad = self.n_fft // 2
@@ -348,7 +350,7 @@ class MelSpectrogramLoss(torch.nn.Module):
         input_amp = torch.sqrt(torch.clamp(input_power, min=1.0e-10))
         input_feats = self.logmel(input_amp, feats_lens)
         return input_feats, feats_lens
-    
+
     def forward(
         self,
         y_hat: torch.Tensor,
@@ -363,10 +365,11 @@ class MelSpectrogramLoss(torch.nn.Module):
 
 class GeneratorLoss(nn.Module):
     """The total loss of the generator"""
+
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
-        
+
         self.mel_loss = MelSpectrogramLoss()
         self.generator_adv_loss = GeneratorAdversarialLoss()
         self.feat_match_loss = FeatureMatchLoss()
@@ -378,37 +381,29 @@ class GeneratorLoss(nn.Module):
         self.lambda_feat_match = 2.0
         self.lambda_var = 1.0
         self.lambda_align = 2.0
-    
-    def forward(
-        self,
-        outputs_g,
-        outputs_d,
-        speech_
-    ):
+
+    def forward(self, outputs_g, outputs_d, speech_):
         loss_g = {}
-        
+
         # parse generator output
         (
-        speech_hat_,
-        bin_loss,
-        log_p_attn,
-        start_idxs,
-        d_outs,
-        ds,
-        p_outs,
-        ps,
-        e_outs,
-        es,
-        text_lengths,
-        feats_lengths
+            speech_hat_,
+            bin_loss,
+            log_p_attn,
+            start_idxs,
+            d_outs,
+            ds,
+            p_outs,
+            ps,
+            e_outs,
+            es,
+            text_lengths,
+            feats_lengths,
         ) = outputs_g
 
         # parse discriminator output
-        (
-        p_hat,
-        p
-        ) = outputs_d
-        
+        (p_hat, p) = outputs_d
+
         # calculate losses
         mel_loss = self.mel_loss(speech_hat_, speech_)
         adv_loss = self.generator_adv_loss(p_hat)
@@ -519,6 +514,7 @@ class DiscriminatorAdversarialLoss(torch.nn.Module):
 
 class DiscriminatorLoss(torch.nn.Module):
     """The total loss of the discriminator"""
+
     def __init__(self, cfg):
         super(DiscriminatorLoss, self).__init__()
         self.cfg = cfg
@@ -528,7 +524,9 @@ class DiscriminatorLoss(torch.nn.Module):
     def forward(self, speech_real, speech_generated):
         loss_d = {}
 
-        real_loss, fake_loss = self.discriminator_adv_loss(speech_generated, speech_real)
+        real_loss, fake_loss = self.discriminator_adv_loss(
+            speech_generated, speech_real
+        )
         loss_d["loss_disc_all"] = real_loss + fake_loss
 
         return loss_d
