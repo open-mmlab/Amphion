@@ -367,7 +367,7 @@ class TTSTrainer(BaseTrainer):
                 for key, loss in valid_losses.items():
                     self.logger.info("  |- Valid/{} Loss: {:.6f}".format(key, loss))
                     self.accelerator.log(
-                        {"Epoch/Train {} Loss".format(key): loss},
+                        {"Epoch/Valid {} Loss".format(key): loss},
                         step=self.epoch,
                     )
 
