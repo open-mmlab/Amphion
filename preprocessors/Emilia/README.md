@@ -1,12 +1,14 @@
-## Emilia
+## Emilia: An Extensive, Multilingual, and Diverse Speech Dataset for Large-Scale Speech Generation
 
-This is the official repository for the **Emilia** dataset and the **Emilia-Pipe** source code.
+This is the official repository for the **Emilia** dataset and the **Emilia-Pipe** source code. 👑
 
-Emilia is a comprehensive, multilingual dataset featuring over 101k hours of speech in six languages: English (En), Chinese (Zh), German (De), French (Fr), Japanese (Ja), and Korean (Ko). The dataset includes diverse speech samples with various speaking styles.
+**Emilia** is a comprehensive, multilingual dataset featuring over *101k* hours of speech in six languages: *English (En), Chinese (Zh), German (De), French (Fr), Japanese (Ja), and Korean (Ko)*. The dataset includes *diverse speech samples with various speaking styles*.
 
-Emilia-Pipe is the first open-source preprocessing pipeline designed to transform raw, in-the-wild speech data into high-quality training data with annotations for speech generation. This pipeline can process one hour of raw audio into model-ready data in just a few minutes, requiring only the URLs of the audio or video sources. 
+**Emilia-Pipe** is the first open-source preprocessing pipeline designed to transform raw, in-the-wild speech data into high-quality training data with annotations for speech generation. This pipeline can process one hour of raw audio into model-ready data in just a few minutes, requiring only the URLs of the audio or video sources. 
 
-By downloading the raw audio files from our provided list of URLs and processing them with Emilia-Pipe, users can obtain the Emilia dataset. Additionally, users can easily use Emilia-Pipe to preprocess their own raw speech data for custom needs. By open-sourcing the Emilia-Pipe code, we aim to enable the speech community to collaborate on large-scale speech generation research.
+*To use the Emilia dataset, you can download the raw audio files from the [provided URL list](https://huggingface.co/datasets/amphion/Emilia) and use our open-source [Emilia-Pipe](https://github.com/open-mmlab/Amphion/tree/main/preprocessors/Emilia) preprocessing pipeline to preprocess the raw data and rebuild the dataset. Please note that Emilia doesn't own the copyright of the audios; the copyright remains with the original owners of the video or audio. Additionally, users can easily use Emilia-Pipe to preprocess their own raw speech data for custom needs.*
+
+By open-sourcing the Emilia-Pipe code, we aim to enable the speech community to collaborate on large-scale speech generation research.
 
 This README file will introduce the usage of the Emilia-Pipe and provide an installation guide.
 
