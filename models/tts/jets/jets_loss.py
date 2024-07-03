@@ -1,3 +1,8 @@
+# Copyright 2020 Nagoya University (Tomoki Hayashi)
+#  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+# Copyright 2022 Dan Lim
+#  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+
 from typing import List, Optional, Tuple, Union
 
 import torch
