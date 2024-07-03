@@ -35,14 +35,15 @@ conda activate AudioPipeline
 bash env.sh
 ```
 
-3. Download the model files.
-Bgm Separator: [UVR-MDX-NET-Inst_HQ_3](https://github.com/TRvlvr/model_repo/releases/tag/all_public_uvr_models)
-VAD: [Silero](https://github.com/snakers4/silero-vad)
-Speaker Diarization: [pyannote](https://github.com/pyannote/pyannote-audio)
-ASR: [whisperx-medium](https://github.com/m-bain/whisperX)
-AutoMOS: [DNSMOS P. 835](https://github.com/microsoft/DNS-Challenge)
+3. Download the model files from the third-party repositories.
+We acknowledge the wonderful work by these excellent developers!
+- Source Separation: [UVR-MDX-NET-Inst_HQ_3](https://github.com/TRvlvr/model_repo/releases/tag/all_public_uvr_models)
+- VAD: [Silero](https://github.com/snakers4/silero-vad)
+- Speaker Diarization: [pyannote](https://github.com/pyannote/pyannote-audio)
+- ASR: [whisperx-medium](https://github.com/m-bain/whisperX)
+- DNSMOS Prediction: [DNSMOS P. 835](https://github.com/microsoft/DNS-Challenge)
 
-### 1. Config File
+### 1. Modify Config File
 
 ```json
 {
@@ -83,12 +84,7 @@ AutoMOS: [DNSMOS P. 835](https://github.com/microsoft/DNS-Challenge)
 }
 ```
 
-- #1: Data to be processed
-- #2 - #3: Model path configuration
-- #4: Huggingface access token
-
-
-### 2. Running Script
+### 2. Run Script
 
 1. Change the `input_folder_path` in `config.json` to the folder path where the downloaded audio files are stored
 2. Run the following command to process the audio files:
