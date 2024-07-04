@@ -269,6 +269,7 @@ class MultiPeriodDiscriminator_vits(torch.nn.Module):
 
         return outputs
 
+
 class DiscriminatorP_JETS(torch.nn.Module):
     def __init__(self, period, kernel_size=5, stride=3, use_spectral_norm=False):
         super(DiscriminatorP_JETS, self).__init__()
@@ -347,6 +348,7 @@ class DiscriminatorP_JETS(torch.nn.Module):
 
         return x, fmap
 
+
 class MultiPeriodDiscriminator_JETS(torch.nn.Module):
     def __init__(self, use_spectral_norm=False):
         super(MultiPeriodDiscriminator_JETS, self).__init__()
@@ -367,10 +369,11 @@ class MultiPeriodDiscriminator_JETS(torch.nn.Module):
 
         return y_d_rs, fmap_rs
 
-# JETS Multi-scale Multi-period discriminator module. 
+
+# JETS Multi-scale Multi-period discriminator module.
 class MultiScaleMultiPeriodDiscriminator(torch.nn.Module):
     """HiFi-GAN multi-scale + multi-period discriminator module."""
-    
+
     def __init__(self, use_spectral_norm=False):
         super(MultiScaleMultiPeriodDiscriminator, self).__init__()
 

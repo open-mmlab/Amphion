@@ -87,6 +87,7 @@ class MultiScaleDiscriminator(nn.Module):
 
         return y_d_rs, y_d_gs, fmap_rs, fmap_gs
 
+
 class MultiScaleDiscriminator_JETS(nn.Module):
     def __init__(self):
         super(MultiScaleDiscriminator_JETS, self).__init__()
@@ -104,7 +105,7 @@ class MultiScaleDiscriminator_JETS(nn.Module):
         )
 
     def forward(self, y):
-        y_d_rs = []     # p, y, groud-truth
+        y_d_rs = []  # p, y, groud-truth
         fmap_rs = []
 
         for i, d in enumerate(self.discriminators):
@@ -114,6 +115,5 @@ class MultiScaleDiscriminator_JETS(nn.Module):
             y_d_rs.append(y_d_r)
             fmap_rs.append(fmap_r)
 
-
         return y_d_rs, fmap_rs
-            # fmap_rs is real, fmap_gs is generated. 
+        # fmap_rs is real, fmap_gs is generated.
