@@ -6,7 +6,12 @@ This is the official repository 👑 for the **Emilia** dataset and the source c
 - 24/07/01: We release of Emilia and Emilia-Pipe! We welcome everyone to explore it! 🎉🎉🎉
 
 ## About ⭐️
-🎤 **Emilia** is a comprehensive, multilingual dataset featuring over *101k* hours of speech in six languages: *English (En), Chinese (Zh), German (De), French (Fr), Japanese (Ja), and Korean (Ko)*. The dataset includes *diverse speech samples with various speaking styles*. Detailed description for the dataset could be found in our paper.
+🎤 **Emilia** is a comprehensive, multilingual dataset with the following features:
+- containing over *101k* hours of speech data;
+- covering six different languages: *English (En), Chinese (Zh), German (De), French (Fr), Japanese (Ja), and Korean (Ko)*;
+- containing diverse speech data with *various speaking styles*;
+  
+Detailed description for the dataset could be found in our paper.
 
 🛠️ **Emilia-Pipe** is the first open-source preprocessing pipeline designed to transform raw, in-the-wild speech data into high-quality training data with annotations for speech generation. This pipeline can process one hour of raw audio into model-ready data in just a few minutes, requiring only the URLs of the audio or video sources. 
 
