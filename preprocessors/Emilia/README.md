@@ -127,7 +127,7 @@ The processed audio (default 24k sample rate) files will be saved into `input_fo
 ## Reference 📖
 
 ```bibtex
-@article{zhang2023amphion,
+@article{amphion,
       title={Amphion: An Open-Source Audio, Music and Speech Generation Toolkit}, 
       author={Zhang, Xueyao and Xue, Liumeng and Gu, Yicheng and Wang, Yuancheng and He, Haorui and Wang, Chaoren and Chen, Xi and Fang, Zihao and Chen, Haopeng and Zhang, Junan and Tang, Tze Ying and Zou, Lexiao and Wang, Mingxuan and Han, Jun and Chen, Kai and Li, Haizhou and Wu, Zhizheng},
       year={2024},
