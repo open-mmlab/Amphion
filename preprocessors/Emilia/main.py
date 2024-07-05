@@ -112,7 +112,7 @@ def separate(predictor, audio):
     else:
         # resample to 44100
         rate = audio["sample_rate"]
-        mix = librosa.resample(audio["waveform"], orig_sr=rate, target_sr=44100) # why use 44.1k ckpt?
+        mix = librosa.resample(audio["waveform"], orig_sr=rate, target_sr=44100) 
 
     vocals, no_vocals = predictor.predict(mix)
 
@@ -378,7 +378,7 @@ def main_process(path, save_path=None, audio_name=None):
 
     audio_path = path
 
-    # input: a single audio path
+    # TODO: input: a single audio path aaa/bbb/ccc.wav ---> aaa/bbb_processed/ccc/ccc_0.wav 
     logger.debug(f"Processing audio: {audio_path}")
     save_path = save_path or (os.path.dirname(audio_path) + "_processed")
     audio_name = audio_name or os.path.splitext(os.path.basename(audio_path))[0]
@@ -387,25 +387,27 @@ def main_process(path, save_path=None, audio_name=None):
     logger.info(
         "Step 0: Preprocess all audio files --> 24k sample rate + wave format + loudnorm + bit depth 16"
     )
-    audio = preprocess_audio(audio_path) # rename to standarization
+    audio = preprocess_audio(audio_path) # TODO: rename to standarization
 
     logger.info("Step 1: Source Separation")
-    audio = separate(separate_predictor1, audio)
+    audio = separate(separate_predictor1, audio) # TODO: rename to source_separation
 
-    logger.info("Step 2: Speaker Diarization")
-    speakerdia = speaker_diarization(audio)
+    logger.info("Step 2: Speaker Diarization") 
+    speakerdia = speaker_diarization(audio) 
 
     logger.info("Step 3: VAD")
     vad_list = vad.vad(speakerdia, audio)
 
     logger.info("Step 3.5: Fine-grained Segmentation by VAD")
-    filter_list = cut_by_speaker_label(vad_list)
+    filter_list = cut_by_speaker_label(vad_list) 
 
     logger.info("Step 4: ASR")
     asr_result = asr(filter_list, audio)
 
     logger.info("Step 4.5: export to mp3")
-    export_to_mp3(audio, asr_result, save_path, audio_name) # write to a dir please
+    export_to_mp3(audio, asr_result, save_path, audio_name) # TODO: write to a dir please
+
+    # TODO: FILTER
 
     logger.info("Step 5: calculate mos_prediction")
     avg_mos, mos_list = mos_prediction(audio, asr_result)
@@ -417,12 +419,14 @@ def main_process(path, save_path=None, audio_name=None):
     # TODO: filter
     # where is filter? 
     logger.debug(f"filtered: {remove_count} files in total")
+
+    # TODO: iqr filter? by avg char duration
     logger.info("Step 6: done")
 
     logger.info("Step 7: calculate folder MOS after filtering")
 
     logger.info("Step 8: write result into json file")
-    final_path = os.path.join(save_path, audio_name + ".json") # write to a dir please
+    final_path = os.path.join(save_path, audio_name + ".json") # TODO: write to a dir please
     with open(final_path, "w") as f:
         json.dump(mos_list, f, ensure_ascii=False)
 
@@ -459,13 +463,13 @@ if __name__ == "__main__":
         type=str,
         default="um, uh, um, uh, So uhm, yeaah. Okay, ehm, uuuh.",
         help="ASR initial prompt of options to use for the model.",
-    )
+    ) #TODO: delete
     parser.add_argument(
         "--language",
         type=str,
         default=None,
         help="The language of the model. (use English for now)",
-    )
+    ) #TODO: delete
     parser.add_argument(
         "--threads",
         type=int,
@@ -523,8 +527,6 @@ if __name__ == "__main__":
         device_name,
         compute_type=args.compute_type,
         threads=args.threads,
-        language=args.language,
-        asr_options={"initial_prompt": args.asr_initial_prompt},
     )
 
     # VAD
@@ -546,7 +548,7 @@ if __name__ == "__main__":
     supported_languages = cfg["language"]["supported"]
     multilingual_flag = cfg["language"]["multilingual"]
     logger.debug(f"supported languages multilingual {supported_languages}")
-    logger.debug(f"using multilingual {multilingual_flag}")
+    logger.debug(f"using multilingual asr {multilingual_flag}")
 
     input_folder_path = cfg["entrypoint"]["input_folder_path"]
 
