@@ -592,7 +592,11 @@ class Jets(nn.Module):
         x_masks = self._source_mask(src_lens)
         hs = self.encoder(texts, src_masks)
 
-        (p_outs, e_outs, d_outs,) = self.variance_adaptor.inference(
+        (
+            p_outs,
+            e_outs,
+            d_outs,
+        ) = self.variance_adaptor.inference(
             hs,
             src_masks,
         )
