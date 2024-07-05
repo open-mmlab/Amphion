@@ -108,11 +108,11 @@ def separate(predictor, audio):
     mix, rate = None, None
 
     if isinstance(audio, str):
-        mix, rate = librosa.load(audio, mono=False, sr=44100) # why use 44.1k?
+        mix, rate = librosa.load(audio, mono=False, sr=44100) 
     else:
         # resample to 44100
         rate = audio["sample_rate"]
-        mix = librosa.resample(audio["waveform"], orig_sr=rate, target_sr=44100)
+        mix = librosa.resample(audio["waveform"], orig_sr=rate, target_sr=44100) # why use 44.1k ckpt?
 
     vocals, no_vocals = predictor.predict(mix)
 
