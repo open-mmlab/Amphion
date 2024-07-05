@@ -398,7 +398,7 @@ def main_process(path, save_path=None, audio_name=None):
     logger.info("Step 3: VAD (silero-vad)")
     vad_list = vad.vad(speakerdia, audio)
 
-    logger.info("Step 3.1: VAD (silero-vad) post process")
+    logger.info("Step 3.5: VAD (silero-vad) post process")
     filter_list = cut_by_speaker_label(vad_list)
 
     logger.info("Step 4: ASR")
@@ -421,7 +421,7 @@ def main_process(path, save_path=None, audio_name=None):
     logger.info("Step 7: calculate folder MOS after filtering")
 
     logger.info("Step 8: write result into json file")
-    final_path = os.path.join(save_path, audio_name + ".json")
+    final_path = os.path.join(save_path, audio_name + ".json") # write to a dir please
     with open(final_path, "w") as f:
         json.dump(mos_list, f, ensure_ascii=False)
 
