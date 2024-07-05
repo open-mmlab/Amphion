@@ -10,7 +10,7 @@ import librosa
 import torch
 import numpy as np
 
-
+VAD_THRESHOLD = 20
 SAMPLING_RATE = 16000
 
 
@@ -122,7 +122,6 @@ class SileroVAD:
         Returns:
             list: A list of dictionaries containing processed audio segments with start, end, and speaker.
         """
-        SAMPLING_RATE_THRESHOLD = 20
         sampling_rate = audio["sample_rate"]
         audio_data = audio["waveform"]
 
@@ -144,7 +143,7 @@ class SileroVAD:
             if row["speaker"] not in speakers_seen:
                 speakers_seen.add(row["speaker"])
 
-            if end - start <= SAMPLING_RATE_THRESHOLD:
+            if end - start <= VAD_THRESHOLD:
                 out.append(
                     {
                         "index": str(count_id).zfill(5),
