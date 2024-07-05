@@ -252,7 +252,7 @@ def asr(vad_segments, audio):
     end_frame = int(end_time * audio["sample_rate"])
     temp_audio = temp_audio[start_frame:end_frame]  # remove silent start and end
 
-    # update vad_segments start and end time
+    # update vad_segments start and end time (this is a little trick for batched asr:)
     for idx, segment in enumerate(vad_segments):
         vad_segments[idx]["start"] -= start_time
         vad_segments[idx]["end"] -= start_time
@@ -265,6 +265,7 @@ def asr(vad_segments, audio):
     if multilingual_flag:
         logger.debug("Multilingual flag is on")
         valid_vad_segments, valid_vad_segments_language = [], []
+        # get valid segments to be transcripted
         for idx, segment in enumerate(vad_segments):
             start_frame = int(segment["start"] * 16000)
             end_frame = int(segment["end"] * 16000)
@@ -282,6 +283,7 @@ def asr(vad_segments, audio):
         logger.debug(f"valid_vad_segments_language: {valid_vad_segments_language}")
         unique_languages = list(set(valid_vad_segments_language))
         logger.debug(f"unique_languages: {unique_languages}")
+        # process each language one by one
         for language_token in unique_languages:
             language = language_token
             # filter out segments with different language
@@ -290,6 +292,7 @@ def asr(vad_segments, audio):
                 for i, x in enumerate(valid_vad_segments_language)
                 if x == language
             ]
+            # bacthed trascription
             transcribe_result_temp = asr_model.transcribe(
                 temp_audio,
                 vad_segments,
@@ -298,6 +301,7 @@ def asr(vad_segments, audio):
                 print_progress=True,
             )
             result = transcribe_result_temp["segments"]
+            # restore the segment annotation
             for idx, segment in enumerate(result):
                 result[idx]["start"] += start_time
                 result[idx]["end"] += start_time
