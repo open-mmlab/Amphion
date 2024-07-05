@@ -108,7 +108,7 @@ def separate(predictor, audio):
     mix, rate = None, None
 
     if isinstance(audio, str):
-        mix, rate = librosa.load(audio, mono=False, sr=44100)
+        mix, rate = librosa.load(audio, mono=False, sr=44100) # why use 44.1k?
     else:
         # resample to 44100
         rate = audio["sample_rate"]
@@ -387,25 +387,25 @@ def main_process(path, save_path=None, audio_name=None):
     logger.info(
         "Step 0: Preprocess all audio files --> 24k sample rate + wave format + loudnorm + bit depth 16"
     )
-    audio = preprocess_audio(audio_path)
+    audio = preprocess_audio(audio_path) # rename to standarization
 
     logger.info("Step 1: Source Separation")
     audio = separate(separate_predictor1, audio)
 
-    logger.info("Step 2: Generate Speaker Diarization")
+    logger.info("Step 2: Speaker Diarization")
     speakerdia = speaker_diarization(audio)
 
-    logger.info("Step 3: VAD (silero-vad)")
+    logger.info("Step 3: VAD")
     vad_list = vad.vad(speakerdia, audio)
 
-    logger.info("Step 3.5: VAD (silero-vad) post process")
+    logger.info("Step 3.5: Fine-grained Segmentation by VAD")
     filter_list = cut_by_speaker_label(vad_list)
 
     logger.info("Step 4: ASR")
     asr_result = asr(filter_list, audio)
 
     logger.info("Step 4.5: export to mp3")
-    export_to_mp3(audio, asr_result, save_path, audio_name)
+    export_to_mp3(audio, asr_result, save_path, audio_name) # write to a dir please
 
     logger.info("Step 5: calculate mos_prediction")
     avg_mos, mos_list = mos_prediction(audio, asr_result)
@@ -415,6 +415,7 @@ def main_process(path, save_path=None, audio_name=None):
     logger.info("Step 6: filter out files with less than average MOS")
     remove_count = 0
     # TODO: filter
+    # where is filter? 
     logger.debug(f"filtered: {remove_count} files in total")
     logger.info("Step 6: done")
 
