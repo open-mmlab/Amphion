@@ -15,6 +15,7 @@ import soundfile as sf
 import onnxruntime as ort
 import tqdm
 import subprocess
+import re
 
 from utils.logger import Logger, time_logger
 
@@ -230,3 +231,86 @@ def export_to_wav(audio, asr_result, folder_path, file_name):
         out_file = f"{file_name}_{idx}.wav"
         out_path = os.path.join(folder_path, out_file)
         write_wav(out_path, sr, split_audio)
+
+
+def get_char_count(text):
+    """
+    Get the number of characters in the text.
+
+    Args:
+        text (str): Input text.
+
+    Returns:
+        int: Number of characters in the text.
+    """
+    # Using regular expression to remove punctuation and spaces
+    cleaned_text = re.sub(r"[,.!?\"'，。！？“”‘’ ]", "", text)
+    char_count = len(cleaned_text)
+    return char_count
+
+
+def calculate_audio_stats(
+    data, min_duration=3, max_duration=30, min_dnsmos=3, min_char_count=2
+):
+    """
+    Reading the proviced json, calculate and return the audio ID and their duration that meet the given filtering criteria.
+
+    Args:
+        data: JSON.
+        min_duration: Minimum duration of the audio in seconds.
+        max_duration: Maximum duration of the audio in seconds.
+        min_dnsmos: Minimum DNSMOS value.
+        min_char_count: Minimum number of characters.
+
+    Returns:
+        valid_audio_stats: A list containing tuples of audio ID and their duration.
+    """
+    all_audio_stats = []
+    valid_audio_stats = []
+    avg_durations = []
+
+    # iterate over each entry in the JSON to collect the average duration of the phonemes
+    for entry in data:
+        # remove punctuation and spaces
+        char_count = get_char_count(entry["text"])
+        duration = entry["end"] - entry["start"]
+        if char_count > 0:
+            avg_durations.append(duration / char_count)
+
+    # calculate the bounds for the average character duration
+    if len(avg_durations) > 0:
+        q1 = np.percentile(avg_durations, 25)
+        q3 = np.percentile(avg_durations, 75)
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+    else:
+        # if no valid character data, use default values
+        lower_bound, upper_bound = 0, np.inf
+
+    # iterate over each entry in the JSON to apply all filtering criteria
+    for idx, entry in enumerate(data):
+        duration = entry["end"] - entry["start"]
+        dnsmos = entry["mos"]["dnsmos"]
+        # remove punctuation and spaces
+        char_count = get_char_count(entry["text"])
+        if char_count > 0:
+            avg_char_duration = duration / char_count
+        else:
+            avg_char_duration = 0
+
+        # collect the duration of all audios
+        all_audio_stats.append((idx, duration))
+
+        # apply filtering criteria
+        if (
+            (min_duration <= duration <= max_duration)  # withing duration range
+            and (dnsmos >= min_dnsmos)
+            and (char_count >= min_char_count)
+            and (
+                lower_bound <= avg_char_duration <= upper_bound
+            )  # average character duration within bounds
+        ):
+            valid_audio_stats.append((idx, duration))
+
+    return valid_audio_stats, all_audio_stats

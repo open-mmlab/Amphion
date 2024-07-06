@@ -22,6 +22,7 @@ from utils.tool import (
     get_audio_files,
     detect_gpu,
     check_env,
+    calculate_audio_stats,
 )
 from utils.logger import Logger, time_logger
 from models import separate_fast, dnsmos, whisper_asr, silero_vad
@@ -31,7 +32,7 @@ audio_count = 0
 
 
 @time_logger
-def preprocess_audio(audio):
+def standardization(audio):
     """
     Preprocess the audio file, including setting sample rate, bit depth, channels, and volume normalization.
 
@@ -93,7 +94,7 @@ def preprocess_audio(audio):
 
 
 @time_logger
-def separate(predictor, audio):
+def source_separation(predictor, audio):
     """
     Separate the audio into vocals and non-vocals using the given predictor.
 
@@ -108,11 +109,11 @@ def separate(predictor, audio):
     mix, rate = None, None
 
     if isinstance(audio, str):
-        mix, rate = librosa.load(audio, mono=False, sr=44100) 
+        mix, rate = librosa.load(audio, mono=False, sr=44100)
     else:
         # resample to 44100
         rate = audio["sample_rate"]
-        mix = librosa.resample(audio["waveform"], orig_sr=rate, target_sr=44100) 
+        mix = librosa.resample(audio["waveform"], orig_sr=rate, target_sr=44100)
 
     vocals, no_vocals = predictor.predict(mix)
 
@@ -221,7 +222,9 @@ def cut_by_speaker_label(vad_list):
         f"cut_by_speaker_label > merged {len(vad_list) - len(updated_list)} segments"
     )
 
-    filter_list = [vad for vad in updated_list if vad["end"] - vad["start"] >= 1]
+    filter_list = [
+        vad for vad in updated_list if vad["end"] - vad["start"] >= MIN_SEGMENT_LENGTH
+    ]
 
     logger.debug(
         f"cut_by_speaker_label > removed: {len(updated_list) - len(filter_list)} segments by length"
@@ -365,77 +368,87 @@ def mos_prediction(audio, vad_list):
     return predict_dnsmos, vad_list
 
 
-def main_process(path, save_path=None, audio_name=None):
+def filter(mos_list):
     """
-    Process the audio file, including preprocessing, source separation, speaker segmentation, VAD, ASR, export to MP3, and MOS prediction.
+    Filter out the segments with MOS scores, wrong char duration, and total duration.
 
     Args:
-        path (str): Audio file path.
+        mos_list (list): List of VAD segments with MOS scores.
+
+    Returns:
+        list: A list of VAD segments with MOS scores above the average MOS.
+    """
+    filtered_audio_stats, all_audio_stats = calculate_audio_stats(mos_list)
+    filtered_segment = len(filtered_audio_stats)
+    all_segment = len(all_audio_stats)
+    logger.debug(
+        f"> {all_segment - filtered_segment}/{all_segment} {(all_segment - filtered_segment) / all_segment:.2%} segments filtered."
+    )
+    filtered_list = [mos_list[idx] for idx, _ in filtered_audio_stats]
+    return filtered_list
+
+
+def main_process(audio_path, save_path=None, audio_name=None):
+    """
+    Process the audio file, including standardization, source separation, speaker segmentation, VAD, ASR, export to MP3, and MOS prediction.
+
+    Args:
+        audio_path (str): Audio file path.
         save_path (str, optional): Save path, defaults to None, which means saving in the "_processed" folder in the audio file's directory.
         audio_name (str, optional): Audio file name, defaults to None, which means using the file name from the audio file path.
 
     Returns:
         tuple: Contains the save path and the MOS list.
     """
-    if not path.endswith((".mp3", ".wav", ".flac", ".m4a", ".aac")):
-        logger.warning(f"Unsupported file type: {path}")
+    if not audio_path.endswith((".mp3", ".wav", ".flac", ".m4a", ".aac")):
+        logger.warning(f"Unsupported file type: {audio_path}")
 
-    audio_path = path
-
-    # TODO: input: a single audio path aaa/bbb/ccc.wav ---> aaa/bbb_processed/ccc/ccc_0.wav 
-    logger.debug(f"Processing audio: {audio_path}")
-    save_path = save_path or (os.path.dirname(audio_path) + "_processed")
+    # for a single audio from path Ïaaa/bbb/ccc.wav ---> save to aaa/bbb_processed/ccc/ccc_0.wav
     audio_name = audio_name or os.path.splitext(os.path.basename(audio_path))[0]
+    save_path = save_path or os.path.join(
+        os.path.dirname(audio_path) + "_processed", audio_name
+    )
     os.makedirs(save_path, exist_ok=True)
+    logger.debug(
+        f"Processing audio: {audio_name}, from {audio_path}, save to: {save_path}"
+    )
 
     logger.info(
         "Step 0: Preprocess all audio files --> 24k sample rate + wave format + loudnorm + bit depth 16"
     )
-    audio = preprocess_audio(audio_path) # TODO: rename to standarization
+    audio = standardization(audio_path)
 
     logger.info("Step 1: Source Separation")
-    audio = separate(separate_predictor1, audio) # TODO: rename to source_separation
+    audio = source_separation(separate_predictor1, audio)
 
-    logger.info("Step 2: Speaker Diarization") 
-    speakerdia = speaker_diarization(audio) 
+    logger.info("Step 2: Speaker Diarization")
+    speakerdia = speaker_diarization(audio)
 
-    logger.info("Step 3: VAD")
+    logger.info("Step 3: Fine-grained Segmentation by VAD")
     vad_list = vad.vad(speakerdia, audio)
-
-    logger.info("Step 3.5: Fine-grained Segmentation by VAD")
-    filter_list = cut_by_speaker_label(vad_list) 
+    segment_list = cut_by_speaker_label(vad_list)  # post process after vad
 
     logger.info("Step 4: ASR")
-    asr_result = asr(filter_list, audio)
+    asr_result = asr(segment_list, audio)
 
-    logger.info("Step 4.5: export to mp3")
-    export_to_mp3(audio, asr_result, save_path, audio_name) # TODO: write to a dir please
-
-    # TODO: FILTER
-
-    logger.info("Step 5: calculate mos_prediction")
+    logger.info("Step 5: Filter")
+    logger.info("Step 5.1: calculate mos_prediction")
     avg_mos, mos_list = mos_prediction(audio, asr_result)
 
-    logger.info(f"Step 5: done, average MOS: {avg_mos}")
+    logger.info(f"Step 5.1: done, average MOS: {avg_mos}")
 
-    logger.info("Step 6: filter out files with less than average MOS")
-    remove_count = 0
-    # TODO: filter
-    # where is filter? 
-    logger.debug(f"filtered: {remove_count} files in total")
+    logger.info("Step 5.2: Filter out files with less than average MOS")
+    filtered_list = filter(mos_list)
 
-    # TODO: iqr filter? by avg char duration
-    logger.info("Step 6: done")
+    logger.info("Step 6: write result into MP3 and JSON file")
+    export_to_mp3(audio, filtered_list, save_path, audio_name)
 
-    logger.info("Step 7: calculate folder MOS after filtering")
-
-    logger.info("Step 8: write result into json file")
-    final_path = os.path.join(save_path, audio_name + ".json") # TODO: write to a dir please
+    final_path = os.path.join(save_path, audio_name + ".json")
     with open(final_path, "w") as f:
-        json.dump(mos_list, f, ensure_ascii=False)
+        json.dump(filtered_list, f, ensure_ascii=False)
 
     logger.info(f"All done, Saved to: {final_path}")
-    return final_path, mos_list
+    return final_path, filtered_list
 
 
 if __name__ == "__main__":
@@ -462,18 +475,6 @@ if __name__ == "__main__":
         default="medium",
         help="The name of the Whisper model to load.",
     )
-    parser.add_argument(
-        "--asr_initial_prompt",
-        type=str,
-        default="um, uh, um, uh, So uhm, yeaah. Okay, ehm, uuuh.",
-        help="ASR initial prompt of options to use for the model.",
-    ) #TODO: delete
-    parser.add_argument(
-        "--language",
-        type=str,
-        default=None,
-        help="The language of the model. (use English for now)",
-    ) #TODO: delete
     parser.add_argument(
         "--threads",
         type=int,
