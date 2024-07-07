@@ -1,3 +1,10 @@
+# Copyright (c) 2023 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
+# This code is borrowed from https://github.com/yl4579/PitchExtractor/blob/main/model.py
+
 """
 Implementation of model from:
 Kum et al. - "Joint Detection and Classification of Singing Voice Melody Using

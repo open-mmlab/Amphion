@@ -1,3 +1,10 @@
+# Copyright (c) 2023 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
+# This code is modified from https://github.com/descriptinc/descript-audio-codec/blob/main/dac/model/base.py
+
 import math
 from dataclasses import dataclass
 from pathlib import Path
