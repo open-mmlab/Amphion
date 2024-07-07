@@ -48,7 +48,7 @@ bash env.sh
 
 3. Download the model files from the third-party repositories.
 We acknowledge the wonderful work by these excellent developers!
-- Source Separation: [UVR-MDX-NET-Inst_HQ_3](https://github.com/TRvlvr/model_repo/releases/tag/all_public_uvr_models)
+- Source Separation: [UVR-MDX-NET-Inst_HQ_3.onnx](https://github.com/TRvlvr/model_repo/releases/tag/all_public_uvr_models)
 - VAD: [Silero](https://github.com/snakers4/silero-vad)
 - Speaker Diarization: [pyannote](https://github.com/pyannote/pyannote-audio)
 - ASR: [whisperx-medium](https://github.com/m-bain/whisperX)

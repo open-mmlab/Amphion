@@ -517,7 +517,8 @@ if __name__ == "__main__":
     if not cfg["huggingface_token"].startswith("hf"):
         raise ValueError(
             "huggingface_token must start with 'hf', check the config file. "
-            "You can get the token at https://huggingface.co/settings/tokens"
+            "You can get the token at https://huggingface.co/settings/tokens. "
+            "Remeber grant access following https://github.com/pyannote/pyannote-audio?tab=readme-ov-file#tldr"
         )
     dia_pipeline = Pipeline.from_pretrained(
         "pyannote/speaker-diarization-3.1",
@@ -532,6 +533,9 @@ if __name__ == "__main__":
         device_name,
         compute_type=args.compute_type,
         threads=args.threads,
+        asr_options={
+            "initial_prompt": "Um, Uh, Ah. Like, you know. I mean, right. Actually. Basically, and right? okay. Alright. Emm. So. Oh. 生于忧患,死于安乐。岂不快哉?当然,嗯,呃,就,这样,那个,哪个,啊,呀,哎呀,哎哟,唉哇,啧,唷,哟,噫!微斯人,吾谁与归?ええと、あの、ま、そう、ええ。äh, hm, so, tja, halt, eigentlich. euh, quoi, bah, ben, tu vois, tu sais, t'sais, eh bien, du coup. genre, comme, style. 응,어,그,음."
+        },
     )
 
     # VAD

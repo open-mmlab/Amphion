@@ -35,7 +35,12 @@ def load_cfg(cfg_path):
             f"{cfg_path} not found. Please copy, configure, and rename `config.json.example` to `{cfg_path}`."
         )
     with open(cfg_path, "r") as f:
-        cfg = json.load(f)
+        try:
+            cfg = json.load(f)
+        except json.decoder.JSONDecodeError as e:
+            raise TypeError(
+                "Please finish the `// TODO:` in the `config.json` file before running the script. Check README.md for details."
+            )
     return cfg
 
 
@@ -175,6 +180,8 @@ def check_env(logger):
         logger.info(
             f"ENV: HF_ENDPOINT = {os.environ['HF_ENDPOINT']}, if downloading slow, try `unset HF_ENDPOINT`"
         )
+    else:
+        logger.info("ENV: HF_ENDPOINT not set")
 
     hostname = os.popen("hostname").read().strip()
     logger.debug(f"HOSTNAME: {hostname}")
@@ -291,7 +298,7 @@ def calculate_audio_stats(
     # iterate over each entry in the JSON to apply all filtering criteria
     for idx, entry in enumerate(data):
         duration = entry["end"] - entry["start"]
-        dnsmos = entry["mos"]["dnsmos"]
+        dnsmos = entry["dnsmos"]
         # remove punctuation and spaces
         char_count = get_char_count(entry["text"])
         if char_count > 0:
