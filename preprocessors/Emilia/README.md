@@ -2,8 +2,8 @@
 This is the official repository 👑 for the **Emilia** dataset and the source code for **Emilia-Pipe** speech data preprocessing pipeline. 
 
 ## News 🔥
-- 24/07/03: We welcome everyone to check our [homepage](https://emilia-dataset.github.io/Emilia-Demo-Page/) for our brief introduction for Emilia dataset and our demos!
-- 24/07/01: We release of Emilia and Emilia-Pipe! We welcome everyone to explore it! 🎉🎉🎉
+- **2024/07/03**: We welcome everyone to check our [homepage](https://emilia-dataset.github.io/Emilia-Demo-Page/) for our brief introduction for Emilia dataset and our demos!
+- **2024/07/01**: We release of Emilia and Emilia-Pipe! We welcome everyone to explore it! 🎉🎉🎉
 
 ## About ⭐️
 🎤 **Emilia** is a comprehensive, multilingual dataset with the following features:
@@ -19,7 +19,7 @@ Detailed description for the dataset could be found in our paper.
 
 By open-sourcing the Emilia-Pipe code, we aim to enable the speech community to collaborate on large-scale speech generation research.
 
-This README file will introduce the usage of the Emilia-Pipe and provide an installation guide.
+This following README will introduce the installation and usage guide of the Emilia-Pipe.
 
 ## Pipeline Overview 👀
 
@@ -39,30 +39,22 @@ The Emilia-Pipe includes the following major steps:
 1. Install Python and CUDA.
 2. Run the following commands to install the required packages:
 
-```bash
-conda create -y -n AudioPipeline python=3.9 
-conda activate AudioPipeline
+    ```bash
+    conda create -y -n AudioPipeline python=3.9 
+    conda activate AudioPipeline
 
-bash env.sh
-```
+    bash env.sh
+    ```
 
 3. Download the model files from the third-party repositories.
-We acknowledge the wonderful work by these excellent developers!
-- Source Separation: [UVR-MDX-NET-Inst_HQ_3.onnx](https://github.com/TRvlvr/model_repo/releases/tag/all_public_uvr_models)
-- VAD: [Silero](https://github.com/snakers4/silero-vad)
-- Speaker Diarization: [pyannote](https://github.com/pyannote/pyannote-audio)
-- ASR: [whisperx-medium](https://github.com/m-bain/whisperX)
-- DNSMOS Prediction: [DNSMOS P.835](https://github.com/microsoft/DNS-Challenge)
-
- The checkpoints of UVR-MDX-NET-Inst_HQ_3([UVR-MDX-NET-Inst_3.onnx
-](https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/UVR-MDX-NET-Inst_HQ_3.onnx)) and DNSMOS P.835([sig_bak_ovr.onnx](https://github.com/microsoft/DNS-Challenge/blob/master/DNSMOS/DNSMOS/sig_bak_ovr.onnx)) need to be downloaded manually and their local storage paths need to be written to the config file as the next step.
-
- The checkpoints of Silero and Whisperx-medium will be downloaded automatically when the pipeline is first run. 
- 
- The pyannote checkpoint also will be downloaded automatically if your huggingface access token has been written to the config file as the next step. 
+    - Manually download the checkpoints of UVR-MDX-NET-Inst_HQ_3 ([UVR-MDX-NET-Inst_3.onnx](https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/UVR-MDX-NET-Inst_HQ_3.onnx)) and DNSMOS P.835 ([sig_bak_ovr.onnx](https://github.com/microsoft/DNS-Challenge/blob/master/DNSMOS/DNSMOS/sig_bak_ovr.onnx)), then save their path for the next step configuration (i.e. #2  and #3 TODO).
+    - Creat the access token to pyannote/speaker-diarization-3.1 following [the guide](https://huggingface.co/pyannote/speaker-diarization-3.1#requirements), then save it for the next step configuration (i.e. #4 TODO).
+    - Make sure you have stable connection to GitHub and HuggingFace. The checkpoints of Silero and Whisperx-medium will be downloaded automatically on the pipeline's first run. 
 
 
 ### 1. Modify Config File
+
+Change the config.json file according to the following TODOs.
 
 ```json
 {
@@ -79,7 +71,7 @@ We acknowledge the wonderful work by these excellent developers!
     },
     "entrypoint": {
         // TODO: Fill in the input_folder_path. 
-        "input_folder_path": "examples", // #1: Data input
+        "input_folder_path": "examples", // #1: Data input folder for processing
         "SAMPLE_RATE": 24000
     },
     "separate": {
@@ -105,37 +97,46 @@ We acknowledge the wonderful work by these excellent developers!
 
 ### 2. Run Script
 
-1. Change the `input_folder_path` in `config.json` to the folder path where the downloaded audio files are stored
+1. Change the `input_folder_path` in `config.json` to the folder path where the downloaded audio files are stored (i.e. #1 TODO).
 2. Run the following command to process the audio files:
 
 ```bash
 conda activate AudioPipeline
-export CUDA_VISIBLE_DEVICES=0  # Setting the GPU to run the pipeline
+export CUDA_VISIBLE_DEVICES=0  # Setting the GPU to run the pipeline, separate by comma
 
 python main.py
 ```
 
-3. Processed audio will be saved into `input_folder_path_processed`.
+3. Processed audio will be saved into `input_folder_path`_processed folder.
 
 
 ### 3. Check the Results
 
-The processed audio (default 24k sample rate) files will be saved into `input_folder_path_processed`. The results will be saved in the same folder and include the following information:
+The processed audio (default 24k sample rate) files will be saved into `input_folder_path`_processed folder. The results for a single audio will be saved in a same folder with its original name and include the following information:
 
-1. **MP3 file**: `<original_name>_<idx>.mp3`
+1. **MP3 file**: `<original_name>_<idx>.mp3` where `idx` is corresponding to the index in the JSON-encoded array.
 2. **JSON file**: `<original_name>.json`
 
 ```json
 [
     {
         "text": "So, don't worry about that. But, like for instance, like yesterday was very hard for me to say, you know what, I should go to bed.", // Transcription
-        "start": 67.18, // Start timestamp
-        "end": 74.41, // End timestamp
+        "start": 67.18, // Start timestamp, in second unit
+        "end": 74.41, // End timestamp, in second unit
         "language": "en", // Language
-        "dnsmos": 3.44 // DNSMOS score
+        "dnsmos": 3.44 // DNSMOS P.835 score
     }
 ]
 ```
+
+## Acknowledgement 🔔
+We acknowledge the wonderful work by these excellent developers!
+- Source Separation: [UVR-MDX-NET-Inst_HQ_3](https://github.com/TRvlvr/model_repo/releases/tag/all_public_uvr_models)
+- VAD: [snakers4/silero-vad](https://github.com/snakers4/silero-vad)
+- Speaker Diarization: [snakers4/silero-vad](https://github.com/snakers4/silero-vad)
+- ASR: [m-bain/whisperX](https://github.com/m-bain/whisperX)
+- DNSMOS Prediction: [DNSMOS P.835](https://github.com/microsoft/DNS-Challenge)
+
 
 ## Reference 📖
 
