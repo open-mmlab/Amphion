@@ -52,8 +52,12 @@ We acknowledge the wonderful work by these excellent developers!
 - VAD: [Silero](https://github.com/snakers4/silero-vad)
 - Speaker Diarization: [pyannote](https://github.com/pyannote/pyannote-audio)
 - ASR: [whisperx-medium](https://github.com/m-bain/whisperX)
-- DNSMOS Prediction: [DNSMOS P. 835](https://github.com/microsoft/DNS-Challenge)
+- DNSMOS Prediction: [DNSMOS P.835](https://github.com/microsoft/DNS-Challenge)
 
+The checkpoints of UVR-MDX-NET-Inst_HQ_3([UVR-MDX-NET-Inst_3.onnx
+](https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/UVR-MDX-NET-Inst_HQ_3.onnx)) and DNSMOS P.835([sig_bak_ovr.onnx](https://github.com/microsoft/DNS-Challenge/blob/master/DNSMOS/DNSMOS/sig_bak_ovr.onnx)) need to be downloaded manually and their local storage paths need to be written to the config file as the next step.
+The checkpoints of Silero and Whisperx-medium will be downloaded automatically when the pipeline is first run. 
+The pyannote checkpoint also will be downloaded automatically if your huggingface access token has been written to the config file as the next step. 
 ### 1. Modify Config File
 
 ```json
@@ -90,7 +94,7 @@ We acknowledge the wonderful work by these excellent developers!
         // TODO: Fill in the DNSMOS prediction model's path. 
         "primary_model_path": "/path/to/model/mos_model/DNSMOS/sig_bak_ovr.onnx" // #3: Model path
     },
-     // TODO: Fill in your huggingface acess token for pynannote. 
+     // TODO: Fill in your huggingface access token for pynannote. 
     "huggingface_token": "<HUGGINGFACE_ACCESS_TOKEN>" // #4: Huggingface access token for pyannote
 }
 ```
