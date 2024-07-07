@@ -1,5 +1,3 @@
-# Source: https://github.com/seanghay/uvr-mdx-infer/blob/main/separate.py
-#
 # Copyright (c) 2023 seanghay
 #
 # This code is from an unliscensed repository.
@@ -7,6 +5,8 @@
 # Note: This code has been modified to fit the context of this repository.
 #       This code is included in an MIT-licensed repository.
 #       The repository's MIT license does not apply to this code.
+
+# This code is modified from https://github.com/seanghay/uvr-mdx-infer/blob/main/separate.py
 
 import torch
 import numpy as np
