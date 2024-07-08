@@ -146,6 +146,7 @@ We appreciate all contributions to improve Amphion. Please refer to [CONTRIBUTIN
 - [Encodec](https://github.com/facebookresearch/encodec) for well-organized GAN Discriminator's architecture and basic blocks.
 - [Latent Diffusion](https://github.com/CompVis/latent-diffusion) for model architecture design.
 - [TensorFlowTTS](https://github.com/TensorSpeech/TensorFlowTTS) for preparing the MFA tools.
+- [AI Audio Datasets](https://github.com/Yuan-ManX/ai-audio-datasets) for AI Audio Datasets.
 
 
 ## ©️ License
