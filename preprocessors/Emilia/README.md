@@ -16,11 +16,13 @@ This is the official repository 👑 for the **Emilia** dataset and the source c
 - covering six different languages: *English (En), Chinese (Zh), German (De), French (Fr), Japanese (Ja), and Korean (Ko)*;
 - containing diverse speech data with *various speaking styles*;
   
-Detailed description for the dataset could be found in our paper.
+Detailed description for the dataset could be found in our [paper](https://arxiv.org/abs/2407.05361).
 
-🛠️ **Emilia-Pipe** is the first open-source preprocessing pipeline designed to transform raw, in-the-wild speech data into high-quality training data with annotations for speech generation. This pipeline can process one hour of raw audio into model-ready data in just a few minutes, requiring only the URLs of the audio or video sources. 
+🛠️ **Emilia-Pipe** is the first open-source preprocessing pipeline designed to transform raw, in-the-wild speech data into high-quality training data with annotations for speech generation. This pipeline can process one hour of raw audio into model-ready data in just a few minutes, requiring only the raw speech data. 
 
-*To use the Emilia dataset, you can download the raw audio files from the [provided URL list](https://huggingface.co/datasets/amphion/Emilia) and use our open-source [Emilia-Pipe](https://github.com/open-mmlab/Amphion/tree/main/preprocessors/Emilia) preprocessing pipeline to preprocess the raw data and rebuild the dataset. Please note that Emilia doesn't own the copyright of the audios; the copyright remains with the original owners of the video or audio. Additionally, users can easily use Emilia-Pipe to preprocess their own raw speech data for custom needs.*
+*To use the Emilia dataset, you can download the raw audio files from our provided source URL list on [HuggingFace](https://huggingface.co/datasets/amphion/Emilia) and use our open-source [Emilia-Pipe](.) preprocessing pipeline to preprocess the raw data and rebuild the dataset.*
+
+*Please note that Emilia doesn't own the copyright of the audios; the copyright remains with the original owners of the video or audio. Additionally, users can easily use Emilia-Pipe to preprocess their own raw speech data for custom needs.*
 
 By open-sourcing the Emilia-Pipe code, we aim to enable the speech community to collaborate on large-scale speech generation research.
 
@@ -138,8 +140,8 @@ The processed audio (default 24k sample rate) files will be saved into `input_fo
 We acknowledge the wonderful work by these excellent developers!
 - Source Separation: [UVR-MDX-NET-Inst_HQ_3](https://github.com/TRvlvr/model_repo/releases/tag/all_public_uvr_models)
 - VAD: [snakers4/silero-vad](https://github.com/snakers4/silero-vad)
-- Speaker Diarization: [snakers4/silero-vad](https://github.com/snakers4/silero-vad)
-- ASR: [m-bain/whisperX](https://github.com/m-bain/whisperX)
+- Speaker Diarization: [pyannote/speaker-diarization-3.1](https://huggingface.co/pyannote/speaker-diarization-3.1)
+- ASR: [m-bain/whisperX](https://github.com/m-bain/whisperX), using [faster-whisper](https://github.com/guillaumekln/faster-whisper) and [CTranslate2](https://github.com/OpenNMT/CTranslate2) backend.
 - DNSMOS Prediction: [DNSMOS P.835](https://github.com/microsoft/DNS-Challenge)
 
 
