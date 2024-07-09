@@ -144,13 +144,13 @@ We acknowledge the wonderful work by these excellent developers!
 
 
 ## Reference 📖
-
 If you use the Emilia dataset or the Emilia-Pipe pipeline, please cite the following papers:
 ```bibtex
 @article{emilia,
       title={Emilia: An Extensive, Multilingual, and Diverse Speech Dataset for Large-Scale Speech Generation},
       author={He, Haorui and Shang, Zengqiang and Wang, Chaoren and Li, Xuyuan and Gu, Yicheng and Hua, Hua and Liu, Liwei and Yang, Chen and Li, Jiaqi and Shi, Peiyang and Wang, Yuancheng and Chen, Kai and Zhang, Pengyuan and Wu, Zhizheng},
-      journal={arXiv preprint arXiv:2407.05361},
+      journal={arXiv},
+      volume={abs/2407.05361}
       year={2024}
 }
 ```
@@ -158,7 +158,8 @@ If you use the Emilia dataset or the Emilia-Pipe pipeline, please cite the follo
 @article{amphion,
       title={Amphion: An Open-Source Audio, Music and Speech Generation Toolkit}, 
       author={Zhang, Xueyao and Xue, Liumeng and Gu, Yicheng and Wang, Yuancheng and He, Haorui and Wang, Chaoren and Chen, Xi and Fang, Zihao and Chen, Haopeng and Zhang, Junan and Tang, Tze Ying and Zou, Lexiao and Wang, Mingxuan and Han, Jun and Chen, Kai and Li, Haizhou and Wu, Zhizheng},
-      year={2024},
+      journal={arXiv},
       volume={abs/2312.09911}
+      year={2024},
 }
 ```
