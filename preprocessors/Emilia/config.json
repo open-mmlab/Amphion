@@ -1,0 +1,35 @@
+{
+    "language": {
+        "multilingual": true,
+        "supported": [
+            "zh",
+            "en",
+            "fr",
+            "ja",
+            "ko",
+            "de"
+        ]
+    },
+    "entrypoint": {
+        // TODO: Fill in the input_folder_path. 
+        "input_folder_path": "examples",
+        "SAMPLE_RATE": 24000
+    },
+    "separate": {
+        "step1": {
+            // TODO: Fill in the source separation model's path. 
+            "model_path": "/path/to/model/separate_model/UVR-MDX-NET-Inst_HQ_3.onnx",
+            "denoise": true,
+            "margin": 44100,
+            "chunks": 15,
+            "n_fft": 6144,
+            "dim_t": 8,
+            "dim_f": 3072
+        }
+    },
+    "mos_model": {
+        // TODO: Fill in the DNSMOS prediction model's path. 
+        "primary_model_path": "/path/to/model/mos_model/DNSMOS/sig_bak_ovr.onnx"
+    },
+    "huggingface_token": "<HUGGINGFACE_ACCESS_TOKEN>"
+}
