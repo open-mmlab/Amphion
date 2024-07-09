@@ -1,7 +1,7 @@
 ## Emilia: An Extensive, Multilingual, and Diverse Speech Dataset for Large-Scale Speech Generation
 [![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2407.05361) 
-[![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-dataset-yellow)](https://huggingface.co/datasets/amphion/Emilia) 
-[![readme](https://img.shields.io/badge/README-Key%20Features-blue)](preprocessors/Emilia/README.md)
+[![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Dataset-yellow)](https://huggingface.co/datasets/amphion/Emilia) 
+[![demo](https://img.shields.io/badge/WebPage-Demo-red)](https://emilia-dataset.github.io/Emilia-Demo-Page/)
 
 This is the official repository 👑 for the **Emilia** dataset and the source code for **Emilia-Pipe** speech data preprocessing pipeline. 
 
