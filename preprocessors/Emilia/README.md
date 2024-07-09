@@ -138,7 +138,7 @@ The processed audio (default 24k sample rate) files will be saved into `input_fo
 We acknowledge the wonderful work by these excellent developers!
 - Source Separation: [UVR-MDX-NET-Inst_HQ_3](https://github.com/TRvlvr/model_repo/releases/tag/all_public_uvr_models)
 - VAD: [snakers4/silero-vad](https://github.com/snakers4/silero-vad)
-- Speaker Diarization: [snakers4/silero-vad](https://github.com/snakers4/silero-vad)
+- Speaker Diarization: [pyannote/pyannote-audio](https://github.com/pyannote/pyannote-audio)
 - ASR: [m-bain/whisperX](https://github.com/m-bain/whisperX)
 - DNSMOS Prediction: [DNSMOS P.835](https://github.com/microsoft/DNS-Challenge)
 
