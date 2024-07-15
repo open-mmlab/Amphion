@@ -1,7 +1,7 @@
-# Copyright 2020 Nagoya University (Tomoki Hayashi)
-#  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
-# Copyright 2022 Dan Lim
-#  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+# Copyright (c) 2024 Amphion.
+# 
+# This code is modified from https://github.com/imdanboy/jets/blob/main/espnet2/gan_tts/jets/loss.py
+# Licensed under Apache License 2.0
 
 from typing import List, Optional, Tuple, Union
 

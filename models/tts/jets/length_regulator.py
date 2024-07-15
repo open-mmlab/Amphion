@@ -1,5 +1,7 @@
-# Copyright 2022 Dan Lim
-#  Apache 2.0  (http://www.apache.org/licenses/LICENSE-2.0)
+# Copyright (c) 2024 Amphion.
+#
+# This code is modified from https://github.com/imdanboy/jets/blob/main/espnet2/gan_tts/jets/length_regulator.py
+# Licensed under Apache License 2.0
 
 import torch
 

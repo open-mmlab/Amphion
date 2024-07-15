@@ -1,8 +1,7 @@
-# Copyright (c) 2023 Amphion.
-# Copyright 2022 Dan Lim
-# This source code is licensed under the MIT license found in the
-# LICENSE file in the root directory of this source tree.
-
+# Copyright (c) 2024 Amphion.
+#
+# This code is modified from https://github.com/imdanboy/jets/blob/main/espnet2/gan_tts/jets/generator.py
+# Licensed under Apache License 2.0
 
 import torch
 import torch.nn as nn
