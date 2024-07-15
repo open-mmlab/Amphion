@@ -1,0 +1,32 @@
+{
+  "base_config": "config/jets.json",
+  "model_type": "Jets",
+  "dataset": [
+    "LJSpeech"
+  ],
+  "dataset_path": {
+    "LJSpeech": "../LJSpeech-1.1"
+  },
+  "log_dir": "ckpts/tts",
+  "preprocess": {
+    "processed_dir": "data",
+    "sample_rate": 22050,
+    "use_audios": true,
+    "extract_audio": true,
+},
+  "train": {
+    "batch_size": 16,
+    "max_epoch": 100,
+    "learning_rate": 2e-4,
+    "AdamW": {
+      "betas": [
+          0.8,
+          0.99
+      ],
+      "eps": 1e-9,
+    },
+    "lr_decay": 0.999875,
+    "segment_size": 64,
+    "upsample_factor": 256
+  }
+}

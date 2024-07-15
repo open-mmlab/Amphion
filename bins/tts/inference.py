@@ -11,6 +11,7 @@ from models.tts.fastspeech2.fs2_inference import FastSpeech2Inference
 from models.tts.vits.vits_inference import VitsInference
 from models.tts.valle.valle_inference import VALLEInference
 from models.tts.naturalspeech2.ns2_inference import NS2Inference
+from models.tts.jets.jets_inference import JetsInference
 from utils.util import load_config
 import torch
 
@@ -21,6 +22,7 @@ def build_inference(args, cfg):
         "VITS": VitsInference,
         "VALLE": VALLEInference,
         "NaturalSpeech2": NS2Inference,
+        "Jets": JetsInference,
     }
 
     inference_class = supported_inference[cfg.model_type]

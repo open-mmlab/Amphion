@@ -11,8 +11,9 @@ from models.tts.fastspeech2.fs2_trainer import FastSpeech2Trainer
 from models.tts.vits.vits_trainer import VITSTrainer
 from models.tts.valle.valle_trainer import VALLETrainer
 from models.tts.naturalspeech2.ns2_trainer import NS2Trainer
-from models.tts.VALLE_V2.valle_ar_trainer import ValleARTrainer as VALLE_V2_AR
-from models.tts.VALLE_V2.valle_nar_trainer import ValleNARTrainer as VALLE_V2_NAR
+from models.tts.valle_v2.valle_ar_trainer import ValleARTrainer as VALLE_V2_AR
+from models.tts.valle_v2.valle_nar_trainer import ValleNARTrainer as VALLE_V2_NAR
+from models.tts.jets.jets_trainer import JetsTrainer
 
 from utils.util import load_config
 
@@ -25,6 +26,7 @@ def build_trainer(args, cfg):
         "NaturalSpeech2": NS2Trainer,
         "VALLE_V2_AR": VALLE_V2_AR,
         "VALLE_V2_NAR": VALLE_V2_NAR,
+        "Jets": JetsTrainer,
     }
 
     trainer_class = supported_trainer[cfg.model_type]

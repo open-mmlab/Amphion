@@ -1,0 +1,120 @@
+{
+    "base_config": "config/tts.json",
+    "model_type": "Jets",
+    "task_type": "tts",
+    "dataset": ["LJSpeech"], 
+    "preprocess": {
+      // acoustic features
+      "extract_audio": true,
+      "extract_mel": true,
+      "mel_extract_mode": "taco",
+      "mel_min_max_norm": false,
+      "extract_pitch": true,
+      "extract_uv": false,
+      "pitch_extractor": "dio",
+      "extract_energy": true,
+      "energy_extract_mode": "from_tacotron_stft",
+      "extract_duration": true,
+      "use_phone": false,
+      "pitch_norm": true,
+      "energy_norm": true,
+      "pitch_remove_outlier": true,
+      "energy_remove_outlier": true,
+
+      // Default config 
+      "n_mel": 80,
+      "win_size": 1024,  // todo
+      "hop_size": 256,
+      "sample_rate": 22050,
+      "n_fft": 1024, // todo
+      "fmin": 0,
+      "fmax": 8000, // todo
+      "raw_data": "raw_data",
+      "text_cleaners": ["english_cleaners"],
+      "f0_min": 71,    // ~C2
+      "f0_max": 800, //1100,    // ~C6(1100), ~G5(800)
+      "pitch_bin": 256,
+      "pitch_max": 1100.0,
+      "pitch_min": 50.0,
+      "is_label": true,
+      "is_mu_law": true,
+      "bits": 8,
+
+      "mel_min_max_stats_dir": "mel_min_max_stats",
+      "whisper_dir": "whisper",
+      "content_vector_dir": "content_vector",
+      "wenet_dir": "wenet",
+      "mert_dir": "mert",
+      "spk2id":"spk2id.json",
+      "utt2spk":"utt2spk",
+      "valid_file": "test.json",
+
+      // Features used for model training
+      "use_mel": true,
+      "use_min_max_norm_mel": false,
+      "use_frame_pitch": true,
+      "use_frame_energy": true,
+      "use_phone_pitch": false,
+      "use_phone_energy": false,
+      "use_log_scale_pitch": false,
+      "use_log_scale_energy": false,
+      "use_spkid": false,
+      "align_mel_duration": true,
+      "text_cleaners": ["english_cleaners"],
+      "phone_extractor": "lexicon", // "espeak, pypinyin, pypinyin_initials_finals, lexicon (only for language=en-us right now)"
+      },
+    "model": {
+      // Settings for transformer
+      "transformer": {
+        "encoder_layer": 4,
+        "encoder_head": 2,
+        "encoder_hidden": 256,
+        "decoder_layer": 6,
+        "decoder_head": 2,
+        "decoder_hidden": 256,
+        "conv_filter_size": 1024,
+        "conv_kernel_size": [9, 1],
+        "encoder_dropout": 0.2,
+        "decoder_dropout": 0.2
+      },
+
+      // Settings for variance_predictor
+      "variance_predictor":{
+        "filter_size": 256,
+        "kernel_size": 3,
+        "dropout": 0.5
+      },
+    "variance_embedding":{
+        "pitch_quantization": "linear", // support 'linear' or 'log', 'log' is allowed only if the pitch values are not normalized during preprocessing
+        "energy_quantization": "linear", // support 'linear' or 'log', 'log' is allowed only if the energy values are not normalized during preprocessing
+        "n_bins": 256
+      },
+    "max_seq_len": 1000
+    },
+    "train":{
+      "batch_size": 16,
+      "max_epoch": 100,
+      "sort_sample": true,
+      "drop_last": true,
+      "group_size": 4,
+      "grad_clip_thresh": 1.0,
+      "dataloader": {
+        "num_worker": 8,
+        "pin_memory": true
+      },
+      "lr_scheduler":{
+        "num_warmup": 4000
+      },
+      // LR Scheduler
+      "scheduler": "NoamLR",
+      // Optimizer
+      "optimizer": "Adam",
+      "adam": {
+        "lr": 0.0625,
+        "betas": [0.9, 0.98],
+        "eps": 0.000000001,
+        "weight_decay": 0.0
+      },
+    }
+
+}
