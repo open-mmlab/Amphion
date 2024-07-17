@@ -1,0 +1,57 @@
+{
+    "base_config": "egs/vc/exp_config_base.json",
+    "dataset": [
+      "mls"
+    ],
+    "preprocess": {
+      // Specify the output root path to save the processed data 
+      "processed_dir": "data",
+      "train_file": "train.json",
+      "valid_file": "test.json",
+      "read_metadata": true,
+      "metadata_dir": "metadata"
+    },
+    // Specify the output root path to save model ckpts and logs
+    "log_dir": "/mnt/data2/hehaorui/ckpt/vc_new_exp",
+    "train": {
+        // New trainer and Accelerator
+        "gradient_accumulation_step": 1,
+        "tracker": ["tensorboard"],
+        "max_epoch": 10,
+        "save_checkpoint_stride": [1000],
+        "keep_last": [20],
+        "run_eval": [true],
+        "dataloader": {
+          "num_worker": 64,
+          "pin_memory": true
+        },
+        "adam": {
+            "lr": 5e-5
+        },
+        "use_dynamic_batchsize": true,
+        "batch_size": 8,
+        "max_tokens": 3200000,
+        "max_sentences": 64,
+        "lr_warmup_steps": 5000,
+        "lr_scheduler": "cosine",
+        "num_train_steps": 800000
+    }, 
+    "trans_exp": {
+        "directory_list":[
+          "/mnt/data4/hehaorui/medium_15s",
+          "/mnt/data4/hehaorui/large_15s",
+          "/mnt/data4/hehaorui/small_15s"
+          ],
+    "test_directory_list": [
+      "/mnt/data2/wangyuancheng/mls_english/test/audio"
+    ],
+    "use_speaker": false,
+    "use_ref_noise": true,
+    "use_source_noise": false,
+    "snr_lower": 2,
+    "snr_upper": 42,
+    "total_snrlevels": 5, 
+    "noise_dir": "/home/hehaorui/code/Amphion/MS-SNSD/noise_train",
+    "test_noise_dir": "/home/hehaorui/code/Amphion/MS-SNSD/noise_test" 
+  }
+  }
