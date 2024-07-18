@@ -3,50 +3,52 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
- 
+# Set the PYTHONPATH to the current directory
 export PYTHONPATH="./"
- 
+
 ######## Build Experiment Environment ###########
+# Get the current directory of the script
 exp_dir=$(cd `dirname $0`; pwd)
+# Get the parent directory of the experiment directory
 work_dir=$(dirname $(dirname $exp_dir))
 
+# Export environment variables for the working directory and Python path
 export WORK_DIR=$work_dir
 export PYTHONPATH=$work_dir
 export PYTHONIOENCODING=UTF-8
 
- 
+# Build the monotonic alignment module
 cd $work_dir/modules/monotonic_align
 mkdir -p monotonic_align
 python setup.py build_ext --inplace
 cd $work_dir
 
-
 if [ -z "$exp_config" ]; then
-    exp_config="${exp_dir}"/exp_config_testing.json
+    exp_config="${exp_dir}/exp_config_testing.json"
 fi
 
-echo "Exprimental Configuration File: $exp_config"
-
-hubert="/mnt/data2/hehaorui/ckpt/vc_new_exp/new_mhubert/checkpoint/epoch-0002_step-0689002_loss-0.571602/model.safetensors"
-
-checkpoint_path=$hubert
+echo "Experimental Configuration File: $exp_config"
 
 cuda_id=0
 
-output_dir="/home/hehaorui/code/Amphion-1/egs/vc" #
-source_path="/home/hehaorui/code/Amphion-1/egs/vc/p233_001.wav"
-reference_path="/home/hehaorui/code/Amphion-1/egs/vc/p275_425.wav"
+# Set paths (modify these paths to your own)
+checkpoint_path="path/to/checkpoint/model.safetensors"
+output_dir="path/to/output/directory"
+source_path="path/to/source/audio.wav"
+reference_path="path/to/reference/audio.wav"
 
 echo "CUDA ID: $cuda_id"
-echo "Zero Shot Json File Path: $zero_shot_json_file_path"
 echo "Checkpoint Path: $checkpoint_path"
 echo "Output Directory: $output_dir"
+echo "Source Audio Path: $source_path"
+echo "Reference Audio Path: $reference_path"
 
-
-python "${work_dir}"/models/vc/noro_inference.py \
+# Run the voice conversion inference script
+python "${work_dir}/models/vc/noro_inference.py" \
     --config $exp_config \
     --checkpoint_path $checkpoint_path \
     --output_dir $output_dir \
     --cuda_id ${cuda_id} \
     --source_path $source_path \
-    --ref_path $reference_path \
+    --ref_path $reference_path
+

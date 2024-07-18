@@ -2,6 +2,7 @@
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
+
 import os
 import shutil
 import time
@@ -22,16 +23,13 @@ from accelerate.logging import get_logger
 from accelerate.utils import ProjectConfiguration
 
 from models.vc.ns2_uniamphion import UniAmphionVC
-from models.vc.vc_dataset import  VCCollator, VCDataset, batch_by_size
-# from models.tts.vc.vc_new_dataset import VCCollator, VCDataset, batch_by_size # used on ailab sever
+from models.vc.vc_dataset import VCCollator, VCDataset, batch_by_size
 from models.vc.hubert_kmeans import HubertWithKmeans
 from models.vc.vc_loss import diff_loss, ConstractiveSpeakerLoss
 from models.vc.vc_utils import mel_spectrogram, extract_world_f0
 
-
 # import descript_audio_codec.dac
 # from audiotools import AudioSignal
-
 
 class VCTrainer(TTSTrainer):
     def __init__(self, args, cfg):
@@ -40,29 +38,29 @@ class VCTrainer(TTSTrainer):
         cfg.exp_name = args.exp_name
         self.content_extractor = "mhubert"
 
-        # 初始化加速器，并确保所有进程都已就绪
+        # Initialize accelerator and ensure all processes are ready
         self._init_accelerator()
         self.accelerator.wait_for_everyone()
 
-        # 在主进程中初始化日志记录器，避免在每个进程中重复记录
+        # Initialize logger on the main process
         if self.accelerator.is_main_process:
             self.logger = get_logger(args.exp_name, log_level="INFO")
 
-        # 配置噪声和说话人使用
+        # Configure noise and speaker usage
         self.use_source_noise = self.cfg.trans_exp.use_source_noise
         self.use_ref_noise = self.cfg.trans_exp.use_ref_noise
         self.use_speaker = self.cfg.trans_exp.use_speaker
 
-        # 在主进程中记录配置信息
+        # Log configuration on the main process
         if self.accelerator.is_main_process:
             self.logger.info(f"use_source_noise: {self.use_source_noise}")
             self.logger.info(f"use_ref_noise: {self.use_ref_noise}")
             self.logger.info(f"use_speaker: {self.use_speaker}")
 
-        # 初始化一个时间窗口，用于监控或记录某些度量
+        # Initialize a time window for monitoring metrics
         self.time_window = ValueWindow(50)
 
-        # 记录训练开始信息
+        # Log the start of training
         if self.accelerator.is_main_process:
             self.logger.info("=" * 56)
             self.logger.info("||\t\tNew training process started.\t\t||")
@@ -72,33 +70,32 @@ class VCTrainer(TTSTrainer):
             self.logger.info(f"Experiment name: {args.exp_name}")
             self.logger.info(f"Experiment directory: {self.exp_dir}")
 
-
-        # 初始化检查点目录，确保仅在主进程中执行
+        # Initialize checkpoint directory
         self.checkpoint_dir = os.path.join(self.exp_dir, "checkpoint")
         if self.accelerator.is_main_process:
             os.makedirs(self.checkpoint_dir, exist_ok=True)
             self.logger.debug(f"Checkpoint directory: {self.checkpoint_dir}")
 
-        # 初始化训练计数器
+        # Initialize training counters
         self.batch_count: int = 0
         self.step: int = 0
         self.epoch: int = 0
-        self.max_epoch = (self.cfg.train.max_epoch if self.cfg.train.max_epoch > 0 else float("inf"))
+        self.max_epoch = self.cfg.train.max_epoch if self.cfg.train.max_epoch > 0 else float("inf")
         if self.accelerator.is_main_process:
             self.logger.info(f"Max epoch: {self.max_epoch if self.max_epoch < float('inf') else 'Unlimited'}")
 
-        # 检查基本配置
+        # Check basic configuration
         if self.accelerator.is_main_process:
             self._check_basic_configs()
             self.save_checkpoint_stride = self.cfg.train.save_checkpoint_stride
             self.keep_last = [i if i > 0 else float("inf") for i in self.cfg.train.keep_last]
             self.run_eval = self.cfg.train.run_eval
 
-        # 在所有进程中设置随机种子
+        # Set random seed
         with self.accelerator.main_process_first():
             self._set_random_seed(self.cfg.train.random_seed)
 
-        # setup data_loader
+        # Setup data loader
         with self.accelerator.main_process_first():
             if self.accelerator.is_main_process:
                 self.logger.info("Building dataset...")
@@ -106,13 +103,14 @@ class VCTrainer(TTSTrainer):
             self.speaker_num = len(self.train_dataloader.dataset.speaker2id)
             if self.accelerator.is_main_process:
                 self.logger.info("Speaker num: {}".format(self.speaker_num))
-            
-        # build model
+
+        # Build model
         with self.accelerator.main_process_first():
             if self.accelerator.is_main_process:
                 self.logger.info("Building model...")
             self.model, self.w2v = self._build_model()
 
+        # Resume training if specified
         with self.accelerator.main_process_first():
             if self.accelerator.is_main_process:
                 self.logger.info("Resume training: {}".format(args.resume))
@@ -130,52 +128,31 @@ class VCTrainer(TTSTrainer):
             if self.accelerator.is_main_process:
                 self.logger.debug(f"Checkpoint directory: {self.checkpoint_dir}")
 
-        # optimizer & scheduler
+        # Initialize optimizer & scheduler
         with self.accelerator.main_process_first():
             if self.accelerator.is_main_process:
                 self.logger.info("Building optimizer and scheduler...")
             self.optimizer = self._build_optimizer()
             self.scheduler = self._build_scheduler()
 
-        if isinstance(self.model, dict):
-            for key in self.model.keys():
-                self.model[key] = self.accelerator.prepare(self.model[key])
-        else:
-            self.model = self.accelerator.prepare(self.model)
+        # Prepare model, w2v, optimizer, and scheduler for accelerator
+        self.model = self._prepare_for_accelerator(self.model)
+        self.w2v = self._prepare_for_accelerator(self.w2v)
+        self.optimizer = self._prepare_for_accelerator(self.optimizer)
+        self.scheduler = self._prepare_for_accelerator(self.scheduler)
 
-        # prepare w2v to accelerator
-        if isinstance(self.w2v, dict):
-            for key in self.w2v.keys():
-                self.w2v[key] = self.accelerator.prepare(self.w2v[key])
-        else:
-            self.w2v = self.accelerator.prepare(self.w2v)
-
-        if isinstance(self.optimizer, dict):
-            for key in self.optimizer.keys():
-                self.optimizer[key] = self.accelerator.prepare(self.optimizer[key])
-        else:
-            self.optimizer = self.accelerator.prepare(self.optimizer)
-
-        if isinstance(self.scheduler, dict):
-            for key in self.scheduler.keys():
-                self.scheduler[key] = self.accelerator.prepare(self.scheduler[key])
-        else:
-            self.scheduler = self.accelerator.prepare(self.scheduler)
-
+        # Build criterion
         with self.accelerator.main_process_first():
             if self.accelerator.is_main_process:
                 self.logger.info("Building criterion...")
             self.criterion = self._build_criterion()
 
         self.config_save_path = os.path.join(self.exp_dir, "args.json")
-
         self.task_type = "VC"
-
         self.contrastive_speaker_loss = ConstractiveSpeakerLoss()
 
         if self.accelerator.is_main_process:
             self.logger.info("Task type: {}".format(self.task_type))
-
 
     def _init_accelerator(self):
         self.exp_dir = os.path.join(
@@ -197,9 +174,8 @@ class VCTrainer(TTSTrainer):
         with self.accelerator.main_process_first():
             self.accelerator.init_trackers(self.args.exp_name)
 
-
     def _build_model(self):
-        w2v  = HubertWithKmeans()
+        w2v = HubertWithKmeans()
         self.cfg.model.vc_feature.content_feature_dim = 768
         model = UniAmphionVC(cfg=self.cfg.model, use_ref_noise=self.use_ref_noise, use_source_noise=self.use_source_noise)
         return model, w2v
@@ -210,22 +186,19 @@ class VCTrainer(TTSTrainer):
     def _build_dataloader(self):
         np.random.seed(int(time.time()))
         if self.accelerator.is_main_process:
-            self.logger.info("Use Dynamic Batchsize......")
+            self.logger.info("Use Dynamic Batchsize...")
         train_dataset = VCDataset(self.cfg.trans_exp)
         train_collate = VCCollator(self.cfg)
         batch_sampler = batch_by_size(
             train_dataset.num_frame_indices,
             train_dataset.get_num_frames,
             max_tokens=self.cfg.train.max_tokens * self.accelerator.num_processes,
-            max_sentences=self.cfg.train.max_sentences
-            * self.accelerator.num_processes,
+            max_sentences=self.cfg.train.max_sentences * self.accelerator.num_processes,
             required_batch_size_multiple=self.accelerator.num_processes,
         )
         np.random.shuffle(batch_sampler)
         batches = [
-            x[
-                self.accelerator.local_process_index :: self.accelerator.num_processes
-            ]
+            x[self.accelerator.local_process_index :: self.accelerator.num_processes]
             for x in batch_sampler
             if len(x) % self.accelerator.num_processes == 0
         ]
@@ -269,7 +242,7 @@ class VCTrainer(TTSTrainer):
         else:
             model_param = sum(p.numel() for p in model.parameters())
         return model_param
-    
+
     def _dump_cfg(self, path):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         json5.dump(
@@ -291,7 +264,7 @@ class VCTrainer(TTSTrainer):
             "batch_size": self.cfg.train.batch_size,
         }
         return state_dict
-    
+
     def load_model(self, checkpoint):
         self.step = checkpoint["step"]
         self.epoch = checkpoint["epoch"]
@@ -299,27 +272,33 @@ class VCTrainer(TTSTrainer):
         self.optimizer.load_state_dict(checkpoint["optimizer"])
         self.scheduler.load_state_dict(checkpoint["scheduler"])
 
+    def _prepare_for_accelerator(self, component):
+        if isinstance(component, dict):
+            for key in component.keys():
+                component[key] = self.accelerator.prepare(component[key])
+        else:
+            component = self.accelerator.prepare(component)
+        return component
+
     def _train_step(self, batch):
         total_loss = 0.0
         train_losses = {}
-        device = self.accelerator.device 
+        device = self.accelerator.device
 
-        # 将所有Tensor类型的数据迁移到指定设备
+        # Move all Tensor data to the specified device
         batch = {k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
 
-        speech = batch["speech"] 
-        ref_speech = batch["ref_speech"] 
-        
+        speech = batch["speech"]
+        ref_speech = batch["ref_speech"]
+
         with torch.set_grad_enabled(False):
-            # 提取需要的特征和光谱图
+            # Extract features and spectrograms
             mel = mel_spectrogram(speech).transpose(1, 2)
             ref_mel = mel_spectrogram(ref_speech).transpose(1, 2)
-            # print('-----------------------------------')
-            # print(ref_mel.shape)
             mask = batch["mask"]
             ref_mask = batch["ref_mask"]
-            
-            # 提取 pitch 和 content_feature
+
+            # Extract pitch and content features
             if not self.use_source_noise:
                 pitch = extract_world_f0(speech)
                 pitch = (pitch - pitch.mean(dim=1, keepdim=True)) / (pitch.std(dim=1, keepdim=True) + 1e-6) # Normalize pitch (B,T)
@@ -327,7 +306,7 @@ class VCTrainer(TTSTrainer):
 
             if self.use_ref_noise:
                 noisy_ref_mel = mel_spectrogram(batch["noisy_ref_speech"]).transpose(1, 2)
-                
+
             if self.use_source_noise:
                 combined_speech = torch.cat((speech, batch["noisy_speech"]), dim=0)
                 _, combined_features = self.w2v(combined_speech)
@@ -336,8 +315,8 @@ class VCTrainer(TTSTrainer):
                 clean_pitch, noisy_pitch = torch.split(combined_pitch, speech.shape[0], dim=0)
                 pitch = (clean_pitch - clean_pitch.mean(dim=1, keepdim=True)) / (clean_pitch.std(dim=1, keepdim=True) + 1e-6)
                 noisy_pitch = (noisy_pitch - noisy_pitch.mean(dim=1, keepdim=True)) / (noisy_pitch.std(dim=1, keepdim=True) + 1e-6)
-        
-        # FORWARD 模型
+
+        # Forward pass through the model
         if self.use_ref_noise and self.use_source_noise:
             diff_out, (ref_emb, noisy_ref_emb), (cond_emb, noisy_cond_emb) = self.model(
                 x=mel, content_feature=content_feature, pitch=pitch, x_ref=ref_mel,
@@ -356,7 +335,7 @@ class VCTrainer(TTSTrainer):
             )
 
         if self.use_ref_noise:
-            # B x N_query x D 
+            # B x N_query x D
             ref_emb = torch.mean(ref_emb, dim=1) # B x D
             noisy_ref_emb = torch.mean(noisy_ref_emb, dim=1) # B x D
             all_ref_emb = torch.cat([ref_emb, noisy_ref_emb], dim=0) # 2B x D
@@ -392,10 +371,8 @@ class VCTrainer(TTSTrainer):
 
         train_losses['learning_rate'] = f"{self.optimizer.param_groups[0]['lr']:.1e}"
         train_losses["batch_size"] = batch["speaker_id"].shape[0]
-        
-        return (train_losses["total_loss"], train_losses, None)
 
-    
+        return (train_losses["total_loss"], train_losses, None)
 
     def _train_epoch(self):
         r"""Training epoch. Should return average loss of a batch (sample) over
@@ -429,18 +406,16 @@ class VCTrainer(TTSTrainer):
             dynamic_ncols=True,
             smoothing=0.04,
             disable=not self.accelerator.is_main_process,
-        ):  
-            
+        ):
             speech = batch["speech"].cpu().numpy()
             speech = speech[0]
             self.batch_count += 1
             self.step += 1
-            #epoch_step += 1
             if len(speech) >= 16000 * 25:
                 continue
             with self.accelerator.accumulate(self.model):
                 total_loss, train_losses, _ = self._train_step(batch)
-            
+
             if self.batch_count % self.cfg.train.gradient_accumulation_step == 0:
                 epoch_sum_loss += total_loss
                 self.current_loss = total_loss
@@ -450,33 +425,32 @@ class VCTrainer(TTSTrainer):
                             {"Epoch/Train {} Loss".format(key): loss},
                             step=self.step,
                         )
-                if (self.accelerator.is_main_process and self.batch_count % 10 == 0):
+                if self.accelerator.is_main_process and self.batch_count % 10 == 0:
                     self.echo_log(train_losses, mode="Training")
-                
+
                 self.save_checkpoint()
         self.accelerator.wait_for_everyone()
 
         return epoch_sum_loss, None
-    
+
     def train_loop(self):
         r"""Training loop. The public entry of training process."""
         # Wait everyone to prepare before we move on
         self.accelerator.wait_for_everyone()
-        # dump config file
+        # Dump config file
         if self.accelerator.is_main_process:
             self._dump_cfg(self.config_save_path)
 
         # Wait to ensure good to go
         self.accelerator.wait_for_everyone()
-        # stop when meet max epoch or self.cfg.train.num_train_steps
-        print(self.step)
+        # Stop when meeting max epoch or self.cfg.train.num_train_steps
         while self.epoch < self.max_epoch and self.step < self.cfg.train.num_train_steps:
             if self.accelerator.is_main_process:
                 self.logger.info("\n")
                 self.logger.info("-" * 32)
                 self.logger.info("Epoch {}: ".format(self.epoch))
-                self.logger.info("Start training......")
-            
+                self.logger.info("Start training...")
+
             train_total_loss, _ = self._train_epoch()
 
             self.epoch += 1
@@ -500,23 +474,20 @@ class VCTrainer(TTSTrainer):
             )
         self.accelerator.end_training()
         if self.accelerator.is_main_process:
-            self.logger.info("Training finished......")
+            self.logger.info("Training finished...")
 
     def save_checkpoint(self):
         self.accelerator.wait_for_everyone()
-        # main process only
+        # Main process only
         if self.accelerator.is_main_process:
             if self.batch_count % self.save_checkpoint_stride[0] == 0:
                 keep_last = self.keep_last[0]
-                # 读取self.checkpoint_dir所有的folder
+                # Read all folders in self.checkpoint_dir
                 all_ckpts = os.listdir(self.checkpoint_dir)
-                # 排除非文件夹
+                # Exclude non-folders
                 all_ckpts = [ckpt for ckpt in all_ckpts if os.path.isdir(os.path.join(self.checkpoint_dir, ckpt))]
                 if len(all_ckpts) > keep_last:
-                    # 只保留keep_last个的folder in self.checkpoint_dir, sort by step  "epoch-{:04d}_step-{:07d}_loss-{:.6f}"
-                    all_ckpts = sorted(all_ckpts, key=lambda x: int(x.split("_")[1].split('-')[1]))
-
-                    # 只保留keep_last个的folder in self.checkpoint_dir, sort by step  "epoch-{:04d}_step-{:07d}_loss-{:.6f}"
+                    # Keep only the last keep_last folders in self.checkpoint_dir, sorted by step "epoch-{:04d}_step-{:07d}_loss-{:.6f}"
                     all_ckpts = sorted(all_ckpts, key=lambda x: int(x.split("_")[1].split('-')[1]))
                     for ckpt in all_ckpts[:-keep_last]:
                         shutil.rmtree(os.path.join(self.checkpoint_dir, ckpt))
@@ -528,3 +499,4 @@ class VCTrainer(TTSTrainer):
                 self.accelerator.save_state(path)
                 self.logger.info("Finished saving state.")
         self.accelerator.wait_for_everyone()
+

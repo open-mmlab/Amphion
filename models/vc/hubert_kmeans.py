@@ -58,8 +58,8 @@ class HubertWithKmeans(nn.Module):
 
     def __init__(
         self,
-        checkpoint_path= '/mnt/data3/hehaorui/pretrained_models/mhubert/mhubert_base_vp_en_es_fr_it3.pt',
-        kmeans_path = '/mnt/data3/hehaorui/pretrained_models/mhubert/mhubert_base_vp_en_es_fr_it3_L11_km1000.bin',
+        checkpoint_path= 'path/to/your/mhubert_model/mhubert_base_vp_en_es_fr_it3.pt',
+        kmeans_path = 'path/to/your/mhubert/mhubert_base_vp_en_es_fr_it3_L11_km1000.bin',
         target_sample_hz=16000,
         seq_len_multiple_of=None,
         output_layer=9,
