@@ -130,6 +130,10 @@ Run:
 sh egs/tts/VALLE_V2/train_ar_libritts.sh --resume
 ```
 
+### Finetuning based on our AR model
+We provide our AR model optimizer, and random_states checkpoints to support finetuning (No need to download these files if you're only inferencing from the pretrained model). First rename the models as "pytorch_model.bin", "optimizer.bin", and "random_states_0.pkl", then you could resume from these checkpoints. [Link to AR optimizer checkpoint](https://huggingface.co/amphion/valle/blob/main/optimizer_valle_ar_mls_196000.bin) and [Link to random_states.pkl](https://huggingface.co/amphion/valle/blob/main/random_states_0.pkl).
+
+
 ### Run the command to Train NAR model
 (Make sure your current directory is at the Amphion root directory).
 Run:
