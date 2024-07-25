@@ -19,7 +19,7 @@ pip install -U transformers==4.41.2
 
 ## Inferencing pretrained VALL-E models
 ### Download pretrained weights
-You need to download our pretrained weights from huggingface. Our models are trained on the MLS dataset (45k hours of English, contains 10-20s speech).
+You need to download our pretrained weights from huggingface. 
 
 Script to download AR and NAR model checkpoint: 
 ```bash
@@ -34,7 +34,6 @@ If you cannot access huggingface, consider using the huggingface mirror to downl
 ```bash
 HF_ENDPOINT=https://hf-mirror.com huggingface-cli download amphion/valle valle_ar_mls_196000.bin valle_nar_mls_164000.bin --local-dir ckpts
 ```
-Script to download codec model (SpeechTokenizer) checkpoint:
 ```bash
 mkdir -p ckpts/speechtokenizer_hubert_avg && HF_ENDPOINT=https://hf-mirror.com huggingface-cli download amphion/valle SpeechTokenizer.pt config.json --local-dir ckpts/speechtokenizer_hubert_avg
 ```
@@ -42,7 +41,7 @@ mkdir -p ckpts/speechtokenizer_hubert_avg && HF_ENDPOINT=https://hf-mirror.com h
 
 ### Inference in IPython notebook
 
-We provide our pretrained VALL-E model that is trained on 45k hours MLS dataset.
+We provide our pretrained VALL-E model that is trained on 45k hours MLS dataset, which contains 10-20s English speech.
 The "demo.ipynb" file provides a working example of inferencing our pretrained VALL-E model. Give it a try!
 
 ## Examining the model files
@@ -52,7 +51,7 @@ We provide examples that allows you to overfit a single batch (so no dataset dow
 The AR model is essentially a causal language model that "continues" a speech. The NAR model is a modification from the AR model that allows for bidirectional attention.
 
 
-File `valle_ar.py` and `valle_nar.py` in "models/tts/VALLE_V2" folder are models files, these files can be run directly via `python -m models.tts.VALLE_V2.valle_ar` (or `python -m models.tts.VALLE_V2.valle_nar`).
+File `valle_ar.py` and `valle_nar.py` in "models/tts/valle_v2" folder are models files, these files can be run directly via `python -m models.tts.valle_v2.valle_ar` (or `python -m models.tts.valle_v2.valle_nar`).
 This will invoke a test which overfits it to a single example.
 
 ## Training VALL-E from scratch
@@ -61,7 +60,7 @@ This will invoke a test which overfits it to a single example.
 We have tested our training script on LibriTTS and LibriTTS-R.
 You could download LibriTTS-R at [this link](https://www.openslr.org/141/) and LibriTTS at [this link](https://www.openslr.org/60).
 The "train-clean-360" split is currently used by our configuration.
-You can test dataset.py by run `python -m models.tts.VALLE_V2.libritts_dataset`.
+You can test dataset.py by run `python -m models.tts.valle_v2.libritts_dataset`.
 
 For your reference, our unzipped dataset files has a file structure like this:
 ```
@@ -120,7 +119,7 @@ Run:
 ```sh
 sh egs/tts/VALLE_V2/train_ar_libritts.sh
 ```
-Your model checkpoint could be found in `ckpt/VALLE_V2/ar_libritts/checkpoint/epoch-0000_step-0000000_loss-7.397293/pytorch_model.bin`
+Your initial model checkpoint could be found in places such as `ckpt/VALLE_V2/ar_libritts/checkpoint/epoch-0000_step-0000000_loss-7.397293/pytorch_model.bin`
 
 
 ### Resume from existing checkpoint
