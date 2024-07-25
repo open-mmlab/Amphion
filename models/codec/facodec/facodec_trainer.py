@@ -28,18 +28,33 @@ from models.codec.facodec.facodec_dataset import FAcodecDataset, FAcodecCollator
 from models.codec.codec_sampler import build_samplers
 from models.codec.codec_trainer import CodecTrainer
 
-from modules.dac.nn.loss import MultiScaleSTFTLoss, MelSpectrogramLoss, GANLoss, L1Loss, FocalLoss
+from modules.dac.nn.loss import (
+    MultiScaleSTFTLoss,
+    MelSpectrogramLoss,
+    GANLoss,
+    L1Loss,
+    FocalLoss,
+)
 from audiotools import AudioSignal
 
 from transformers import Wav2Vec2Processor, Wav2Vec2ForCTC
+
 try:
     import nemo.collections.asr as nemo_asr
 except ImportError:
-    print("Unable to import nemo_asr, titanet outputs will be set to random values, you may only run debugging mode. DO NOT USE THIS FOR TRAINING")
+    print(
+        "Unable to import nemo_asr, titanet outputs will be set to random values, you may only run debugging mode. DO NOT USE THIS FOR TRAINING"
+    )
     nemo_asr = None
 
-from models.codec.facodec.modules.commons import build_model, load_checkpoint, load_F0_models, log_norm
+from models.codec.facodec.modules.commons import (
+    build_model,
+    load_checkpoint,
+    load_F0_models,
+    log_norm,
+)
 from models.codec.facodec.optimizer import build_optimizer
+
 
 class FAcodecTrainer(CodecTrainer):
     def __init__(self, args, cfg):
@@ -138,7 +153,9 @@ class FAcodecTrainer(CodecTrainer):
             start = time.monotonic_ns()
             self._built_helper_model()
             end = time.monotonic_ns()
-            self.logger.info(f"Building helper models done in {(end - start) / 1e6:.2f}ms")
+            self.logger.info(
+                f"Building helper models done in {(end - start) / 1e6:.2f}ms"
+            )
 
         # Accelerator preparing
         self.logger.info("Initializing accelerate...")
@@ -146,8 +163,12 @@ class FAcodecTrainer(CodecTrainer):
         for k in self.model:
             self.model[k] = self.accelerator.prepare(self.model[k])
         for k, v in self.optimizer.optimizers.items():
-            self.optimizer.optimizers[k] = self.accelerator.prepare(self.optimizer.optimizers[k])
-            self.optimizer.schedulers[k] = self.accelerator.prepare(self.optimizer.schedulers[k])
+            self.optimizer.optimizers[k] = self.accelerator.prepare(
+                self.optimizer.optimizers[k]
+            )
+            self.optimizer.schedulers[k] = self.accelerator.prepare(
+                self.optimizer.schedulers[k]
+            )
         end = time.monotonic_ns()
         self.logger.info(f"Initializing accelerate done in {(end - start) / 1e6:.2f}ms")
 
@@ -167,9 +188,7 @@ class FAcodecTrainer(CodecTrainer):
                 start = time.monotonic_ns()
                 ckpt_path = Path(args.checkpoint)
                 if self._is_valid_pattern(ckpt_path.parts[-1]):
-                    ckpt_path = self._load_model(
-                        args.checkpoint, args.resume_type
-                    )
+                    ckpt_path = self._load_model(args.checkpoint, args.resume_type)
                 else:
                     ckpt_path = self._load_model(
                         args.checkpoint, resume_type=args.resume_type
@@ -206,10 +225,10 @@ class FAcodecTrainer(CodecTrainer):
         )
         content_criterion = FocalLoss(gamma=2)
         l1_criterion = L1Loss()
-        criterions['stft'] = stft_criterion
-        criterions['mel'] = mel_criterion
-        criterions['l1'] = l1_criterion
-        criterions['content'] = content_criterion
+        criterions["stft"] = stft_criterion
+        criterions["mel"] = mel_criterion
+        criterions["l1"] = l1_criterion
+        criterions["content"] = content_criterion
 
         return criterions
 
@@ -223,25 +242,35 @@ class FAcodecTrainer(CodecTrainer):
         self.pitch_extractor = load_F0_models(self.cfg.F0_path).to(device)
 
         # load model and processor
-        self.w2v_processor = Wav2Vec2Processor.from_pretrained("facebook/wav2vec2-xlsr-53-espeak-cv-ft")
-        self.w2v_model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-xlsr-53-espeak-cv-ft").to(device)
+        self.w2v_processor = Wav2Vec2Processor.from_pretrained(
+            "facebook/wav2vec2-xlsr-53-espeak-cv-ft"
+        )
+        self.w2v_model = Wav2Vec2ForCTC.from_pretrained(
+            "facebook/wav2vec2-xlsr-53-espeak-cv-ft"
+        ).to(device)
         self.w2v_model.eval()
 
         if nemo_asr is None:
             self.speaker_model = None
         else:
-            self.speaker_model = nemo_asr.models.EncDecSpeakerLabelModel.from_pretrained("nvidia/speakerverification_en_titanet_large")
+            self.speaker_model = (
+                nemo_asr.models.EncDecSpeakerLabelModel.from_pretrained(
+                    "nvidia/speakerverification_en_titanet_large"
+                )
+            )
             self.speaker_model = self.speaker_model.to(device)
             self.speaker_model.eval()
 
     def _build_optimizer(self):
         scheduler_params = {
             "warmup_steps": self.cfg.loss_params.warmup_steps,
-            "base_lr": self.cfg.loss_params.base_lr
+            "base_lr": self.cfg.loss_params.base_lr,
         }
-        optimizer = build_optimizer({key: self.model[key] for key in self.model},
-                                scheduler_params_dict={key: scheduler_params.copy() for key in self.model},
-                                lr=float(scheduler_params['base_lr']))
+        optimizer = build_optimizer(
+            {key: self.model[key] for key in self.model},
+            scheduler_params_dict={key: scheduler_params.copy() for key in self.model},
+            lr=float(scheduler_params["base_lr"]),
+        )
 
         return optimizer
 
@@ -292,15 +321,18 @@ class FAcodecTrainer(CodecTrainer):
             # Save checkpoints
             self.accelerator.wait_for_everyone()
             if self.accelerator.is_main_process and save_checkpoint:
-                print('Saving..')
+                print("Saving..")
                 state = {
-                    'net': {key: self.model[key].state_dict() for key in  self.model},
-                    'optimizer':  self.optimizer.state_dict(),
-                    'scheduler':  self.optimizer.scheduler_state_dict(),
-                    'iters': self.step,
-                    'epoch':  self.epoch,
+                    "net": {key: self.model[key].state_dict() for key in self.model},
+                    "optimizer": self.optimizer.state_dict(),
+                    "scheduler": self.optimizer.scheduler_state_dict(),
+                    "iters": self.step,
+                    "epoch": self.epoch,
                 }
-                save_path = os.path.join(self.checkpoint_dir, 'FAcodec_epoch_%05d_step_%05d.pth' % (self.epoch, self.iters))
+                save_path = os.path.join(
+                    self.checkpoint_dir,
+                    "FAcodec_epoch_%05d_step_%05d.pth" % (self.epoch, self.iters),
+                )
                 torch.save(state, save_path)
                 json.dump(
                     self.checkpoints_path,
@@ -319,18 +351,22 @@ class FAcodecTrainer(CodecTrainer):
             path = os.path.join(
                 self.checkpoint_dir,
                 "epoch-{:04d}_step-{:07d}".format(
-                    self.epoch, self.step,
+                    self.epoch,
+                    self.step,
                 ),
             )
-            print('Saving..')
+            print("Saving..")
             state = {
-                'net': {key: self.model[key].state_dict() for key in self.model},
-                'optimizer': self.optimizer.state_dict(),
-                'scheduler': self.optimizer.scheduler_state_dict(),
-                'iters': self.step,
-                'epoch': self.epoch,
+                "net": {key: self.model[key].state_dict() for key in self.model},
+                "optimizer": self.optimizer.state_dict(),
+                "scheduler": self.optimizer.scheduler_state_dict(),
+                "iters": self.step,
+                "epoch": self.epoch,
             }
-            save_path = os.path.join(self.checkpoint_dir, 'FAcodec_epoch_%05d_step_%05d.pth' % (self.epoch, self.iters))
+            save_path = os.path.join(
+                self.checkpoint_dir,
+                "FAcodec_epoch_%05d_step_%05d.pth" % (self.epoch, self.iters),
+            )
             torch.save(state, save_path)
 
     def _train_epoch(self):
@@ -360,7 +396,11 @@ class FAcodecTrainer(CodecTrainer):
             if self.batch_count % self.cfg.train.gradient_accumulation_step == 0:
                 self.accelerator.log(
                     {
-                        "Step/Learning Rate": self.optimizer.schedulers['encoder'].get_last_lr()[0] if self.step != 0 else 0
+                        "Step/Learning Rate": self.optimizer.schedulers[
+                            "encoder"
+                        ].get_last_lr()[0]
+                        if self.step != 0
+                        else 0
                     },
                     step=self.step,
                 )
@@ -410,15 +450,24 @@ class FAcodecTrainer(CodecTrainer):
 
         # extract semantic latent with w2v model
         waves_16k = torchaudio.functional.resample(waves, 24000, 16000)
-        w2v_input = self.w2v_processor(waves_16k, sampling_rate=16000, return_tensors="pt").input_values.to(self.accelerator.device)
+        w2v_input = self.w2v_processor(
+            waves_16k, sampling_rate=16000, return_tensors="pt"
+        ).input_values.to(self.accelerator.device)
         with torch.no_grad():
             w2v_outputs = self.w2v_model(w2v_input.squeeze(0)).logits
             predicted_ids = torch.argmax(w2v_outputs, dim=-1)
-            phone_ids = F.interpolate(predicted_ids.unsqueeze(0).float(), mels.size(-1), mode='nearest').long().squeeze(
-                0)
+            phone_ids = (
+                F.interpolate(
+                    predicted_ids.unsqueeze(0).float(), mels.size(-1), mode="nearest"
+                )
+                .long()
+                .squeeze(0)
+            )
 
         # get clips
-        mel_seg_len = min([int(mel_input_length.min().item()), self.cfg.train.max_frame_len])
+        mel_seg_len = min(
+            [int(mel_input_length.min().item()), self.cfg.train.max_frame_len]
+        )
 
         gt_mel_seg = []
         wav_seg = []
@@ -427,13 +476,17 @@ class FAcodecTrainer(CodecTrainer):
         for bib in range(len(mel_input_length)):
             mel_length = int(mel_input_length[bib].item())
 
-            random_start = np.random.randint(0, mel_length - mel_seg_len) if mel_length != mel_seg_len else 0
-            gt_mel_seg.append(mels[bib, :, random_start:random_start + mel_seg_len])
+            random_start = (
+                np.random.randint(0, mel_length - mel_seg_len)
+                if mel_length != mel_seg_len
+                else 0
+            )
+            gt_mel_seg.append(mels[bib, :, random_start : random_start + mel_seg_len])
 
             # w2v_seg.append(w2v_latent[bib, :, random_start:random_start + mel_seg_len])
-            w2v_seg.append(phone_ids[bib, random_start:random_start + mel_seg_len])
+            w2v_seg.append(phone_ids[bib, random_start : random_start + mel_seg_len])
 
-            y = waves[bib][random_start * 300:(random_start + mel_seg_len) * 300]
+            y = waves[bib][random_start * 300 : (random_start + mel_seg_len) * 300]
 
             wav_seg.append(y.to(self.accelerator.device))
 
@@ -468,7 +521,9 @@ class FAcodecTrainer(CodecTrainer):
                 # Create the normalized F0 sequence with unvoiced frames
                 normalized_sequence = torch.zeros_like(F0_real[bib])
                 normalized_sequence[voiced_indices] = normalized_f0
-                normalized_sequence[~voiced_indices] = -10  # Assign -10 to unvoiced frames
+                normalized_sequence[
+                    ~voiced_indices
+                ] = -10  # Assign -10 to unvoiced frames
 
                 gt_glob_f0s.append(mean_f0)
             else:
@@ -484,25 +539,31 @@ class FAcodecTrainer(CodecTrainer):
         f0_targets[torch.isinf(f0_targets)] = -10.0
         # if frame_rate not equal to 80, interpolate f0 from frame rate of 80 to target frame rate
         if self.cfg.preprocess_params.frame_rate != 80:
-            f0_targets = F.interpolate(f0_targets.unsqueeze(1), mel_seg_len // 80 * self.cfg.preprocess_params.frame_rate, mode='nearest').squeeze(
-                1)
-            w2v_seg = F.interpolate(w2v_seg, mel_seg_len // 80 * self.cfg.preprocess_params.frame_rate, mode='nearest')
+            f0_targets = F.interpolate(
+                f0_targets.unsqueeze(1),
+                mel_seg_len // 80 * self.cfg.preprocess_params.frame_rate,
+                mode="nearest",
+            ).squeeze(1)
+            w2v_seg = F.interpolate(
+                w2v_seg,
+                mel_seg_len // 80 * self.cfg.preprocess_params.frame_rate,
+                mode="nearest",
+            )
 
         wav_seg_input = wav_seg
         wav_seg_target = wav_seg
 
         z = self.model.encoder(wav_seg_input)
-        z, quantized, commitment_loss, codebook_loss, timbre = self.model.quantizer(z, wav_seg_input,
-                                                                               n_c=2,
-                                                                               full_waves=waves,
-                                                                               wave_lens=wave_lengths)
+        z, quantized, commitment_loss, codebook_loss, timbre = self.model.quantizer(
+            z, wav_seg_input, n_c=2, full_waves=waves, wave_lens=wave_lengths
+        )
         preds, rev_preds = self.model.fa_predictors(quantized, timbre)
 
         pred_wave = self.model.decoder(z)
 
         len_diff = wav_seg_target.size(-1) - pred_wave.size(-1)
         if len_diff > 0:
-            wav_seg_target = wav_seg_target[..., len_diff // 2:-len_diff // 2]
+            wav_seg_target = wav_seg_target[..., len_diff // 2 : -len_diff // 2]
 
         # discriminator loss
         d_fake = self.model.discriminator(pred_wave.detach())
@@ -514,9 +575,11 @@ class FAcodecTrainer(CodecTrainer):
 
         self.optimizer.zero_grad()
         self.accelerator.backward(loss_d)
-        grad_norm_d = torch.nn.utils.clip_grad_norm_(self.model.discriminator.parameters(), 10.0)
-        self.optimizer.step('discriminator')
-        self.optimizer.scheduler(key='discriminator')
+        grad_norm_d = torch.nn.utils.clip_grad_norm_(
+            self.model.discriminator.parameters(), 10.0
+        )
+        self.optimizer.step("discriminator")
+        self.optimizer.scheduler(key="discriminator")
 
         # generator loss
         signal = AudioSignal(wav_seg_target, sample_rate=24000)
@@ -538,56 +601,90 @@ class FAcodecTrainer(CodecTrainer):
             for j in range(len(d_fake[i]) - 1):
                 loss_feature += F.l1_loss(d_fake[i][j], d_real[i][j].detach())
 
-        pred_f0, pred_uv = preds['f0'], preds['uv']
-        rev_pred_f0, rev_pred_uv = rev_preds['rev_f0'], rev_preds['rev_uv']
+        pred_f0, pred_uv = preds["f0"], preds["uv"]
+        rev_pred_f0, rev_pred_uv = rev_preds["rev_f0"], rev_preds["rev_uv"]
 
         common_min_size = min(pred_f0.size(-2), f0_targets.size(-1))
         f0_targets = f0_targets[..., :common_min_size]
         real_norm = real_norm[..., :common_min_size]
 
-        f0_loss = F.smooth_l1_loss(f0_targets, pred_f0.squeeze(-1)[..., :common_min_size])
-        uv_loss = F.smooth_l1_loss(real_norm, pred_uv.squeeze(-1)[..., :common_min_size])
-        rev_f0_loss = F.smooth_l1_loss(f0_targets, rev_pred_f0.squeeze(-1)[...,
-                                                   :common_min_size]) if rev_pred_f0 is not None else torch.FloatTensor(
-            [0]).to(self.accelerator.device)
-        rev_uv_loss = F.smooth_l1_loss(real_norm, rev_pred_uv.squeeze(-1)[...,
-                                                  :common_min_size]) if rev_pred_uv is not None else torch.FloatTensor(
-            [0]).to(self.accelerator.device)
+        f0_loss = F.smooth_l1_loss(
+            f0_targets, pred_f0.squeeze(-1)[..., :common_min_size]
+        )
+        uv_loss = F.smooth_l1_loss(
+            real_norm, pred_uv.squeeze(-1)[..., :common_min_size]
+        )
+        rev_f0_loss = (
+            F.smooth_l1_loss(f0_targets, rev_pred_f0.squeeze(-1)[..., :common_min_size])
+            if rev_pred_f0 is not None
+            else torch.FloatTensor([0]).to(self.accelerator.device)
+        )
+        rev_uv_loss = (
+            F.smooth_l1_loss(real_norm, rev_pred_uv.squeeze(-1)[..., :common_min_size])
+            if rev_pred_uv is not None
+            else torch.FloatTensor([0]).to(self.accelerator.device)
+        )
 
         tot_f0_loss = f0_loss + rev_f0_loss
         tot_uv_loss = uv_loss + rev_uv_loss
 
-        pred_content = preds['content']
-        rev_pred_content = rev_preds['rev_content']
+        pred_content = preds["content"]
+        rev_pred_content = rev_preds["rev_content"]
 
         target_content_latents = w2v_seg[..., :common_min_size]
 
-        content_loss = self.criterions["content"](pred_content.transpose(1, 2)[..., :common_min_size],
-                                         target_content_latents.long())
-        rev_content_loss = self.criterions["content"](rev_pred_content.transpose(1, 2)[..., :common_min_size],
-                                             target_content_latents.long()) \
-            if rev_pred_content is not None else torch.FloatTensor([0]).to(self.accelerator.device)
+        content_loss = self.criterions["content"](
+            pred_content.transpose(1, 2)[..., :common_min_size],
+            target_content_latents.long(),
+        )
+        rev_content_loss = (
+            self.criterions["content"](
+                rev_pred_content.transpose(1, 2)[..., :common_min_size],
+                target_content_latents.long(),
+            )
+            if rev_pred_content is not None
+            else torch.FloatTensor([0]).to(self.accelerator.device)
+        )
 
         tot_content_loss = content_loss + rev_content_loss
 
         if self.speaker_model is not None:
             spk_logits = torch.cat(
-                [self.speaker_model.infer_segment(w16.cpu()[..., :wl])[1] for w16, wl in zip(waves_16k, wave_lengths)], dim=0)
+                [
+                    self.speaker_model.infer_segment(w16.cpu()[..., :wl])[1]
+                    for w16, wl in zip(waves_16k, wave_lengths)
+                ],
+                dim=0,
+            )
             spk_labels = spk_logits.argmax(dim=-1)
         else:
-            spk_labels = torch.zeros([len(waves_16k)], dtype=torch.long).to(self.accelerator.device)
+            spk_labels = torch.zeros([len(waves_16k)], dtype=torch.long).to(
+                self.accelerator.device
+            )
 
-        spk_pred_logits = preds['timbre']
+        spk_pred_logits = preds["timbre"]
         spk_loss = F.cross_entropy(spk_pred_logits, spk_labels)
-        x_spk_pred_logits = rev_preds['x_timbre']
+        x_spk_pred_logits = rev_preds["x_timbre"]
 
-        x_spk_loss = F.cross_entropy(x_spk_pred_logits,
-                                     spk_labels) if x_spk_pred_logits is not None else torch.FloatTensor([0]).to(self.accelerator.device)
+        x_spk_loss = (
+            F.cross_entropy(x_spk_pred_logits, spk_labels)
+            if x_spk_pred_logits is not None
+            else torch.FloatTensor([0]).to(self.accelerator.device)
+        )
 
         tot_spk_loss = spk_loss + x_spk_loss
 
-        loss_gen_all = mel_loss * 15.0 + loss_feature * 1.0 + loss_g * 1.0 + commitment_loss * 0.25 + codebook_loss * 1.0 \
-                       + tot_f0_loss * 1.0 + tot_uv_loss * 1.0 + tot_content_loss * 5.0 + tot_spk_loss * 5.0
+        loss_gen_all = (
+            mel_loss * 15.0
+            + loss_feature * 1.0
+            + loss_g * 1.0
+            + commitment_loss * 0.25
+            + codebook_loss * 1.0
+            + tot_f0_loss * 1.0
+            + tot_uv_loss * 1.0
+            + tot_content_loss * 5.0
+            + tot_spk_loss * 5.0
+        )
 
         self.optimizer.zero_grad()
         self.accelerator.backward(loss_gen_all)
@@ -614,13 +711,16 @@ class FAcodecTrainer(CodecTrainer):
             # discriminators
             train_losses["discriminator"] = loss_d.item()
 
-
         return total_loss, train_losses
+
     def _inference(self, eval_wave):
         """Inference during training for test audios."""
-        z = self.model.encoder(eval_wave[None, None, ...].to(self.accelerator.device).float())
-        z, quantized, commitment_loss, codebook_loss, timbre = self.model.quantizer(z, eval_wave[None, None, ...],
-                                                                                    n_c=self.cfg.model_params.n_c_codebooks)
+        z = self.model.encoder(
+            eval_wave[None, None, ...].to(self.accelerator.device).float()
+        )
+        z, quantized, commitment_loss, codebook_loss, timbre = self.model.quantizer(
+            z, eval_wave[None, None, ...], n_c=self.cfg.model_params.n_c_codebooks
+        )
         full_pred_wave = self.model.decoder(z)
         return full_pred_wave[0]
 
@@ -632,35 +732,45 @@ class FAcodecTrainer(CodecTrainer):
         """
         if resume_type == "resume":
             if checkpoint_path is None:
-                available_checkpoints = glob.glob(os.path.join(self.checkpoint_dir, "FAcodc_epoch_*_step_*.pth"))
+                available_checkpoints = glob.glob(
+                    os.path.join(self.checkpoint_dir, "FAcodc_epoch_*_step_*.pth")
+                )
                 # find the checkpoint that has the highest step number
                 latest_checkpoint = max(
-                    available_checkpoints, key=lambda x: int(x.split("_")[-1].split(".")[0])
+                    available_checkpoints,
+                    key=lambda x: int(x.split("_")[-1].split(".")[0]),
                 )
                 earliest_checkpoint = min(
-                    available_checkpoints, key=lambda x: int(x.split("_")[-1].split(".")[0])
+                    available_checkpoints,
+                    key=lambda x: int(x.split("_")[-1].split(".")[0]),
                 )
                 # delete the earliest checkpoint
                 if (
-                        earliest_checkpoint != latest_checkpoint
-                        and self.accelerator.is_main_process
-                        and len(available_checkpoints) > 4
+                    earliest_checkpoint != latest_checkpoint
+                    and self.accelerator.is_main_process
+                    and len(available_checkpoints) > 4
                 ):
                     os.remove(earliest_checkpoint)
                     print(f"Removed {earliest_checkpoint}")
             else:
                 latest_checkpoint = checkpoint_path
 
-            self.model, self.optimizer, self.epoch, self.step = load_checkpoint(self.model, self.optimizer, latest_checkpoint,
-                                                                   load_only_params=False,
-                                                                   ignore_modules=[],
-                                                                   is_distributed=self.accelerator.num_processes > 1)
+            self.model, self.optimizer, self.epoch, self.step = load_checkpoint(
+                self.model,
+                self.optimizer,
+                latest_checkpoint,
+                load_only_params=False,
+                ignore_modules=[],
+                is_distributed=self.accelerator.num_processes > 1,
+            )
 
         else:
             raise ValueError("Invalid resume type")
         return checkpoint_path
 
     def _count_parameters(self):
-        total_num = sum(sum(p.numel() for p in self.model[key].parameters()) for key in self.model)
+        total_num = sum(
+            sum(p.numel() for p in self.model[key].parameters()) for key in self.model
+        )
         # trainable_num = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
         return total_num

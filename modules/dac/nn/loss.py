@@ -333,8 +333,8 @@ class MelSpectrogramLoss(nn.Module):
             loss += self.mag_weight * self.loss_fn(x_mels, y_mels)
         return loss
 
-class FocalLoss(torch.nn.Module):
 
+class FocalLoss(torch.nn.Module):
     def __init__(self, gamma=0, eps=1e-7):
         super(FocalLoss, self).__init__()
         self.gamma = gamma
@@ -346,6 +346,7 @@ class FocalLoss(torch.nn.Module):
         p = torch.exp(-logp)
         loss = (1 - p) ** self.gamma * logp
         return loss.mean()
+
 
 class GANLoss(nn.Module):
     """

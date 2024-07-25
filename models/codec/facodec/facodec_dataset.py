@@ -30,7 +30,7 @@ class FAcodecDataset(torch.utils.data.Dataset):
         # walk through the dataset directory recursively, save all files ends with .wav/.mp3/.opus/.flac/.m4a
         for root, _, files in os.walk(self.data_root_dir):
             for file in files:
-                if file.endswith(('.wav', '.mp3', '.opus', '.flac', '.m4a')):
+                if file.endswith((".wav", ".mp3", ".opus", ".flac", ".m4a")):
                     self.data_list.append(os.path.join(root, file))
         self.sr = cfg.preprocess_params.sr
         self.duration_range = cfg.preprocess_params.duration_range
@@ -43,15 +43,16 @@ class FAcodecDataset(torch.utils.data.Dataset):
         self.mean, self.std = -4, 4
 
     def preprocess(self, wave):
-        wave_tensor = torch.from_numpy(wave).float() if isinstance(wave, np.ndarray) else wave
+        wave_tensor = (
+            torch.from_numpy(wave).float() if isinstance(wave, np.ndarray) else wave
+        )
         mel_tensor = self.to_mel(wave_tensor)
         mel_tensor = (torch.log(1e-5 + mel_tensor.unsqueeze(0)) - self.mean) / self.std
         return mel_tensor
 
     def __len__(self):
         # return len(self.data_list)
-        return len(self.data_list) # return a fixed number for testing
-
+        return len(self.data_list)  # return a fixed number for testing
 
     def __getitem__(self, index):
         wave, _ = librosa.load(self.data_list[index], sr=self.sr)
