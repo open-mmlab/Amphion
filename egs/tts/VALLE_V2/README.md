@@ -17,16 +17,9 @@ To ensure your transformers library can run the code, we recommend additionally 
 pip install -U transformers==4.41.2
 ```
 
-<!-- espeak-ng is required to run G2p. To install it, you could refer to: 
-https://github.com/espeak-ng/espeak-ng/blob/master/docs/guide.md
-
-For Linux, it should be `sudo apt-get install espeak-ng`.
-For Windows, refer to the above link.
-If you do not have sudo privilege, you could build the library by following the last section of this readme. -->
-
 ## Inferencing pretrained VALL-E models
 ### Download pretrained weights
-You need to download our pretrained weights from huggingface. 
+You need to download our pretrained weights from huggingface. Our models are trained on the MLS dataset (45k hours of English, contains 10-20s speech).
 
 Script to download AR and NAR model checkpoint: 
 ```bash
@@ -34,8 +27,18 @@ huggingface-cli download amphion/valle valle_ar_mls_196000.bin valle_nar_mls_164
 ```
 Script to download codec model (SpeechTokenizer) checkpoint:
 ```bash
-huggingface-cli download amphion/valle speechtokenizer_hubert_avg/SpeechTokenizer.pt speechtokenizer_hubert_avg/config.json --local-dir ckpts
+mkdir -p ckpts/speechtokenizer_hubert_avg && huggingface-cli download amphion/valle SpeechTokenizer.pt config.json --local-dir ckpts/speechtokenizer_hubert_avg
 ```
+
+If you cannot access huggingface, consider using the huggingface mirror to download: 
+```bash
+HF_ENDPOINT=https://hf-mirror.com huggingface-cli download amphion/valle valle_ar_mls_196000.bin valle_nar_mls_164000.bin --local-dir ckpts
+```
+Script to download codec model (SpeechTokenizer) checkpoint:
+```bash
+mkdir -p ckpts/speechtokenizer_hubert_avg && HF_ENDPOINT=https://hf-mirror.com huggingface-cli download amphion/valle SpeechTokenizer.pt config.json --local-dir ckpts/speechtokenizer_hubert_avg
+```
+
 
 ### Inference in IPython notebook
 
@@ -110,31 +113,6 @@ You should also select a reasonable batch size at the "batch_size" entry (curren
 
 
 You can change other experiment settings in the `/egs/tts/VALLE_V2/exp_ar_libritts.json` such as the learning rate, optimizer and the dataset.
-
-Here we choose `libritts` dataset we added and set `use_dynamic_dataset` false.
-
-Config `use_dynamic_dataset` is used to solve the problem of inconsistent sequence length and improve gpu utilization, here we set it to false for simplicity.
-
-```json
-"dataset": {
-          "use_dynamic_batchsize": false,
-          "name": "libritts"
-        },
-```
-
-We also recommend changing "num_hidden_layers" if your GPU memory is limited.
-
-**Set smaller batch_size if you are out of memory😢😢**
-
-I used batch_size=3 to successfully run on a single card, if you'r out of memory, try smaller.
-
-```json
-        "batch_size": 3,
-        "max_tokens": 11000,
-        "max_sentences": 64,
-        "random_seed": 0
-```
-
 
 ### Run the command to Train AR model
 (Make sure your current directory is at the Amphion root directory).
