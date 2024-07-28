@@ -143,11 +143,6 @@ Here are some example scenarios to better understand how to use these arguments:
 
 ## 4. Inference
 
-### Pre-trained Model Download
-
-We released a pre-trained Amphion VITS model trained on LJSpeech. So you can download the pre-trained model [here](https://huggingface.co/amphion/vits-ljspeech) and generate speech according to the following inference instruction.
-
-
 ### Configuration
 
 For inference, you need to specify the following configurations when running `run.sh`:
