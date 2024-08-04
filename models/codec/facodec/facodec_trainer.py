@@ -396,11 +396,11 @@ class FAcodecTrainer(CodecTrainer):
             if self.batch_count % self.cfg.train.gradient_accumulation_step == 0:
                 self.accelerator.log(
                     {
-                        "Step/Learning Rate": self.optimizer.schedulers[
-                            "encoder"
-                        ].get_last_lr()[0]
-                        if self.step != 0
-                        else 0
+                        "Step/Learning Rate": (
+                            self.optimizer.schedulers["encoder"].get_last_lr()[0]
+                            if self.step != 0
+                            else 0
+                        )
                     },
                     step=self.step,
                 )
