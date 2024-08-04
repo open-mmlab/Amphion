@@ -523,7 +523,7 @@ class FAcodecTrainer(CodecTrainer):
                 normalized_sequence[voiced_indices] = normalized_f0
                 normalized_sequence[~voiced_indices] = (
                     -10
-                )# Assign -10 to unvoiced frames
+                )  # Assign -10 to unvoiced frames
 
                 gt_glob_f0s.append(mean_f0)
             else:
