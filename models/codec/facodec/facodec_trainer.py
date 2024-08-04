@@ -521,9 +521,9 @@ class FAcodecTrainer(CodecTrainer):
                 # Create the normalized F0 sequence with unvoiced frames
                 normalized_sequence = torch.zeros_like(F0_real[bib])
                 normalized_sequence[voiced_indices] = normalized_f0
-                normalized_sequence[
-                    ~voiced_indices
-                ] = -10  # Assign -10 to unvoiced frames
+                normalized_sequence[~voiced_indices] = (
+                    -10
+                )# Assign -10 to unvoiced frames
 
                 gt_glob_f0s.append(mean_f0)
             else:
