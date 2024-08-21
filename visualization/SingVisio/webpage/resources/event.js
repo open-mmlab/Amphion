@@ -19,6 +19,15 @@ $$("title").addEventListener("click", (e) => {
     }
 })
 
+$$("mode_change").addEventListener("click", () => {
+    if (userMode === "basic") {
+        window.location.href = window.location.href.split("?")[0] + "?mode=advanced";
+    }
+    if (userMode === "advanced") {
+        window.location.href = window.location.href.split("?")[0] + "?mode=basic";
+    }
+})
+
 $$("mode_id").addEventListener("change", () => {
     const selectedValue = $$("mode_id").value;
     currentMode = selectedValue;
@@ -34,11 +43,6 @@ $$("pic_id").addEventListener("change", () => {
     currentShowingPic = selectedValue;
     resetDisplay(false, false);
 });
-$$("text_id").addEventListener("change", () => {
-    const selectedValue = $$("text_id").checked;
-    currentTextShow = selectedValue;
-    resetDisplay(false, false);
-});
 $$("range").addEventListener("input", lineChange);
 $$("reset_map").addEventListener("click", () => {
     resetDisplay(false, false);
@@ -50,6 +54,71 @@ $$("value").addEventListener("change", (e) => {
     lineChange();
 })
 
+$$("components_pitch").addEventListener("change", (e) => {
+    hidePitch = !e.target.checked;
+    charts.forEach(c => c.reset())
+    // resetDisplay(false, false);
+})
+$$("components_frequncy").addEventListener("change", (e) => {
+    if (e.target.checked) {
+        showFrequency = [$$("inputs_min").value, $$("inputs_max").value]
+    } else {
+        showFrequency = false
+    }
+    charts.forEach(c => c.reset())
+    // resetDisplay(false, false);
+})
+$$("inputs_min").addEventListener("input", (e) => {
+    if (e.target.value > parseInt($$("inputs_max").value)) $$("inputs_min").value = $$("inputs_max").value
+    if (!$$("components_frequncy").checked) return
+    showFrequency = [e.target.value, $$("inputs_max").value]
+    charts.forEach(c => c.reset())
+    $$("inputs_left").innerHTML = e.target.value
+})
+$$("inputs_max").addEventListener("input", (e) => {
+    if (e.target.value < parseInt($$("inputs_min").value)) $$("inputs_max").value = $$("inputs_min").value
+    if (!$$("components_frequncy").checked) return
+    showFrequency = [$$("inputs_min").value, e.target.value]
+    charts.forEach(c => c.reset())
+    $$("inputs_right").innerHTML = e.target.value
+})
+
+const delayedLineChange = () => {
+    if (!sampledSteps || sampledSteps.length == 0) {
+        console.log('detect empty sampledSteps, waiting')
+        setTimeout(delayedLineChange, 100)
+        return
+    }
+    lineChange();
+}
+
+$$("sampling_steps").addEventListener("change", (e) => {
+    samplingSteps = e.target.checked;
+    sampledSteps = []
+    // TODO: update the display
+    resetDisplay(false, false);
+    setTimeout(delayedLineChange, 100)
+})
+$$("sampling_num").addEventListener("change", (e) => {
+    if (!e.target.value) {
+        alert('Please enter a number.')
+        return
+    }
+    if (parseInt(e.target.value) >= 1000) {
+        alert('Please enter a number less than 1000.')
+        return
+    }
+    if (parseInt(e.target.value) <= 0) {
+        alert('Please enter a number greater than 0.')
+        return
+    }
+    samplingNum = e.target.value;
+    sampledSteps = []
+    resetDisplay(false, false);
+    setTimeout(delayedLineChange, 100)
+})
+
+
 $$("step_axis").addEventListener('touchmove', (e) => {
     e.stopPropagation();
 }, { passive: false });
@@ -57,7 +126,7 @@ $$("step_axis").addEventListener('touchmove', (e) => {
 //     charts.filter((c) => !c.sync).forEach((c) => c.reset());
 // });
 $$("add_preview").addEventListener("click", () => {
-    if (displaySteps.length >= 3) {
+    if (displaySteps.length >= 3 && userMode !== "basic") {
         alert('Please remove step before pinning new one. Up to 3 steps can be pinned.')
         return
     }
@@ -84,8 +153,11 @@ $$("control_help").addEventListener("click", () => {
     alert("Control Tips", "<b>Projection Embedding:</b> \n" +
         "- <b>Step (Diffusion Step)</b>: Output embedding of the diffusion step encoder, and it does not contain any other data. \n" +
         "- <b>Step + Noise</b>: Output embedding of the diffusion step encoder added with the initial random noise. \n" +
-        "- <b>Step + Noise + Condition</b>: Output embedding of the diffusion step encoder added with the initial random noise and the model conditions, e.g., F0 and energy extracted from the source singing voice and speaker embedding corresponding to the target singer. \n" +
-        "- <b>First/Middle/Last Layer</b>: The first, tenth, and final layer of the 20-layer residual blocks in the diffusion decoder. \n"
+        "- <b>Step + Noise + Condition</b>: Output embedding of the diffusion step encoder added with the initial random noise and the model conditions, e.g., F0 and energy extracted from the source singing voice and speaker embedding corresponding to the target singer. (Advanced mode only) \n" +
+        "- <b>First/Middle/Last Layer</b>: The first, tenth, and final layer of the 20-layer residual blocks in the diffusion decoder. \n" +
+        "<b>Components:</b> \n" + 
+        "- <b>F0 contour</b>: The fundamental frequency (F0) of speech refers to the primary frequency of vibration of the vocal cords during voiced sound production. Typically ranging from 80 to 450 Hz, F0 varies across individuals, influenced by the length of the vocal cords and factors like age and sex. Though it appears quasi-periodic due to natural variations in the voice called jitter and shimmer, F0 is dynamic and alters within sentences to convey nuances like emphasis or questioning.\n" +
+        "- <b>Frequency</b>: \"Frequency\" refers to the distribution of different sound frequencies represented across the Mel scale. Each Mel channel corresponds to a range of frequencies and essentially represents a bandpass filter output. These channels are designed to capture relevant features of sound for various audio processing tasks. \n"
     )
 })
 
@@ -93,7 +165,7 @@ $$("controls").addEventListener("click", () => {
     playMode = !playMode;
     updatePlayIcon(playMode)
     localStorage.setItem('AUTO_PLAY', playMode ? "true" : "false");
-    if (parseInt($range.value) >= 999) {
+    if (parseInt($range.value) >= 999 || (samplingSteps && 999 - parseInt($range.value) == parseInt(sampledSteps[sampledSteps.length - 1]))) {
         $range.value = 0;
     }
 })
@@ -118,17 +190,46 @@ preferColor.addEventListener("change", (e) => {
         .attr("style", `color: ${darkMode ? 'white' : 'black'};`)
 })
 
-setInterval(() => {
-    if (playMode) {
-        // auto play
+const autoPlay = () => {
+    let waitTime = 50;
+    if (!playMode) {
+        setTimeout(autoPlay, 50)
+        return
+    }
+    // auto play
+    if (samplingSteps) {
+        // get next step from samped steps
+        currentIndex = sampledSteps.indexOf(`${999 - $range.value}`); // input str
+        nextRange = 999 - sampledSteps[currentIndex + 1];
+        // get the gap and determine the waiting time
+        // const gap = nextRange - $range.value;
+        // console.log(gap)
+        waitTime = 500;
+        if (nextRange >= parseInt(sampledSteps[0]) || isNaN(nextRange)) {
+            playMode = false
+            updatePlayIcon(playMode)
+            setTimeout(autoPlay, waitTime)
+            return
+        }
+
+        $range.value = nextRange;
+
+    } else {
         $range.value = jumpStep + parseInt($range.value);
         if (parseInt($range.value) >= 999) {
             playMode = false
             updatePlayIcon(playMode)
         }
-        lineChange(true);
     }
-}, 50)
+
+
+    lineChange(waitTime === 50);
+
+    setTimeout(autoPlay, waitTime)
+}
+
+setTimeout(autoPlay, 50)
+
 
 // ==== Drag and Drop ====
 const drag = (e) => {

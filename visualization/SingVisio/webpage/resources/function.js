@@ -83,6 +83,89 @@ function Swatches(color, {
   <div>${domain.map(value => htl.html`<span class="${id}" style="--color: ${color(value)}">${format(value)}</span>`)}</div>`;
 }
 
+function ramp(color, n = 256) {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1;
+    canvas.height = n;
+    const context = canvas.getContext("2d");
+    for (let i = 0; i < n; ++i) {
+        context.fillStyle = color(i / (n - 1));
+        context.fillRect(0, n - i, 1, 1);
+    }
+    return canvas;
+}
+
+function legend({
+    color,
+    title,
+    tickSize = 6,
+    width = 36 + tickSize,
+    height = 320,
+    marginTop = 10,
+    marginRight = 10 + tickSize,
+    marginBottom = 20,
+    marginLeft = 5,
+    ticks = height / 64,
+    tickFormat,
+    tickValues
+} = {}) {
+
+    const svg = d3.create("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", [0, 0, width, height])
+        .style("overflow", "visible")
+        .style("display", "block");
+
+    let tickAdjust = g => g.selectAll(".tick line").attr("x1", marginLeft - width + marginRight);
+    let x;
+
+    if (color.interpolator) {
+        x = Object.assign(color.copy()
+            .interpolator(d3.interpolateRound(height - marginBottom, marginTop)),
+            { range() { return [height - marginBottom, marginTop]; } });
+
+        svg.append("image")
+            .attr("x", marginLeft)
+            .attr("y", marginTop)
+            .attr("width", width - marginLeft - marginRight)
+            .attr("height", height - marginTop - marginBottom)
+            .attr("preserveAspectRatio", "none")
+            .attr("xlink:href", ramp(color.interpolator()).toDataURL());
+
+        // scaleSequentialQuantile doesn’t implement ticks or tickFormat.
+        if (!x.ticks) {
+            if (tickValues === undefined) {
+                const n = Math.round(ticks + 1);
+                tickValues = d3.range(n).map(i => d3.quantile(color.domain(), i / (n - 1)));
+            }
+            if (typeof tickFormat !== "function") {
+                tickFormat = d3.format(tickFormat === undefined ? ",f" : tickFormat);
+            }
+        }
+    }
+
+    svg.append("g")
+        .attr("transform", `translate(${width - marginRight},0)`)
+        .call(d3.axisRight(x)
+            .ticks(ticks, typeof tickFormat === "string" ? tickFormat : undefined)
+            .tickFormat(typeof tickFormat === "function" ? tickFormat : undefined)
+            .tickSize(tickSize)
+            .tickValues(tickValues))
+        .call(tickAdjust)
+        .call(g => g.select(".domain").remove())
+        .call(g => g.append("text")
+            .attr("x", marginLeft - width + marginRight)
+            .attr("y", height - 2)
+            .attr("fill", "currentColor")
+            .attr("text-anchor", "start")
+            // .attr("font-weight", "bold")
+            .attr("class", "title")
+            .text(title));
+
+    return svg.node();
+}
+
 
 // === init info functions ===
 const autoMapFunc = (id) => config.mapToName[id] ?? config.mapToSong[id] ?? id;
@@ -101,7 +184,7 @@ const isSupportMultiMode = (id = 'all') => {
 const isMultiMode = () => currentSong.length >= 2 || currentSinger.length >= 2 || currentTargetSinger.length >= 2
 
 const isSelectable = () => {
-    return isMultiMode() || currentMode === "Metric Comparison";
+    return isMultiMode() || currentMode === "Metric Comparison"
 }
 
 const getSrcPerfix = (i = currentSinger[0], t = currentTargetSinger[0], s = currentSong[0]) => {
@@ -235,14 +318,14 @@ const bindDiv = (refId, data = [], svgObject = null, color = "#000", close = () 
 
     const arrayData = data.map(row => Object.values(row).map(d => +d));
     // draw mel spectrogram
-    plotMelSpectrogram(arrayData, refId, color, close, width, height);
+    plotMelSpectrogram(arrayData, refId, color, close, width, height, true, hidePitch);
 
     charts.find((e) => e.id === refId)?.zoom(zoomStart, zoomEnd)
 }
 
 const getDiv = (refId, src, color, title, subtitle, svg = false, card = true) => {
     const div = document.createElement('div');
-    const draggable = isMultiMode() ? '' : 'draggable="true"';
+    const draggable = (isMultiMode() || userMode === "basic") ? '' : 'draggable="true"';
     div.innerHTML = (card ? `<div class="card min-w-[305px] p-2 w-full flex flex-col gap-1" id="display${refId}" ${draggable}>` : '<div>') +
         `<div class="flex items-center">` +
         `<input id="select${refId}" type="checkbox" value="" class="checkbox mr-1">` +
@@ -256,13 +339,245 @@ const getDiv = (refId, src, color, title, subtitle, svg = false, card = true) =>
             `<a class="btn-sec h-9 w-9 p-2.5 mb-0" id="close${refId}">${closeIcon}</a>` +
             `</div>` : '') +
         `</div>` +
-        `<div class="mx-auto min-h-[200px]" id="mel${refId}"></div>` +
+        `<div class="mx-auto min-h-[200px]" id="mel${refId}">${loadingDiv}</div>` +
         `<audio class="w-full" id="video${refId}" controls src="${src}"></audio>` +
         `</div>`;
     return div.firstChild;
 }
 
+const cachedDifference = {}
+
+
+const getColor = (color) => {
+    if (color > 1) {
+        color = 1
+    }
+    if (color < 0) {
+        color = 0
+    }
+    return d3.interpolateBlues(color)
+}
+
+const calculateStepDifference = (step1, step2, td) => {
+    // return a number to represent the difference between two steps
+    // the larger the number, the more different between two steps
+    const csv1 = getCsvSrc(step1);
+    const csv2 = getCsvSrc(step2);
+    const key = `${currentSinger[0]}-${currentTargetSinger[0]}-${currentSong[0]}`
+    let diff = 0;
+    if (cachedDifference[`${key}-${step1}-${step2}`] || cachedDifference[`${key}-${step2}-${step1}`]) {
+        diff = cachedDifference[`${key}-${step1}-${step2}`] ?? cachedDifference[`${key}-${step2}-${step1}`];
+        td.style.backgroundColor = getColor(diff);
+        return;
+    }
+    d3.csv(csv1, (data1) => {
+        const arrayData1 = data1.map(row => Object.values(row).map(d => +d));
+        d3.csv(csv2, (data2) => {
+            const arrayData2 = data2.map(row => Object.values(row).map(d => +d));
+            // console.log(arrayData1, arrayData2)
+            arrayData1.forEach((d1, i) => {
+                const d2 = arrayData2[i];
+                d1.forEach((v1, j) => {
+                    const v2 = d2[j];
+                    diff += (v1 - v2) ** 2;
+                })
+            })
+            const normalizedDiff = Math.sqrt(diff) / 6000;
+            cachedDifference[`${key}-${step1}-${step2}`] = normalizedDiff;
+            td.style.backgroundColor = getColor(normalizedDiff);
+        })
+    })
+    // console.log(`step difference between ${step1} and ${step2} is ${diff}`)
+    // return diff;
+}
+
+let showTooltipFn = null
+const showTooltip = (content) => {
+    // show a tool tip around the mouse
+    const tooltip = $$("tooltip");
+    tooltip.innerHTML = content;
+    tooltip.classList.remove("invisible");
+    showTooltipFn = (e) => {
+        tooltip.style.left = `${e.pageX + 10}px`;
+        tooltip.style.top = `${e.pageY + 10}px`;
+    }
+    document.addEventListener("mousemove", showTooltipFn)
+}
+const hideTooltip = () => {
+    $$("tooltip").classList.add("invisible");
+    document.removeEventListener("mousemove", showTooltipFn);
+}
+
+const getGridDiv = () => {
+    // a table with all selected steps lined up in cols and rows with step number
+    const table = document.createElement('table');
+    table.classList.add('table-auto', 'h-fit', 'w-fit', 'border-collapse', 'border', 'border-gray-200', 'dark:border-gray-700');
+    for (let i = -1; i < gridSelected.length; i++) {
+        const tr = document.createElement('tr');
+        tr.classList.add('border', 'border-gray-200', 'dark:border-gray-700');
+        for (let j = -1; j < gridSelected.length; j++) {
+            const td = document.createElement('td');
+            td.classList.add('border', 'border-gray-200', 'dark:border-gray-700');
+
+            if (i === -1 || j === -1) {
+                td.style.width = '35px';
+                td.style.minWidth = '35px';
+                td.style.height = '35px';
+                td.style.textAlign = 'center';
+                // table head
+                if (i === -1 && j === -1) {
+                    tr.appendChild(td);
+                    continue;
+                }
+                if (i === -1) {
+                    td.innerText = `${gridSelected[j]}`;
+                    tr.appendChild(td);
+                    continue;
+                }
+                if (j === -1) {
+                    td.innerText = `${gridSelected[i]}`;
+                    tr.appendChild(td);
+                    continue;
+                }
+                continue;
+            }
+
+            const step = gridSelected[i];
+            const step2 = gridSelected[j];
+
+            if (step === step2) {
+                // td.innerText = `N/A`;
+                td.style.backgroundColor = getColor(0);
+                tr.appendChild(td);
+                continue;
+            }
+            calculateStepDifference(step, step2, td);
+            td.style.cursor = 'pointer';
+
+            td.addEventListener('mouseover', () => {
+                showTooltip(`Step ${step} vs Step ${step2}`)
+            })
+            td.addEventListener('mouseout', () => {
+                hideTooltip()
+            })
+
+            td.addEventListener('click', () => {
+                if (downloadingLock.length !== 0) {
+                    alert('Operating too fast, please wait for the previous operation to finish') // fix removing bug
+                    return
+                }
+                gridComparison.forEach((step) => {
+                    charts.filter(c => c.id.endsWith(step))?.forEach(c => c.close(true)); // close all previous comparison display
+                })
+
+                // gridComparison = [`${step}`, `${step2}`];
+                gridComparison.push(`${step}`);
+                gridComparison.push(`${step2}`);
+                selectStep(step);
+                selectStep(step2);
+            })
+
+            tr.appendChild(td);
+        }
+        table.appendChild(tr);
+    }
+    // get outter div width and height, then scale the table
+    if (gridSelected.length >= 6) {
+        const tableHeight = 35 * (gridSelected.length + 1) + 1;
+        const divHeight = 250;
+        const factor = divHeight / tableHeight;
+        console.log(factor)
+        table.style.transform = `scale(${factor})`;
+    } else {
+        table.style.transform = `scale(1)`;
+    }
+    return table;
+}
+
+const loadGrid = () => {
+    // generate two divs for comparison display: display${refId}, display${refId}. Undraggable, selectable, unclosable
+    selectStep(-1)
+    // gridSelected = [0, 10, 50, 100, 200, 999]; // default
+    // gridSelected = Array.from({ length: 41 }, (v, i) => i * 5); // 0 - 200
+    // gridSelected = Array.from({ length: 21 }, (v, i) => i * 10); // 0 - 200
+    // gridSelected = Array.from({ length: 21 }, (v, i) => i * 10 + 200); // 200 - 400
+    // gridSelected = Array.from({ length: 21 }, (v, i) => (i * 30 + 400 === 1000) ? 999 : i * 30 + 400); // 400 - 999
+    gridSelected = [50, 250, 650, 850, 950]; // mid point + 950
+    // gridSelected = [0, 100, 200, 300, 600, 700, 800, 900]; // start and end point
+    // gridSelected = [0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 999]; // exponential
+    // gridSelected = Array.from({ length: 10 }, (v, i) => Math.pow(2, i));
+    // gridSelected = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987] // Fibonacci
+    gridComparison = ["ph1", "ph2"];
+    if (gridComparison.length > 2) {
+        alert('System error: Only 2 steps can be compared in grid mode')
+        return
+    }
+    gridComparison.forEach((step, i) => {
+        selectStep(step)
+    })
+
+    // generate a div to save grid: grid_select
+    // in the div, user can see a grid table with all selected steps lined up in cols and rows with step number
+    // in each cell, user can see a color representing the difference between two steps (cols and rows steps)
+    // user can click on the cell to select the step for comparison, which will be highlighted in the left map, and in the previous comparison display divs
+    $$("grid_table").appendChild(getGridDiv())
+    $$("grid_table_legend").appendChild(legend({
+        color: d3.scaleSequential()
+            .domain([0, 100])
+            .interpolator(d3.interpolateBlues),
+        width: 30,
+        tickSize: 2,
+        height: 250,
+        title: "Difference",
+        tickFormat: (d) => `${d}%`
+    }))
+}
+
+
+const addComparison = (step) => {
+    // add the step into the gridSelected then update the grid table with new added information
+    // then rerender the grid table
+    let $table = $$("grid_table").querySelector("table");
+    step = +step;
+
+    if (gridSelected.includes(step)) {
+        // remove the step
+        gridSelected = gridSelected.filter((s) => s !== step);
+    } else {
+        gridSelected.push(step);
+        gridSelected = gridSelected.sort((a, b) => a - b);
+    }
+
+    const table = getGridDiv();
+    $table.replaceWith(table);
+    $table = table;
+}
+
+
 // === init UI component functions ===
+const initInterface = () => {
+    availableMode = Object.keys(config.pathData).filter((k) => config.pathData[k].users.includes(userMode));
+    initSelect("mode_id", availableMode, 0);
+
+    refreshOptions();
+
+    if (userMode === "basic") {
+        resetDisplay(true, false, true); // clear the pin area
+        // loadGrid(); // load the grid component in the pin area
+        // $$("components").classList.add("hidden");
+    }
+    if (userMode === "advanced") {
+        resetDisplay(false, false, true);
+        // $$("components").classList.remove("hidden");
+        selectStep(999);
+        selectStep(100);
+        selectStep(10);
+    }
+    $$("mode_change").textContent = userMode === "basic" ? "Switch to Advanced" : "Switch to Basic";
+    // set autoplay
+    playMode = (localStorage.getItem('AUTO_PLAY') ?? "true") === "true";
+    updatePlayIcon(playMode)
+}
 const initAlert = () => {
     const show = () => {
         isAlertShown = true;
@@ -506,7 +821,7 @@ const drawHistogram = (data, id, width = 200, xlabel = "Metrics", ylable = "Perf
 
     // Declare the chart dimensions and margins.
     // const width = 200;
-    const height = 160;
+    const height = isMultiMode() ? (currentShowingPic == "encoded_step" ? 180 : 136) : 160;
     const rectWidth = 15;
     const marginTop = 20;
     const marginRight = yside === "left" ? 30 : 60;
@@ -533,6 +848,7 @@ const drawHistogram = (data, id, width = 200, xlabel = "Metrics", ylable = "Perf
     }
 
     // Create the SVG container.
+    d3.select(id).html("");
     const svg = d3.select(id)
         .attr("style", `color: ${darkMode ? 'white' : 'black'};`)
         .append("svg")
@@ -543,11 +859,11 @@ const drawHistogram = (data, id, width = 200, xlabel = "Metrics", ylable = "Perf
 
     // Add a rect for each bin.
     svg.append("g")
-        .attr("fill", "#61a3a9")
         .selectAll()
         .data(data)
         .enter()
         .append("rect")
+        .attr("fill", (_, i) => metricsColors[yside === "left" ? 1 - i : 4 - i])
         .attr("id", (d) => `rect_${d.name}`)
         .attr("x", (d) => x(d.name) - rectWidth / 2)
         .attr("width", (d) => rectWidth)
@@ -599,7 +915,10 @@ const drawHistogram = (data, id, width = 200, xlabel = "Metrics", ylable = "Perf
     svg.append("g")
         .attr("transform", `translate(0,${height - marginBottom})`)
         .call(d3.axisBottom(x).tickSizeInner(1).tickSizeOuter(0))
-        .call((g) => g.select(".domain").attr("stroke", "currentColor"));
+        .call((g) =>
+            g.select(".domain").attr("stroke", "currentColor")
+                .attr("d", yside === "left" ? "M40.5,0V0.5H115.5V0" : "M10.5,0V0.5H115.5V0")
+        )
 
     // Add the y-axis and label, and remove the domain line.
     if (yside === "left") {
@@ -635,30 +954,203 @@ const drawHistogram = (data, id, width = 200, xlabel = "Metrics", ylable = "Perf
     return svg.node();
 }
 
+const createColorLegend = (svg) => {
+    const width = +svg.attr('width'); // Get width from SVG attribute
+    const height = +svg.attr('height'); // Fixed height for the legend
+
+    svg.attr('height', height); // Set the height of the SVG
+
+    // Set up the color scale using the Red-Yellow-Blue interpolator
+    const colorScale = d3.scaleSequential()
+        .domain([999, 0])
+        .interpolator(d3.interpolateRdBu);
+
+    // Gradient definition
+    const defs = svg.append('defs');
+    const linearGradient = defs.append('linearGradient')
+        .attr('id', 'linear-gradient');
+
+    // Define the gradient stops
+    d3.range(0, 1.01, 0.01).forEach(t => {
+        linearGradient.append('stop')
+            .attr('offset', `${t * 100}%`)
+            .attr('stop-color', colorScale(t * 1000));
+    });
+
+    // Draw the color rectangle
+    svg.append('rect')
+        .attr('width', width - 20)
+        .attr('height', 8)
+        .attr('x', 10)
+        .attr('y', 2)
+        .style('fill', 'url(#linear-gradient)');
+
+    // Add an axis to the legend
+    const xScale = d3.scaleLinear()
+        .domain([999, 0])
+        .range([10, width - 11]);
+
+    // Custom ticks
+    const ticks = [0, 250, 500, 750, 999];
+    const axis = d3.axisBottom(xScale)
+        .tickValues(ticks)
+        .tickFormat(d3.format(".0f"))
+        .tickSize(10)
+        .tickPadding(1);
+
+    svg.append('g')
+        .attr('transform', `translate(0, 2)`)
+        .call(axis)
+        .call(g => g.select('.domain').remove())
+        .selectAll('text')
+        .attr('fill', darkMode ? "white" : "black")
+        .attr('font-size', 8)
+}
+
+
+const drawContour = (data, SVG, width, height, id_i, x, y) => {
+    is_large = id_i === "full";
+    is_filtered = data.length < 1000;
+
+    const contours = d3.contourDensity()
+        .x(function (d) { return x(d.heng); })
+        .y(function (d) { return y(d.shu); })
+        .size([width, height])
+        .cellSize(is_large ? 2 : 2)
+        .bandwidth(is_large ? 5 : 3) // change bandwidth to adjust the contour density
+        (data);
+
+
+    const countourIndex = 1;
+
+    const contour = SVG.append('g').attr("class", "zoom_g")
+
+    contour.selectAll("path")
+        .data([contours[countourIndex]])
+        .enter().append("path")
+        .attr("d", d3.geoPath())
+        .attr("stroke", darkMode ? "white" : "black")
+        .attr("fill", "none")
+
+    // make a mask
+    const mask = SVG.append('g').attr("class", "zoom_g")
+        .append("mask")
+        .attr("id", `contour_mask${id_i}`)
+
+    mask.append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("fill", "black")
+
+    mask.append("path")
+        .attr("d", d3.geoPath()(contours[countourIndex]))
+        .attr("fill", "white")
+
+    // fill background color
+    const backgroundScatters = SVG.append('g')
+        .attr("class", "zoom_g")
+        .attr("mask", `url(#contour_mask${id_i})`)
+
+    backgroundScatters
+        .selectAll("circle")
+        .data(data)
+        .enter()
+        .append("circle")
+        .attr("cx", (d) => x(d.heng))
+        .attr("cy", (d) => y(d.shu))
+        .attr("r", is_large ? 12 : 6)
+        .style("opacity", is_filtered ? 1 : 0.6) // opacity for countour background
+        .style("fill", (d) => {
+            return d3.interpolateRdBu(d.index / 1000);
+        });
+}
+
+const drawScatter = (scatter_g, data, d, id_i, fill_color, x, y) => {
+    is_large = id_i.includes("full");
+
+    scatter_g.selectAll("circle")
+        .data(data).enter()
+        .append("path")
+        .attr("d", d)
+        .attr("id", (d) => `point${id_i}_${d.index}`)
+        .attr("transform", (d) => `translate(${x(d.heng)}, ${y(d.shu)})`)
+        .style("fill", fill_color)
+        .attr("stroke", "white")
+        .style("opacity", stepOpacity)
+        .style("stroke-width", `${is_large ? stepStrokeWidth : stepStrokeWidth * 0.5}px`)
+        .on("click", (d) => {
+            const step = Number(d.index).toFixed(0)
+            selectStep(step);
+        })
+        .on("mouseover", (d) => {
+            const step = Number(d.index).toFixed(0)
+            $range.value = 999 - step;
+            lineChange(false);
+        })
+        .on("mouseout", (d) => {
+            const step = Number(d.index).toFixed(0)
+            if (hoveredStep.filter(s => s === step).length > 0) {
+                hoveredStep = hoveredStep.filter(s => s !== step)
+                resetStep(step)
+            }
+            $$("current_step_display_number").innerHTML = "";
+        });
+}
+
 const drawStepMap = (csvPath, csvPath2 = '') => {
     // if csvPath2 is not null: compare mode, display two data in same figure
     // console.log(csvPath, csvPath2)
-    const margin = { top: 0, right: 0, bottom: 0, left: 0 };
-    const width = 280 - margin.left - margin.right;
-    const height = (isMultiMode() ? 336 : 316) - margin.top - margin.bottom;
+    const width = 280;
+    const height = ((isMultiMode() && currentShowingPic != "encoded_step") ? 240 : 316);
 
-    const SVG = d3.select("#dataviz_axisZoom")
+    SVG = d3.select("#dataviz_axisZoom")
         .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+        .attr("width", width)
+        .attr("height", height)
+
+    // init a unzoomed SVG to display the legend
+    const legendSVG = d3.select("#dataviz_axisZoom")
+        .append("svg")
+        .attr("id", "color_legend")
+        .attr("width", 150)
+        .attr("height", 25)
+        .style("position", "absolute")
+        .style("bottom", "0")
+        .style("right", "0")
+
+    createColorLegend(legendSVG)
+
 
     let data1, data2
 
-    d3.csv(csvPath, (data) => {
-        data1 = data;
-        startDrawing()
-    });
-    if (csvPath2 !== "") d3.csv(csvPath2, (data) => {
-        data2 = data;
-        startDrawing()
-    });
+    const downloadingData = () => {
+        d3.csv(csvPath, (data) => {
+            data1 = data;
+            startDrawing()
+        });
+        if (csvPath2 !== "") d3.csv(csvPath2, (data) => {
+            data2 = data;
+            startDrawing()
+        });
+    }
+
+
+    if (samplingSteps) {
+        path = csvPath.split("/").pop()
+        fetch(baseLink + `/process_map?input_path=${encodeURI(csvPath.replace(".csv", ".npy"))}&num_steps=${samplingNum}`)
+            .then(response => response.json())
+            .then(json => {
+                console.log(json)
+                sampledSteps = json.selected_steps
+                downloadingData()
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Error: ' + error + ' Please try to reload the page')
+            });
+    } else {
+        downloadingData()
+    }
 
     const startDrawing = () => {
         if (!csvPath && !data1) {
@@ -671,225 +1163,214 @@ const drawStepMap = (csvPath, csvPath2 = '') => {
         }
         // console.log(data1, data2)
         const x = d3.scaleLinear()
-            .domain([-0.1, 1.1])
-            .range([0, width]);
+            .domain([0, 1])
+            .range([10, width - 10]);
 
         const y = d3.scaleLinear()
-            .domain([-0.1, 1.1])
-            .range([height, 0]);
-
-        const clip = SVG.append("defs").append("svg:clipPath")
-            .attr("id", "clip")
-            .append("svg:rect")
-            .attr("width", width)
-            .attr("height", height)
-            .attr("x", 0)
-            .attr("y", 0);
-
-        const scatterText = SVG.append('g')
-            .attr("clip-path", "url(#clip)");
-
-        if (currentTextShow) {
-            scatterText
-                .selectAll("text")
-                .data(data1)
-                .enter()
-                .append("text")
-                .attr("x", (d) => x(d.heng) - 8)
-                .attr("y", (d) => y(d.shu) - 8)
-                .style("font-size", "8px")
-                .style("fill", darkMode ? "white" : "black")
-                .text((d) => {
-                    const step = Number(d.index).toFixed(0)
-                    return step % 5 === 0 ? step : "";
-                });
-        }
-
-        const updateTouchChart = () => {
-            const t = d3.transition()
-                .duration(150)
-                .ease(d3.easeLinear);
-
-            const newX = d3.event.transform.rescaleX(x);
-            const newY = d3.event.transform.rescaleY(y);
-
-            scatter
-                .selectAll("path")
-                .transition(t)
-                .attr("transform", (d) => `translate(${newX(d.heng)}, ${newY(d.shu)})`)
-
-            scatter2
-                .selectAll("path")
-                .transition(t)
-                .attr("transform", (d) => `translate(${newX(d.heng)}, ${newY(d.shu)})`)
-
-            if (currentTextShow) {
-                scatterText
-                    .selectAll("text")
-                    .transition(t)
-                    .attr("x", (d) => newX(d.heng) - 8)
-                    .attr("y", (d) => newY(d.shu) - 8);
-            }
-        }
+            .domain([0, 1])
+            .range(isMultiMode() ? [height - 10, 10] : [height - 25, 10]);
 
         const zoom = d3.zoom()
             .scaleExtent([0.5, 25])
             .extent([[0, 0], [width, height]])
             .wheelDelta((e) => -event.deltaY * (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002) * (event.ctrlKey ? 10 : 1))
-            .on("zoom", updateTouchChart);
+            .on("zoom", () => {
+                SVG.selectAll(".zoom_g").attr("transform", d3.event.transform);
+            });
 
-        SVG.append("rect")
+        SVG
+            .append("rect")
             .attr("width", width)
             .attr("height", height)
             .style("fill", "none")
-            .style("pointer-events", "all")
-            .attr('transform', `translate(${margin.left}, ${margin.top})`)
-            .call(zoom);
+            .style("pointer-events", "all");
 
-        const scatter = SVG.append('g')
-            .attr("clip-path", "url(#clip)");
+        SVG.call(zoom);
 
-        // data1
-        scatter
-            .selectAll("path")
-            .data(data1)
-            .enter()
-            .append("path")
-            .attr("d", circleD3.size(64))
-            .attr("id", (d) => "point_" + d.index)
-            .attr("transform", (d) => `translate(${x(d.heng)}, ${y(d.shu)})`)
-            .style("fill", "#61a3a9")
-            .style("opacity", 0.4)
-            .on("click", (d) => {
-                const step = Number(d.index).toFixed(0)
-                selectStep(step);
-            })
-            .on("mouseover", (d) => {
-                const step = Number(d.index).toFixed(0)
-                // if (charts.map((c) => c.id).includes(step)) {
-                //     d3.select(this).style("cursor", "auto");
-                // } else {
-                //     if (hoveredStep) {
-                //         hoveredStep.forEach(s => resetStep(s));
-                //         hoveredStep = []
-                //     }
-                //     hoverStep(step);
-                //     hoveredStep.push(step);
-                // }
-                $range.value = 999 - step;
-                lineChange(false);
-            })
-            .on("mouseout", (d) => {
-                const step = Number(d.index).toFixed(0)
-                if (hoveredStep.filter(s => s === step).length > 0) {
-                    hoveredStep = hoveredStep.filter(s => s !== step)
-                    resetStep(step)
-                }
-                $$("current_step_display_number").innerHTML = "";
-            });
-
-        const scatter2 = SVG.append('g')
-            .attr("clip-path", "url(#clip)");
-
-        if (data2)
-            // data2
-            scatter2
-                .selectAll("path")
-                .data(data2)
-                .enter()
-                .append("path")
-                .attr("d", triangleD3.size(64))
-                .attr("id", (d) => "point2_" + d.index)
-                .attr("transform", (d) => `translate(${x(d.heng)}, ${y(d.shu)})`)
-                .style("fill", "#a961a3")
-                .style("opacity", 0.4)
-                .on("click", (d) => {
-                    const step = Number(d.index).toFixed(0)
-                    selectStep(step);
-                })
-                .on("mouseover", (d) => {
-                    const step = Number(d.index).toFixed(0)
-                    if (charts.map((c) => c.id).includes(step)) {
-                        d3.select(this).style("cursor", "auto");
-                    } else {
-                        if (hoveredStep) {
-                            hoveredStep.forEach(s => resetStep(s));
-                            hoveredStep = []
-                        }
-                        hoverStep(step);
-                        hoveredStep.push(step);
-                    }
-                })
-                .on("mouseout", (d) => {
-                    const step = Number(d.index).toFixed(0)
-                    if (hoveredStep.filter(s => s === step).length > 0) {
-                        hoveredStep = hoveredStep.filter(s => s !== step)
-                        resetStep(step)
-                    }
-                    $$("current_step_display_number").innerHTML = "";
-                });
+        // draw line
+        // SVG.append('g')
+        //     .selectAll(".line")
+        //     .data(data1)
+        //     .enter()
+        //     .append("line")
+        //     .attr("x1", (d, i) => x(data1[i - 1]?.heng ?? d.heng))
+        //     .attr("y1", (d, i) => y(data1[i - 1]?.shu ?? d.shu))
+        //     .attr("x2", (d, i) => x(d.heng))
+        //     .attr("y2", (d, i) => y(d.shu))
+        //     .attr("stroke", "black")
+        //     .attr("stroke-width", 1)
+        //     .attr("opacity", 0.5)
 
 
+
+        // here to filter data
+        if (samplingSteps) {
+            data1 = data1.filter((d) => sampledSteps.includes(d.index))
+            if (data2) {
+                data2 = data2.filter((d) => sampledSteps.includes(d.index))
+            }
+        }
+
+        if (data1 && !data2) drawContour(data1, SVG, width, height, "full", x, y)
+
+
+        if (data1) {
+            const scatter = SVG.append('g').attr("class", "zoom_g")
+            drawScatter(scatter, data1, circleD3.size(64), "full", "#61a3a9", x, y)
+        }
+        if (data2) {
+            const scatter2 = SVG.append('g').attr("class", "zoom_g")
+            drawScatter(scatter2, data2, triangleD3.size(64), "full2", "#a961a3", x, y)
+        }
+        if (data1 && data2) {
+            // create two small SVG
+            const width2 = width / 2;
+            const height2 = height / 2;
+            const SVG1 = d3.select("#dataviz_axisZoom").append("svg")
+                .attr("width", width2)
+                .attr("height", height2)
+
+            const SVG2 = d3.select("#dataviz_axisZoom").append("svg")
+                .attr("width", width2)
+                .attr("height", height2)
+
+            const x2 = d3.scaleLinear().domain([-0.1, 1.1]).range([0, width2]);
+            const y2 = d3.scaleLinear().domain([-0.1, 1.1]).range([height2, 0]);
+
+            drawContour(data1, SVG1, width2, height2, "1", x2, y2)
+            drawContour(data2, SVG2, width2, height2, "2", x2, y2)
+
+            const scatter1 = SVG1.append('g').attr("class", "zoom_g")
+            drawScatter(scatter1, data1, circleD3.size(24), "", "#61a3a9", x2, y2)
+
+            const scatter2 = SVG2.append('g').attr("class", "zoom_g")
+            drawScatter(scatter2, data2, triangleD3.size(24), "2", "#a961a3", x2, y2)
+
+            // update the position and size of color legend
+            d3.select("#color_legend")
+                .style("right", "68px")
+                .style("bottom", "-8px")
+                .style("transform", "scale(0.7)")
+        } else {
+            d3.select("#color_legend")
+                .style("right", "0")
+                .style("bottom", "-2px")
+                .style("transform", "scale(1)")
+        }
 
         hoverStep = (step) => {
-            if (displaySteps.includes(Number(step).toFixed(0))) {
+            step = `${step}`
+            if (displaySteps.includes(step)) {
+                d3.select(`#pointfull_${step}`).raise();
+                d3.select(`#pointfull2_${step}`).raise();
                 d3.select(`#point_${step}`).raise();
+                d3.select(`#point2_${step}`).raise();
                 return;
             }
             const color = (isMultiMode()) ? "#FFA500" : "#ff00ed"
             const color2 = (isMultiMode()) ? "#1C64F2" : "#ff00ed"
-            d3.select(`#point_${step}`)
+            d3.select(`#pointfull_${step}`)
                 .style("fill", color)
                 .style("stroke", "white")
-                .style("stroke-width", "2px")
+                .style("stroke-width", `${stepStrokeWidth * 2}px`)
                 .attr("d", circleD3.size(192))
                 .style("cursor", "pointer")
                 .style("opacity", 1)
                 .raise(); // move to front
-            if (data2) d3.select(`#point2_${step}`)
+            if (data2) d3.select(`#pointfull2_${step}`)
                 .style("fill", color2)
                 .style("stroke", "white")
-                .style("stroke-width", "2px")
+                .style("stroke-width", `${stepStrokeWidth * 2}px`)
                 .attr("d", triangleD3.size(192))
                 .style("opacity", 1)
                 .style("cursor", "pointer")
                 .raise(); // move to front
+            if (data1 && data2) {
+                d3.select(`#point_${step}`)
+                    .style("fill", color)
+                    .style("stroke", "white")
+                    .style("stroke-width", `${stepStrokeWidth}px`)
+                    .attr("d", circleD3.size(64))
+                    .style("cursor", "pointer")
+                    .style("opacity", 1)
+                    .raise(); // move to front
+                d3.select(`#point2_${step}`)
+                    .style("fill", color2)
+                    .style("stroke", "white")
+                    .style("stroke-width", `${stepStrokeWidth}px`)
+                    .attr("d", triangleD3.size(64))
+                    .style("cursor", "pointer")
+                    .style("opacity", 1)
+                    .raise(); // move to front
+            }
             $$("current_step_display_number").innerText = step;
         }
 
         highlightStep = (step, color = "#000", color2 = color) => {
-            d3.select(`#point_${step}`)
+            d3.select(`#pointfull_${step}`)
                 .style("fill", color)
                 .attr("d", circleD3.size(192))
                 .style("stroke", "white")
-                .style("stroke-width", "2px")
+                .style("stroke-width", `${stepStrokeWidth * 2}px`)
                 .style("cursor", "pointer")
                 .style("opacity", 1)
                 .raise(); // move to front
-            if (data2) d3.select(`#point2_${step}`)
+            if (data2) d3.select(`#pointfull2_${step}`)
                 .style("fill", color2)
                 .attr("d", triangleD3.size(192))
                 .style("stroke", "white")
-                .style("stroke-width", "2px")
+                .style("stroke-width", `${stepStrokeWidth * 2}px`)
                 .style("cursor", "pointer")
                 .style("opacity", 1)
                 .raise(); // move to front
+            if (data1 && data2) {
+                d3.select(`#point_${step}`)
+                    .style("fill", color)
+                    .attr("d", circleD3.size(24))
+                    .style("stroke", "white")
+                    .style("stroke-width", `${stepStrokeWidth}px`)
+                    .style("cursor", "pointer")
+                    .style("opacity", 1)
+                    .raise(); // move to front
+                d3.select(`#point2_${step}`)
+                    .style("fill", color2)
+                    .attr("d", triangleD3.size(24))
+                    .style("stroke", "white")
+                    .style("stroke-width", `${stepStrokeWidth}px`)
+                    .style("cursor", "pointer")
+                    .style("opacity", 1)
+                    .raise(); // move to front
+            }
         }
 
         resetStep = (step) => {
-            step = Number(step).toFixed(0)
+            step = `${step}`
             if (displaySteps.includes(step)) return;
-            d3.select(`#point_${step}`)
+            d3.select(`#pointfull_${step}`)
                 .style("fill", "#61a3a9")
                 .attr("d", circleD3.size(64))
-                .style("stroke-width", "0px")
-                .style("opacity", 0.4);
+                .style("stroke-width", `${stepStrokeWidth}px`)
+                .style("opacity", stepOpacity);
 
-            if (data2) d3.select(`#point2_${step}`)
+            if (data2) d3.select(`#pointfull2_${step}`)
                 .style("fill", "#a961a3")
                 .attr("d", triangleD3.size(64))
-                .style("stroke-width", "0px")
-                .style("opacity", 0.4);
+                .style("stroke-width", `${stepStrokeWidth}px`)
+                .style("opacity", stepOpacity);
+
+            if (data1 && data2) {
+                d3.select(`#point_${step}`)
+                    .style("fill", "#61a3a9")
+                    .attr("d", circleD3.size(24))
+                    .style("stroke-width", `${stepStrokeWidth * 0.5}px`)
+                    .style("opacity", stepOpacity);
+
+                d3.select(`#point2_${step}`)
+                    .style("fill", "#a961a3")
+                    .attr("d", triangleD3.size(24))
+                    .style("stroke-width", `${stepStrokeWidth * 0.5}px`)
+                    .style("opacity", stepOpacity);
+            }
         }
 
         charts.filter((c) => c.sync).forEach((c) => {
@@ -907,8 +1388,19 @@ const drawStepMap = (csvPath, csvPath2 = '') => {
 const lineChange = (slow_mode = false) => {
     if (!isConfirmed()) return;
     const value = $$('range').value;
-    const lValue = 999 - value;
+    let lValue = 999 - value;
     $$('value').value = lValue;
+
+    // implement step change, only allowed step can be selected, or the nearest step will be selected
+    if (samplingSteps) {
+        const nearestStep = sampledSteps.reduce((a, b) => Math.abs(b - lValue) < Math.abs(a - lValue) ? b : a);
+        if (nearestStep !== lValue) {
+            $$('range').value = 999 - nearestStep;
+            $$('value').value = nearestStep;
+            lValue = nearestStep;
+        }
+    }
+
     if (lineChangeInterval) {
         clearInterval(lineChangeInterval);
         lineChangeInterval = null;
@@ -928,7 +1420,7 @@ const lineChange = (slow_mode = false) => {
 
     if (slow_mode === true) {
         slow_mode_count += 1;
-        if (slow_mode_count < 5) {
+        if (slow_mode_count < 4) {
             console.log('slow mode')
             return;
         } else {
@@ -1020,7 +1512,7 @@ const updatePreview = (sIndex = 999, reset = false) => {
                 const arrayData = data.map(row => Object.values(row).map(d => +d));
                 charts = charts.filter((c) => c.id !== refId)
                 // draw mel spectrogram
-                plotMelSpectrogram(arrayData, refId, titleColor, close, width, height);
+                plotMelSpectrogram(arrayData, refId, titleColor, close, width, height, true, hidePitch);
             });
             return;
         }
@@ -1043,7 +1535,7 @@ const updatePreview = (sIndex = 999, reset = false) => {
     switchPreview(isMultiMode())
 }
 
-const plotMelSpectrogram = (melData, refId, title_color, close, width = 345, height = 200, sync = true, compareMode = false) => {
+const plotMelSpectrogram = (melData, refId, title_color, close, width = 345, height = 200, sync = true, noPitch = false) => {
     const getColorMSE = (color1, color2) => {
         const c1 = d3.rgb(color1);
         const c2 = d3.rgb(color2);
@@ -1151,6 +1643,15 @@ const plotMelSpectrogram = (melData, refId, title_color, close, width = 345, hei
         // Draw the rectangles
         for (let i = 1; i < melData.length; i++) {
             for (let j = 0; j < melData[i].length; j++) {
+                if (!showFrequency) {
+                    continue
+                }
+                if (showFrequency.length == 2) {
+                    [lower, upper] = showFrequency
+                    if (i > upper) continue;
+                    if (i < lower) continue;
+                }
+
                 if (melData2) {
                     // calculate the difference using deltaE
                     const color_1 = color(melData[i][j]);
@@ -1165,7 +1666,7 @@ const plotMelSpectrogram = (melData, refId, title_color, close, width = 345, hei
             }
         }
 
-        if (!compareMode) {
+        if (!noPitch && !hidePitch) {
             // Draw pitch lines
             context.fillStyle = 'red';
             context.strokeStyle = 'red';
@@ -1190,13 +1691,15 @@ const plotMelSpectrogram = (melData, refId, title_color, close, width = 345, hei
         context.font = '12px Times New Roman';
         context.fillText('Time (s)', canvas.width / 2 - 20, mheight + mmargin.mtop + mmargin.mbottom - 5);
 
-        // Draw Y-label text
-        context.save();
-        context.rotate(-Math.PI / 2);
-        context.font = '12px Times New Roman';
-        context.textAlign = 'center';
-        context.fillText('Channel', - canvas.height / 2 + 15, mmargin.mleft - 25);
-        context.restore();
+        if (showFrequency) {
+            // Draw Y-label text
+            context.save();
+            context.rotate(-Math.PI / 2);
+            context.font = '12px Times New Roman';
+            context.textAlign = 'center';
+            context.fillText('Channel', - canvas.height / 2 + 15, mmargin.mleft - 25);
+            context.restore();
+        }
 
         const drawLine = (x1, y1, x2, y2) => {
             context.beginPath();
@@ -1207,10 +1710,12 @@ const plotMelSpectrogram = (melData, refId, title_color, close, width = 345, hei
 
         // Draw X-axis line
         drawLine(mmargin.mleft, mheight + mmargin.mtop, mwidth + mmargin.mleft, mheight + mmargin.mtop);
-        // Draw Y-axis line
-        drawLine(mmargin.mleft, mmargin.mtop, mmargin.mleft, mheight + mmargin.mtop);
+        if (showFrequency) {
+            // Draw Y-axis line
+            drawLine(mmargin.mleft, mmargin.mtop, mmargin.mleft, mheight + mmargin.mtop);
+        }
 
-        if (!compareMode) {
+        if (!noPitch && !hidePitch) {
             // Draw Y-label 2
             context.save();
             context.fillStyle = 'red';
@@ -1242,7 +1747,6 @@ const plotMelSpectrogram = (melData, refId, title_color, close, width = 345, hei
         }
         const newDrawStep = [];
         if (drawStep.length > 5) {
-            // 移除多余的label，只保留5个
             const step = Math.round(drawStep.length / 5);
             for (let i = 0; i < drawStep.length; i++) {
                 if (i % step === 0) {
@@ -1260,14 +1764,16 @@ const plotMelSpectrogram = (melData, refId, title_color, close, width = 345, hei
         }
 
         // Add Y-axis labels
-        for (let i = 0; i <= melData.length; i++) {
-            if (i % 20 !== 0) continue;
-            const yPos = y(i);
-            const yOff = i >= 100 ? -15 : i >= 10 ? -10 : -5;
-            context.fillText(i, mmargin.mleft - 10 + yOff, yPos + 5);
-            drawLine(mmargin.mleft - 5, yPos, mmargin.mleft, yPos)
+        if (showFrequency) {
+            for (let i = 0; i <= melData.length; i++) {
+                if (i % 20 !== 0) continue;
+                const yPos = y(i);
+                const yOff = i >= 100 ? -15 : i >= 10 ? -10 : -5;
+                context.fillText(i, mmargin.mleft - 10 + yOff, yPos + 5);
+                drawLine(mmargin.mleft - 5, yPos, mmargin.mleft, yPos)
+            }
         }
-        if (!compareMode) {
+        if (!noPitch && !hidePitch) {
             context.save();
             context.fillStyle = 'red';
             context.strokeStyle = 'red';
@@ -1436,17 +1942,6 @@ const drawCurve = (id, width, height) => {
         if (error) { console.error(error); return; }
         const $container = $$(`metrics${id}`);
 
-        const colors = [
-            "#4e79a7",
-            "#f28e2c",
-            "#e15759",
-            "#76b7b2",
-            "#af7aa1",
-            "#ff9da7",
-            "#9c755f",
-            "#bab0ab"
-        ];
-
         const marginTop = 10;
         const marginRight = 50;
         const marginBottom = 30;
@@ -1463,6 +1958,7 @@ const drawCurve = (id, width, height) => {
         const keys = keysWithLable.map((k) => k.split(' ')[0]);
         const values = keys.map((key) => data.map((d) => {
             const v = +d[key];
+            // const step = d.step;
             if (isNaN(v)) return null;
             // if (v < 0) return 0.1;
             return autoLog(v);
@@ -1470,7 +1966,7 @@ const drawCurve = (id, width, height) => {
 
         const color = d3.scaleOrdinal()
             .domain(keysWithLable)
-            .range(colors);
+            .range(metricsColors);
 
         const $swatch = Swatches(color, { columns: "100px", marginLeft: 10 });
 
@@ -1558,7 +2054,7 @@ const drawCurve = (id, width, height) => {
             .data(values)
             .enter()
             .append("path")
-            .attr("stroke", (d, i) => colors[i])
+            .attr("stroke", (d, i) => metricsColors[i])
             .attr("d", line);
 
         svg.selectAll("text").attr("fill", "currentColor")
@@ -1576,7 +2072,7 @@ const drawCurve = (id, width, height) => {
             .append("circle")
             .attr("r", 4)
             .attr("id", (d) => `dot_${d}`)
-            .attr("fill", (d, i) => colors[i]);
+            .attr("fill", (d, i) => metricsColors[i]);
 
         dotGroup
             .append("g")
@@ -1585,7 +2081,7 @@ const drawCurve = (id, width, height) => {
             .enter()
             .append("text")
             .attr("id", (d) => `dot_text_${d}`)
-            .attr("fill", (d, i) => colors[i])
+            .attr("fill", (d, i) => metricsColors[i])
             .attr("font-size", 11)
             .attr("font-weight", 600)
             .attr("text-anchor", "start")
@@ -1595,8 +2091,6 @@ const drawCurve = (id, width, height) => {
             .attr("paint-order", "stroke")
             // .attr("alignment-baseline", "center")
             .text((d) => d);
-
-        let lastUpdate, lastStep;
 
         // Mouse move event listener
         svg.on("mousemove", function (event) {
@@ -1646,19 +2140,25 @@ const drawCurve = (id, width, height) => {
         });
 
         // Mouse out event listener
-        svg.on("mouseout", function () {
-            dotGroup.style("display", "none");
-        });
+        // svg.on("mouseout", function () {
+        //     dotGroup.style("display", "none");
+        // });
 
         return svg.node();
     });
 }
 
 // ==== UI interaction functions ====
-const resetDisplay = (clear = true, replot = true) => {
+const resetDisplay = (clear = true, replot = true, keep_stepmap = false) => {
     // update choosed options
-    updateSelect("mode_id", Object.keys(config.pathData), currentMode);
-    updateSelect("pic_id", config.picTypes, currentShowingPic);
+    updateSelect("mode_id", availableMode, currentMode);
+    const pic_index = config.picTypes.indexOf(currentShowingPic) ?? 3;
+    if (userMode == "basic") {
+        initSelect("pic_id", config.picTypes, pic_index, 4);
+    } else {
+        initSelect("pic_id", config.picTypes, pic_index, -1);
+    }
+    // updateSelect("pic_id", , );
     updateOptions("sourcesinger_id", currentSinger);
     updateOptions("target_id", currentTargetSinger);
     updateOptions("song_id", currentSong);
@@ -1670,6 +2170,25 @@ const resetDisplay = (clear = true, replot = true) => {
         charts = [];
         usedColorList = [];
     }
+
+    if (userMode === "basic") {
+        if (currentMode === "Step Comparison" && !$$("grid_table")) loadGrid()
+        $$("add_preview").classList.add("hidden");
+    } else {
+        $$("add_preview").classList.remove("hidden");
+    }
+
+    if (isSelectable()) {
+        if (displaySteps.length == 0) {
+            selectStep(-1)
+            console.log('Single step mode init')
+        }
+        $$("add_preview").classList.add("hidden");
+    } else {
+        $$("add_preview").classList.remove("hidden");
+    }
+
+    if (keep_stepmap) return;
     $$("dataviz_axisZoom").innerHTML = "";
     if (currentShowingPic === "encoded_step") {
         drawStepMap(`${baseLink}/data/mp_all/step_encoder_output.csv`);
@@ -1690,14 +2209,15 @@ const resetDisplay = (clear = true, replot = true) => {
     } else {
         drawStepMap(getStepSrc());
     }
-
-    if (isSelectable() && displaySteps.length == 0) {
-        selectStep(-1)
-        console.log('Single step mode init')
-        $$("add_preview").classList.add("hidden");
+    if (isMultiMode()) {
+        $$("control_panel").classList.remove("gap-0.5");
+        $$("control_panel").classList.add("gap-1", "my-1");
     } else {
-        $$("add_preview").classList.remove("hidden");
+        $$("control_panel").classList.remove("gap-1", "my-1");
+        $$("control_panel").classList.add("gap-0.5");
     }
+    updateHistogram();
+
 
     $$("dataviz_axisZoom").addEventListener("mouseleave", () => {
         const step = 999 - $range.value;
@@ -1741,16 +2261,49 @@ const selectStep = (sIndex) => {
         alert('Please select data first')
         return;
     }
-    sIndex = Number(sIndex).toFixed(0)
-    if (displaySteps.length === 0) {
-        $$("mel_card_container").innerHTML = "";
-        $$("tips").style = 'display: none'
-    }
-    if (sIndex != -1 && displaySteps.indexOf(sIndex) !== -1) {
-        charts.filter(c => c.id.endsWith(sIndex))?.forEach(c => c.close()); // update the chart
+    sIndex = `${sIndex}`; // ! conver to string
+    // if (displaySteps.length === 0) { // clear the pin area
+    //     $$("mel_card_container").innerHTML = "";
+    //     $$("tips").style = 'display: none'
+    // }
+    if (sIndex !== "-1" && displaySteps.indexOf(sIndex) !== -1) {
+        charts.filter(c => c.id.endsWith(sIndex))?.forEach(c => c.close()); // close the card if the func called again
         return
     }
-    if (displaySteps.length >= 3 || (isSelectable() && sIndex != -1)) {
+    if (`${sIndex}`.indexOf('ph') !== -1) { // if it is placeholder
+        charts.filter(c => c.id.endsWith(sIndex))?.forEach(c => c.close()); // remove the placeholder if exist
+
+        // generate a placeholder
+        const div = document.createElement('div');
+        div.className = 'mel_card';
+        div.id = `mel_${sIndex}`;
+        div.style.width = `${width}px`;
+        div.style.height = `${height}px`;
+        if (currentMode === 'Step Comparison' && userMode === 'basic') {
+            $mel.insertBefore(div, $mel.lastChild);
+        } else {
+            $mel.appendChild(div);
+        }
+        charts.push({ // add a close function
+            id: `_${sIndex}`, close: () => {
+                charts = charts.filter(c => c.id !== `_${sIndex}`);
+                displaySteps = displaySteps.filter(d => d !== sIndex)
+                div.remove()
+            }
+        });
+        displaySteps.push(sIndex) // add to displaySteps
+        return
+    }
+    if (displaySteps.length >= 3 && currentMode === "Step Comparison" && userMode === "basic") {
+        // up to 2 is allowed in basic mode
+        // other will be ignored
+        console.log('basic mode only allows 2 steps')
+        addComparison(sIndex)
+        return
+    }
+    if (displaySteps.length >= 3 || (isSelectable() && sIndex !== "-1")) {
+        // when slots full, only 3 cards can be displayed: more selected will be seen as hovered
+        // for unselectable mode, none card will be displayed, only hovered
         // change hovered
         $$('range').value = 999 - sIndex;
         lineChange();
@@ -1758,7 +2311,7 @@ const selectStep = (sIndex) => {
     }
     let color;
     displaySteps.push(sIndex)
-    if (sIndex >= 0) {
+    if (!isNaN(parseInt(sIndex)) && parseInt(sIndex) >= 0) {
         color = config.colorList.map(c => c).filter(c => !usedColorList.includes(c))[0] ?? "#000";
         usedColorList.push(color);
         console.log('color', color)
@@ -1769,7 +2322,7 @@ const selectStep = (sIndex) => {
 
     let cards = []
 
-    if (!isMultiMode()) {
+    if (!isMultiMode() && !(currentMode === "Step Comparison" && userMode === "basic")) {
         // Function to handle the mouse down event
         const dragStart = (e) => {
             currentCard = e.target
@@ -1793,7 +2346,7 @@ const selectStep = (sIndex) => {
         })
     }
 
-    const close = () => {
+    const close = (skip = false) => {
         if (isMultiMode()) {
             alert('Card in multi mode cannot be closed.')
             return;
@@ -1802,12 +2355,26 @@ const selectStep = (sIndex) => {
             alert('Card in Metric Comparison mode cannot be closed.')
             return;
         }
+        // color set to default
+        if (currentMode === 'Step Comparison' && userMode === 'basic') {
+            gridComparison = gridComparison.filter((d) => d !== sIndex)
+            if (!skip) {
+                if ($$("mel_ph1")) {
+                    gridComparison.push("ph2")
+                    selectStep("ph2")
+                } else {
+                    gridComparison.push("ph1")
+                    selectStep("ph1")
+                }
+            }
+        }
+
+        displaySteps = displaySteps.filter((d) => d !== sIndex)
         usedColorList = usedColorList.filter(c => c !== color);
+        resetStep(sIndex)
+
         charts = charts.filter(c => c.id !== `_${sIndex}` && c.id !== `2_${sIndex}`);
         cards.forEach((c) => c.remove())
-        displaySteps = displaySteps.filter((d) => d !== sIndex)
-        resetStep(sIndex)
-        // color set to default
     }
 
     const [types] = getMultipleLable();
@@ -1872,7 +2439,7 @@ const selectStep = (sIndex) => {
             label: () => mapToNameFunc(currentTargetSinger[currentTargetSinger.length - 1])
         },
         {
-            id: '', display: !isMultiMode() && currentMode !== 'Metric Comparison',
+            id: '', display: !isMultiMode() && currentMode !== 'Metric Comparison' && sIndex !== "-1",
             color: color,
             svg: circleD3,
             csvSrc: () => getCsvSrc(sIndex),
@@ -1890,6 +2457,24 @@ const selectStep = (sIndex) => {
                     `</div>` +
                     `</div>` +
                     `<div class="mx-auto h-[250px] dark:text-[white]" id="metrics${refId}"></div>` +
+                    `</div>`;
+                return div.firstChild;
+            },
+        },
+        {
+            id: '1', display: currentMode === 'Step Comparison' && userMode === 'basic' && sIndex === "-1",
+            div: (refId) => {
+                const div = document.createElement('div');
+                div.innerHTML = `<div class="card min-w-[305px] p-2 w-full flex flex-col gap-1" id="display${refId}">` +
+                    `<div class="flex items-center">` +
+                    `<div class="flex flex-col mx-auto">` +
+                    `<h5 class="text-base font-bold tracking-tight mb-0 text-[black] line-clamp-1 dark:text-[white]" id="title${refId}">Step Comparison Matrix</h5>` +
+                    `</div>` +
+                    `</div>` +
+                    `<div class="flex flex-row">` +
+                    `<div class="mx-auto grow-0 flex justify-center items-center w-[250px] h-[250px] dark:text-[white]" id="grid_table"></div>` +
+                    `<div class="grow-0 flex w-[50px]" id="grid_table_legend"></div>` +
+                    `</div>` +
                     `</div>`;
                 return div.firstChild;
             },
@@ -1911,10 +2496,17 @@ const selectStep = (sIndex) => {
             return;
         }
         const divContent = getDiv(refId, csvSrc().replace('.csv', '.wav'), color, title(), label(), !!card.svg);
-        $mel.appendChild(divContent);
+        // insert the div into the last two slots in $mel
+        if (currentMode === 'Step Comparison' && userMode === 'basic') {
+            $mel.insertBefore(divContent, $mel.lastChild);
+        } else {
+            $mel.appendChild(divContent);
+        }
         cards.push(divContent)
         // get data and bind div
+        downloadingLock.push(refId)
         d3.csv(csvSrc(), (error, data) => {
+            downloadingLock = downloadingLock.filter((d) => d !== refId)
             if (error) console.error(error);
             bindDiv(refId, data, card.svg ?? null, color, close, width, height)
         });
@@ -2017,4 +2609,26 @@ const checkCompare = () => {
         console.log(`refreshcompare${compareId}`, 'clicked')
         charts.find((c) => c.id === `compare${compareId}`)?.reset()
     })
+}
+
+
+
+const preloadingFile = (src) => {
+    // preloading data files for faster loading
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+        console.log('Preloaded:', src)
+    }
+    img.onerror = () => {
+        console.log('Preloaded:', src)
+    }
+}
+const preloading = () => {
+    preloadingFile('img/difference_bar.jpg');
+    // loading all steps
+    // Array.from({ length: 1000 }, (_, i) => i).forEach((i) => {
+    //     preloadingFile(getCsvSrc(i));
+    //     preloadingFile(getCsvSrc(i).replace('.csv', '.wav'));
+    // });
 }

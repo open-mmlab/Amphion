@@ -1,6 +1,7 @@
 {
     "pathData": {
         "Step Comparison": {
+            "users": ["basic", "advanced"],
             "multi": false,
             "data": [
                 {
@@ -75,7 +76,42 @@
                 }
             ]
         },
+        "Metric Comparison": {
+            "users": ["basic", "advanced"],
+            "multi": false,
+            "curve": true,
+            "data": [
+                {
+                    "dataset": "SVCC",
+                    "basePath": "data/ev_best",
+                    "pathMap": {
+                        "SM1": {
+                            "songs": [
+                                "30009"
+                            ],
+                            "targets": [
+                                "svcc_IDM1"
+                            ]
+                        },
+                        "SF1": {
+                            "songs": [
+                                "30005",
+                                "30006",
+                                "30009",
+                                "30016",
+                                "30022",
+                                "30019"
+                            ],
+                            "targets": [
+                                "svcc_IDF1"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
         "Source Singer Comparison": {
+            "users": ["advanced"],
             "multi": [
                 "sourcesinger_id"
             ],
@@ -149,7 +185,8 @@
                 }
             ]
         },
-        "Song comparison": {
+        "Song Comparison": {
+            "users": ["advanced"],
             "multi": [
                 "song_id"
             ],
@@ -183,6 +220,7 @@
             ]
         },
         "Target Singer Comparison": {
+            "users": ["advanced"],
             "multi": [
                 "song_id",
                 "target_id"
@@ -220,39 +258,6 @@
                                 "m4singer_Bass-1",
                                 "m4singer_Tenor-7",
                                 "m4singer_Tenor-6"
-                            ]
-                        }
-                    }
-                }
-            ]
-        },
-        "Metric Comparison": {
-            "multi": false,
-            "curve": true,
-            "data": [
-                {
-                    "dataset": "SVCC",
-                    "basePath": "data/ev_best",
-                    "pathMap": {
-                        "SM1": {
-                            "songs": [
-                                "30009"
-                            ],
-                            "targets": [
-                                "svcc_IDM1"
-                            ]
-                        },
-                        "SF1": {
-                            "songs": [
-                                "30005",
-                                "30006",
-                                "30009",
-                                "30016",
-                                "30022",
-                                "30019"
-                            ],
-                            "targets": [
-                                "svcc_IDF1"
                             ]
                         }
                     }
