@@ -69,7 +69,9 @@ def process():
             description="Missing query parameters: input_path and num_steps are required.",
         )
 
-    input_path = 'data' + input_path.split('data')[1] if 'data' in input_path else input_path
+    input_path = (
+        "data" + input_path.split("data")[1] if "data" in input_path else input_path
+    )
     input_path = input_path[1:] if input_path.startswith("/") else input_path
 
     try:
