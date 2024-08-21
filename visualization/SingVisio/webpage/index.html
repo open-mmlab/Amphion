@@ -12,12 +12,14 @@
     <meta name="viewport" content="width=1200px, initial-scale=1.0">
     <title>SingVisio: Visual Analytics of Diffusion Model for Singing Voice Conversion</title>
     <script>
-        const baseLink = ''; // end without '/'
+        const baseLink = 'https://dsvc.openmmlab.org.cn'; // end without '/'
     </script>
     <!-- Load Tailwind CSS and D3.js -->
     <script src="./resources/tailwind.js"></script>
     <script src="./resources/d3.v4.min.js"></script>
     <script src="./resources/htl.min.js"></script>
+    <script src="./resources/d3-scale-chromatic.v1.min.js"></script>
+    <script src="./resources/d3-contour.v1.min.js"></script>
     <!-- Load the Guide driver -->
     <script src="./resources/driver.js.iife.min.js"></script>
     <link rel="stylesheet" href="./resources/driver.min.css">
@@ -38,10 +40,10 @@
             @apply py-2.5 px-5 mr-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700
         }
         .select-select {
-            @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500
+            @apply my-0 py-2 px-1 bg-gray-50 border border-gray-300 text-gray-900 text-xs rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500
         }
         .select-label {
-            @apply block mb-1 text-sm font-medium text-gray-900 dark:text-white;
+            @apply block text-sm font-medium text-gray-900 dark:text-white;
         }
         .card {
             @apply p-6 bg-white border border-gray-200 rounded-lg dark:bg-gray-800 dark:border-gray-700
@@ -65,10 +67,10 @@
             @apply w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600
         }
         .dropdown_button_text {
-            @apply w-full text-sm font-medium text-gray-900  dark:text-white text-left
+            @apply w-full text-xs font-normal text-gray-900 dark:text-white text-left
         }
         .dropdown_button {
-            @apply btn-sec flex items-center w-full disabled:cursor-not-allowed disabled:opacity-50
+            @apply btn-sec text-xs flex items-center w-full px-2 py-2 my-0 disabled:cursor-not-allowed disabled:opacity-50
         }
         }
         </style>
@@ -94,6 +96,28 @@
         audio {
             outline: none;
             height: 34px;
+        }
+
+        /* make a input with two handles */
+        .inputs {
+            display: block;
+            width: 100%;
+            height: 10px;
+            /* background-color: azure; */
+        }
+
+        .inputs input {
+            position: absolute;
+        }
+
+        .inputs input::-webkit-slider-thumb {
+            pointer-events: all;
+            z-index: 2;
+        }
+
+        .inputs input::-webkit-slider-runnable-track {
+            pointer-events: none;
+            z-index: 1;
         }
     </style>
 </head>
@@ -139,12 +163,13 @@
             <!-- <span class="ml-auto mr-0 text-sm dark:text-white">Team: <i>Human Language Technology Lab,
                     CUHK-Shenzhen</i></span> -->
             <div class="flex">
-                <button class="btn-small ml-auto" id="help">Help?</button>
+                <button class="btn-small ml-auto" id="mode_change">Switch to _</button>
+                <button class="btn-small ml-2" id="help">Help?</button>
             </div>
         </div>
     </div>
     <div class="max-w-[1500px] m-auto">
-        <div class="flex flex-row items-start gap-1 py-3 p-1">
+        <div class="flex flex-row items-start gap-0.5 py-3 p-1">
             <div class="w-[300px] flex flex-col flex-none">
                 <div id="performance" class="card p-2 mb-2 flex flex-col flex-none relative">
                     <button class="absolute right-1 top-1 btn-small px-1.5 py-0.5 ml-auto rounded-full"
@@ -162,12 +187,6 @@
                     <div class="flex mb-1 align-center items-center space-between dark:text-white">
                         <div class="ml-1 text-sm">Step: <span id="current_step_display_number"></span></div>
                         <div class="ml-auto flex mr-2">
-                            <div class="flex items-center mr-2">
-                                <input id="text_id" type="checkbox" value="" class="checkbox">
-                                <label for="text_id"
-                                    class="ml-1 text-[0.775rem] font-medium text-gray-900 dark:text-gray-300">Show Step
-                                    Number</label>
-                            </div>
                             <button class="btn-sec h-9 w-9 p-2.5 mb-0" id="reset_map">
                                 <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                     fill="none" viewBox="0 0 18 20">
@@ -178,7 +197,7 @@
                             </button>
                         </div>
                     </div>
-                    <div id="dataviz_axisZoom" class="mx-auto w-fit border bg-white dark:bg-gray-800"></div>
+                    <div id="dataviz_axisZoom" class="flex flex-wrap border bg-white dark:bg-gray-800 relative"></div>
                 </div>
             </div>
             <div class="w-full">
@@ -202,17 +221,21 @@
                 </div>
                 <div id="tips">
                 </div>
+                <div id="tooltip" role="tooltip"
+                    class="invisible absolute z-10 inline-block px-3 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-[0.9] dark:bg-gray-700">
+                    Tooltip content
+                </div>
             </div>
             <div class="shrink-0 w-[180px]">
 
-                <div class="card py-3 px-3 relative">
+                <div class="card py-2 px-3 relative">
                     <button class="absolute right-1 top-1 btn-small px-1.5 py-0.5 ml-auto rounded-full"
                         id="control_help">?</button>
                     <div class="flex items-center">
-                        <h5 class="card-title text-lg">Control Panel</h5>
+                        <h5 class="card-title my-1 text-lg">Control Panel</h5>
                     </div>
-                    <div class="flex flex-col w-full gap-y-2 rounded-lg" id="control_panel">
-                        <div class="mb-2">
+                    <div class="flex flex-col w-full rounded-lg gap-0.5" id="control_panel">
+                        <div>
                             <label for="mode_id" class="select-label">Display Mode</label>
                             <select id="mode_id" class="select-select"></select>
                         </div>
@@ -271,13 +294,59 @@
                             <label for="pic_id" class="select-label">Projection Embedding</label>
                             <select id="pic_id" class="select-select"></select>
                         </div>
-                    </div>
+                        <div class="relative" id="components">
+                            <label for="components" class="select-label">Components</label>
+                            <div class="flex flex-col gap-0.5">
+                                <div class="flex items-center">
+                                    <input id="components_pitch" type="checkbox" checked class="checkbox">
+                                    <label for="components_pitch"
+                                        class="ml-1 text-[0.775rem] font-normal text-gray-900 dark:text-gray-300">F0
+                                        contour</label>
+                                </div>
+                                <div class="flex items-start">
+                                    <input id="components_frequncy" type="checkbox" checked class="checkbox">
+                                    <div class="flex flex-col gap-0.5 grow">
+                                        <label for="components_frequncy"
+                                            class="ml-1 mb-1 text-[0.775rem] font-normal text-gray-900 dark:text-gray-300">Frequency</label>
+                                        <div class="flex inputs w-full">
+                                            <input id="inputs_min" type="range"
+                                                class="h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                                value="0" min="0">
+                                            <input id="inputs_max" type="range"
+                                                class="h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                                                value="100" max="100">
+                                        </div>
+                                        <div class="flex w-full">
+                                            <span id="inputs_left" class="ml-1 mr-auto text-[0.7rem] font-normal text-gray-900 dark:text-white">0</span>
+                                            <span id="inputs_right" class="mr-2 ml-auto text-[0.7rem] font-normal text-gray-900 dark:text-white">100</span>
+                                        </div>
+                                    </div>
+                                </div>
 
-                    <div id="step_axis" class="mt-4">
+                                <div class="flex items-start">
+                                    <input id="sampling_steps" type="checkbox" class="checkbox">
+                                    <div class="flex flex-col grow">
+                                        <label for="sampling_steps"
+                                            class="ml-1 text-[0.775rem] font-normal text-gray-900 dark:text-gray-300">Sampling
+                                            steps</label>
+                                        <div class="flex flex-row h-[32px]">
+                                            <span class="my-auto mx-1 text-[0.775rem] font-normal text-gray-900 dark:text-white">Step count:</span>
+                                            <input type="text"
+                                                class="small-input flex-none w-[50px] text-center bg-white dark:bg-gray-800"
+                                                id="sampling_num" value="100">
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    
+
+                    <div id="step_axis">
                         <label for="range" class="select-label">Step Axis</label>
 
                         <div
-                            class="items-center w-full rounded-lg bg-gray-50 flex flex-row gap-2 px-2 py-1 border border-gray-300 dark:border-gray-600 dark:text-white dark:bg-gray-700">
+                            class="items-center w-full rounded-lg bg-gray-50 flex flex-row gap-2 px-2 py-0.5 border border-gray-300 dark:border-gray-600 dark:text-white dark:bg-gray-700">
 
                             <input class="step-axis my-2 w-full" id="range" type="range" min="0" max="999" value="0"
                                 step="1">
@@ -295,7 +364,7 @@
                             </button>
 
                         </div>
-                        <div class="flex gap-1 mt-3">
+                        <div class="flex gap-1 mt-2">
                             <span class="my-auto mr-1 text-sm font-medium text-gray-900 dark:text-white">Step:</span>
                             <input type="text"
                                 class="small-input flex-none w-[60px] text-center bg-white dark:bg-gray-800" id="value">
@@ -305,6 +374,7 @@
                         </div>
                     </div>
 
+                </div>
                 </div>
             </div>
         </div>
