@@ -6,7 +6,7 @@
 This is the official repository 👑 for the **Emilia** dataset and the source code for **Emilia-Pipe** speech data preprocessing pipeline. 
 
 ## News 🔥
-- **2024/08/22**: The **Emilia** dataset is now publicly avaiable! Explore the most extensive and diverse speech generation dataset now at [Opendatalab](https://opendatalab.com/Amphion/Emilia)! 👑
+- **2024/08/22**: The **Emilia** dataset is now publicly avaiable! Explore the most extensive and diverse speech generation dataset now at [OpenXLab](https://openxlab.org.cn/datasets/Amphion/Emilia)! 👑
 - **2024/07/08**: Our preprint [paper](https://arxiv.org/abs/2407.05361) is now available! 🔥🔥🔥
 - **2024/07/03**: We welcome everyone to check our [homepage](https://emilia-dataset.github.io/Emilia-Demo-Page/) for our brief introduction for Emilia dataset and our demos!
 - **2024/07/01**: We release of Emilia and Emilia-Pipe! We welcome everyone to explore it! 🎉🎉🎉
