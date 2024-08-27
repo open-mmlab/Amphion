@@ -1,49 +1,83 @@
 # Emilia: An Extensive, Multilingual, and Diverse Speech Dataset for Large-Scale Speech Generation
-[![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2407.05361) 
-[![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Dataset-yellow)](https://huggingface.co/datasets/amphion/Emilia) 
-[![demo](https://img.shields.io/badge/WebPage-Demo-red)](https://emilia-dataset.github.io/Emilia-Demo-Page/)
+[![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2407.05361)  [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Dataset-yellow)](https://huggingface.co/datasets/amphion/Emilia-Dataset)  [![OpenDataLab](https://img.shields.io/badge/OpenDataLab-Dataset-blue)](https://opendatalab.com/Amphion/Emilia)  [![GitHub](https://img.shields.io/badge/GitHub-Repo-green)](https://github.com/open-mmlab/Amphion/tree/main/preprocessors/Emilia)  [![demo](https://img.shields.io/badge/WebPage-Demo-red)](https://emilia-dataset.github.io/Emilia-Demo-Page/)
 
 This is the official repository 👑 for the **Emilia** dataset and the source code for **Emilia-Pipe** speech data preprocessing pipeline. 
 
 <div align="center"><img width="500px" src="https://github.com/user-attachments/assets/b1c1a1f8-3149-4f96-8eb4-af470152a9b7" /></div>
 
 ## News 🔥
-- **2024/08/22**: The **Emilia** dataset is now publicly available! Explore the most extensive and diverse speech generation dataset now at [OpenXLab](https://openxlab.org.cn/datasets/Amphion/Emilia)! 👑
+- **2024/08/27**: *The Emilia dataset is now publicly available!* Discover the most extensive and diverse speech generation dataset with 101k hours of in-the-wild speech data now at [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Dataset-yellow)](https://huggingface.co/datasets/amphion/Emilia-Dataset) or [![OpenDataLab](https://img.shields.io/badge/OpenDataLab-Dataset-blue)](https://opendatalab.com/Amphion/Emilia)! 👑👑👑
 - **2024/07/08**: Our preprint [paper](https://arxiv.org/abs/2407.05361) is now available! 🔥🔥🔥
 - **2024/07/03**: We welcome everyone to check our [homepage](https://emilia-dataset.github.io/Emilia-Demo-Page/) for our brief introduction for Emilia dataset and our demos!
-- **2024/07/01**: We release of Emilia and Emilia-Pipe! We welcome everyone to explore it! 🎉🎉🎉
+- **2024/07/01**: We release of Emilia and Emilia-Pipe! We welcome everyone to explore it on our [GitHub](https://github.com/open-mmlab/Amphion/tree/main/preprocessors/Emilia)! 🎉🎉🎉
 
-## About ⭐️
-The **Emilia** is a comprehensive, multilingual dataset with the following features:
+## Emilia Overview ⭐️
+The **Emilia** dataset is a comprehensive, multilingual dataset with the following features:
 - containing over *101k* hours of speech data;
 - covering six different languages: *English (En), Chinese (Zh), German (De), French (Fr), Japanese (Ja), and Korean (Ko)*;
-- containing diverse speech data with *various speaking styles*;
-  
-Detailed description for the dataset could be found in our [paper](https://arxiv.org/abs/2407.05361).
+- containing diverse speech data with *various speaking styles* from diverse video platforms and podcasts on the Internet, covering various content genres such as talk shows, interviews, debates, sports commentary, and audiobooks.
 
-🛠️ **Emilia-Pipe** is the first open-source preprocessing pipeline designed to transform raw, in-the-wild speech data into high-quality training data with annotations for speech generation. This pipeline can process one hour of raw audio into model-ready data in just a few minutes, requiring only the raw speech data. 
+The table below provides the duration statistics for each language in the dataset.
 
-## Dataset Usage 🎤
-The Emilia dataset is now publicly available at [OpenDataLab](https://opendatalab.com/Amphion/Emilia)!
-
-To download the Emilia dataset, please follow these steps:
-
-1. Fill out the [Application Form](https://speechteam.feishu.cn/share/base/form/shrcn7z8VODrVkOelbx0YUeJDOh) to receive the PASSWORD.
-2. Visit the [OpenXLab dataset](https://openxlab.org.cn/datasets/Amphion/Emilia/tree/main/raw) and click the "Apply Download" button.
-3. Enter the PASSWORD you received in step 1 into the "Detailed Purpose Description" input box and submit your download request. Applications will only be approved if the correct PASSWORD is provided. Once approved, you can enjoy using the dataset!
+|   Language  | Duration (hours) |
+|:-----------:|:----------------:|
+|   English   |     46,828       |
+|   Chinese   |     49,922       |
+|   German    |     1,590        |
+|   French    |     1,381        |
+|   Japanese  |     1,715        |
+|   Korean    |      217         |
 
 
-The Emilia dataset will be structured as follows:
+The **Emilia-Pipe** is the first open-source preprocessing pipeline designed to transform raw, in-the-wild speech data into high-quality training data with annotations for speech generation. This pipeline can process one hour of raw audio into model-ready data in just a few minutes, requiring only the raw speech data. 
 
-- **Speech Data**: High-quality audio recordings in .mp3 format.
-- **Transcriptions**: Corresponding text transcriptions for each audio file.
+Detailed description for the Emilia and Emilia-Pipe could be found in our [paper](https://arxiv.org/abs/2407.05361).
+
+## Emilia Dataset Usage 📖
+The Emilia dataset is now publicly available at [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Dataset-yellow)](https://huggingface.co/datasets/amphion/Emilia-Dataset)! Users in mainland China can also download Emilia from [![OpenDataLab](https://img.shields.io/badge/OpenDataLab-Dataset-blue)](https://opendatalab.com/Amphion/Emilia)!
+
+- To download from HuggingFace, you must first gain access to the dataset by completing the request form and accepting the terms of access. Please note that due to HuggingFace's file size limit of 50 GB, the `EN/EN_B00008.tar.gz` file has been split into `EN/EN_B00008.tar.gz.0` and `EN/EN_B00008.tar.gz.1`. Before extracting the files, you will need to run the following command to combine the parts: `cat EN/EN_B00008.tar.gz.* > EN/EN_B00008.tar.gz`
+
+- To download from OpenDataLab (i.e., OpenXLab), please follow the guidence [here](https://speechteam.feishu.cn/wiki/PC8Ew5igviqBiJkElMJcJxNonJc) to gain access.
+
+**ENJOY USING EMILIA!!!** 🔥
+
+If you wish to re-build Emilia from scratch, you may download the raw audio files from the [provided URL list](https://huggingface.co/datasets/amphion/Emilia) and use our open-source [Emilia-Pipe](https://github.com/open-mmlab/Amphion/tree/main/preprocessors/Emilia) preprocessing pipeline to preprocess the raw data. Additionally, users can easily use Emilia-Pipe to preprocess their own raw speech data for custom needs. By open-sourcing the Emilia-Pipe code, we aim to enable the speech community to collaborate on large-scale speech generation research.
 
 *Please note that Emilia does not own the copyright to the audio files; the copyright remains with the original owners of the videos or audio. Users are permitted to use this dataset only for non-commercial purposes under the CC BY-NC-4.0 license.*
 
+## Emilia Dataset Structure ⛪️
+The Emilia dataset will be structured as follows:
+
+Structure example:
+```
+|-- openemilia_all.tar.gz (all .JSONL files are gzipped with directory structure in this file)
+|-- EN (114 batches)
+|   |-- EN_B00000.jsonl
+|   |-- EN_B00000 (= EN_B00000.tar.gz)
+|   |   |-- EN_B00000_S00000
+|   |   |   `-- mp3
+|   |   |       |-- EN_B00000_S00000_W000000.mp3
+|   |   |       `-- EN_B00000_S00000_W000001.mp3
+|   |   |-- ...
+|   |-- ...
+|   |-- EN_B00113.jsonl
+|   `-- EN_B00113
+|-- ZH (92 batches)
+|-- DE (9 batches)
+|-- FR (10 batches)
+|-- JA (7 batches)
+|-- KO (4 batches)
+
+```
+JSONL files example:
+```
+{"id": "EN_B00000_S00000_W000000", "wav": "EN_B00000/EN_B00000_S00000/mp3/EN_B00000_S00000_W000000.mp3", "text": " You can help my mother and you- No. You didn't leave a bad situation back home to get caught up in another one here. What happened to you, Los Angeles?", "duration": 6.264, "speaker": "EN_B00000_S00000", "language": "en", "dnsmos": 3.2927}
+{"id": "EN_B00000_S00000_W000001", "wav": "EN_B00000/EN_B00000_S00000/mp3/EN_B00000_S00000_W000001.mp3", "text": " Honda's gone, 20 squads done. X is gonna split us up and put us on different squads. The team's come and go, but 20 squad, can't believe it's ending.", "duration": 8.031, "speaker": "EN_B00000_S00000", "language": "en", "dnsmos": 3.0442}
+```
+
  
 ## Emilia-Pipe Overview 👀
-If you wish to re-build Emilia, you may download the raw audio files from the [provided URL list](https://huggingface.co/datasets/amphion/Emilia) and use our open-source [Emilia-Pipe](https://github.com/open-mmlab/Amphion/tree/main/preprocessors/Emilia) preprocessing pipeline to preprocess the raw data. Additionally, users can easily use Emilia-Pipe to preprocess their own raw speech data for custom needs. By open-sourcing the Emilia-Pipe code, we aim to enable the speech community to collaborate on large-scale speech generation research.
-
 The Emilia-Pipe includes the following major steps:
 
 0. Standardization：Audio normalization
