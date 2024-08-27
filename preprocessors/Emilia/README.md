@@ -31,11 +31,14 @@ The table below provides the duration statistics for each language in the datase
 
 The **Emilia-Pipe** is the first open-source preprocessing pipeline designed to transform raw, in-the-wild speech data into high-quality training data with annotations for speech generation. This pipeline can process one hour of raw audio into model-ready data in just a few minutes, requiring only the raw speech data. 
 
-
 Detailed description for the Emilia and Emilia-Pipe could be found in our [paper](https://arxiv.org/abs/2407.05361).
 
 ## Emilia Dataset Usage 📖
-The Emilia dataset is now publicly available at [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Dataset-yellow)](https://huggingface.co/datasets/amphion/Emilia-Dataset)! Users in mainland China can also download Emilia from  [![OpenDataLab](https://img.shields.io/badge/OpenDataLab-Dataset-blue)](https://opendatalab.com/Amphion/Emilia)!
+The Emilia dataset is now publicly available at [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Dataset-yellow)](https://huggingface.co/datasets/amphion/Emilia-Dataset)! Users in mainland China can also download Emilia from [![OpenDataLab](https://img.shields.io/badge/OpenDataLab-Dataset-blue)](https://opendatalab.com/Amphion/Emilia)!
+
+- To download from HuggingFace, you must first gain access to the dataset by completing the request form and accepting the terms of access. Please note that due to HuggingFace's file size limit of 50 GB, the `EN/EN_B00008.tar.gz` file has been split into `EN/EN_B00008.tar.gz.0` and `EN/EN_B00008.tar.gz.1`. Before extracting the files, you will need to run the following command to combine the parts: `cat EN/EN_B00008.tar.gz.* > EN/EN_B00008.tar.gz`
+
+- To download from OpenDataLab (i.e., OpenXLab), please follow the guidence [here](https://speechteam.feishu.cn/wiki/PC8Ew5igviqBiJkElMJcJxNonJc) to gain access.
 
 **ENJOY USING EMILIA!!!** 🔥
 
