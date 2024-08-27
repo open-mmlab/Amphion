@@ -19,7 +19,7 @@ The **Emilia** dataset is a comprehensive, multilingual dataset with the followi
 - covering six different languages: *English (En), Chinese (Zh), German (De), French (Fr), Japanese (Ja), and Korean (Ko)*;
 - containing diverse speech data with *various speaking styles* from diverse video platforms and podcasts on the Internet, covering various content genres such as talk shows, interviews, debates, sports commentary, and audiobooks.
 
-The table below provides the duration statistics for each language in the dataset. D
+The table below provides the duration statistics for each language in the dataset.
 
 |   Language  | Duration (hours) |
 |:-----------:|:----------------:|
