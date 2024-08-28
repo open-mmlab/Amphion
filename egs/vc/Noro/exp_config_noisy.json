@@ -3,14 +3,6 @@
     "dataset": [
       "mls"
     ],
-    "preprocess": {
-      // Specify the output root path to save the processed data
-      "processed_dir": "data",
-      "train_file": "train.json",
-      "valid_file": "test.json",
-      "read_metadata": true,
-      "metadata_dir": "metadata"
-    },
     // Specify the output root path to save model checkpoints and logs
     "log_dir": "path/to/your/checkpoint/directory",
     "train": {
@@ -29,7 +21,6 @@
         "lr": 5e-5
       },
       "use_dynamic_batchsize": true,
-      "batch_size": 8,
       "max_tokens": 3200000,
       "max_sentences": 64,
       "lr_warmup_steps": 5000,
@@ -38,19 +29,11 @@
     },
     "trans_exp": {
       "directory_list": [
-        "path/to/your/training_data_directory1",
+        "path/to/your/training_data_directory1", 
         "path/to/your/training_data_directory2",
         "path/to/your/training_data_directory3"
       ],
-      "test_directory_list": [
-        "path/to/your/test/testing_data_directory"
-      ],
-      "use_speaker": false,
       "use_ref_noise": true,
-      "use_source_noise": false,
-      "snr_lower": 2,
-      "snr_upper": 42,
-      "total_snrlevels": 5,
       "noise_dir": "path/to/your/noise/train/directory",
       "test_noise_dir": "path/to/your/noise/test/directory"
     }

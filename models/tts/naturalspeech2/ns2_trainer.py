@@ -433,26 +433,18 @@ class NS2Trainer(TTSTrainer):
         total_loss += dur_loss
         train_losses["dur_loss"] = dur_loss
 
-        x0 = self.model.module.code_to_latent(code)
-        if self.cfg.model.diffusion.diffusion_type == "diffusion":
-            # diff loss x0
-            diff_loss_x0 = diff_loss(diff_out["x0_pred"], x0, mask=mask)
-            total_loss += diff_loss_x0
-            train_losses["diff_loss_x0"] = diff_loss_x0
+        x0 = self.model.module.code_to_latent(code)      
+        # diff loss x0
+        diff_loss_x0 = diff_loss(diff_out["x0_pred"], x0, mask=mask)
+        total_loss += diff_loss_x0
+        train_losses["diff_loss_x0"] = diff_loss_x0
 
-            # diff loss noise
-            diff_loss_noise = diff_loss(
-                diff_out["noise_pred"], diff_out["noise"], mask=mask
-            )
-            total_loss += diff_loss_noise * self.cfg.train.diff_noise_loss_lambda
-            train_losses["diff_loss_noise"] = diff_loss_noise
-
-        elif self.cfg.model.diffusion.diffusion_type == "flow":
-            # diff flow matching loss
-            flow_gt = diff_out["noise"] - x0
-            diff_loss_flow = diff_loss(diff_out["flow_pred"], flow_gt, mask=mask)
-            total_loss += diff_loss_flow
-            train_losses["diff_loss_flow"] = diff_loss_flow
+        # diff loss noise
+        diff_loss_noise = diff_loss(
+            diff_out["noise_pred"], diff_out["noise"], mask=mask
+        )
+        total_loss += diff_loss_noise * self.cfg.train.diff_noise_loss_lambda
+        train_losses["diff_loss_noise"] = diff_loss_noise
 
         # diff loss ce
 
@@ -534,26 +526,17 @@ class NS2Trainer(TTSTrainer):
         valid_losses["dur_loss"] = dur_loss
 
         x0 = self.model.module.code_to_latent(code)
-        if self.cfg.model.diffusion.diffusion_type == "diffusion":
-            # diff loss x0
-            diff_loss_x0 = diff_loss(diff_out["x0_pred"], x0, mask=mask)
-            total_loss += diff_loss_x0
-            valid_losses["diff_loss_x0"] = diff_loss_x0
+        # diff loss x0
+        diff_loss_x0 = diff_loss(diff_out["x0_pred"], x0, mask=mask)
+        total_loss += diff_loss_x0
+        valid_losses["diff_loss_x0"] = diff_loss_x0
 
-            # diff loss noise
-            diff_loss_noise = diff_loss(
-                diff_out["noise_pred"], diff_out["noise"], mask=mask
-            )
-            total_loss += diff_loss_noise * self.cfg.train.diff_noise_loss_lambda
-            valid_losses["diff_loss_noise"] = diff_loss_noise
-
-        elif self.cfg.model.diffusion.diffusion_type == "flow":
-            # diff flow matching loss
-            flow_gt = diff_out["noise"] - x0
-            diff_loss_flow = diff_loss(diff_out["flow_pred"], flow_gt, mask=mask)
-            total_loss += diff_loss_flow
-            valid_losses["diff_loss_flow"] = diff_loss_flow
-
+        # diff loss noise
+        diff_loss_noise = diff_loss(
+            diff_out["noise_pred"], diff_out["noise"], mask=mask
+        )
+        total_loss += diff_loss_noise * self.cfg.train.diff_noise_loss_lambda
+        valid_losses["diff_loss_noise"] = diff_loss_noise
         # diff loss ce
 
         # (nq, B, T); (nq, B, T, 1024)

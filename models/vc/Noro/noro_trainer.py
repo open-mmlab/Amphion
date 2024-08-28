@@ -12,26 +12,24 @@ import numpy as np
 from tqdm import tqdm
 from utils.util import ValueWindow
 from torch.utils.data import DataLoader
-from models.vc.base_trainer import TTSTrainer
+from models.vc.Noro.noro_base_trainer import Noro_base_Trainer
 from torch.nn import functional as F
 from models.base.base_sampler import VariableSampler
 
 from diffusers import get_scheduler
-
 import accelerate
 from accelerate.logging import get_logger
 from accelerate.utils import ProjectConfiguration
+from models.vc.Noro.noro_model import Noro_VCmodel
+from models.vc.Noro.noro_dataset import VCCollator, VCDataset, batch_by_size
+from processors.content_extractor import HubertExtractor
+from models.vc.Noro.noro_loss import diff_loss, ConstractiveSpeakerLoss
+from utils.mel import mel_spectrogram_torch
+from utils.f0 import get_f0_features_using_dio, interpolate
+from torch.nn.utils.rnn import pad_sequence
 
-from models.vc.ns2_uniamphion import UniAmphionVC
-from models.vc.vc_dataset import VCCollator, VCDataset, batch_by_size
-from models.vc.hubert_kmeans import HubertWithKmeans
-from models.vc.vc_loss import diff_loss, ConstractiveSpeakerLoss
-from models.vc.vc_utils import mel_spectrogram, extract_world_f0
 
-# import descript_audio_codec.dac
-# from audiotools import AudioSignal
-
-class VCTrainer(TTSTrainer):
+class NoroTrainer(Noro_base_Trainer):
     def __init__(self, args, cfg):
         self.args = args
         self.cfg = cfg
@@ -47,15 +45,11 @@ class VCTrainer(TTSTrainer):
             self.logger = get_logger(args.exp_name, log_level="INFO")
 
         # Configure noise and speaker usage
-        self.use_source_noise = self.cfg.trans_exp.use_source_noise
         self.use_ref_noise = self.cfg.trans_exp.use_ref_noise
-        self.use_speaker = self.cfg.trans_exp.use_speaker
 
         # Log configuration on the main process
         if self.accelerator.is_main_process:
-            self.logger.info(f"use_source_noise: {self.use_source_noise}")
             self.logger.info(f"use_ref_noise: {self.use_ref_noise}")
-            self.logger.info(f"use_speaker: {self.use_speaker}")
 
         # Initialize a time window for monitoring metrics
         self.time_window = ValueWindow(50)
@@ -175,13 +169,9 @@ class VCTrainer(TTSTrainer):
             self.accelerator.init_trackers(self.args.exp_name)
 
     def _build_model(self):
-        w2v = HubertWithKmeans()
-        self.cfg.model.vc_feature.content_feature_dim = 768
-        model = UniAmphionVC(cfg=self.cfg.model, use_ref_noise=self.use_ref_noise, use_source_noise=self.use_source_noise)
+        w2v = HubertExtractor(self.cfg)
+        model = Noro_VCmodel(cfg=self.cfg.model, use_ref_noise=self.use_ref_noise)
         return model, w2v
-
-    def _build_dataset(self):
-        return VCDataset, VCCollator
 
     def _build_dataloader(self):
         np.random.seed(int(time.time()))
@@ -234,15 +224,6 @@ class VCTrainer(TTSTrainer):
         criterion = torch.nn.L1Loss(reduction="mean")
         return criterion
 
-    def _count_parameters(self, model):
-        model_param = 0.0
-        if isinstance(model, dict):
-            for key, _ in model.items():
-                model_param += sum(p.numel() for p in model[key].parameters())
-        else:
-            model_param = sum(p.numel() for p in model.parameters())
-        return model_param
-
     def _dump_cfg(self, path):
         os.makedirs(os.path.dirname(path), exist_ok=True)
         json5.dump(
@@ -253,17 +234,6 @@ class VCTrainer(TTSTrainer):
             ensure_ascii=False,
             quote_keys=True,
         )
-
-    def get_state_dict(self):
-        state_dict = {
-            "model": self.model.state_dict(),
-            "optimizer": self.optimizer.state_dict(),
-            "scheduler": self.scheduler.state_dict(),
-            "step": self.step,
-            "epoch": self.epoch,
-            "batch_size": self.cfg.train.batch_size,
-        }
-        return state_dict
 
     def load_model(self, checkpoint):
         self.step = checkpoint["step"]
@@ -293,37 +263,30 @@ class VCTrainer(TTSTrainer):
 
         with torch.set_grad_enabled(False):
             # Extract features and spectrograms
-            mel = mel_spectrogram(speech).transpose(1, 2)
-            ref_mel = mel_spectrogram(ref_speech).transpose(1, 2)
+            mel = mel_spectrogram_torch(speech, self.cfg).transpose(1, 2)
+            ref_mel = mel_spectrogram_torch(ref_speech,self.cfg).transpose(1, 2)
             mask = batch["mask"]
             ref_mask = batch["ref_mask"]
 
             # Extract pitch and content features
-            if not self.use_source_noise:
-                pitch = extract_world_f0(speech)
-                pitch = (pitch - pitch.mean(dim=1, keepdim=True)) / (pitch.std(dim=1, keepdim=True) + 1e-6) # Normalize pitch (B,T)
-                _, content_feature = self.w2v(speech) # semantic (B, T, 768)
+            audio = speech.cpu().numpy()
+            f0s = []
+            for i in range(audio.shape[0]):
+                wav = audio[i] 
+                f0 = get_f0_features_using_dio(wav, self.cfg.preprocess)
+                f0, _ = interpolate(f0)
+                frame_num = len(wav) // self.cfg.preprocess.hop_size           
+                f0 = torch.from_numpy(f0[:frame_num]).to(speech.device)              
+                f0s.append(f0)
+
+            pitch = pad_sequence(f0s, batch_first=True, padding_value=0).float()
+            pitch = (pitch - pitch.mean(dim=1, keepdim=True)) / (pitch.std(dim=1, keepdim=True) + 1e-6) # Normalize pitch (B,T)
+            _, content_feature = self.w2v.extract_content_features(speech) # semantic (B, T, 768)
 
             if self.use_ref_noise:
-                noisy_ref_mel = mel_spectrogram(batch["noisy_ref_speech"]).transpose(1, 2)
+                noisy_ref_mel = mel_spectrogram_torch(batch["noisy_ref_speech"], self.cfg).transpose(1, 2)
 
-            if self.use_source_noise:
-                combined_speech = torch.cat((speech, batch["noisy_speech"]), dim=0)
-                _, combined_features = self.w2v(combined_speech)
-                content_feature, noisy_content_feature = torch.split(combined_features, speech.shape[0], dim=0)
-                combined_pitch = extract_world_f0(combined_speech)
-                clean_pitch, noisy_pitch = torch.split(combined_pitch, speech.shape[0], dim=0)
-                pitch = (clean_pitch - clean_pitch.mean(dim=1, keepdim=True)) / (clean_pitch.std(dim=1, keepdim=True) + 1e-6)
-                noisy_pitch = (noisy_pitch - noisy_pitch.mean(dim=1, keepdim=True)) / (noisy_pitch.std(dim=1, keepdim=True) + 1e-6)
-
-        # Forward pass through the model
-        if self.use_ref_noise and self.use_source_noise:
-            diff_out, (ref_emb, noisy_ref_emb), (cond_emb, noisy_cond_emb) = self.model(
-                x=mel, content_feature=content_feature, pitch=pitch, x_ref=ref_mel,
-                x_mask=mask, x_ref_mask=ref_mask, noisy_x_ref=noisy_ref_mel,
-                noisy_content_feature=noisy_content_feature, noisy_pitch=noisy_pitch
-            )
-        elif self.use_ref_noise:
+        if self.use_ref_noise:
             diff_out, (ref_emb, noisy_ref_emb), (cond_emb, _) = self.model(
                 x=mel, content_feature=content_feature, pitch=pitch, x_ref=ref_mel,
                 x_mask=mask, x_ref_mask=ref_mask, noisy_x_ref=noisy_ref_mel
@@ -343,12 +306,6 @@ class VCTrainer(TTSTrainer):
             cs_loss = self.contrastive_speaker_loss(all_ref_emb, all_speaker_ids) * 0.25
             total_loss += cs_loss
             train_losses["ref_loss"] = cs_loss
-
-        if self.use_source_noise:
-            # B x T x D
-            diff_loss_cond = F.l1_loss(noisy_cond_emb, cond_emb, reduction="mean") * 2.0
-            total_loss += diff_loss_cond
-            train_losses["source_loss"] = diff_loss_cond
 
         diff_loss_x0 = diff_loss(diff_out["x0_pred"], mel, mask=mask)
         total_loss += diff_loss_x0
@@ -499,4 +456,3 @@ class VCTrainer(TTSTrainer):
                 self.accelerator.save_state(path)
                 self.logger.info("Finished saving state.")
         self.accelerator.wait_for_everyone()
-

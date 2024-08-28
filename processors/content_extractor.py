@@ -14,6 +14,10 @@ from torch.nn.utils.rnn import pad_sequence
 from torch.utils.data import DataLoader
 from fairseq import checkpoint_utils
 from transformers import AutoModel, Wav2Vec2FeatureExtractor
+import torch.nn as nn
+import torch.nn.functional as F
+import joblib
+from einops import repeat
 
 from utils.io_optim import (
     TorchaudioDataset,
@@ -493,6 +497,60 @@ class MertExtractor(AudioPretrainedModelFeaturesExtractor):
                 mert_features.append(feature)
 
         return mert_features
+    
+class HubertExtractor(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg
+        self.load_model()
+        
+    def load_model(self):
+        kmeans_model_path = self.cfg.preprocess.kmeans_model_path
+        hubert_model_path = self.cfg.preprocess.hubert_model_path
+        print("Load Hubert Model...")
+        checkpoint = torch.load(hubert_model_path)
+        load_model_input = {hubert_model_path: checkpoint}
+        model, *_ = checkpoint_utils.load_model_ensemble_and_task(
+            load_model_input
+        )
+        self.model = model[0]
+        self.model.eval()
+        
+        # Load KMeans cluster centers
+        kmeans = joblib.load(kmeans_model_path)
+        self.kmeans = kmeans
+
+        self.register_buffer(
+            "cluster_centers", torch.from_numpy(kmeans.cluster_centers_)
+        )
+
+    def extract_content_features(self, wav_input):
+        """
+        Extract content features and quantize using KMeans clustering.
+
+        Args:
+            audio_data: tensor (batch_size, T)
+
+        Returns:
+            quantize: tensor (batch_size, T, 768)
+        """
+        # Extract features using HuBERT
+        wav_input = F.pad(wav_input, (40, 40), "reflect")
+        embed = self.model(
+            wav_input,
+            features_only=True,
+            mask=False,  
+        )
+        
+        batched_cluster_centers = repeat(
+            self.cluster_centers, "c d -> b c d", b=embed.shape[0]
+        )
+        
+        dists = -torch.cdist(embed, batched_cluster_centers, p=2)
+        clusters = dists.argmax(dim=-1) # (batch, seq_len)
+        quantize = F.embedding(clusters, self.cluster_centers)
+
+        return clusters, quantize
 
 
 def extract_utt_content_features_dataloader(cfg, metadata, num_workers):

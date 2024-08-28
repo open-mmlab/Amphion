@@ -17,7 +17,7 @@ python setup.py build_ext --inplace
 cd $work_dir
 
 if [ -z "$exp_config" ]; then
-    exp_config="${exp_dir}/exp_config_4gpu_noisy.json"
+    exp_config="${exp_dir}/exp_config_clean.json"
 fi
 echo "Experimental Configuration File: $exp_config"
 
@@ -46,7 +46,7 @@ checkpoint_path="path/to/checkpoint/noro_checkpoint"
 # To resume training or fine-tune from a checkpoint, use the following command:
 # Ensure the options --resume, --resume_type resume, and --checkpoint_path are set
 CUDA_VISIBLE_DEVICES=$gpu accelerate launch --main_process_port 26667 --mixed_precision fp16 \
-"${work_dir}/bins/vc/train.py" \
+"${work_dir}/bins/vc/Noro/train.py" \
     --config $exp_config \
     --exp_name $exp_name \
     --log_level debug \

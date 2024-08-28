@@ -24,7 +24,7 @@ python setup.py build_ext --inplace
 cd $work_dir
 
 if [ -z "$exp_config" ]; then
-    exp_config="${exp_dir}/exp_config_testing.json"
+    exp_config="${exp_dir}/exp_config_base.json"
 fi
 
 echo "Experimental Configuration File: $exp_config"

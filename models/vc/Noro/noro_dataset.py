@@ -1,3 +1,8 @@
+# Copyright (c) 2023 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 import os
 import numpy as np
 import librosa
@@ -5,13 +10,9 @@ import torch
 from torch.utils.data import Dataset
 from torch.nn.utils.rnn import pad_sequence
 from utils.data_utils import *
-from models.base.vc_dataset import (
-    BaseCollator,
-)
 from multiprocessing import Pool, Lock
 import random
 import torchaudio
-import rir_generator as rir
 
 
 NUM_WORKERS = 64
@@ -49,14 +50,8 @@ class VCDataset(Dataset):
             directory_list = args.test_directory_list
         random.shuffle(directory_list)
 
-        # 配置噪声和说话人使用
-        self.use_source_noise = args.use_source_noise
         self.use_ref_noise = args.use_ref_noise
-        self.use_speaker = args.use_speaker
- 
-        print(f"use_source_noise: {self.use_source_noise}")
         print(f"use_ref_noise: {self.use_ref_noise}")
-        print(f"use_speaker: {self.use_speaker}")
     
         # number of workers
         print(f"Using {NUM_WORKERS} workers")
@@ -112,12 +107,11 @@ class VCDataset(Dataset):
         random.shuffle(self.files)  # Shuffle the files.
 
         self.filtered_files, self.all_num_frames, index2numframes, index2speakerid = self.filter_files()
-        #只有3-30s的语音才会被保留
         print(f"Loaded {len(self.filtered_files)} files")
 
-        self.index2numframes = index2numframes#index to 每条utt的长度
-        self.index2speaker = index2speakerid #index to 每条utt的speaker
-        self.speaker2id = self.create_speaker2id() #每条utt的speaker to 每条utt的speaker_id
+        self.index2numframes = index2numframes
+        self.index2speaker = index2speakerid 
+        self.speaker2id = self.create_speaker2id() 
         self.num_frame_sorted = np.array(sorted(self.all_num_frames))
         self.num_frame_indices = np.array(
             sorted(
@@ -126,7 +120,7 @@ class VCDataset(Dataset):
         )
         del self.meta_data_cache, self.speaker_cache
 
-        if self.use_ref_noise or self.use_source_noise:
+        if self.use_ref_noise:
             if TRAIN_MODE:
                 self.noise_filenames = self.get_all_flac(args.noise_dir)
             else:
@@ -200,12 +194,12 @@ class VCDataset(Dataset):
     
     def create_speaker2id(self):
         speaker2id = {}
-        unique_id = 0  # 开始的唯一 ID
+        unique_id = 0  
         print(f"Creating speaker2id from {len(self.index2speaker)} utterences")
         for _, speaker in tqdm(self.index2speaker.items()):
             if speaker not in speaker2id:
                 speaker2id[speaker] = unique_id
-                unique_id += 1  # 为下一个唯一 speaker 增加 ID
+                unique_id += 1  
         print(f"Created speaker2id with {len(speaker2id)} speakers")
         return speaker2id
     
@@ -235,45 +229,18 @@ class VCDataset(Dataset):
         noise, _ = librosa.load(self.noise_filenames[random_idx], sr=SAMPLE_RATE)
         clean = clean.cpu().numpy()
         if len(noise)>=len(clean):
-            noise = noise[0:len(clean)] #截取噪声的长度
+            noise = noise[0:len(clean)] 
         else:
-            while len(noise)<=len(clean): #如果噪声的长度小于语音的长度
-                random_idx = (random_idx + 1)%len(self.noise_filenames) #随机读一个噪声
+            while len(noise)<=len(clean): 
+                random_idx = (random_idx + 1)%len(self.noise_filenames) 
                 newnoise, fs = librosa.load(self.noise_filenames[random_idx], sr=SAMPLE_RATE)
-                noiseconcat = np.append(noise, np.zeros(int(fs * 0.2)))#在噪声后面加上0.2静音
-                noise = np.append(noiseconcat, newnoise)#拼接噪声
-        noise = noise[0:len(clean)] #截取噪声的长度
-        #随机sample一个小于20大于0的随机数
+                noiseconcat = np.append(noise, np.zeros(int(fs * 0.2)))
+                noise = np.append(noiseconcat, newnoise)
+        noise = noise[0:len(clean)] 
         snr = random.uniform(0.0,20.0)
-        noisyspeech = self.snr_mixer(clean=clean, noise=noise, snr=snr) #根据随机的SNR级别，混合生成带噪音频
+        noisyspeech = self.snr_mixer(clean=clean, noise=noise, snr=snr) 
         del noise
         return noisyspeech
-    
-    def add_reverb(self, speech):
-        room_dim = [np.random.uniform(1, 12) for _ in range(3)]  # [length, width, height]
-        mic_pos = [np.random.uniform(0, dim) for dim in room_dim] # 随机选择麦克风位置
-        distance = np.random.normal(2, 4) # 确定声源与麦克风的距离
-        while distance <= 0 or distance > 5:
-            distance = np.random.normal(2, 4)
-        source_pos = [mic_pos[0] + distance, mic_pos[1], mic_pos[2]] # 随机选择声源位置，确保它在以麦克风为中心的球内
-        rt60 = np.random.uniform(0.05, 1.0) # 随机选择RT60值
-        try: 
-            rir_filter = rir.generate(
-                c=340,                  # 声速
-                fs=SAMPLE_RATE,
-                r=[mic_pos],            # 麦克风位置
-                s=source_pos,           # 声源位置
-                L=room_dim,             # 房间尺寸
-                reverberation_time=rt60,# RT60值
-                nsample=4096,           # IR长度
-            )
-            # 应用混响
-            speech_reverb = np.convolve(speech.cpu().numpy(), rir_filter[:, 0], mode='same')
-            speech = torch.tensor(speech_reverb, dtype=torch.float32)
-            return speech
-        except:
-            return speech #如果遇到ValueError: s is outside the room，直接返回没加混响的声音
-
     
     def __len__(self):
         return len(self.files)
@@ -293,7 +260,7 @@ class VCDataset(Dataset):
     
     def _get_reference_vc(self, speech, hop_length):
         pad_size = 1600 - speech.shape[0] % 1600
-        speech = torch.nn.functional.pad(speech, (0, pad_size)) # 保证语音长度是1600的倍数
+        speech = torch.nn.functional.pad(speech, (0, pad_size)) 
 
         #hop_size
         frame_nums = speech.shape[0] // hop_length
@@ -306,33 +273,71 @@ class VCDataset(Dataset):
 
         ref_mask = torch.ones(len(ref_speech) // hop_length)
         mask = torch.ones(len(new_speech) // hop_length)
-
-        if not (self.use_source_noise or self.use_ref_noise):
-            # 不使用噪声
+        if not self.use_ref_noise:
+            # not use noise
             return {"speech": new_speech, "ref_speech": ref_speech, "ref_mask": ref_mask, "mask": mask}
-        elif self.use_source_noise and self.use_ref_noise:
-            # 使用噪声
-            noisy_ref_speech = self.add_noise(ref_speech) # 添加噪声
-            nosiy_speech = self.add_noise(new_speech) # 添加噪声
-            return {"speech": new_speech, "noisy_speech":nosiy_speech, "ref_speech": ref_speech, "noisy_ref_speech": noisy_ref_speech, "ref_mask": ref_mask, "mask": mask}
-        elif self.use_source_noise and not self.use_ref_noise:
-            # 只使用源噪声
-            noisy_speech = self.add_noise(new_speech)
-            return {"speech": new_speech, "noisy_speech": noisy_speech, "ref_speech": ref_speech, "ref_mask": ref_mask, "mask": mask}
-        elif self.use_ref_noise and not self.use_source_noise:
-            # 只使用参考噪声
+        else:
+            # use reference noise
             noisy_ref_speech = self.add_noise(ref_speech)
             return {"speech": new_speech, "ref_speech": ref_speech, "noisy_ref_speech": noisy_ref_speech, "ref_mask": ref_mask, "mask": mask}
+        
+    
+class BaseCollator(object):
+    """Zero-pads model inputs and targets based on number of frames per step"""
+
+    def __init__(self, cfg):
+        self.cfg = cfg
+
+    def __call__(self, batch):
+        packed_batch_features = dict()
+
+        # mel: [b, T, n_mels]
+        # frame_pitch, frame_energy: [1, T]
+        # target_len: [1]
+        # spk_id: [b, 1]
+        # mask: [b, T, 1]
+
+        for key in batch[0].keys():
+            if key == "target_len":
+                packed_batch_features["target_len"] = torch.LongTensor(
+                    [b["target_len"] for b in batch]
+                )
+                masks = [
+                    torch.ones((b["target_len"], 1), dtype=torch.long) for b in batch
+                ]
+                packed_batch_features["mask"] = pad_sequence(
+                    masks, batch_first=True, padding_value=0
+                )
+            elif key == "phone_len":
+                packed_batch_features["phone_len"] = torch.LongTensor(
+                    [b["phone_len"] for b in batch]
+                )
+                masks = [
+                    torch.ones((b["phone_len"], 1), dtype=torch.long) for b in batch
+                ]
+                packed_batch_features["phn_mask"] = pad_sequence(
+                    masks, batch_first=True, padding_value=0
+                )
+            elif key == "audio_len":
+                packed_batch_features["audio_len"] = torch.LongTensor(
+                    [b["audio_len"] for b in batch]
+                )
+                masks = [
+                    torch.ones((b["audio_len"], 1), dtype=torch.long) for b in batch
+                ]
+            else:
+                values = [torch.from_numpy(b[key]) for b in batch]
+                packed_batch_features[key] = pad_sequence(
+                    values, batch_first=True, padding_value=0
+                )
+        return packed_batch_features
         
 class VCCollator(BaseCollator):
     def __init__(self, cfg):
         BaseCollator.__init__(self, cfg)
         #self.use_noise = cfg.trans_exp.use_noise
 
-        self.use_source_noise = self.cfg.trans_exp.use_source_noise
         self.use_ref_noise = self.cfg.trans_exp.use_ref_noise
- 
-        print(f"use_source_noise: {self.use_source_noise}")
         print(f"use_ref_noise: {self.use_ref_noise}")
  
 
@@ -365,15 +370,12 @@ class VCCollator(BaseCollator):
         # Process 'speaker_id' data
         speaker_ids = [process_tensor(b['speaker_id'], dtype=torch.int64) for b in batch]
         packed_batch_features['speaker_id'] = torch.stack(speaker_ids, dim=0)
-        if self.use_source_noise:
-            # Process 'noisy_speech' data
-            noisy_speeches = [process_tensor(b['noisy_speech']) for b in batch]
-            packed_batch_features['noisy_speech'] = pad_sequence(noisy_speeches, batch_first=True, padding_value=0)
         if self.use_ref_noise:
             # Process 'noisy_ref_speech' data
             noisy_ref_speeches = [process_tensor(b['noisy_ref_speech']) for b in batch]
             packed_batch_features['noisy_ref_speech'] = pad_sequence(noisy_ref_speeches, batch_first=True, padding_value=0)
         return packed_batch_features
+
 
 
 def _is_batch_full(batch, num_tokens, max_tokens, max_sentences):

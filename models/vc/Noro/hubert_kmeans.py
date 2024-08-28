@@ -1,14 +1,9 @@
 from pathlib import Path
 import torch
-from torch import nn, einsum
+from torch import nn
 from torchaudio.functional import resample
-from einops import rearrange, repeat, pack, unpack
+from einops import rearrange, repeat
 import torch.nn.functional as F
-
-# from audiolm_pytorch.utils import curtail_to_multiple
-
-# suppress a few warnings
-
 
 def noop(*args, **kwargs):
     pass
@@ -21,13 +16,8 @@ logging.root.setLevel(logging.ERROR)
 
 warnings.warn = noop
 
-# import fairseq and joblib for hubert
-
 import joblib
 import fairseq
-
-# helper functions
-
 
 def exists(val):
     return val is not None
@@ -49,6 +39,7 @@ def curtail_to_multiple(t, mult, from_left=False):
     )
     return t[..., seq_slice]
 
+# TODO: modify according to xueyao's comments
 
 class HubertWithKmeans(nn.Module):
     """
@@ -103,7 +94,6 @@ class HubertWithKmeans(nn.Module):
 
     @property
     def downsample_factor(self):
-        # todo: double check
         return 320
 
     @torch.inference_mode()
@@ -121,17 +111,12 @@ class HubertWithKmeans(nn.Module):
             wav_input,
             features_only=True,
             mask=False,  # thanks to @maitycyrus for noticing that mask is defaulted to True in the fairseq code
-            output_layer=self.output_layer,
-        )["x"]
-
-        embed = embed.permute((0, 2, 1))
-        embed = F.interpolate(embed, scale_factor=8, mode="nearest")
-        embed = F.interpolate(embed, scale_factor=0.2, mode="nearest")
-        embed = embed.permute((0, 2, 1))
-
+        )
+        
         batched_cluster_centers = repeat(
             self.cluster_centers, "c d -> b c d", b=embed.shape[0]
         )
+        
         dists = -torch.cdist(embed, batched_cluster_centers, p=2)
         clusters = dists.argmax(dim=-1) # (batch, seq_len)
         quantize = F.embedding(clusters, self.cluster_centers)

@@ -1,3 +1,8 @@
+# Copyright (c) 2023 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 import torch
 import torch.nn as nn
 import numpy as np
@@ -733,13 +738,6 @@ class DiffTransformer(nn.Module):
         # condition_embedding: from condition adapter, shape is (B, T, d_c)
         # reference_embedding: from reference encoder, shape is (B, N, d_r), or (B, 1, d_r), or (B, d_r)
 
-        # TODO: How to add condition emedding? concatenate then linear (or FilM?) or cross attention?
-        # concatenate then linear
-        # TODO: How to add reference embedding to the model? use style adaptive norm or cross attention?
-        # use style adaptive norm
-        # TODO: How to add diffusion step embedding? add a timestep token? add timestep embedding in each layers? use style adaptive norm?
-        # choose: (add_diff_step) add timestep embedding in each layers followed by a linear layer / (cat_diff_step) cat a timestep token before the first tokens
-
         if self.in_linear != None:
             x = self.in_linear(x)
         condition_embedding = self.cond_project(condition_embedding)
@@ -1201,19 +1199,13 @@ class JsonHParams:
         return self.__dict__.__repr__()
 
 
-class UniAmphionVC(nn.Module):
-    def __init__(self, cfg, use_source_noise = False, use_ref_noise = False):
+class Noro_VCmodel(nn.Module):
+    def __init__(self, cfg, use_ref_noise = False):
         super().__init__()
         self.cfg = cfg
-        self.use_source_noise = use_source_noise
         self.use_ref_noise = use_ref_noise
         self.reference_encoder = ReferenceEncoder(cfg=cfg.reference_encoder)
-        if cfg.diffusion.diff_model_type == "Transformer":
-            self.diffusion = Diffusion(
-                cfg=cfg.diffusion,
-                diff_model=DiffTransformer(cfg=cfg.diffusion.diff_transformer),
-            )
-        elif cfg.diffusion.diff_model_type == "WaveNet":
+        if cfg.diffusion.diff_model_type == "WaveNet":
             self.diffusion = Diffusion(
                 cfg=cfg.diffusion,
                 diff_model=DiffWaveNet(cfg=cfg.diffusion.diff_wavenet),
@@ -1236,7 +1228,6 @@ class UniAmphionVC(nn.Module):
         )
 
         self.reset_parameters()
-
     def forward(
         self,
         x=None,
@@ -1245,9 +1236,7 @@ class UniAmphionVC(nn.Module):
         x_ref=None,
         x_mask=None,
         x_ref_mask=None,
-        noisy_x_ref=None,
-        noisy_content_feature=None,
-        noisy_pitch=None,
+        noisy_x_ref=None
     ): 
         noisy_reference_embedding = None
         noisy_condition_embedding = None
@@ -1256,18 +1245,14 @@ class UniAmphionVC(nn.Module):
             x_ref=x_ref, key_padding_mask=x_ref_mask
         )
         
-        # print(f'reference_embedding shape: {reference_embedding.shape}')
         # content_feature: B x T x D
         # pitch: B x T x 1
         # B x t x D+1
         # 2B x T
         condition_embedding = torch.cat([content_feature, pitch[:, :, None]], dim=-1)
         condition_embedding = self.content_f0_enc(condition_embedding)
-        
-        # print(f'condition_embedding shape: {condition_embedding.shape}')
 
         # 2B x T x D
-
         if self.use_ref_noise:
             # noisy_reference
             noisy_reference_embedding, _ = self.reference_encoder(
@@ -1276,14 +1261,8 @@ class UniAmphionVC(nn.Module):
             combined_reference_embedding = (noisy_reference_embedding + reference_embedding) / 2
         else:
             combined_reference_embedding = reference_embedding
-            
-        if self.use_source_noise:
-            # condition_embedding
-            noisy_condition_embedding = torch.cat([noisy_content_feature, noisy_pitch[:, :, None]], dim=-1)
-            noisy_condition_embedding = self.content_f0_enc(noisy_condition_embedding)
-            combined_condition_embedding = condition_embedding
-        else:
-            combined_condition_embedding = condition_embedding
+
+        combined_condition_embedding = condition_embedding
           
         diff_out = self.diffusion(
             x=x,
@@ -1311,14 +1290,7 @@ class UniAmphionVC(nn.Module):
         condition_embedding = self.content_f0_enc(condition_embedding)
 
         bsz, l, _ = condition_embedding.shape
-        if self.cfg.diffusion.diff_model_type == "Transformer":
-            z = (
-                torch.randn(bsz, l, self.cfg.diffusion.diff_transformer.in_dim).to(
-                    condition_embedding.device
-                )
-                / sigma
-            )
-        elif self.cfg.diffusion.diff_model_type == "WaveNet":
+        if self.cfg.diffusion.diff_model_type == "WaveNet":
             z = (
                 torch.randn(bsz, l, self.cfg.diffusion.diff_wavenet.input_size).to(
                     condition_embedding.device

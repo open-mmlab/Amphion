@@ -17,7 +17,7 @@ python setup.py build_ext --inplace
 cd $work_dir
 
 if [ -z "$exp_config" ]; then
-    exp_config="${exp_dir}/exp_config_4gpu_clean.json"
+    exp_config="${exp_dir}/exp_config_noisy.json"
 fi
 echo "Experimental Configuration File: $exp_config"
 

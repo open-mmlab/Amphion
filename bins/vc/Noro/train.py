@@ -6,16 +6,12 @@
 import argparse
 
 import torch
-
-from models.tts.valle.valle_trainer import VALLETrainer
-from models.vc.vc_trainer import VCTrainer
+from models.vc.Noro.noro_trainer import NoroTrainer
 from utils.util import load_config
-
-
 
 def build_trainer(args, cfg):
     supported_trainer = {
-        "VC": VCTrainer,
+        "VC": NoroTrainer,
     }
     trainer_class = supported_trainer[cfg.model_type]
     trainer = trainer_class(args, cfg)
@@ -67,7 +63,7 @@ def main():
         default=None,
         help="Checkpoint for resume training or finetuning.",
     )
-    VALLETrainer.add_arguments(parser)
+    NoroTrainer.add_arguments(parser)
     args = parser.parse_args()
     cfg = load_config(args.config)
     print("experiment name: ", args.exp_name)

@@ -19,7 +19,7 @@
     "add_blank": true
   },
   "model": {
-      "text_token_num": 512,
+      "text_token_num": 512
   }
 
 }
