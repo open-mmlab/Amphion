@@ -1,5 +1,16 @@
 # Noro: A Noise-Robust One-shot Voice Conversion System
 
+<br>
+<div align="center">
+<img src="../../../imgs/vc/NoroVC.png" width="85%">
+</div>
+<br>
+
+This is the official implementation of the paper: NORO: A Noise-Robust One-Shot Voice Conversion System with Hidden Speaker Representation Capabilities.
+
+- The semantic extractor is from [Hubert](https://github.com/facebookresearch/fairseq/tree/main/examples/hubert).
+- The vocoder is [BigVGAN](https://github.com/NVIDIA/BigVGAN) architecture.
+
 ## Project Overview
 Noro is a noise-robust one-shot voice conversion (VC) system designed to convert the timbre of speech from a source speaker to a target speaker using only a single reference speech sample, while preserving the semantic content of the original speech. Noro introduces innovative components tailored for VC using noisy reference speeches, including a dual-branch reference encoding module and a noise-agnostic contrastive speaker loss.
 
@@ -15,7 +26,7 @@ Set up your environment as in Amphion README (you'll need a conda environment, a
 ### Prepare Hubert Model
 
 Humbert checkpoint and kmeans can be downloaded [here](https://github.com/facebookresearch/fairseq/tree/main/examples/hubert).
-Set the downloded model path at `models/vc/hubert_kmeans.py`.
+Set the downloded model path at `egs/vc/Noro/exp_config_base.json`.
 
 
 ## Usage
@@ -25,7 +36,7 @@ You need to download our pretrained weights from [Google Drive](https://drive.go
 
 ### Inference
 1. Configure inference parameters:
-    Modify the pretrained checkpoint path, source voice path and reference voice path at egs/vc/noro_inference.sh` file.
+    Modify the pretrained checkpoint path, source voice path and reference voice path at `egs/vc/Noro/noro_inference.sh` file.
    Currently it's at line 35.
 ```
     checkpoint_path="path/to/checkpoint/model.safetensors"
@@ -55,7 +66,7 @@ We use the LibriLight dataset for training and evaluation. You can download it u
 ### Training the Model with Clean Reference Voice
 
 Configure training parameters:
-Our configuration file for training clean Noro model is at "egs/vc/exp_config_4gpu_clean.json", and Nosiy Noro model at "egs/vc/exp_config_4gpu_noisy.json".
+Our configuration file for training clean Noro model is at "egs/vc/Noro/exp_config_clean.json", and Nosiy Noro model at "egs/vc/Noro/exp_config_noisy.json".
 
 To train your model, you need to modify the `dataset` variable in the json configurations.
 Currently it's at line 40, you should modify the "data_dir" to your dataset's root directory.
@@ -66,18 +77,21 @@ Currently it's at line 40, you should modify the "data_dir" to your dataset's ro
       "path/to/your/training_data_directory3"
     ],
 ```
-You should also select a reasonable batch size at the "batch_size" entry (currently it's set at 8).
 
-You can change other experiment settings in the `/egs/tts/VALLE_V2/exp_ar_libritts.json` such as the learning rate, optimizer and the dataset.
+If you want to train for the noisy noro model, you also need to set the direction path for the noisy data at "egs/vc/Noro/exp_config_noisy.json".
+```
+    "noise_dir": "path/to/your/noise/train/directory",
+    "test_noise_dir": "path/to/your/noise/test/directory"
+```
+
+You can change other experiment settings in the config flies such as the learning rate, optimizer and the dataset.
 
   **Set smaller batch_size if you are out of memory😢😢**
 
 I used max_tokens = 3200000 to successfully run on a single card, if you'r out of memory, try smaller.
 
 ```json
-    "batch_size": 8,
-    "max_tokens": 3200000,
-    "max_sentences": 64,
+    "max_tokens": 3200000
 ```
 ### Resume from existing checkpoint
 Our framework supports resuming from existing checkpoint.
