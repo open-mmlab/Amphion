@@ -10,7 +10,7 @@ Until now, Amphion has supported a noise-robust VC model with the following arch
 
 <br>
 <div align="center">
-  <img src="../imgs/vc/NoroVC.png" width="80%">
+  <img src="../../imgs/vc/NoroVC.png" width="80%">
 </div>
 <br>
 
