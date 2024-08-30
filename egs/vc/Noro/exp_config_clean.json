@@ -33,11 +33,6 @@
       "path/to/your/training_data_directory2",
       "path/to/your/training_data_directory3"
     ],
-    "use_ref_noise": false,
-    "snr_lower": 2,
-    "snr_upper": 42,
-    "total_snrlevels": 5,
-    "noise_dir": "path/to/your/noise/train/directory",
-    "test_noise_dir": "path/to/your/noise/test/directory"
+    "use_ref_noise": false
   }
 }
