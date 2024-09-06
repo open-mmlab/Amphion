@@ -156,11 +156,10 @@ Amphion is under the [MIT License](LICENSE). It is free for both research and co
 ## 📚 Citations
 
 ```bibtex
-@article{zhang2023amphion,
-      title={Amphion: An Open-Source Audio, Music and Speech Generation Toolkit}, 
-      author={Xueyao Zhang and Liumeng Xue and Yicheng Gu and Yuancheng Wang and Haorui He and Chaoren Wang and Xi Chen and Zihao Fang and Haopeng Chen and Junan Zhang and Tze Ying Tang and Lexiao Zou and Mingxuan Wang and Jun Han and Kai Chen and Haizhou Li and Zhizheng Wu},
-      journal={arXiv},
-      year={2024},
-      volume={abs/2312.09911}
+@inproceedings{amphion,
+author={Zhang, Xueyao and Xue, Liumeng and Gu, Yicheng and Wang, Yuancheng and Li, Jiaqi and He, Haorui and Wang, Chaoren and Song, Ting and Chen, Xi and Fang, Zihao and Chen, Haopeng and Zhang, Junan and Tang, Tze Ying and Zou, Lexiao and Wang, Mingxuan and Han, Jun and Chen, Kai and Li, Haizhou and Wu, Zhizheng},
+title={Amphion: An Open-Source Audio, Music and Speech Generation Toolkit},
+booktitle={Proc.~of SLT},
+year={2024}
 }
 ```
