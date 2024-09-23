@@ -186,6 +186,21 @@ The processed audio (default 24k sample rate) files will be saved into `input_fo
 ]
 ```
 
+## TODOs 📝
+
+Here are some potential improvements for the Emilia-Pipe pipeline:
+
+- [x] Optimize the pipeline for better processing speed.
+- [ ] Support input audio files larger than 4GB (calculated in WAVE format).
+- [ ] Update source separation model to better handle noisy audio (e.g., reverberation).
+- [ ] Ensure single speaker in each segment in the speaker diarization step.
+- [ ] Move VAD to the first step to filter out non-speech segments. (for better speed)
+- [ ] Extend ASR supported max length over 30s while keeping the speed.
+- [ ] Fine-tune the ASR model to improve transcription accuracy on puctuation.
+- [ ] Adding multimodal features to the pipeline for better transcription accuracy.
+- [ ] Filter segments with unclean background noise, speaker overlap, hallucination transcriptions, etc.
+- [ ] Labeling the data: speaker info (e.g., gender, age, native language, health), emotion, speaking style (pitch, rate, accent), acoustic features (e.g., fundamental frequency, formants), and environmental factors (background noise, microphone setup). Besides, non-verbal cues (e.g., laughter, coughing, silence, filters) and paralinguistic features could be labeled as well.
+
 ## Acknowledgement 🔔
 We acknowledge the wonderful work by these excellent developers!
 - Source Separation: [UVR-MDX-NET-Inst_HQ_3](https://github.com/TRvlvr/model_repo/releases/tag/all_public_uvr_models)
@@ -209,7 +224,7 @@ If you use the Emilia dataset or the Emilia-Pipe pipeline, please cite the follo
 @inproceedings{amphion,
     author={Zhang, Xueyao and Xue, Liumeng and Gu, Yicheng and Wang, Yuancheng and Li, Jiaqi and He, Haorui and Wang, Chaoren and Song, Ting and Chen, Xi and Fang, Zihao and Chen, Haopeng and Zhang, Junan and Tang, Tze Ying and Zou, Lexiao and Wang, Mingxuan and Han, Jun and Chen, Kai and Li, Haizhou and Wu, Zhizheng},
     title={Amphion: An Open-Source Audio, Music and Speech Generation Toolkit},
-    booktitle={Proc.~of SLT},
+    booktitle={{IEEE} Spoken Language Technology Workshop, {SLT} 2024},
     year={2024}
 }
 ```

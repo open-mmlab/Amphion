@@ -1,6 +1,6 @@
 ## SingVisio Webpage
 
-This is the source code for the SingVisio Webpage. This README file will introduce the project and provide an installation guide.
+This is the source code for the SingVisio Webpage. This README file will introduce the project and provide an installation guide. For introduction to SingVisio, please check this [README.md](../../../egs/visualization/SingVisio/README.md) file.
 
 ### Tech Stack
 

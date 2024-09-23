@@ -2,17 +2,19 @@
 
 [![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2402.12660)
 [![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/SingVisio)
-[![Video](https://img.shields.io/badge/Video-Demo-orange)](https://github.com/open-mmlab/Amphion/assets/33707885/0a6e39e8-d5f1-4288-b0f8-32da5a2d6e96)
+[![Video](https://img.shields.io/badge/Video-Demo-orange)](https://drive.google.com/file/d/15097SGhQh-SwUNbdWDYNyWEP--YGLba5/view)
 
 <div align="center">
-<img src="../../../imgs/visualization/SingVisio_system.png" width="85%">
+<img src="../../../imgs/visualization/SingVisio_system.jpg" width="85%">
 </div>
 
-This is the official implementation of the paper "[SingVisio: Visual Analytics of the Diffusion Model for Singing Voice Conversion](https://arxiv.org/abs/2402.12660)."  **SingVisio** system can be experienced [here](https://openxlab.org.cn/apps/detail/Amphion/SingVisio). 
+This is the official implementation of the paper "SingVisio: Visual Analytics of the Diffusion Model for Singing Voice Conversion", which can be accessed via [arXiv](https://arxiv.org/abs/2402.12660) or [Computers & Graphics](https://www.sciencedirect.com/science/article/pii/S0097849324001936).
+
+The online **SingVisio** system can be experienced [here](https://openxlab.org.cn/apps/detail/Amphion/SingVisio).
 
 **SingVisio** system comprises two main components: a web-based front-end user interface and a back-end generation model.
 
-- The web-based user interface was developed using [D3.js](https://d3-graph-gallery.com/index.html), a JavaScript library designed for creating dynamic and interactive data visualizations. The code can be accessed [here](../../../visualization/SingVisio/webpage/).
+- The web-based user interface was developed using [D3.js](https://d3js.org/), a JavaScript library designed for creating dynamic and interactive data visualizations. The code can be accessed [here](../../../visualization/SingVisio/webpage/).
 - The core generative model, [MultipleContentsSVC](https://arxiv.org/abs/2310.11160), is a diffusion-based model tailored for singing voice conversion (SVC). The code for this model is available in Amphion, with the recipe accessible [here](../../svc/MultipleContentsSVC/).
 
 ## Development Workflow for Visualization Systems
@@ -57,12 +59,32 @@ The user inference of **SingVisio** is comprised of five views:
 
 ## Detailed System Introduction of SingVisio
 
-For a detailed introduction to **SingVisio** and user instructions, please refer to [this online document](https://x8gvg3n7v3.feishu.cn/docx/IMhUdqIFVo0ZjaxlBf6cpjTEnvf?from=from_copylink) (with animation) or [offline document](../../../visualization/SingVisio/System_Introduction_of_SingVisio.pdf) (without animation).
+For a detailed introduction to **SingVisio** and user instructions, please refer to [this document](../../../visualization/SingVisio/System_Introduction_of_SingVisio_V2.pdf).
 
 Additionally, explore the SingVisio demo to see the system's functionalities and usage in action.
-
-[SingVisio_Demo](https://github.com/open-mmlab/Amphion/assets/33707885/0a6e39e8-d5f1-4288-b0f8-32da5a2d6e96)
 
 ## User Study of SingVisio
 
 Participate in the [user study](https://www.wjx.cn/vm/wkIH372.aspx#) of **SingVisio** if you're interested. We encourage you to conduct the study after experiencing the **SingVisio** system. Your valuable feedback is greatly appreciated.
+
+## Citations 📖
+
+Please cite the following papers if you use **SingVisio** in your research:
+
+```bibtex
+@article{singvisio,
+    author={Xue, Liumeng and Wang, Chaoren and Wang, Mingxuan and Zhang, Xueyao and Han, Jun and Wu, Zhizheng},
+    title={SingVisio: Visual Analytics of the Diffusion Model for Singing Voice Conversion},
+    journal={Computers & Graphics},
+    year={2024}
+}
+```
+
+```bibtex
+@inproceedings{amphion,
+    author={Zhang, Xueyao and Xue, Liumeng and Gu, Yicheng and Wang, Yuancheng and Li, Jiaqi and He, Haorui and Wang, Chaoren and Song, Ting and Chen, Xi and Fang, Zihao and Chen, Haopeng and Zhang, Junan and Tang, Tze Ying and Zou, Lexiao and Wang, Mingxuan and Han, Jun and Chen, Kai and Li, Haizhou and Wu, Zhizheng},
+    title={Amphion: An Open-Source Audio, Music and Speech Generation Toolkit},
+    booktitle={{IEEE} Spoken Language Technology Workshop, {SLT} 2024},
+    year={2024}
+}
+```
