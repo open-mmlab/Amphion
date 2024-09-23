@@ -2,7 +2,7 @@
 
 [![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2402.12660)
 [![openxlab](https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg)](https://openxlab.org.cn/apps/detail/Amphion/SingVisio)
-[![Introduction](https://img.shields.io/badge/Docs-Intro-orange)](https://speechteam.feishu.cn/wiki/KrIIwpjIVi7MhtkiCcXcjFI2nib)
+[![Video](https://img.shields.io/badge/Video-Demo-orange)](https://drive.google.com/file/d/15097SGhQh-SwUNbdWDYNyWEP--YGLba5/view)
 
 <div align="center">
 <img src="../../../imgs/visualization/SingVisio_system.jpg" width="85%">
@@ -59,7 +59,7 @@ The user inference of **SingVisio** is comprised of five views:
 
 ## Detailed System Introduction of SingVisio
 
-For a detailed introduction to **SingVisio** and user instructions, please refer to [this online document](https://speechteam.feishu.cn/wiki/KrIIwpjIVi7MhtkiCcXcjFI2nib).
+For a detailed introduction to **SingVisio** and user instructions, please refer to [this document](../../../visualization/SingVisio/System_Introduction_of_SingVisio_V2.pdf).
 
 Additionally, explore the SingVisio demo to see the system's functionalities and usage in action.
 
@@ -84,7 +84,7 @@ Please cite the following papers if you use **SingVisio** in your research:
 @inproceedings{amphion,
     author={Zhang, Xueyao and Xue, Liumeng and Gu, Yicheng and Wang, Yuancheng and Li, Jiaqi and He, Haorui and Wang, Chaoren and Song, Ting and Chen, Xi and Fang, Zihao and Chen, Haopeng and Zhang, Junan and Tang, Tze Ying and Zou, Lexiao and Wang, Mingxuan and Han, Jun and Chen, Kai and Li, Haizhou and Wu, Zhizheng},
     title={Amphion: An Open-Source Audio, Music and Speech Generation Toolkit},
-    booktitle={Proc.~of SLT},
+    booktitle={{IEEE} Spoken Language Technology Workshop, {SLT} 2024},
     year={2024}
 }
 ```
