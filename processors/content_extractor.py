@@ -8,6 +8,7 @@ import torch
 import numpy as np
 import yaml
 import copy
+import joblib
 from tqdm import tqdm
 from torchaudio.compliance import kaldi
 from torch.nn.utils.rnn import pad_sequence
@@ -68,7 +69,7 @@ class AudioPretrainedModelFeaturesExtractor:
     def init_for_retrans(self):
         target_hop = self.cfg.preprocess.hop_size
 
-        assert self.extractor_type in ["whisper", "contentvec", "wenet"]
+        assert self.extractor_type in ["whisper", "contentvec", "wenet", "hubert"]
         if self.extractor_type == "whisper":
             source_hop = (
                 self.cfg.preprocess.whisper_frameshift
@@ -85,6 +86,10 @@ class AudioPretrainedModelFeaturesExtractor:
                 self.cfg.preprocess.wenet_frameshift
                 * self.cfg.preprocess.wenet_downsample_rate
                 * self.cfg.preprocess.sample_rate
+            )
+        elif self.extractor_type == "hubert":
+            source_hop = (
+                self.cfg.preprocess.hubert_frameshift * self.cfg.preprocess.sample_rate
             )
         source_hop = int(source_hop)
         factor = np.gcd(source_hop, target_hop)
@@ -230,6 +235,8 @@ class AudioPretrainedModelFeaturesExtractor:
             )  # 40ms
         elif self.extractor_type == "mert":
             frameshift = self.cfg.preprocess.mert_frameshift
+        elif self.extractor_type == "hubert":
+            frameshift = self.cfg.preprocess.hubert_frameshift
         else:
             raise NotImplementedError
 
@@ -495,6 +502,53 @@ class MertExtractor(AudioPretrainedModelFeaturesExtractor):
         return mert_features
 
 
+class HubertExtractor(BaseExtractor):
+    def __init__(self, cfg):
+        super(HubertExtractor, self).__init__(cfg)
+        self.extractor_type = "hubert"
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    def load_model(self):
+        # load whisper checkpoint
+        print("Loading Hubert Model...")
+        (model, _, _) = checkpoint_utils.load_model_ensemble_and_task(
+            [self.cfg.preprocess.hubert_model_path]
+        )
+        model = model[0]
+        if torch.cuda.is_available():
+            print("Using GPU...\n")
+            model = model.cuda()
+        else:
+            print("Using CPU...\n")
+
+        self.model = model.eval()
+        self.km_model = joblib.load(self.cfg.preprocess.hubert_km_path)
+        self.C_np = self.km_model.cluster_centers_.transpose()
+        self.Cnorm_np = (self.C_np**2).sum(0, keepdims=True)
+        self.C = torch.from_numpy(self.C_np)
+        self.Cnorm = torch.from_numpy(self.Cnorm_np)
+
+    def extract_content_features(self, wavs):
+        hubert_features = []
+        for wav in wavs:
+            feat, _ = self.model.extract_features(
+                source=wav.view(1, -1).to(self.device),
+                padding_mask=None,
+                mask=False,
+                output_layer=11,
+            )
+            feat = feat.squeeze(0).cpu().detach()
+            dist = (
+                feat.pow(2).sum(1, keepdim=True)
+                - 2 * torch.matmul(feat, self.C)
+                + self.Cnorm
+            )
+            feat = dist.argmin(dim=1).unsqueeze(-1)
+            hubert_features.append(feat)
+
+        return hubert_features
+
+
 def extract_utt_content_features_dataloader(cfg, metadata, num_workers):
     dataset_name = metadata[0]["Dataset"]
     with torch.no_grad():
@@ -622,5 +676,71 @@ def extract_utt_content_features_dataloader(cfg, metadata, num_workers):
                     _metadata, wavs, lens = items
 
                     batch_content_features = extractor.extract_content_features(wavs)
+                    for index, utt in enumerate(_metadata):
+                        extractor.save_feature(utt, batch_content_features[index])
+
+        if cfg.preprocess.extract_hubert_feature:
+            feat_dir = os.path.join(
+                cfg.preprocess.processed_dir, dataset_name, "hubert"
+            )
+            os.makedirs(feat_dir, exist_ok=True)
+            feat_files_num = len(os.listdir(feat_dir))
+            if feat_files_num != len(metadata):
+                hubert_waveforms = LibrosaDataset(
+                    cfg,
+                    dataset_name,
+                    cfg.preprocess.hubert_sample_rate,
+                    metadata=metadata,
+                )
+                data_loader = DataLoader(
+                    hubert_waveforms,
+                    num_workers=num_workers,
+                    shuffle=False,
+                    pin_memory=cfg.preprocess.pin_memory,
+                    batch_size=cfg.preprocess.content_feature_batch_size,
+                    collate_fn=collate_batch,
+                    drop_last=False,
+                )
+                extractor = HubertExtractor(cfg)
+                extractor.load_model()
+                for batch_idx, items in enumerate(tqdm(data_loader)):
+                    _metadata, wavs, lens = items
+
+                    batch_content_features = extractor.extract_content_features(
+                        wavs,
+                    )
+                    for index, utt in enumerate(_metadata):
+                        extractor.save_feature(utt, batch_content_features[index])
+
+        if cfg.preprocess.extract_hubert_feature:
+            feat_dir = os.path.join(
+                cfg.preprocess.processed_dir, dataset_name, "hubert"
+            )
+            os.makedirs(feat_dir, exist_ok=True)
+            feat_files_num = len(os.listdir(feat_dir))
+            if feat_files_num != len(metadata):
+                hubert_waveforms = LibrosaDataset(
+                    cfg,
+                    dataset_name,
+                    cfg.preprocess.hubert_sample_rate,
+                    metadata=metadata,
+                )
+                data_loader = DataLoader(
+                    hubert_waveforms,
+                    num_workers=num_workers,
+                    shuffle=False,
+                    pin_memory=cfg.preprocess.pin_memory,
+                    batch_size=cfg.preprocess.content_feature_batch_size,
+                    collate_fn=collate_batch,
+                    drop_last=False,
+                )
+                extractor = HubertExtractor(cfg)
+                extractor.load_model()
+                for batch_idx, items in enumerate(tqdm(data_loader)):
+                    _metadata, wavs, lens = items
+
+                    batch_content_features = extractor.extract_content_features(
+                        wavs,
+                    )
                     for index, utt in enumerate(_metadata):
                         extractor.save_feature(utt, batch_content_features[index])
