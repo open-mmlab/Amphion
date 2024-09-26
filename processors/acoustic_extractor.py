@@ -52,15 +52,13 @@ def extract_utt_acoustic_features_parallel(metadata, dataset_output, cfg, n_work
         extractor = partial(extract_utt_acoustic_features_tta, dataset_output, cfg)
 
     with ProcessPoolExecutor(max_workers=n_workers) as pool:
-        future_to_utt = {
-            pool.submit(extractor, utt): utt for utt in metadata
-        }
+        future_to_utt = {pool.submit(extractor, utt): utt for utt in metadata}
         for future in tqdm(as_completed(future_to_utt), total=len(future_to_utt)):
             utt = future_to_utt[future]
             try:
                 future.result()
             except Exception as exc:
-                print('%r generated an exception: %s' % (utt, exc))
+                print("%r generated an exception: %s" % (utt, exc))
 
 
 def avg_phone_feature(feature, duration, interpolation=False):
