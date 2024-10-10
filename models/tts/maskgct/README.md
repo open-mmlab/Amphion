@@ -11,7 +11,7 @@ MaskGCT (**Mask**ed **G**enerative **C**odec **T**ransformer) is *a fully non-au
 
 <br>
 <div align="center">
-<img src="../../../imgs/maskgct/maskgct.png" width="65%">
+<img src="../../../imgs/maskgct/maskgct.png" width="100%">
 </div>
 <br>
 
