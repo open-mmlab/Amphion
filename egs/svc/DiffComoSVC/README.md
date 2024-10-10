@@ -5,7 +5,7 @@
 </div>
 <br>
 
-This is an implement of [Consistency Models](https://arxiv.org/abs/2303.01469) for accelerating diffusion-based singing voice conversion. The overall architecture follows "[Leveraging Content-based Features from Multiple Acoustic Models for Singing Voice Conversion](https://arxiv.org/abs/2310.11160)" (NeurIPS 2023 Workshop on Machine Learning for Audio), only a slightly modification is applied on acoustic model. Specifically,
+This is an implement of [Consistency Models](https://arxiv.org/abs/2303.01469) for accelerating diffusion-based singing voice conversion. The overall architecture follows "[Leveraging Diverse Semantic-based Audio Pretrained Models for Singing Voice Conversion](https://arxiv.org/abs/2310.11160)" (2024 IEEE Spoken Language Technology Workshop), only a slightly modification is applied on acoustic model. Specifically,
 
 * The acoustic model is a conformer which generates a coarse spectrogram and a diffusion decoder based on Bidirectional Non-Causal Dilated CNN which polish the former spectrogram for better. This is similar to [CoMoSpeech: One-Step Speech and Singing Voice Synthesis via Consistency Model](https://comospeech.github.io/)
 * To accelerate diffusion model, we apply consistency distillation from [Consistency Models](https://arxiv.org/abs/2303.01469). For teacher model, the diffusion schedule of the diffusion decoder follows [karras diffusion](https://arxiv.org/abs/2206.00364). For distilling teacher model, the condition encoder and the conformer part of acoustic model are frozen while the diffusion decoder model is updated via exponential moving average. See Figure above for details.

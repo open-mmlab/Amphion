@@ -12,7 +12,7 @@
 </div>
 <br>
 
-This is the official implementation of the paper "[Leveraging Content-based Features from Multiple Acoustic Models for Singing Voice Conversion](https://arxiv.org/abs/2310.11160)" (NeurIPS 2023 Workshop on Machine Learning for Audio). Specially,
+This is the official implementation of the paper "[Leveraging Diverse Semantic-based Audio Pretrained Models for Singing Voice Conversion](https://arxiv.org/abs/2310.11160)" (2024 IEEE Spoken Language Technology Workshop). Specially,
 
 - The muptile content features are from [Whipser](https://github.com/wenet-e2e/wenet) and [ContentVec](https://github.com/auspicious3000/contentvec).
 - The acoustic model is based on Bidirectional Non-Causal Dilated CNN (called `DiffWaveNetSVC` in Amphion), which is similar to [WaveNet](https://arxiv.org/pdf/1609.03499.pdf), [DiffWave](https://openreview.net/forum?id=a-xFK8Ymz5J), and [DiffSVC](https://ieeexplore.ieee.org/document/9688219).
@@ -239,10 +239,10 @@ sh egs/svc/MultipleContentsSVC/run.sh --stage 3 --gpu "0" \
 ## Citations
 
 ```bibtex
-@article{zhang2023leveraging,
-  title={Leveraging Content-based Features from Multiple Acoustic Models for Singing Voice Conversion},
-  author={Zhang, Xueyao and Gu, Yicheng and Chen, Haopeng and Fang, Zihao and Zou, Lexiao and Xue, Liumeng and Wu, Zhizheng},
-  journal={Machine Learning for Audio Workshop, NeurIPS 2023},
-  year={2023}
+@inproceedings{zhang2024leveraging,
+    author={Zhang, Xueyao and Fang, Zihao and Gu, Yicheng and Chen, Haopeng and Zou, Lexiao and Zhang, Junan and Xue, Liumeng and Wu, Zhizheng},
+    title={Leveraging Diverse Semantic-based Audio Pretrained Models for Singing Voice Conversion},
+    booktitle={{IEEE} Spoken Language Technology Workshop, {SLT} 2024},
+    year={2024}
 }
 ```
