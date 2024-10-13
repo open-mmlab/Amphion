@@ -21,6 +21,9 @@ MaskGCT (**Mask**ed **G**enerative **C**odec **T**ransformer) is *a fully non-au
 
 ## Quickstart
 
+we also provide a [jupyter notebook](models/tts/maskgct/maskgct_demo.ipynb) for try MaskGCT inference.
+
+
 ## Pretrained Models
 
 ## Evaluation Results of MaskGCT
