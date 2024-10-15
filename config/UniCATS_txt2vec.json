@@ -1,0 +1,112 @@
+{
+    "model": {
+      "target": "models.tts.UniCATS.CTXtxt2vec.build_model.modeling.models.text2vec.Text2Vec",
+      "params": {
+        "diffusion_config": {
+          "target": "models.tts.UniCATS.CTXtxt2vec.build_model.modeling.transformers.text2vec_transformer.Text2VecTransformer",
+          "params": {
+            "diffusion_step": 100,
+            "ctt_T": 0.89999,
+            "alpha_init_type": "alpha1",
+            "auxiliary_loss_weight": 0.0005,
+            "adaptive_auxiliary_loss": true,
+            "mask_weight": [1, 1],
+            "num_cls": 23633,
+            "transformer_config": {
+              "target": "models.tts.UniCATS.CTXtxt2vec.build_model.modeling.transformers.transformer_utils.DiffusionTransformer",
+              "params": {
+                "codebook_path": "feats/vqidx/codebook.npy",
+                "label2vqidx_path": "feats/vqidx/label2vqidx",
+                "attn_type": "selfcross",
+                "n_layer": 12,
+                "n_embd": 512,
+                "condition_dim": 384,
+                "n_head": 8,
+                "attn_pdrop": 0.0,
+                "resid_pdrop": 0.0,
+                "block_activate": "GELU2",
+                "timestep_type": "adalayernorm",
+                "mlp_hidden_times": 4
+              }
+            }
+          }
+        }
+      }
+    },
+    "solver": {
+      "base_lr": 3.0e-6,
+      "adjust_lr": "none",
+      "max_epochs": 50,
+      "save_epochs": 1,
+      "validation_epochs": 10,
+      "sample_iterations": "epoch",
+      "print_specific_things": true,
+      "ema": {
+        "decay": 0.99,
+        "update_interval": 25,
+        "device": "cpu"
+      },
+      "clip_grad_norm": {
+        "target": "models.tts.UniCATS.CTXtxt2vec.build_model.engine.clip_grad_norm.ClipGradNorm",
+        "params": {
+          "start_iteration": 0,
+          "end_iteration": 5000,
+          "max_norm": 0.5
+        }
+      },
+      "optimizers_and_schedulers": [
+        {
+          "name": "none",
+          "optimizer": {
+            "target": "torch.optim.AdamW",
+            "params": {
+              "betas": [0.9, 0.96],
+              "weight_decay": 0.045
+            }
+          },
+          "scheduler": {
+            "step_iteration": 1,
+            "target": "models.tts.UniCATS.CTXtxt2vec.build_model.engine.lr_scheduler.ReduceLROnPlateauWithWarmup",
+            "params": {
+              "factor": 0.5,
+              "patience": 60000,
+              "min_lr": 1.0e-6,
+              "threshold": 0.1,
+              "threshold_mode": "rel",
+              "warmup_lr": 0.0002,
+              "warmup": 1000
+            }
+          }
+        }
+      ]
+    },
+    "dataloader": {
+      "batch_max_tokens": 3600,
+      "num_workers": 3,
+      "train_datasets": [
+        {
+          "target": "models.tts.UniCATS.CTXtxt2vec.dataset.tts_dataset.TTSDataset",
+          "params": {
+            "data_root": "data/train_all",
+            "lexicon_path": "data/lang_1phn/train_all_units.txt",
+            "max_seconds": 32,
+            "min_seconds": 5,
+            "input_hz": 100
+          }
+        }
+      ],
+      "validation_datasets": [
+        {
+          "target": "models.tts.UniCATS.CTXtxt2vec.dataset.tts_dataset.TTSDataset",
+          "params": {
+            "data_root": "data/dev_all",
+            "lexicon_path": "data/lang_1phn/train_all_units.txt",
+            "max_seconds": 32,
+            "min_seconds": 5,
+            "input_hz": 100
+          }
+        }
+      ]
+    }
+  }
+  
