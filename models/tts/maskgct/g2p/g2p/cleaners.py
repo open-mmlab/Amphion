@@ -1,10 +1,15 @@
+# Copyright (c) 2024 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 import re
-from utils.g2p_jinbo.g2p.japanese import japanese_to_ipa
-from utils.g2p_jinbo.g2p.mandarin import chinese_to_ipa
-from utils.g2p_jinbo.g2p.english import english_to_ipa
-from utils.g2p_jinbo.g2p.french import french_to_ipa
-from utils.g2p_jinbo.g2p.korean import korean_to_ipa
-from utils.g2p_jinbo.g2p.german import german_to_ipa
+from models.tts.maskgct.g2p.g2p.japanese import japanese_to_ipa
+from models.tts.maskgct.g2p.g2p.mandarin import chinese_to_ipa
+from models.tts.maskgct.g2p.g2p.english import english_to_ipa
+from models.tts.maskgct.g2p.g2p.french import french_to_ipa
+from models.tts.maskgct.g2p.g2p.korean import korean_to_ipa
+from models.tts.maskgct.g2p.g2p.german import german_to_ipa
 
 def cjekfd_cleaners(text, sentence, language, text_tokenizers):
 

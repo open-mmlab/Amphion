@@ -1,10 +1,10 @@
 import os
 import sys
-print("打印路径...")
-print(os.getcwd())
-print(sys.path)
+# print("打印路径...")
+# print(os.getcwd())
+# print(sys.path)
 from models.tts.maskgct.g2p.g2p import PhonemeBpeTokenizer
-from models.tts.maskgct.g2p.g2p import phonemizer_g2p
+from models.tts.maskgct.g2p.utils.g2p import phonemizer_g2p
 import tqdm
 from typing import List
 import json

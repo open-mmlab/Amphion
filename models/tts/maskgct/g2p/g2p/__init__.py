@@ -1,6 +1,11 @@
-from utils.g2p_jinbo.g2p import cleaners
+# Copyright (c) 2024 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
+from models.tts.maskgct.g2p.g2p import cleaners
 from tokenizers import Tokenizer
-from utils.g2p_jinbo.g2p.text_tokenizers import TextTokenizer
+from models.tts.maskgct.g2p.g2p.text_tokenizers import TextTokenizer
 import LangSegment
 import json
 import re

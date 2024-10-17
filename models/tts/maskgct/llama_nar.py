@@ -1,3 +1,8 @@
+# Copyright (c) 2024 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 from transformers import LlamaConfig, LlamaForCausalLM, LlamaModel
 import torch
 import torch.nn.functional as F
@@ -197,9 +202,6 @@ class DiffLlama(LlamaModel):
         hidden_size=1024,
         num_heads=16,
         num_layers=16,
-        dropout=0.1,
-        ffn_dropout=0.1,
-        attention_dropout=0.0,
         config=LlamaConfig(0, 256, 1024, 1, 1),
     ):
         super().__init__(config)
@@ -389,20 +391,6 @@ class DiffLlama(LlamaModel):
             if self.gradient_checkpointing and self.training:
                 raise NotImplementedError
 
-                def create_custom_forward(module):
-                    def custom_forward(*inputs):
-                        # None for past_key_value
-                        return module(*inputs, output_attentions, None)
-
-                    return custom_forward
-
-                layer_outputs = torch.utils.checkpoint.checkpoint(
-                    create_custom_forward(decoder_layer),
-                    hidden_states,
-                    attention_mask,
-                    position_ids,
-                    None,
-                )
             else:
                 layer_outputs = decoder_layer(
                     hidden_states,
@@ -429,14 +417,7 @@ class DiffLlama(LlamaModel):
             all_hidden_states += (hidden_states,)
 
         next_cache = next_decoder_cache if use_cache else None
-        # if not return_dict:
-        #     return tuple(v for v in [hidden_states, next_cache, all_hidden_states, all_self_attns] if v is not None)
-        # return BaseModelOutputWithPast(
-        #     last_hidden_state=hidden_states,
-        #     past_key_values=next_cache,
-        #     hidden_states=all_hidden_states,
-        #     attentions=all_self_attns,
-        # )
+
         return hidden_states
 
 class DiffLlamaPrefix(LlamaModel):
@@ -445,12 +426,9 @@ class DiffLlamaPrefix(LlamaModel):
         hidden_size=1024,
         num_heads=16,
         num_layers=16,
-        use_phone_cond=True,
         config=LlamaConfig(0, 256, 1024, 1, 1),
     ):
         super().__init__(config)
-
-        self.use_phone_cond = use_phone_cond
 
         self.layers = nn.ModuleList(
             [
@@ -476,12 +454,11 @@ class DiffLlamaPrefix(LlamaModel):
             nn.Linear(hidden_size * 4, hidden_size),
         )
 
-        if self.use_phone_cond:
-            self.cond_mlp = nn.Sequential(
-                nn.Linear(hidden_size, hidden_size * 4),
-                nn.SiLU(),
-                nn.Linear(hidden_size * 4, hidden_size),
-            )
+        self.cond_mlp = nn.Sequential(
+            nn.Linear(hidden_size, hidden_size * 4),
+            nn.SiLU(),
+            nn.Linear(hidden_size * 4, hidden_size),
+        )
 
         for layer in self.layers:
             layer.input_layernorm = LlamaAdaptiveRMSNorm(
@@ -555,16 +532,10 @@ class DiffLlamaPrefix(LlamaModel):
 
         # retrieve some shape info
 
-        if self.use_phone_cond and phone_embedding != None:
-            # condtion mlp
-            phone_embedding = self.cond_mlp(phone_embedding)  # (B, T, C)
-            phone_length = phone_embedding.shape[1]
-            inputs_embeds = torch.cat([phone_embedding, x], dim=1)
-            attention_mask = torch.cat([phone_mask, x_mask], dim=1)
-        else:
-            inputs_embeds = x
-            attention_mask = x_mask
-            phone_length = 0
+        phone_embedding = self.cond_mlp(phone_embedding)  # (B, T, C)
+        phone_length = phone_embedding.shape[1]
+        inputs_embeds = torch.cat([phone_embedding, x], dim=1)
+        attention_mask = torch.cat([phone_mask, x_mask], dim=1)
 
         # diffusion step embedding
         diffusion_step = self.diff_step_embedding(diffusion_step).to(x.device)
@@ -643,20 +614,6 @@ class DiffLlamaPrefix(LlamaModel):
             if self.gradient_checkpointing and self.training:
                 raise NotImplementedError
 
-                def create_custom_forward(module):
-                    def custom_forward(*inputs):
-                        # None for past_key_value
-                        return module(*inputs, output_attentions, None)
-
-                    return custom_forward
-
-                layer_outputs = torch.utils.checkpoint.checkpoint(
-                    create_custom_forward(decoder_layer),
-                    hidden_states,
-                    attention_mask,
-                    position_ids,
-                    None,
-                )
             else:
                 layer_outputs = decoder_layer(
                     hidden_states,

@@ -1,13 +1,15 @@
-#!/usr/bin/python
-# -*- encoding: utf-8 -*-
+# Copyright (c) 2024 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
 
 import re
 import jieba
 import cn2an
 from pypinyin import lazy_pinyin, BOPOMOFO
 from typing import List
-from utils.g2p_jinbo.g2p.chinese_model_g2p import BertPolyPredict
-from utils.g2p_jinbo.utils.front_utils import *
+from models.tts.maskgct.g2p.g2p.chinese_model_g2p import BertPolyPredict
+from models.tts.maskgct.g2p.utils.front_utils import *
 import os
 # from g2pw import G2PWConverter
 

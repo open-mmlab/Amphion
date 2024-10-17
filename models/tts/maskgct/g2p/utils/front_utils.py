@@ -1,13 +1,7 @@
-#!/usr/bin/python
-# -*- encoding: utf-8 -*-
-'''
-@File    :   front_utils.py
-@Time    :   2024/08/22 22:10:29
-@Author  :   Bo Jin 
-@Version :   1.0
-@Contact :   jinbo5650@gmail.com
-@Brief   :   放前端数据处理工具
-'''
+# Copyright (c) 2024 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
 
 import os
 

@@ -1,3 +1,8 @@
+# Copyright (c) 2024 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 import torch
 import numpy as np
 import torch.nn as nn
@@ -49,22 +54,15 @@ def gumbel_sample(t, temperature=1.0, dim=-1):
 class MaskGCT_S2A(nn.Module):
     def __init__(
         self,
-        num_quantizer=8,
+        num_quantizer=12,
         hidden_size=1024,
         num_layers=16,
         num_heads=16,
         codebook_size=1024,
         cfg_scale=0.15,
-        mask_layer_schedule="linear",  # "uniform", "cosine", "linear
-        use_cond_code=True,
+        mask_layer_schedule="linear",
         cond_codebook_size=1024,
-        cond_dim=1024,  # if use_cond_code is False, cond_dim is the dimension of the condition
-        use_llama_style=True,
-        use_phone_cond=False,
-        zero_init_cross_attn=True,
-        use_lang_emb=False,
-        use_phone_prefix=False,
-        cond_code_layers=1,
+        cond_dim=1024,
         predict_layer_1=True,
         cfg=None,
     ):
@@ -106,11 +104,6 @@ class MaskGCT_S2A(nn.Module):
             and hasattr(cfg, "mask_layer_schedule")
             else mask_layer_schedule
         )
-        use_cond_code = (
-            cfg.use_cond_code
-            if cfg is not None and hasattr(cfg, "use_cond_code")
-            else use_cond_code
-        )
         cond_codebook_size = (
             cfg.cond_codebook_size
             if cfg is not None and hasattr(cfg, "cond_codebook_size")
@@ -120,11 +113,6 @@ class MaskGCT_S2A(nn.Module):
             cfg.cond_dim
             if cfg is not None and hasattr(cfg, "cond_dim")
             else cond_dim
-        )
-        cond_code_layers = (
-            cfg.cond_code_layers
-            if cfg is not None and hasattr(cfg, "cond_code_layers")
-            else cond_code_layers
         )
         predict_layer_1 = (
             cfg.predict_layer_1
@@ -139,10 +127,8 @@ class MaskGCT_S2A(nn.Module):
         self.num_heads = num_heads
         self.cfg_scale = cfg_scale
         self.mask_layer_schedule = mask_layer_schedule
-        self.use_cond_code = use_cond_code
         self.cond_codebook_size = cond_codebook_size
         self.cond_dim = cond_dim
-        self.cond_code_layers = cond_code_layers
         self.predict_layer_1 = predict_layer_1
 
         self.layer_emb = nn.Embedding(self.num_quantizer, self.hidden_size)
@@ -161,33 +147,15 @@ class MaskGCT_S2A(nn.Module):
                 for _ in range(self.num_quantizer)
             ]
         )
-
-        if self.use_cond_code:
-            if self.cond_code_layers == 1:
-                self.cond_emb = nn.Embedding(cond_codebook_size, self.hidden_size)
-            else:
-                self.cond_emb = torch.nn.ModuleList(
-                    [
-                        nn.Embedding(cond_codebook_size, self.hidden_size)
-                        for _ in range(self.cond_code_layers)
-                    ]
-                )
-        else:
-            self.cond_mlp = nn.Sequential(
-                nn.Linear(cond_dim, self.hidden_size * 4),
-                nn.SiLU(),
-                nn.Linear(self.hidden_size * 4, self.hidden_size),
-            )
+        
+        self.cond_emb = nn.Embedding(cond_codebook_size, self.hidden_size)
 
         self.reset_parameters()
 
         self.diff_estimator = DiffLlama(
             hidden_size=hidden_size,
-            num_heads=16,
+            num_heads=self.num_heads,
             num_layers=num_layers,
-            dropout=0.1,
-            ffn_dropout=0.1,
-            attention_dropout=0.0,
         )
         
     def mask_prob(self, t):
@@ -511,36 +479,15 @@ class MaskGCT_S2A(nn.Module):
                 mask = mask.unsqueeze(-1)
 
             cum = cum + token_emb(seq)
-            print(seq.shape)
-            print(xt.shape)
             xt[..., mask_layer.squeeze(0).item()] = seq
 
         return xt
 
-    def forward(self, x0, x_mask, cond=None, cond_code=None):
+    def forward(self, x0, x_mask, cond_code=None):
         # x0: (B, T, num_quantizer)
         # x_mask: (B, T) mask is 0 for padding
-        # cond: semantic token (B, T) or continuous features (B, T, cond_dim)
-        if self.use_cond_code:
-            if cond is None:
-                if self.cond_code_layers == 1:
-                    cond = self.cond_emb(cond_code)
-                else:
-                    cond = self.cond_emb[0](cond_code[0,:,:])
-                    for i in range(1, self.cond_code_layers):
-                        cond += self.cond_emb[i](cond_code[i,:,:])
-                    cond  = cond / math.sqrt(self.cond_code_layers)
-            else:
-                if self.cond_code_layers == 1:
-                    cond = cond + self.cond_emb(cond_code)
-                else:
-                    cond_temp = self.cond_emb[0](cond_code[0,:,:])
-                    for i in range(1, self.cond_code_layers):
-                        cond_temp += self.cond_emb[i](cond_code[i,:,:])
-                    cond_temp = cond_temp / math.sqrt(self.cond_code_layers)
-                    cond = cond + cond_temp
-        else:
-            cond = self.cond_mlp(cond)
+        # cond_code: semantic token (B, T)
+        cond = self.cond_emb(cond_code)
 
         logits, mask_layer, final_mask, x0, prompt_len, mask_prob = self.compute_loss(
             x0, x_mask, cond,

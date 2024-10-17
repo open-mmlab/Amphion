@@ -1,3 +1,8 @@
+# Copyright (c) 2024 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 import torch
 import numpy as np
 import torch.nn as nn
@@ -35,7 +40,6 @@ class MaskGCT_T2S(nn.Module):
         cfg_scale=0.2,
         cond_codebook_size=8192,
         cond_dim=1024,
-        use_phone_cond=True,
         cfg=None,
     ):
         super().__init__()
@@ -92,7 +96,6 @@ class MaskGCT_T2S(nn.Module):
             hidden_size=hidden_size,
             num_heads=num_heads,
             num_layers=num_layers,
-            use_phone_cond=use_phone_cond,
         )
         
     def mask_prob(self, t):

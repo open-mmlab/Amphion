@@ -1,12 +1,7 @@
-#!/usr/bin/python
-# -*- encoding: utf-8 -*-
-'''
-@File    :   log.py
-@Time    :   2024/08/05 08:52:50
-@Author  :   Bo Jin 
-@Version :   1.0
-@Contact :   jinbo5650@gmail.com
-'''
+# Copyright (c) 2024 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
 
 
 

@@ -1,13 +1,7 @@
-#!/usr/bin/python
-# -*- encoding: utf-8 -*-
-'''
-@File    :   chinese_model_g2pw.py
-@Time    :   2024/08/22 21:36:02
-@Author  :   Bo Jin 
-@Version :   1.0
-@Contact :   jinbo5650@gmail.com
-@Brief   :   G2PW多音字模型预测
-'''
+# Copyright (c) 2024 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
 
 import os
 import numpy as np
@@ -138,7 +132,7 @@ class BertPolyPredict:
         
         # disable session.run() fallback mechanism, it prevents for a reset of the execution provider
         self.session.disable_fallback()
-        print("BERT POLY 初始化结束...")
+        # print("BERT POLY 初始化结束...")
 
 
     def predict_process(self, txt_list):
