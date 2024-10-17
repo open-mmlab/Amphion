@@ -5,9 +5,9 @@
 
 import re
 
-'''
+"""
     Text clean time
-'''
+"""
 rep_map = {
     "：": ",",
     "；": ",",
@@ -40,21 +40,25 @@ rep_map = {
     "~": "-",
     "「": "",
     "」": "",
-    "¿" : "",
-    "¡" : ""
+    "¿": "",
+    "¡": "",
 }
+
 
 def collapse_whitespace(text):
     # Regular expression matching whitespace:
     _whitespace_re = re.compile(r"\s+")
     return re.sub(_whitespace_re, " ", text).strip()
 
+
 def remove_punctuation_at_begin(text):
-    return re.sub(r'^[,.!?]+', '', text)
+    return re.sub(r"^[,.!?]+", "", text)
+
 
 def remove_aux_symbols(text):
     text = re.sub(r"[\<\>\(\)\[\]\"\«\»]+", "", text)
     return text
+
 
 def replace_symbols(text):
     text = text.replace(";", ",")
@@ -62,10 +66,12 @@ def replace_symbols(text):
     text = text.replace(":", ",")
     return text
 
+
 def replace_punctuation(text):
     pattern = re.compile("|".join(re.escape(p) for p in rep_map.keys()))
     replaced_text = pattern.sub(lambda x: rep_map[x.group()], text)
     return replaced_text
+
 
 def text_normalize(text):
     text = replace_punctuation(text)
@@ -73,8 +79,9 @@ def text_normalize(text):
     text = remove_aux_symbols(text)
     text = remove_punctuation_at_begin(text)
     text = collapse_whitespace(text)
-    text = re.sub(r'([^\.,!\?\-…])$', r'\1', text)
+    text = re.sub(r"([^\.,!\?\-…])$", r"\1", text)
     return text
+
 
 def german_to_ipa(text, text_tokenizer):
     if type(text) == str:

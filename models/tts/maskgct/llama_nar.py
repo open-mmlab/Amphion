@@ -15,6 +15,7 @@ import math
 from transformers.models.llama.modeling_llama import LlamaDecoderLayer
 from transformers.models.llama.modeling_llama import BaseModelOutputWithPast
 
+
 # sinusoidal positional encoding
 class SinusoidalPosEmb(nn.Module):
     def __init__(self, dim):
@@ -29,6 +30,7 @@ class SinusoidalPosEmb(nn.Module):
         emb = x[:, None] * emb[None, :] * 1.0
         emb = torch.cat((emb.sin(), emb.cos()), dim=-1)
         return emb
+
 
 class LlamaAdaptiveRMSNorm(nn.Module):
     def __init__(self, hidden_size=1024, eps=1e-6, dim_cond=1024):
@@ -49,6 +51,7 @@ class LlamaAdaptiveRMSNorm(nn.Module):
             weight = weight.unsqueeze(1)
 
         return (weight * hidden_states).to(input_dtype)
+
 
 class LlamaNARDecoderLayer(LlamaDecoderLayer):
     def __init__(self, config: LlamaConfig, layer_idx: int):
@@ -123,7 +126,6 @@ class LlamaNARDecoderLayer(LlamaDecoderLayer):
 
         return outputs
 
-
     def __init__(self, config: LlamaConfig, layer_idx: int):
         """Override to adaptive layer norm"""
         super().__init__(config, layer_idx)  # init attention, mlp, etc.
@@ -195,6 +197,7 @@ class LlamaNARDecoderLayer(LlamaDecoderLayer):
             outputs += (present_key_value,)
 
         return outputs
+
 
 class DiffLlama(LlamaModel):
     def __init__(
@@ -420,6 +423,7 @@ class DiffLlama(LlamaModel):
 
         return hidden_states
 
+
 class DiffLlamaPrefix(LlamaModel):
     def __init__(
         self,
@@ -469,9 +473,8 @@ class DiffLlamaPrefix(LlamaModel):
             )
 
         self.embed_tokens = None
-        
-        self.post_init()
 
+        self.post_init()
 
     def _prepare_decoder_attention_mask(
         self, attention_mask, input_shape, inputs_embeds, past_key_values_length
@@ -622,7 +625,7 @@ class DiffLlamaPrefix(LlamaModel):
                     past_key_value=past_key_value,
                     output_attentions=output_attentions,
                     use_cache=use_cache,
-                    cond_embedding=diffusion_step
+                    cond_embedding=diffusion_step,
                 )
 
             hidden_states = layer_outputs[0]
@@ -641,5 +644,7 @@ class DiffLlamaPrefix(LlamaModel):
 
         next_cache = next_decoder_cache if use_cache else None
 
-        return hidden_states[:,phone_length:,]
-
+        return hidden_states[
+            :,
+            phone_length:,
+        ]

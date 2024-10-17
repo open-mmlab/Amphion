@@ -14,7 +14,6 @@ from phonemizer.punctuation import Punctuation
 from phonemizer.separator import Separator
 
 
-
 class TextTokenizer:
     """Phonemize Text."""
 
@@ -39,7 +38,7 @@ class TextTokenizer:
             language_switch=language_switch,
             words_mismatch=words_mismatch,
         )
-        
+
         self.separator = separator
 
     # convert chinese punctuation to english punctuation
@@ -65,8 +64,8 @@ class TextTokenizer:
         normalized_text = []
         for line in str2list(text):
             line = self.convert_chinese_punctuation(line.strip())
-            line = re.sub(r'[^\w\s_,\.\?!;:\'…]', '', line)
-            line = re.sub(r'\s*([,\.\?!;:\'…])\s*', r'\1', line)
+            line = re.sub(r"[^\w\s_,\.\?!;:\'…]", "", line)
+            line = re.sub(r"\s*([,\.\?!;:\'…])\s*", r"\1", line)
             line = re.sub(r"\s+", " ", line)
             normalized_text.append(line)
         # print("Normalized test: ", normalized_text[0])
@@ -74,12 +73,12 @@ class TextTokenizer:
             normalized_text, separator=self.separator, strip=strip, njobs=1
         )
         if text_type == str:
-            phonemized = re.sub(r'([,\.\?!;:\'…])', r'|\1|', list2str(phonemized))
-            phonemized = re.sub(r'\|+', '|', phonemized)
-            phonemized = phonemized.rstrip('|')
+            phonemized = re.sub(r"([,\.\?!;:\'…])", r"|\1|", list2str(phonemized))
+            phonemized = re.sub(r"\|+", "|", phonemized)
+            phonemized = phonemized.rstrip("|")
         else:
             for i in range(len(phonemized)):
-                phonemized[i] = re.sub(r'([,\.\?!;:\'…])', r'|\1|', phonemized[i])
-                phonemized[i] = re.sub(r'\|+', '|', phonemized[i])
-                phonemized[i] = phonemized[i].rstrip('|')
+                phonemized[i] = re.sub(r"([,\.\?!;:\'…])", r"|\1|", phonemized[i])
+                phonemized[i] = re.sub(r"\|+", "|", phonemized[i])
+                phonemized[i] = phonemized[i].rstrip("|")
         return phonemized

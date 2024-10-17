@@ -14,6 +14,7 @@ from einops import rearrange, repeat
 from models.codec.amphion_codec.quantize import ResidualVQ
 from models.codec.kmeans.vocos import VocosBackbone
 
+
 def init_weights(m):
     if isinstance(m, nn.Conv1d):
         nn.init.trunc_normal_(m.weight, std=0.02)
@@ -22,11 +23,13 @@ def init_weights(m):
         nn.init.trunc_normal_(m.weight, std=0.02)
         nn.init.constant_(m.bias, 0)
 
+
 def compute_codebook_perplexity(indices, codebook_size):
     indices = indices.flatten()
     prob = torch.bincount(indices, minlength=codebook_size).float() / indices.size(0)
     perp = torch.exp(-torch.sum(prob * torch.log(prob + 1e-10)))
     return perp
+
 
 class RepCodec(nn.Module):
     def __init__(
@@ -93,8 +96,12 @@ class RepCodec(nn.Module):
         self.downsample_scale = downsample_scale
 
         if self.downsample_scale != None and self.downsample_scale > 1:
-            self.down = nn.Conv1d(self.hidden_size, self.hidden_size, kernel_size=3, stride=2, padding=1)
-            self.up = nn.Conv1d(self.hidden_size, self.hidden_size, kernel_size=3, stride=1, padding=1)
+            self.down = nn.Conv1d(
+                self.hidden_size, self.hidden_size, kernel_size=3, stride=2, padding=1
+            )
+            self.up = nn.Conv1d(
+                self.hidden_size, self.hidden_size, kernel_size=3, stride=1, padding=1
+            )
 
         self.encoder = nn.Sequential(
             VocosBackbone(
@@ -102,9 +109,9 @@ class RepCodec(nn.Module):
                 dim=self.vocos_dim,
                 intermediate_dim=self.vocos_intermediate_dim,
                 num_layers=self.vocos_num_layers,
-                adanorm_num_embeddings=None
+                adanorm_num_embeddings=None,
             ),
-            nn.Linear(self.vocos_dim, self.hidden_size)
+            nn.Linear(self.vocos_dim, self.hidden_size),
         )
         self.decoder = nn.Sequential(
             VocosBackbone(
@@ -112,9 +119,9 @@ class RepCodec(nn.Module):
                 dim=self.vocos_dim,
                 intermediate_dim=self.vocos_intermediate_dim,
                 num_layers=self.vocos_num_layers,
-                adanorm_num_embeddings=None
+                adanorm_num_embeddings=None,
             ),
-            nn.Linear(self.vocos_dim, self.hidden_size)
+            nn.Linear(self.vocos_dim, self.hidden_size),
         )
 
         self.quantizer = ResidualVQ(
@@ -133,7 +140,7 @@ class RepCodec(nn.Module):
 
     def forward(self, x):
 
-        # downsample  
+        # downsample
         if self.downsample_scale != None and self.downsample_scale > 1:
             x = x.transpose(1, 2)
             x = self.down(x)
@@ -158,7 +165,7 @@ class RepCodec(nn.Module):
         # up
         if self.downsample_scale != None and self.downsample_scale > 1:
             x = x.transpose(1, 2)
-            x = F.interpolate(x, scale_factor=2, mode='nearest')
+            x = F.interpolate(x, scale_factor=2, mode="nearest")
             x_rec = self.up(x).transpose(1, 2)
 
         codebook_loss = (all_codebook_losses + all_commit_losses).mean()
@@ -191,10 +198,11 @@ class RepCodec(nn.Module):
     def reset_parameters(self):
         self.apply(init_weights)
 
+
 if __name__ == "__main__":
     repcodec = RepCodec(vocos_dim=1024, downsample_scale=2)
     print(repcodec)
-    print(sum(p.numel() for p in repcodec.parameters())/1e6)
+    print(sum(p.numel() for p in repcodec.parameters()) / 1e6)
     x = torch.randn(5, 10, 1024)
     x_rec, codebook_loss, all_indices = repcodec(x)
     print(x_rec.shape, codebook_loss, all_indices.shape)

@@ -10,6 +10,7 @@ import math
 from einops import rearrange
 from models.tts.maskgct.llama_nar import DiffLlamaPrefix
 
+
 def top_k(logits, thres=0.9):
     k = math.ceil((1 - thres) * logits.shape[-1])
     val, ind = logits.topk(k, dim=-1)
@@ -70,9 +71,7 @@ class MaskGCT_T2S(nn.Module):
             else cond_codebook_size
         )
         cond_dim = (
-            cfg.cond_dim
-            if cfg is not None and hasattr(cfg, "cond_dim")
-            else cond_dim
+            cfg.cond_dim if cfg is not None and hasattr(cfg, "cond_dim") else cond_dim
         )
 
         self.hidden_size = hidden_size
@@ -97,17 +96,21 @@ class MaskGCT_T2S(nn.Module):
             num_heads=num_heads,
             num_layers=num_layers,
         )
-        
+
     def mask_prob(self, t):
         return torch.sin(t * np.pi / 2).to(t.device)
 
     def forward_diffusion(self, x0, t):
         # x0: semantic tokens (B, T)
         new_t = t
-        mask_prob = self.mask_prob(new_t) # (B,)
+        mask_prob = self.mask_prob(new_t)  # (B,)
         # if mask_prob[i] < 0.2, mask_prob[i] = 0.2
-        mask_prob = torch.where(mask_prob < 0.2, torch.ones_like(mask_prob) * 0.2, mask_prob)
-        mask_token = self.mask_emb(torch.LongTensor([0]).to(x0.device))  # (1, hidden_size)
+        mask_prob = torch.where(
+            mask_prob < 0.2, torch.ones_like(mask_prob) * 0.2, mask_prob
+        )
+        mask_token = self.mask_emb(
+            torch.LongTensor([0]).to(x0.device)
+        )  # (1, hidden_size)
 
         xt = torch.zeros(x0.shape[0], x0.shape[1], self.hidden_size).to(x0.device)
 
@@ -141,25 +144,22 @@ class MaskGCT_T2S(nn.Module):
         mask[row_indices_to_modify, prompt_len[row_indices_to_modify]] = 1
         mask = mask[..., None]  # (B, T, 1)
         xt = (
-            xt
-            + mask * mask_token[:, None, :]
-            + (1 - mask) * self.cond_emb(x0[:, :])
+            xt + mask * mask_token[:, None, :] + (1 - mask) * self.cond_emb(x0[:, :])
         )  # (B, T, hidden_size)
-
 
         return xt, new_t, mask, prompt_len, mask_prob
 
     def loss_t(self, x0, x_mask, t, phone_embedding=None, phone_mask=None):
-        xt, new_t, mask, prompt_len, mask_prob = self.forward_diffusion(
-            x0, t
-        )
+        xt, new_t, mask, prompt_len, mask_prob = self.forward_diffusion(x0, t)
         # xt: (B, T, hidden_size)
         # new_t: (B,)
         # mask: (B, T, 1)   mask if 1, not mask if 0
         # prompt_len: (B,)
         # mask_prob: (B,)
 
-        embeds = self.diff_estimator(xt, new_t, x_mask, phone_embedding=phone_embedding, phone_mask=phone_mask)  # (B, T, hidden_size)
+        embeds = self.diff_estimator(
+            xt, new_t, x_mask, phone_embedding=phone_embedding, phone_mask=phone_mask
+        )  # (B, T, hidden_size)
         logits = self.to_logit(embeds)  # (B, T, codebook_size)
 
         # final mask used for loss calculation
@@ -231,7 +231,9 @@ class MaskGCT_T2S(nn.Module):
         prompt_code = prompt  # (B, prompt_len)
         prompt_len = prompt_code.shape[1]
 
-        x_mask = torch.ones(prompt_code.shape[0], target_len).to(prompt_code.device)  # (B, target_len)
+        x_mask = torch.ones(prompt_code.shape[0], target_len).to(
+            prompt_code.device
+        )  # (B, target_len)
         phone_mask = torch.ones_like(phone_id)
 
         if prompt_mask == None:
@@ -275,14 +277,24 @@ class MaskGCT_T2S(nn.Module):
                 [prompt_mask, x_mask], dim=1
             )  # (B, T), mask is 0 for padding
 
-            embeds = self.diff_estimator(xt_input, t, xt_mask, phone_embedding=phone_embedding, phone_mask=phone_mask)
+            embeds = self.diff_estimator(
+                xt_input,
+                t,
+                xt_mask,
+                phone_embedding=phone_embedding,
+                phone_mask=phone_mask,
+            )
             embeds = embeds[:, prompt_len:, :]
 
             # classifier free guidance
             # phone_embedding=phone_embedding[:,phone_embedding.shape[1]:,:] means phone_embedding is None
             if cfg > 0:
                 mask_embeds = self.diff_estimator(
-                    cur, t, x_mask, phone_embedding=phone_embedding[:,phone_embedding.shape[1]:,:], phone_mask=phone_mask[:,prompt_len:]
+                    cur,
+                    t,
+                    x_mask,
+                    phone_embedding=phone_embedding[:, phone_embedding.shape[1] :, :],
+                    phone_mask=phone_mask[:, prompt_len:],
                 )
                 pos_emb_std = embeds.std()  # std(g_cond)
                 embeds = embeds + cfg * (embeds - mask_embeds)  # g_cfg
@@ -343,7 +355,7 @@ class MaskGCT_T2S(nn.Module):
     def forward(self, x0, x_mask, phone_id=None, phone_mask=None):
         # x0: (B, T)
         # x_mask: (B, T) mask is 0 for padding
-        
+
         phone_embedding = self.phone_emb(phone_id)
 
         logits, final_mask, x0, prompt_len, mask_prob = self.compute_loss(

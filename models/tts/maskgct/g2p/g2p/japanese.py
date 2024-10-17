@@ -3,13 +3,14 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-import io,re,os,sys,time,argparse,pdb,json
+import io, re, os, sys, time, argparse, pdb, json
 from io import StringIO
 from typing import Optional
 import numpy as np
 import traceback
 import pyopenjtalk
 from pykakasi import kakasi
+
 punctuation = [",", ".", "!", "?", ":", ";", "'", "…"]
 
 jp_xphone2ipa = [
@@ -289,11 +290,13 @@ rep_map = {
     # "」": "'",
 }
 
+
 def _numeric_feature_by_regex(regex, s):
     match = re.search(regex, s)
     if match is None:
         return -50
     return int(match.group(1))
+
 
 def replace_punctuation(text: str) -> str:
     """句読点等を「.」「,」「!」「?」「'」「-」に正規化し、OpenJTalkで読みが取得できるもののみ残す：
@@ -322,6 +325,7 @@ def replace_punctuation(text: str) -> str:
     # print("after: ", replaced_text)
     return replaced_text
 
+
 def fix_phone_tone(phone_tone_list: list[tuple[str, int]]) -> list[tuple[str, int]]:
     """
     `phone_tone_list`のtone（アクセントの値）を0か1の範囲に修正する。
@@ -342,7 +346,8 @@ def fix_phone_tone(phone_tone_list: list[tuple[str, int]]) -> list[tuple[str, in
             raise ValueError(f"Unexpected tone values: {tone_values}")
     else:
         raise ValueError(f"Unexpected tone values: {tone_values}")
- 
+
+
 def fix_phone_tone_wplen(phone_tone_list, word_phone_length_list):
     phones = []
     tones = []
@@ -352,15 +357,15 @@ def fix_phone_tone_wplen(phone_tone_list, word_phone_length_list):
     w_idx = 0
     while idx < p_len:
         offset = 0
-        if phone_tone_list[idx] == '▁':
-            w_p_len.append(w_idx+1)
+        if phone_tone_list[idx] == "▁":
+            w_p_len.append(w_idx + 1)
 
         curr_w_p_len = word_phone_length_list[w_idx]
         for i in range(curr_w_p_len):
             p, t = phone_tone_list[idx]
-            if p == ':' and len(phones) > 0:
-                if phones[-1][-1] != ':':
-                    phones[-1] += ':'
+            if p == ":" and len(phones) > 0:
+                if phones[-1][-1] != ":":
+                    phones[-1] += ":"
                     offset -= 1
             else:
                 phones.append(p)
@@ -371,8 +376,9 @@ def fix_phone_tone_wplen(phone_tone_list, word_phone_length_list):
         w_p_len.append(curr_w_p_len + offset)
         w_idx += 1
         # print(w_p_len)
-    return phones, tones, w_p_len    
-                
+    return phones, tones, w_p_len
+
+
 def g2phone_tone_wo_punct(prosodies) -> list[tuple[str, int]]:
     """
     テキストに対して、音素とアクセント（0か1）のペアのリストを返す。
@@ -385,7 +391,7 @@ def g2phone_tone_wo_punct(prosodies) -> list[tuple[str, int]]:
     result: list[tuple[str, int]] = []
     current_phrase: list[tuple[str, int]] = []
     current_tone = 0
-    last_accent = ''
+    last_accent = ""
     for i, letter in enumerate(prosodies):
         # 特殊記号の処理
 
@@ -401,13 +407,13 @@ def g2phone_tone_wo_punct(prosodies) -> list[tuple[str, int]]:
                 assert i == len(prosodies) - 1, f"Unexpected {letter}"
             # あとは"_"（ポーズ）と"#"（アクセント句の境界）のみ
             # これらは残さず、次のアクセント句に備える。
-            
+
             current_phrase = []
             # 0を基準点にしてそこから上昇・下降する（負の場合は上の`fix_phone_tone`で直る）
             current_tone = 0
-            last_accent = ''
+            last_accent = ""
         # アクセント上昇記号
-        elif letter == "[":            
+        elif letter == "[":
             if last_accent != letter:
                 current_tone = current_tone + 1
             last_accent = letter
@@ -423,17 +429,19 @@ def g2phone_tone_wo_punct(prosodies) -> list[tuple[str, int]]:
             current_phrase.append((letter, current_tone))
     return result
 
+
 def handle_long(sep_phonemes: list[list[str]]) -> list[list[str]]:
     for i in range(len(sep_phonemes)):
         if sep_phonemes[i][0] == "ー":
             # sep_phonemes[i][0] = sep_phonemes[i - 1][-1]
-            sep_phonemes[i][0] = ':'
-        if "ー" in sep_phonemes[i]:            
+            sep_phonemes[i][0] = ":"
+        if "ー" in sep_phonemes[i]:
             for j in range(len(sep_phonemes[i])):
                 if sep_phonemes[i][j] == "ー":
                     # sep_phonemes[i][j] = sep_phonemes[i][j - 1][-1]
-                    sep_phonemes[i][j] = ':'
+                    sep_phonemes[i][j] = ":"
     return sep_phonemes
+
 
 def handle_long_word(sep_phonemes: list[list[str]]) -> list[list[str]]:
     res = []
@@ -441,14 +449,15 @@ def handle_long_word(sep_phonemes: list[list[str]]) -> list[list[str]]:
         if sep_phonemes[i][0] == "ー":
             sep_phonemes[i][0] = sep_phonemes[i - 1][-1]
             # sep_phonemes[i][0] = ':'
-        if "ー" in sep_phonemes[i]:            
+        if "ー" in sep_phonemes[i]:
             for j in range(len(sep_phonemes[i])):
                 if sep_phonemes[i][j] == "ー":
                     sep_phonemes[i][j] = sep_phonemes[i][j - 1][-1]
                     # sep_phonemes[i][j] = ':'
         res.append(sep_phonemes[i])
-        res.append('▁')
+        res.append("▁")
     return res
+
 
 def align_tones(
     phones_with_punct: list[str], phone_tone_list: list[tuple[str, int]]
@@ -474,7 +483,7 @@ def align_tones(
             result.append((phone, phone_tone_list[tone_index][1]))
             # 探すindexを1つ進める
             tone_index += 1
-        elif phone in punctuation or phone == '▁':
+        elif phone in punctuation or phone == "▁":
             # phoneがpunctuationの場合 → (phone, 0)を追加
             result.append((phone, 0))
         else:
@@ -485,6 +494,7 @@ def align_tones(
             print(f"phone: {phone}")
             raise ValueError(f"Unexpected phone: {phone}")
     return result
+
 
 def kata2phoneme_list(text: str) -> list[str]:
     """
@@ -520,9 +530,10 @@ def kata2phoneme_list(text: str) -> list[str]:
     # spaced_phonemes += ' ▁'
     return spaced_phonemes.strip().split(" ")
 
+
 def frontend2phoneme(labels, drop_unvoiced_vowels=False):
     N = len(labels)
-    
+
     phones = []
     for n in range(N):
         lab_curr = labels[n]
@@ -576,6 +587,7 @@ def frontend2phoneme(labels, drop_unvoiced_vowels=False):
     # phones = ' '.join(phones)
     return phones
 
+
 class JapanesePhoneConverter(object):
     def __init__(self, lexicon_path=None, ipa_dict_path=None):
         # lexicon_lines = open(lexicon_path, 'r', encoding='utf-8').readlines()
@@ -591,17 +603,15 @@ class JapanesePhoneConverter(object):
         #         self.single_dict[k] = v
         self.ipa_dict = {}
         for curr_line in jp_xphone2ipa:
-            k,v = curr_line.strip().split(' ',1)
-            self.ipa_dict[k] = re.sub('\s', '', v)
+            k, v = curr_line.strip().split(" ", 1)
+            self.ipa_dict[k] = re.sub("\s", "", v)
         # kakasi1 = kakasi()
         # kakasi1.setMode("H","K")
         # kakasi1.setMode("J","K")
         # kakasi1.setMode("r","Hepburn")
         self.japan_JH2K = kakasi()
-        self.table = {ord(f):ord(t) for f,t in zip(
-            u'67',
-            u'_¯')}
-        
+        self.table = {ord(f): ord(t) for f, t in zip("67", "_¯")}
+
     def text2sep_kata(self, parsed) -> tuple[list[str], list[str]]:
         """
         `text_normalize`で正規化済みの`norm_text`を受け取り、それを単語分割し、
@@ -622,14 +632,19 @@ class JapanesePhoneConverter(object):
             # print(parsed)
             yomi = parsed[i]["pron"]
             tmp_parsed = parsed[i]
-            if i != len(parsed)-1 and parsed[i+1]["string"] in ['々', 'ゝ', 'ヽ', 'ゞ', 'ヾ', '゛']: 
-                word = parsed[i]["string"] + parsed[i+1]["string"]
+            if i != len(parsed) - 1 and parsed[i + 1]["string"] in [
+                "々",
+                "ゝ",
+                "ヽ",
+                "ゞ",
+                "ヾ",
+                "゛",
+            ]:
+                word = parsed[i]["string"] + parsed[i + 1]["string"]
                 i += 1
             else:
                 word = parsed[i]["string"]
-            word, yomi = replace_punctuation(word), yomi.replace(
-                "’", ""
-            )
+            word, yomi = replace_punctuation(word), yomi.replace("’", "")
             """
             ここで`yomi`の取りうる値は以下の通りのはず。
             - `word`が通常単語 → 通常の読み（カタカナ）
@@ -657,11 +672,15 @@ class JapanesePhoneConverter(object):
                     "",
                 ):
                     # ここはpyopenjtalkが読めない文字等のときに起こる
-                    print("Cannot read:{}, yomi:{}, new_word:{};".format(word, yomi, self.japan_JH2K.convert(word)[0]['kana']))
+                    print(
+                        "Cannot read:{}, yomi:{}, new_word:{};".format(
+                            word, yomi, self.japan_JH2K.convert(word)[0]["kana"]
+                        )
+                    )
                     # raise ValueError(word)
-                    word = self.japan_JH2K.convert(word)[0]['kana']
+                    word = self.japan_JH2K.convert(word)[0]["kana"]
                     # print(word, self.japan_JH2K.convert(word)[0]['kana'], kata2phoneme_list(self.japan_JH2K.convert(word)[0]['kana']))
-                    tmp_parsed['pron'] = word
+                    tmp_parsed["pron"] = word
                     # yomi = "-"
                     # word = ','
                 # yomiは元の記号のままに変更
@@ -681,7 +700,6 @@ class JapanesePhoneConverter(object):
             i += 1
         # print(sep_text, sep_kata)
         return sep_text, sep_kata, fix_parsed
-    
 
     def getSentencePhone(self, sentence, blank_mode=True, phoneme_mode=False):
         # print("origin:", sentence)
@@ -691,7 +709,7 @@ class JapanesePhoneConverter(object):
         output_duration_flag = []
         output_before_sil_flag = []
         normed_text = []
-        sentence = sentence.strip().strip('\'')
+        sentence = sentence.strip().strip("'")
         sentence = re.sub(r"\s+", "", sentence)
         output_res = []
         failed_words = []
@@ -714,18 +732,17 @@ class JapanesePhoneConverter(object):
         sep_phonemes = handle_long_word([kata2phoneme_list(i) for i in sep_kata])
         # print("sep_phonemes: ", sep_phonemes)
 
-        pron_text = [x['pron'].strip().replace("’", "") for x in frontend_text]
+        pron_text = [x["pron"].strip().replace("’", "") for x in frontend_text]
         # pdb.set_trace()
         prosodys = pyopenjtalk.make_label(frontend_text)
         prosodys = frontend2phoneme(prosodys, drop_unvoiced_vowels=True)
         # print("prosodys: ", ' '.join(prosodys))
         # print("pron_text: ", pron_text)
-        normed_text = [x['string'].strip() for x in frontend_text]
+        normed_text = [x["string"].strip() for x in frontend_text]
         # punctuationがすべて消えた、音素とアクセントのタプルのリスト
         phone_tone_list_wo_punct = g2phone_tone_wo_punct(prosodys)
         # print("phone_tone_list_wo_punct: ", phone_tone_list_wo_punct)
-        
-        
+
         # phone_w_punct: sep_phonemesを結合した、punctuationを元のまま保持した音素列
         phone_w_punct: list[str] = []
         w_p_len = []
@@ -737,61 +754,63 @@ class JapanesePhoneConverter(object):
         # print("phone_w_punct: ", phone_w_punct)
         # print("phone_tone_list_wo_punct: ", phone_tone_list_wo_punct)
         phone_tone_list = align_tones(phone_w_punct, phone_tone_list_wo_punct)
-        
+
         jp_item = {}
-        jp_p = ''
-        jp_t = ''
-        # mye rye pye bye nye 
+        jp_p = ""
+        jp_t = ""
+        # mye rye pye bye nye
         # je she
         # print(phone_tone_list)
-        for (p, t) in phone_tone_list:
+        for p, t in phone_tone_list:
             if p in self.ipa_dict:
                 curr_p = self.ipa_dict[p]
                 jp_p += curr_p
-                jp_t += str(t+6)*len(curr_p)
+                jp_t += str(t + 6) * len(curr_p)
             elif p in punctuation:
                 jp_p += p
-                jp_t += '0'
-            elif p == '▁':
+                jp_t += "0"
+            elif p == "▁":
                 jp_p += p
-                jp_t += ' '
+                jp_t += " "
             else:
                 print(p, t)
-            jp_p += '|'
-            jp_t += '0'
+            jp_p += "|"
+            jp_t += "0"
         # return phones, tones, w_p_len
-        jp_p = jp_p.replace('▁', ' ')
+        jp_p = jp_p.replace("▁", " ")
         jp_t = jp_t.translate(self.table)
-        jp_l = ''
+        jp_l = ""
         for t in jp_t:
-            if t == ' ':
-                jp_l += ' '
+            if t == " ":
+                jp_l += " "
             else:
-                jp_l += '2'
+                jp_l += "2"
         # print(jp_p)
         # print(jp_t)
         # print(jp_l)
         # print(len(jp_p_len), sum(w_p_len),  len(jp_p), sum(jp_p_len))
         assert len(jp_p) == len(jp_t) and len(jp_p) == len(jp_l)
-        
-        jp_item['jp_p'] = jp_p.replace('| |', '|').rstrip('|')
-        jp_item['jp_t'] = jp_t
-        jp_item['jp_l'] = jp_l
-        jp_item['jp_normed_text'] = ' '.join(normed_text)
-        jp_item['jp_pron_text'] = ' '.join(pron_text)
+
+        jp_item["jp_p"] = jp_p.replace("| |", "|").rstrip("|")
+        jp_item["jp_t"] = jp_t
+        jp_item["jp_l"] = jp_l
+        jp_item["jp_normed_text"] = " ".join(normed_text)
+        jp_item["jp_pron_text"] = " ".join(pron_text)
         # jp_item['jp_ruoma'] = sep_phonemes
         # print(len(normed_text), len(sep_phonemes))
         # print(normed_text)
         return jp_item
 
+
 jpc = JapanesePhoneConverter()
+
 
 def japanese_to_ipa(text, text_tokenizer):
     # phonemes = text_tokenizer(text)
     if type(text) == str:
-        return jpc.getSentencePhone(text)['jp_p']
+        return jpc.getSentencePhone(text)["jp_p"]
     else:
         result_ph = []
         for t in text:
-            result_ph.append(jpc.getSentencePhone(t)['jp_p'])
+            result_ph.append(jpc.getSentencePhone(t)["jp_p"])
         return result_ph

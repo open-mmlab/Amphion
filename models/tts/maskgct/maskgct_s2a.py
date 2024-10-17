@@ -31,6 +31,7 @@ def gumbel_noise(t):
 def gumbel_sample(t, temperature=1.0, dim=-1):
     return ((t / max(temperature, 1e-10)) + gumbel_noise(t)).argmax(dim=dim)
 
+
 def top_k(logits, thres=0.9):
     k = math.ceil((1 - thres) * logits.shape[-1])
     val, ind = logits.topk(k, dim=-1)
@@ -50,6 +51,7 @@ def gumbel_noise(t):
 
 def gumbel_sample(t, temperature=1.0, dim=-1):
     return ((t / max(temperature, 1e-10)) + gumbel_noise(t)).argmax(dim=dim)
+
 
 class MaskGCT_S2A(nn.Module):
     def __init__(
@@ -100,8 +102,7 @@ class MaskGCT_S2A(nn.Module):
         )
         mask_layer_schedule = (
             cfg.mask_layer_schedule
-            if cfg is not None
-            and hasattr(cfg, "mask_layer_schedule")
+            if cfg is not None and hasattr(cfg, "mask_layer_schedule")
             else mask_layer_schedule
         )
         cond_codebook_size = (
@@ -110,9 +111,7 @@ class MaskGCT_S2A(nn.Module):
             else cond_codebook_size
         )
         cond_dim = (
-            cfg.cond_dim
-            if cfg is not None and hasattr(cfg, "cond_dim")
-            else cond_dim
+            cfg.cond_dim if cfg is not None and hasattr(cfg, "cond_dim") else cond_dim
         )
         predict_layer_1 = (
             cfg.predict_layer_1
@@ -147,7 +146,7 @@ class MaskGCT_S2A(nn.Module):
                 for _ in range(self.num_quantizer)
             ]
         )
-        
+
         self.cond_emb = nn.Embedding(cond_codebook_size, self.hidden_size)
 
         self.reset_parameters()
@@ -157,7 +156,7 @@ class MaskGCT_S2A(nn.Module):
             num_heads=self.num_heads,
             num_layers=num_layers,
         )
-        
+
     def mask_prob(self, t):
         return torch.sin(t * np.pi / 2).to(t.device)
 
@@ -178,8 +177,9 @@ class MaskGCT_S2A(nn.Module):
                 )
             else:
                 weights = torch.tensor(
-                    [0]+[
-                        np.cos((i-1) / self.num_quantizer * np.pi / 2)
+                    [0]
+                    + [
+                        np.cos((i - 1) / self.num_quantizer * np.pi / 2)
                         for i in range(1, self.num_quantizer)
                     ]
                 )
@@ -191,7 +191,11 @@ class MaskGCT_S2A(nn.Module):
                 )
             else:
                 weights = torch.tensor(
-                    [0]+[self.num_quantizer - (i-1) for i in range(1, self.num_quantizer)]
+                    [0]
+                    + [
+                        self.num_quantizer - (i - 1)
+                        for i in range(1, self.num_quantizer)
+                    ]
                 )
             weights = weights / weights.sum()
             mask_layer = torch.multinomial(weights, 1).to(t.device)
@@ -426,7 +430,9 @@ class MaskGCT_S2A(nn.Module):
 
                 # cfg
                 if cfg > 0:
-                    mask_embeds = self.diff_estimator(cur, t, temp_cond[:, prompt_len:, :], x_mask)
+                    mask_embeds = self.diff_estimator(
+                        cur, t, temp_cond[:, prompt_len:, :], x_mask
+                    )
                     pos_emb_std = embeds.std()  # std(g_cond)
                     embeds = embeds + cfg * (embeds - mask_embeds)  # g_cfg
                     rescale_embeds = embeds * pos_emb_std / embeds.std()  # g_final
@@ -490,6 +496,8 @@ class MaskGCT_S2A(nn.Module):
         cond = self.cond_emb(cond_code)
 
         logits, mask_layer, final_mask, x0, prompt_len, mask_prob = self.compute_loss(
-            x0, x_mask, cond,
+            x0,
+            x_mask,
+            cond,
         )
         return logits, mask_layer, final_mask, x0, prompt_len, mask_prob

@@ -16,47 +16,74 @@ import sys
 separator = Separator(word=" _ ", syllable="|", phone=" ")
 
 # 创建支持中文的 Espeak 后端
-phonemizer_zh = EspeakBackend('cmn', preserve_punctuation=False, with_stress=False, language_switch="remove-flags")
+phonemizer_zh = EspeakBackend(
+    "cmn", preserve_punctuation=False, with_stress=False, language_switch="remove-flags"
+)
 # phonemizer_zh.separator = separator
 
 # 创建支持英文的 Espeak 后端
-phonemizer_en = EspeakBackend('en-us', preserve_punctuation=False, with_stress=False, language_switch="remove-flags")
+phonemizer_en = EspeakBackend(
+    "en-us",
+    preserve_punctuation=False,
+    with_stress=False,
+    language_switch="remove-flags",
+)
 # phonemizer_en.separator = separator
 
 # 创建支持日文的 Espeak 后端
-phonemizer_ja = EspeakBackend('ja', preserve_punctuation=False, with_stress=False, language_switch="remove-flags")
+phonemizer_ja = EspeakBackend(
+    "ja", preserve_punctuation=False, with_stress=False, language_switch="remove-flags"
+)
 # phonemizer_ja.separator = separator
 
 # 创建支持韩文的 Espeak 后端
-phonemizer_ko = EspeakBackend('ko', preserve_punctuation=False, with_stress=False, language_switch="remove-flags")
+phonemizer_ko = EspeakBackend(
+    "ko", preserve_punctuation=False, with_stress=False, language_switch="remove-flags"
+)
 # phonemizer_ko.separator = separator
 
 # 创建支持法文的 Espeak 后端
-phonemizer_fr = EspeakBackend('fr-fr', preserve_punctuation=False, with_stress=False, language_switch="remove-flags")
+phonemizer_fr = EspeakBackend(
+    "fr-fr",
+    preserve_punctuation=False,
+    with_stress=False,
+    language_switch="remove-flags",
+)
 # phonemizer_fr.separator = separator
 
 # 创建支持德文的 Espeak 后端
-phonemizer_de = EspeakBackend('de', preserve_punctuation=False, with_stress=False, language_switch="remove-flags")
+phonemizer_de = EspeakBackend(
+    "de", preserve_punctuation=False, with_stress=False, language_switch="remove-flags"
+)
 # phonemizer_de.separator = separator
- 
+
 
 lang2backend = {
-    'zh': phonemizer_zh,
-    'ja': phonemizer_ja,
+    "zh": phonemizer_zh,
+    "ja": phonemizer_ja,
     "en": phonemizer_en,
     "fr": phonemizer_fr,
     "ko": phonemizer_ko,
     "de": phonemizer_de,
 }
 
-with open("./models/tts/maskgct/g2p/utils/mls_en.json", 'r') as f:
+with open("./models/tts/maskgct/g2p/utils/mls_en.json", "r") as f:
     json_data = f.read()
 token = json.loads(json_data)
+
 
 def phonemizer_g2p(text, language):
     # 根据lang2phonemizertoke调用不同的backend
     langbackend = lang2backend[language]
-    phonemes =  _phonemize(langbackend, text, separator, strip=True, njobs=1, prepend_text=False, preserve_empty_lines=False)
+    phonemes = _phonemize(
+        langbackend,
+        text,
+        separator,
+        strip=True,
+        njobs=1,
+        prepend_text=False,
+        preserve_empty_lines=False,
+    )
     token_id = []
     if isinstance(phonemes, list):
         for phone in phonemes:
@@ -69,13 +96,14 @@ def phonemizer_g2p(text, language):
 
 
 def _phonemize(  # pylint: disable=too-many-arguments
-        backend,
-        text: Union[str, List[str]],
-        separator: Separator,
-        strip: bool,
-        njobs: int,
-        prepend_text: bool,
-        preserve_empty_lines: bool):
+    backend,
+    text: Union[str, List[str]],
+    separator: Separator,
+    strip: bool,
+    njobs: int,
+    prepend_text: bool,
+    preserve_empty_lines: bool,
+):
     """Auxiliary function to phonemize()
 
     Does the phonemization and returns the phonemized text. Raises a
@@ -95,19 +123,20 @@ def _phonemize(  # pylint: disable=too-many-arguments
     # ignore empty lines
     text = [line for line in text if line.strip()]
 
-    if (text):
+    if text:
         # phonemize the text
         phonemized = backend.phonemize(
-            text, separator=separator, strip=strip, njobs=njobs)
+            text, separator=separator, strip=strip, njobs=njobs
+        )
     else:
         phonemized = []
 
     # if preserving empty lines, reinsert them into text and phonemized lists
     if preserve_empty_lines:
-        for i in empty_lines: # noqa
+        for i in empty_lines:  # noqa
             if prepend_text:
-                text.insert(i, '')
-            phonemized.insert(i, '')
+                text.insert(i, "")
+            phonemized.insert(i, "")
 
     # at that point, the phonemized text is a list of str. Format it as
     # expected by the parameters
@@ -116,5 +145,3 @@ def _phonemize(  # pylint: disable=too-many-arguments
     if text_type == str:
         return list2str(phonemized)
     return phonemized
-
-

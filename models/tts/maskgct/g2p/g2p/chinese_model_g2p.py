@@ -12,7 +12,7 @@ from transformers import BertTokenizer
 from torch.utils.data import Dataset
 from transformers.models.bert.modeling_bert import *
 import torch.nn.functional as F
-from onnxruntime import InferenceSession,GraphOptimizationLevel,SessionOptions
+from onnxruntime import InferenceSession, GraphOptimizationLevel, SessionOptions
 
 
 class PolyDataset(Dataset):
@@ -24,7 +24,7 @@ class PolyDataset(Dataset):
     def preprocess(self, origin_sentences, origin_labels):
         """
         Maps tokens and tags to their indices and stores them in the dict data.
-        examples: 
+        examples:
             word:['[CLS]', '浙', '商', '银', '行', '企', '业', '信', '贷', '部']
             sentence:([101, 3851, 1555, 7213, 6121, 821, 689, 928, 6587, 6956],
                         array([ 1,  2,  3,  4,  5,  6,  7,  8,  9, 10]))
@@ -48,7 +48,7 @@ class PolyDataset(Dataset):
         ###
         for tag in origin_labels:
             labels.append(tag)
-        
+
         for sentence, label in zip(sentences, labels):
             data.append((sentence, label))
         return data
@@ -98,8 +98,10 @@ class PolyDataset(Dataset):
         for j in range(batch_len):
             cur_tags_len = len(labels[j])
             batch_labels[j][:cur_tags_len] = labels[j]
-            batch_pmasks[j][:cur_tags_len] = [1 if item > 0 else 0 for item in labels[j]]
-            
+            batch_pmasks[j][:cur_tags_len] = [
+                1 if item > 0 else 0 for item in labels[j]
+            ]
+
         # convert data to torch LongTensors
         batch_data = torch.tensor(batch_data, dtype=torch.long)
         batch_label_starts = torch.tensor(batch_label_starts, dtype=torch.long)
@@ -111,49 +113,56 @@ class PolyDataset(Dataset):
 class BertPolyPredict:
     def __init__(self, bert_model, jsonr_file, json_file):
         self.tokenizer = BertTokenizer.from_pretrained(bert_model, do_lower_case=True)
-        with open(jsonr_file, 'r', encoding='utf8')as fp:
+        with open(jsonr_file, "r", encoding="utf8") as fp:
             self.pron_dict = json.load(fp)
-        with open(json_file, 'r', encoding='utf8')as fp:
+        with open(json_file, "r", encoding="utf8") as fp:
             self.pron_dict_id_2_pinyin = json.load(fp)
         self.num_polyphone = len(self.pron_dict)
-        #加载训练过的模型
+        # 加载训练过的模型
         self.device = "cpu"
         self.polydataset = PolyDataset
-        options = SessionOptions() # initialize session options
+        options = SessionOptions()  # initialize session options
         options.graph_optimization_level = GraphOptimizationLevel.ORT_ENABLE_ALL
-        print(os.path.join(bert_model , "poly_bert_model.onnx"))
+        print(os.path.join(bert_model, "poly_bert_model.onnx"))
         # 这里的路径传上一节保存的onnx模型地址
-        #优先使用CUDA,没有CUDA则使用CPU
+        # 优先使用CUDA,没有CUDA则使用CPU
         self.session = InferenceSession(
-            os.path.join(bert_model , "poly_bert_model.onnx"), sess_options=options, providers=["CUDAExecutionProvider", "CPUExecutionProvider"] #CPUExecutionProvider #CUDAExecutionProvider
+            os.path.join(bert_model, "poly_bert_model.onnx"),
+            sess_options=options,
+            providers=[
+                "CUDAExecutionProvider",
+                "CPUExecutionProvider",
+            ],  # CPUExecutionProvider #CUDAExecutionProvider
         )
-        #设置GPU id
+        # 设置GPU id
         # self.session.set_providers(['CUDAExecutionProvider', "CPUExecutionProvider"], [ {'device_id': 0}])
-        
+
         # disable session.run() fallback mechanism, it prevents for a reset of the execution provider
         self.session.disable_fallback()
         # print("BERT POLY 初始化结束...")
 
-
     def predict_process(self, txt_list):
-        #对数据进行处理
+        # 对数据进行处理
         word_test, label_test, texts_test = self.get_examples_po(txt_list)
         data = self.polydataset(word_test, label_test)
-        #在这设置batch_size
-        predict_loader = DataLoader(data, batch_size = 1,
-                             shuffle=False, collate_fn=data.collate_fn)
-        #输出预测结果
+        # 在这设置batch_size
+        predict_loader = DataLoader(
+            data, batch_size=1, shuffle=False, collate_fn=data.collate_fn
+        )
+        # 输出预测结果
         pred_tags = self.predict_onnx(predict_loader)
         # print("BERT预测拼音:{}".format(pred_tags))
         return pred_tags
-    
+
     def predict_onnx(self, dev_loader):
         pred_tags = []
         with torch.no_grad():
             # 加入tqdm之后会显示训练过程
             for idx, batch_samples in enumerate(dev_loader):
                 # [batch_data, batch_label_starts, batch_labels, batch_pmasks, ori_sents]
-                batch_data, batch_label_starts, batch_labels, batch_pmasks, _ = batch_samples
+                batch_data, batch_label_starts, batch_labels, batch_pmasks, _ = (
+                    batch_samples
+                )
                 # shift tensors to GPU if available
                 batch_data = batch_data.to(self.device)
                 batch_label_starts = batch_label_starts.to(self.device)
@@ -162,24 +171,26 @@ class BertPolyPredict:
                 batch_data = np.asarray(batch_data, dtype=np.int32)
                 batch_pmasks = np.asarray(batch_pmasks, dtype=np.int32)
                 # batch_output = self.session.run(output_names=['outputs'], input_feed={"input_ids":batch_data, "input_pmasks": batch_pmasks})[0][0]
-                batch_output = self.session.run(output_names=['outputs'], input_feed={"input_ids":batch_data})[0]
+                batch_output = self.session.run(
+                    output_names=["outputs"], input_feed={"input_ids": batch_data}
+                )[0]
                 label_masks = batch_pmasks == 1
-                batch_labels = batch_labels.to('cpu').numpy()
-                #这个地方在实际应用中可以仅考虑可选的拼音
+                batch_labels = batch_labels.to("cpu").numpy()
+                # 这个地方在实际应用中可以仅考虑可选的拼音
                 for i, indices in enumerate(np.argmax(batch_output, axis=2)):
                     for j, idx in enumerate(indices):
                         if label_masks[i][j]:
                             # pred_tag.append(idx)
-                            pred_tags.append(self.pron_dict_id_2_pinyin[str(idx+1)])
+                            pred_tags.append(self.pron_dict_id_2_pinyin[str(idx + 1)])
         return pred_tags
-    
-    #数据处理
+
+    # 数据处理
     def get_examples_po(self, text_list):
         """
         将txt文件每一行中的文本分离出来，存储为words列表
         BMES标注法标记文本对应的标签，存储为labels
         """
-        
+
         word_list = []
         label_list = []
         sentence_list = []
@@ -194,20 +205,33 @@ class BertPolyPredict:
             back = len(tokens) - index - 1
             labels = [0] * front + [1] + [0] * back
             # 然后把输入转换成ids
-            words = ['[CLS]'] + [item for item in sentence]
-            #存放token id
+            words = ["[CLS]"] + [item for item in sentence]
+            # 存放token id
             words = self.tokenizer.convert_tokens_to_ids(words)
             # 完成
             word_list.append(words)
             label_list.append(labels)
-            #这个地方改为存放原文本
+            # 这个地方改为存放原文本
             sentence_list.append(sentence)
-            
+
             id += 1
             # mask_list.append(masks)
             # 验证
-            assert len(labels)+1 == len(words), print((poly, sentence, words, labels, sentence, len(sentence), len(words), len(labels)))
-            assert len(labels)+1 == len(words), "labels 数量与 words 不匹配"
+            assert len(labels) + 1 == len(words), print(
+                (
+                    poly,
+                    sentence,
+                    words,
+                    labels,
+                    sentence,
+                    len(sentence),
+                    len(words),
+                    len(labels),
+                )
+            )
+            assert len(labels) + 1 == len(words), "labels 数量与 words 不匹配"
             assert len(labels) == len(sentence), "labels 数量与 sentence 不匹配"
-            assert len(word_list) == len(label_list), "label 句子数量与 word 句子数量不匹配"
+            assert len(word_list) == len(
+                label_list
+            ), "label 句子数量与 word 句子数量不匹配"
         return word_list, label_list, text_list

@@ -841,11 +841,7 @@ class Vocos(nn.Module):
             if cfg is not None and hasattr(cfg, "input_channels")
             else input_channels
         )
-        dim = (
-            cfg.dim
-            if cfg is not None and hasattr(cfg, "dim")
-            else dim
-        )
+        dim = cfg.dim if cfg is not None and hasattr(cfg, "dim") else dim
         intermediate_dim = (
             cfg.intermediate_dim
             if cfg is not None and hasattr(cfg, "intermediate_dim")
@@ -861,20 +857,12 @@ class Vocos(nn.Module):
             if cfg is not None and hasattr(cfg, "adanorm_num_embeddings")
             else adanorm_num_embeddings
         )
-        n_fft = (
-            cfg.n_fft
-            if cfg is not None and hasattr(cfg, "n_fft")
-            else n_fft
-        )
+        n_fft = cfg.n_fft if cfg is not None and hasattr(cfg, "n_fft") else n_fft
         hop_size = (
-            cfg.hop_size
-            if cfg is not None and hasattr(cfg, "hop_size")
-            else hop_size
+            cfg.hop_size if cfg is not None and hasattr(cfg, "hop_size") else hop_size
         )
         padding = (
-            cfg.padding
-            if cfg is not None and hasattr(cfg, "padding")
-            else padding
+            cfg.padding if cfg is not None and hasattr(cfg, "padding") else padding
         )
 
         self.backbone = VocosBackbone(

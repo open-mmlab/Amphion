@@ -5,9 +5,9 @@
 
 import re
 
-'''
+"""
     Text clean time
-'''
+"""
 english_dictionary = {
     "KOREA": "코리아",
     "IDOL": "아이돌",
@@ -48,12 +48,16 @@ english_dictionary = {
     "Z": "제트",
 }
 
+
 def normalize(text):
     text = text.strip()
-    text = re.sub("[⺀-⺙⺛-⻳⼀-⿕々〇〡-〩〸-〺〻㐀-䶵一-鿃豈-鶴侮-頻並-龎]", "", text)
+    text = re.sub(
+        "[⺀-⺙⺛-⻳⼀-⿕々〇〡-〩〸-〺〻㐀-䶵一-鿃豈-鶴侮-頻並-龎]", "", text
+    )
     text = normalize_english(text)
     text = text.lower()
     return text
+
 
 def normalize_english(text):
     def fn(m):
@@ -64,6 +68,7 @@ def normalize_english(text):
 
     text = re.sub("([A-Za-z]+)", fn, text)
     return text
+
 
 def korean_to_ipa(text, text_tokenizer):
     if type(text) == str:

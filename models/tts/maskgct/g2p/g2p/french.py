@@ -5,9 +5,9 @@
 
 import re
 
-'''
+"""
     Text clean time
-'''
+"""
 # List of (regular expression, replacement) pairs for abbreviations in french:
 _abbreviations = [
     (re.compile("\\b%s\\." % x[0], re.IGNORECASE), x[1])
@@ -87,21 +87,25 @@ rep_map = {
     "~": "-",
     "「": "",
     "」": "",
-    "¿" : "",
-    "¡" : ""
+    "¿": "",
+    "¡": "",
 }
+
 
 def collapse_whitespace(text):
     # Regular expression matching whitespace:
     _whitespace_re = re.compile(r"\s+")
     return re.sub(_whitespace_re, " ", text).strip()
 
+
 def remove_punctuation_at_begin(text):
-    return re.sub(r'^[,.!?]+', '', text)
+    return re.sub(r"^[,.!?]+", "", text)
+
 
 def remove_aux_symbols(text):
     text = re.sub(r"[\<\>\(\)\[\]\"\«\»]+", "", text)
     return text
+
 
 def replace_symbols(text):
     text = text.replace(";", ",")
@@ -110,15 +114,18 @@ def replace_symbols(text):
     text = text.replace("&", " et ")
     return text
 
+
 def expand_abbreviations(text):
     for regex, replacement in _abbreviations:
         text = re.sub(regex, replacement, text)
     return text
 
+
 def replace_punctuation(text):
     pattern = re.compile("|".join(re.escape(p) for p in rep_map.keys()))
     replaced_text = pattern.sub(lambda x: rep_map[x.group()], text)
     return replaced_text
+
 
 def text_normalize(text):
     text = expand_abbreviations(text)
@@ -127,8 +134,9 @@ def text_normalize(text):
     text = remove_aux_symbols(text)
     text = remove_punctuation_at_begin(text)
     text = collapse_whitespace(text)
-    text = re.sub(r'([^\.,!\?\-…])$', r'\1', text)
+    text = re.sub(r"([^\.,!\?\-…])$", r"\1", text)
     return text
+
 
 def french_to_ipa(text, text_tokenizer):
     if type(text) == str:
