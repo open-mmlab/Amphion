@@ -1,0 +1,81 @@
+{
+    "model": {
+        "t2s_model": {
+            "hidden_size": 1536,
+            "num_layers": 16,
+            "num_heads": 16,
+            "cfg_scale": 0.15,
+            "cond_codebook_size": 8192,
+            "cond_dim": 1024
+        },
+        "s2a_model": {
+            "s2a_1layer": {
+                "num_quantizer": 1,
+                "hidden_size": 1024,
+                "num_layers": 16,
+                "num_heads": 16,
+                "codebook_size": 1024,
+                "cfg_scale": 0.15,
+                "mask_layer_schedule": "linear",
+                "cond_codebook_size": 8192,
+                "cond_dim": 1024,
+                "predict_layer_1": true
+            },
+            "s2a_full": {
+                "num_quantizer": 12,
+                "hidden_size": 1024,
+                "num_layers": 16,
+                "num_heads": 16,
+                "codebook_size": 1024,
+                "cfg_scale": 0.15,
+                "mask_layer_schedule": "linear",
+                "cond_codebook_size": 8192,
+                "cond_dim": 1024,
+                "predict_layer_1": false
+            }
+        },
+        "semantic_codec": {
+            "codebook_size": 8192,
+            "hidden_size": 1024,
+            "codebook_dim": 8,
+            "vocos_dim": 384,
+            "vocos_intermediate_dim": 2048,
+            "vocos_num_layers": 12
+        },
+        "acoustic_codec": {
+            "encoder": {
+                "d_model": 96,
+                "up_ratios": [3, 4, 5, 8],
+                "out_channels": 256,
+                "use_tanh": false
+            },
+            "decoder": {
+                "in_channel": 256,
+                "upsample_initial_channel": 1536,
+                "up_ratios": [8, 5, 4, 3],
+                "num_quantizers": 12,
+                "codebook_size": 1024,
+                "codebook_dim": 8,
+                "quantizer_type": "fvq",
+                "quantizer_dropout": 0.5,
+                "commitment": 0.25,
+                "codebook_loss_weight": 1.0,
+                "use_l2_normlize": true,
+                "codebook_type": "euclidean",
+                "kmeans_init": false,
+                "kmeans_iters": 10,
+                "decay": 0.8,
+                "eps": 0.5,
+                "threshold_ema_dead_code": 2,
+                "weight_init": false,
+                "use_vocos": true,
+                "vocos_dim": 512,
+                "vocos_intermediate_dim": 4096,
+                "vocos_num_layers": 30,
+                "n_fft": 1920,
+                "hop_size": 480,
+                "padding": "same"
+            }
+        }
+    }
+}
