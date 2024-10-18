@@ -191,7 +191,6 @@ def english_to_ipa(text, text_tokenizer):
     else:
         text = [_english_to_ipa(t) for t in text]
     phonemes = text_tokenizer(text)
-    # 将所有的ipa音素放到字符串里面，如果以ipa音素结尾，则添加blank，如果是非ipa音素结尾(可能是标点符号)，则不添加blank
     if phonemes[-1] in "p⁼ʰmftnlkxʃs`ɹaoəɛɪeɑʊŋiuɥwæjː":
         phonemes += "|_"
     if type(text) == str:

@@ -40,7 +40,6 @@ class PhonemeBpeTokenizer:
         # 1. convert text to phoneme
         phonemes = []
         if language == "auto":
-            # 自动切分语种片段
             seglist = LangSegment.getTexts(text)
             tmp_ph = []
             for seg in seglist:
@@ -65,12 +64,10 @@ class PhonemeBpeTokenizer:
         return phonemes, phoneme_tokens
 
     def _clean_text(self, text, sentence, language, cleaner_names):
-        # 在这跳转到对应的语种处理函数
         for name in cleaner_names:
             cleaner = getattr(cleaners, name)
             if not cleaner:
                 raise Exception("Unknown cleaner: %s" % name)
-        # 获取对应语种的函数来处理
         text = cleaner(text, sentence, language, self.text_tokenizers)
         return text
 
@@ -78,14 +75,12 @@ class PhonemeBpeTokenizer:
         tokens = []
         if isinstance(phonemes, list):
             for phone in phonemes:
-                # 由于可能在ipa音标后面添加了对应的常见音标，这里进行修改
                 phone = phone.split("\t")[0]
                 phonemes_split = phone.split("|")
                 tokens.append(
                     [self.vocab[p] for p in phonemes_split if p in self.vocab]
                 )
         else:
-            # 由于可能在ipa音标后面添加了对应的常见音标，这里进行修改
             phonemes = phonemes.split("\t")[0]
             phonemes_split = phonemes.split("|")
             tokens = [self.vocab[p] for p in phonemes_split if p in self.vocab]

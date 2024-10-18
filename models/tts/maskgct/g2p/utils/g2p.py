@@ -12,16 +12,13 @@ import json
 import sys
 
 # separator=Separator(phone=' ', word=' _ ', syllable='|'),
-# # 设置用于分隔单词、音节和音素的符号
 separator = Separator(word=" _ ", syllable="|", phone=" ")
 
-# 创建支持中文的 Espeak 后端
 phonemizer_zh = EspeakBackend(
     "cmn", preserve_punctuation=False, with_stress=False, language_switch="remove-flags"
 )
 # phonemizer_zh.separator = separator
 
-# 创建支持英文的 Espeak 后端
 phonemizer_en = EspeakBackend(
     "en-us",
     preserve_punctuation=False,
@@ -30,19 +27,16 @@ phonemizer_en = EspeakBackend(
 )
 # phonemizer_en.separator = separator
 
-# 创建支持日文的 Espeak 后端
 phonemizer_ja = EspeakBackend(
     "ja", preserve_punctuation=False, with_stress=False, language_switch="remove-flags"
 )
 # phonemizer_ja.separator = separator
 
-# 创建支持韩文的 Espeak 后端
 phonemizer_ko = EspeakBackend(
     "ko", preserve_punctuation=False, with_stress=False, language_switch="remove-flags"
 )
 # phonemizer_ko.separator = separator
 
-# 创建支持法文的 Espeak 后端
 phonemizer_fr = EspeakBackend(
     "fr-fr",
     preserve_punctuation=False,
@@ -51,7 +45,6 @@ phonemizer_fr = EspeakBackend(
 )
 # phonemizer_fr.separator = separator
 
-# 创建支持德文的 Espeak 后端
 phonemizer_de = EspeakBackend(
     "de", preserve_punctuation=False, with_stress=False, language_switch="remove-flags"
 )
@@ -73,7 +66,6 @@ token = json.loads(json_data)
 
 
 def phonemizer_g2p(text, language):
-    # 根据lang2phonemizertoke调用不同的backend
     langbackend = lang2backend[language]
     phonemes = _phonemize(
         langbackend,

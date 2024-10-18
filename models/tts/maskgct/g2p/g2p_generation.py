@@ -1,9 +1,11 @@
+# Copyright (c) 2024 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 import os
 import sys
 
-# print("打印路径...")
-# print(os.getcwd())
-# print(sys.path)
 from models.tts.maskgct.g2p.g2p import PhonemeBpeTokenizer
 from models.tts.maskgct.g2p.utils.g2p import phonemizer_g2p
 import tqdm
@@ -73,17 +75,14 @@ def get_segment(text: str) -> List[str]:
             flag = 1
         else:
             if temp_lang == "other":
-                # 当前片段语种与上个片段语种为"other"
                 if types[i] == temp_lang:
                     temp_seg += text[i]
                 else:
                     temp_seg += text[i]
                     temp_lang = types[i]
             else:
-                # 当前片段语种与上个片段语种相同，则进行合并
                 if types[i] == temp_lang:
                     temp_seg += text[i]
-                # 当前语种不属于中文或英文，则可能是阿拉伯数字
                 elif types[i] == "other":
                     temp_seg += text[i]
                 else:
@@ -91,24 +90,23 @@ def get_segment(text: str) -> List[str]:
                     temp_seg = text[i]
                     temp_lang = types[i]
                     flag = 1
-    # 将最后一个片段的结果写入segments
+
     segments.append((temp_seg, temp_lang))
     return segments
 
 
-# 中英混的G2P调用
 def chn_eng_g2p(text: str):
-    # 对文本中文本片段语种进行打标,暂时仅支持中英文区分
+    # now only en and ch
     segments = get_segment(text)
     all_phoneme = ""
     all_tokens = []
-    # 中文结尾需要加blank，英文结尾不需要加blank,对英文结尾进行处理
+
     for index in range(len(segments)):
         seg = segments[index]
         phoneme, token = g2p(seg[0], text, seg[1])
         all_phoneme += phoneme + "|"
         all_tokens += token
-        # 文本段英文结尾不需要加blank,对英文结尾进行处理
+
         if seg[1] == "en" and index == len(segments) - 1 and all_phoneme[-2] == "_":
             all_phoneme = all_phoneme[:-2]
             all_tokens = all_tokens[:-1]
