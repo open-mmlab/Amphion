@@ -70,7 +70,21 @@ if __name__ == "__main__":
     target_text = "In this paper, we introduce MaskGCT, a fully non-autoregressive TTS model that eliminates the need for explicit alignment information between text and speech supervision."
     # Specify the target duration (in seconds). If target_len = None, we use a simple rule to predict the target duration.
     target_len = 18
-    recovered_audio = maskgct_inference(
+    maskgct_inference_pipeline = MaskGCT_Inference_Pipeline(
+        semantic_model,
+        semantic_codec,
+        codec_encoder,
+        codec_decoder,
+        t2s_model,
+        s2a_model_1layer,
+        s2a_model_full,
+        semantic_mean,
+        semantic_std,
+        device,
+    )
+
+    recovered_audio = maskgct_inference_pipeline.maskgct_inference(
         prompt_wav_path, prompt_text, target_text, "en", "en", target_len=target_len
     )
+
     sf.write(save_path, recovered_audio, 24000)
