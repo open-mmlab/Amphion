@@ -173,15 +173,15 @@ If you use MaskGCT in your research, please cite the following paper:
 ```bibtex
 @article{wang2024maskgct,
   title={MaskGCT: Zero-Shot Text-to-Speech with Masked Generative Codec Transformer},
-  author={Wang, Yuancheng and Zhan, Haoyue and Liu, Liwei and Zeng, Ruihong and Guo, Haotian and Zheng, Jiachen and Zhang, Qiang and Zhang, Shunsi and Wu, Zhizheng},
+  author={Wang, Yuancheng and Zhan, Haoyue and Liu, Liwei and Zeng, Ruihong and Guo, Haotian and Zheng, Jiachen and Zhang, Qiang and Zhang, Xueyao and Zhang, Shunsi and Wu, Zhizheng},
   journal={arXiv preprint arXiv:2409.00750},
   year={2024}
 }
 
-@article{zhang2023amphion,
-  title={Amphion: An open-source audio, music and speech generation toolkit},
-  author={Zhang, Xueyao and Xue, Liumeng and Wang, Yuancheng and Gu, Yicheng and Chen, Xi and Fang, Zihao and Chen, Haopeng and Zou, Lexiao and Wang, Chaoren and Han, Jun and others},
-  journal={arXiv preprint arXiv:2312.09911},
-  year={2023}
+@inproceedings{amphion,
+    author={Zhang, Xueyao and Xue, Liumeng and Gu, Yicheng and Wang, Yuancheng and Li, Jiaqi and He, Haorui and Wang, Chaoren and Song, Ting and Chen, Xi and Fang, Zihao and Chen, Haopeng and Zhang, Junan and Tang, Tze Ying and Zou, Lexiao and Wang, Mingxuan and Han, Jun and Chen, Kai and Li, Haizhou and Wu, Zhizheng},
+    title={Amphion: An Open-Source Audio, Music and Speech Generation Toolkit},
+    booktitle={{IEEE} Spoken Language Technology Workshop, {SLT} 2024},
+    year={2024}
 }
 ```
