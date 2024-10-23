@@ -47,7 +47,7 @@ You can download all pretrained checkpoints from [HuggingFace](https://huggingfa
 from huggingface_hub import hf_hub_download
 
 # download semantic codec ckpt
-semantic_code_ckpt = hf_hub_download("amphion/MaskGCT" filename="semantic_codec/model.safetensors")
+semantic_code_ckpt = hf_hub_download("amphion/MaskGCT", filename="semantic_codec/model.safetensors")
 
 # download acoustic codec ckpt
 codec_encoder_ckpt = hf_hub_download("amphion/MaskGCT", filename="acoustic_codec/model.safetensors")
