@@ -4,6 +4,7 @@
 [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-model-yellow)](https://huggingface.co/amphion/maskgct)
 [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-demo-pink)](https://huggingface.co/spaces/amphion/maskgct)
 [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](../../../models/tts/maskgct/README.md)
+[正式版公测地址（趣丸千音）](https://voice.funnycp.com/)
 
 ## Overview
 
@@ -36,8 +37,8 @@ We provide the following pretrained checkpoints:
 
 | Model Name          | Description   |    
 |-------------------|-------------|
-| [Acoustic Codec](https://huggingface.co/amphion/MaskGCT/tree/main/acoustic_codec)      | Converting speech to semantic tokens. |
-| [Semantic Codec](https://huggingface.co/amphion/MaskGCT/tree/main/semantic_codec)      | Converting speech to acoustic tokens and reconstructing waveform from acoustic tokens. |
+| [Semantic Codec](https://huggingface.co/amphion/MaskGCT/tree/main/semantic_codec)      | Converting speech to semantic tokens. |
+| [Acoustic Codec](https://huggingface.co/amphion/MaskGCT/tree/main/acoustic_codec)      | Converting speech to acoustic tokens and reconstructing waveform from acoustic tokens. |
 | [MaskGCT-T2S](https://huggingface.co/amphion/MaskGCT/tree/main/t2s_model)         | Predicting semantic tokens with text and prompt semantic tokens.             |
 | [MaskGCT-S2A](https://huggingface.co/amphion/MaskGCT/tree/main/s2a_model)         | Predicts acoustic tokens conditioned on semantic tokens.              |
 
@@ -47,7 +48,7 @@ You can download all pretrained checkpoints from [HuggingFace](https://huggingfa
 from huggingface_hub import hf_hub_download
 
 # download semantic codec ckpt
-semantic_code_ckpt = hf_hub_download("amphion/MaskGCT" filename="semantic_codec/model.safetensors")
+semantic_code_ckpt = hf_hub_download("amphion/MaskGCT", filename="semantic_codec/model.safetensors")
 
 # download acoustic codec ckpt
 codec_encoder_ckpt = hf_hub_download("amphion/MaskGCT", filename="acoustic_codec/model.safetensors")
