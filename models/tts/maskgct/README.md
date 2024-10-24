@@ -5,6 +5,8 @@
 [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-demo-pink)](https://huggingface.co/spaces/amphion/maskgct)
 [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](../../../models/tts/maskgct/README.md)
 
+[正式版公测地址（趣丸千音）](https://voice.funnycp.com/)
+
 ## Overview
 
 MaskGCT (**Mask**ed **G**enerative **C**odec **T**ransformer) is *a fully non-autoregressive TTS model that eliminates the need for explicit alignment information between text and speech supervision, as well as phone-level duration prediction*. MaskGCT is a two-stage model: in the first stage, the model uses text to predict semantic tokens extracted from a speech self-supervised learning (SSL) model, and in the second stage, the model predicts acoustic tokens conditioned on these semantic tokens. MaskGCT follows the *mask-and-predict* learning paradigm. During training, MaskGCT learns to predict masked semantic or acoustic tokens based on given conditions and prompts. During inference, the model generates tokens of a specified length in a parallel manner. Experiments with 100K hours of in-the-wild speech demonstrate that MaskGCT outperforms the current state-of-the-art zero-shot TTS systems in terms of quality, similarity, and intelligibility. Audio samples are available at [demo page](https://maskgct.github.io/).
@@ -36,8 +38,8 @@ We provide the following pretrained checkpoints:
 
 | Model Name          | Description   |    
 |-------------------|-------------|
-| [Acoustic Codec](https://huggingface.co/amphion/MaskGCT/tree/main/acoustic_codec)      | Converting speech to semantic tokens. |
-| [Semantic Codec](https://huggingface.co/amphion/MaskGCT/tree/main/semantic_codec)      | Converting speech to acoustic tokens and reconstructing waveform from acoustic tokens. |
+| [Semantic Codec](https://huggingface.co/amphion/MaskGCT/tree/main/semantic_codec)      | Converting speech to semantic tokens. |
+| [Acoustic Codec](https://huggingface.co/amphion/MaskGCT/tree/main/acoustic_codec)      | Converting speech to acoustic tokens and reconstructing waveform from acoustic tokens. |
 | [MaskGCT-T2S](https://huggingface.co/amphion/MaskGCT/tree/main/t2s_model)         | Predicting semantic tokens with text and prompt semantic tokens.             |
 | [MaskGCT-S2A](https://huggingface.co/amphion/MaskGCT/tree/main/s2a_model)         | Predicts acoustic tokens conditioned on semantic tokens.              |
 
@@ -47,7 +49,7 @@ You can download all pretrained checkpoints from [HuggingFace](https://huggingfa
 from huggingface_hub import hf_hub_download
 
 # download semantic codec ckpt
-semantic_code_ckpt = hf_hub_download("amphion/MaskGCT" filename="semantic_codec/model.safetensors")
+semantic_code_ckpt = hf_hub_download("amphion/MaskGCT", filename="semantic_codec/model.safetensors")
 
 # download acoustic codec ckpt
 codec_encoder_ckpt = hf_hub_download("amphion/MaskGCT", filename="acoustic_codec/model.safetensors")
