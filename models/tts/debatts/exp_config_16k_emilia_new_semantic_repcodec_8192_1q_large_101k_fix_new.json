@@ -1,0 +1,117 @@
+{
+    "model_type": "T2S",
+    "dataset": ["not"],
+    "preprocess": {
+        "hop_size": 320,
+        "sample_rate": 16000,
+        "processed_dir": "TODO",
+        "valid_file": "valid.json",
+        "train_file": "train.json",
+        "use_phone_cond": false,
+        "min_dur": 3,
+        "max_dur": 40,
+        "use_emilia_101k": true
+    },
+    "model": {
+        "t2sllama": {
+            "phone_vocab_size": 1024,
+            "target_vocab_size": 8192,
+            "hidden_size": 2048,
+            "intermediate_size": 8192,
+            "num_hidden_layer": 8,
+            "num_attention_head": 16,
+            "pad_token_id": 9216,
+            "bos_target_id": 9217,
+            "eos_target_id": 9218,
+            "bos_phone_id": 9219,
+            "eos_phone_id": 9220,
+            "bos_prompt0_id": 9221,
+            "eos_prompt0_id": 9222,
+            "use_lang_emb": false
+        },
+        "kmeans": {
+            "type": "repcodec",
+            "stat_mean_var_path":"./ckpt/emilia_wav2vec2bert_stats_10k.pt",
+            "repcodec": {
+                "codebook_size": 8192,
+                "hidden_size": 1024,
+                "codebook_dim": 8,
+                "vocos_dim": 384,
+                "vocos_intermediate_dim": 2048,
+                "vocos_num_layers": 12
+            },
+            "pretrained_path":"./ckpt/repcodec/emilia_50k_8192_norm_8d_86k_steps_model.safetensors"
+        },
+        "codec": {
+            "encoder": {
+                "d_model": 96,
+                "up_ratios": [4, 4, 4, 5],
+                "out_channels": 256,
+                "use_tanh": false,
+                "pretrained_path":"./ckpt/codec_16K_320_8/pytorch_model.bin"
+            },
+            "decoder": {
+                "in_channel": 256,
+                "upsample_initial_channel": 1536,
+                "up_ratios": [5, 4, 4, 4],
+                "num_quantizers": 8,
+                "codebook_size": 1024,
+                "codebook_dim": 8,
+                "quantizer_type": "fvq",
+                "quantizer_dropout": 0.5,
+                "commitment": 0.25,
+                "codebook_loss_weight": 1.0,
+                "use_l2_normlize": true,
+                "codebook_type": "euclidean",
+                "kmeans_init": false,
+                "kmeans_iters": 10,
+                "decay": 0.8,
+                "eps": 0.5,
+                "threshold_ema_dead_code": 2,
+                "weight_init": false,
+                "use_vocos": true,
+                "vocos_dim": 512,
+                "vocos_intermediate_dim": 4096,
+                "vocos_num_layers": 24,
+                "n_fft": 1280,
+                "hop_size": 320,
+                "padding": "same",
+                "pretrained_path": "./ckpt/codec_16K_320_8/pytorch_model_1.bin"
+            }
+        }
+    },
+    "log_dir": "TODO",
+    "train": {
+        "max_epoch": 0,
+        "use_dynamic_batchsize": true,
+        "max_tokens": 3000,
+        "max_sentences": 20,
+        "lr_warmup_steps": 3200,
+        "lr_scheduler": "inverse_sqrt",
+        "num_train_steps": 800,
+        "adam": {
+            "lr": 1e-5
+        },
+        "ddp": false,
+        "random_seed": 114,
+        "batch_size": 1,
+        "epochs": 500,
+        "max_steps": 10000,
+        "total_training_steps": 8000,
+        "save_summary_steps": 500,
+        "save_checkpoints_steps": 300,
+        "valid_interval": 2000,
+        "keep_checkpoint_max": 100,
+        "gradient_accumulation_step": 10,
+        "tracker": ["tensorboard"],
+        "save_checkpoint_stride": [1],
+        "keep_last": [15],
+        "run_eval": [true],
+        "dataloader": {
+          "num_worker": 4,
+          "pin_memory": true
+        },
+        "use_emilia_dataset": false
+    }
+}
+
