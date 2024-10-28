@@ -1,12 +1,12 @@
-from utils.g2p_liwei import cleaners
+from utils.g2p_new import cleaners
 from tokenizers import Tokenizer
-from utils.g2p_liwei.text_tokenizers import TextTokenizer
+from utils.g2p_new.text_tokenizers import TextTokenizer
 import json
 import re
 
 class PhonemeBpeTokenizer:
 
-  def __init__(self, vacab_path="/mntcephfs/lab_data/lijiaqi/Speech/utils/g2p_liwei/vacab.json"):
+  def __init__(self, vacab_path="./utils/g2p_new/vacab.json"):
     self.lang2backend = {
         'zh': "cmn",
         'ja': "ja",
@@ -18,7 +18,7 @@ class PhonemeBpeTokenizer:
     self.text_tokenizers = {}
     self.int_text_tokenizers()
     # TODO
-    vacab_path="/mntcephfs/lab_data/lijiaqi/Speech/utils/g2p_liwei/vacab.json"
+    vacab_path="/mntcephfs/lab_data/lijiaqi/Speech/utils/g2p_new/vacab.json"
     with open(vacab_path, 'rb') as f:
       json_data = f.read()
     data = json.loads(json_data)

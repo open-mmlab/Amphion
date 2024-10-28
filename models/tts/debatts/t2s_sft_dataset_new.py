@@ -27,7 +27,7 @@ os.chdir('./models/tts/debatts')
 import sys
 sys.path.append('./models/tts/debatts') 
 from utils.g2p_new.g2p import phonemizer_g2p
-from utils.g2p_liwei.g2p_liwei import liwei_g2p
+from utils.g2p_new.g2p_new import new_g2p
 from torch.nn.utils.rnn import pad_sequence
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -98,8 +98,8 @@ class T2SDataset(torch.utils.data.Dataset):
             "./w2v-bert-2"
         )
 
-    def liwei_g2p(self, text, language):
-        return liwei_g2p(text, language)
+    def new_g2p(self, text, language):
+        return new_g2p(text, language)
 
     def __len__(self):
         return self.wav_paths.__len__()

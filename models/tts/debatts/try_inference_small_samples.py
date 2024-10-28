@@ -7,7 +7,7 @@ import sys
 import os
 os.chdir('./models/tts/debatts')
 sys.path.append('./models/tts/debatts') 
-from utils.g2p_liwei.g2p_liwei import liwei_g2p
+from utils.g2p_new.g2p_new import new_g2p
 
 from transformers import Wav2Vec2Model
 from cgitb import text
@@ -42,11 +42,10 @@ from transformers import AutoProcessor, AutoModel
 
 from models.tts.text2semantic.t2s_model import T2SLlama
 from models.tts.text2semantic.t2s_model_new import T2SLlama_new
-from utils.g2p_liwei.g2p_liwei import liwei_g2p
 from models.tts.text2semantic.t2s_sft_dataset_new import DownsampleWithMask
     
-def liwei_g2p_(text, language):
-    return liwei_g2p(text, language)
+def new_g2p_(text, language):
+    return new_g2p(text, language)
 
 def build_t2s_model_new(cfg, device):
     t2s_model = T2SLlama_new(phone_vocab_size=1024,
@@ -89,7 +88,7 @@ def build_kmeans_model(cfg, device):
     return kmeans_model
 
 def build_semantic_model(cfg, device):
-    semantic_model = Wav2Vec2BertModel.from_pretrained("/mntcephfs/lab_data/lijiaqi/debate/gluster-tts/w2v-bert-2")
+    semantic_model = Wav2Vec2BertModel.from_pretrained("./w2v-bert-2")
     semantic_model.eval()
     semantic_model.to(device)
 
@@ -152,22 +151,22 @@ def extract_features(speech, processor):
     return input_features, attention_mask
 
 @torch.no_grad()
-def text2semantic(prompt0_speech, prompt0_text, prompt_speech, prompt_text, prompt_language, target_text, target_language, use_prompt_text=True, temp=1.0, top_k=1000, top_p=0.85, infer_mode = "ori"):
+def text2semantic(prompt0_speech, prompt0_text, prompt_speech, prompt_text, prompt_language, target_text, target_language, use_prompt_text=True, temp=1.0, top_k=1000, top_p=0.85, infer_mode = "new"):
     if use_prompt_text:
         if infer_mode == "new" and prompt0_speech is not None and prompt0_speech.any():
-            prompt0_phone_id = liwei_g2p_(prompt0_text, prompt_language)[1]
+            prompt0_phone_id = new_g2p_(prompt0_text, prompt_language)[1]
             prompt0_phone_id = torch.tensor(prompt0_phone_id, dtype=torch.long).to(device)
 
-        prompt_phone_id = liwei_g2p_(prompt_text, prompt_language)[1]
+        prompt_phone_id = new_g2p_(prompt_text, prompt_language)[1]
         prompt_phone_id = torch.tensor(prompt_phone_id, dtype=torch.long).to(device)
 
-        target_phone_id = liwei_g2p_(target_text, target_language)[1]
+        target_phone_id = new_g2p_(target_text, target_language)[1]
         target_phone_id = torch.tensor(target_phone_id, dtype=torch.long).to(device)  
 
         phone_id = torch.cat([prompt_phone_id, torch.LongTensor([4]).to(device), target_phone_id])
 
     else:
-        target_phone_id = liwei_g2p_(target_text, target_language)[1]
+        target_phone_id = new_g2p_(target_text, target_language)[1]
         target_phone_id = torch.tensor(target_phone_id, dtype=torch.long).to(device)
         phone_id = target_phone_id
     
@@ -185,32 +184,17 @@ def text2semantic(prompt0_speech, prompt0_text, prompt_speech, prompt_text, prom
         semantic_code_prompt0 = extract_semantic_code(semantic_mean, semantic_std, input_fetures_prompt0, attention_mask_prompt0)
     
     if use_prompt_text:
-        if infer_mode =="ori":
-            predict_semantic = t2s_model.sample_hf(phone_ids=phone_id.unsqueeze(0), prompt_ids=semantic_code[:, :], temperature=temp, top_k=top_k, top_p=top_p)
-        elif infer_mode == "tune":
-            predict_semantic = t2s_model_tune.sample_hf(phone_ids=phone_id.unsqueeze(0), prompt_ids=semantic_code[:, :], temperature=temp, top_k=top_k, top_p=top_p)
-        elif infer_mode == "new":
+        if infer_mode == "new":
             predict_semantic = t2s_model_new.sample_hf(phone_ids=phone_id.unsqueeze(0), prompt_ids=semantic_code[:, :], prompt0_ids=semantic_code_prompt0[:, :], temperature=temp, top_k=top_k, top_p=top_p)
 
     else:
-        if infer_mode == "ori":
-            predict_semantic = t2s_model.sample_hf(phone_ids=phone_id.unsqueeze(0), prompt_ids=semantic_code[:, :1], temperature=temp, top_k=top_k, top_p=top_p)
-        elif infer_mode == "tune":
-            predict_semantic = t2s_model_tune.sample_hf(phone_ids=phone_id.unsqueeze(0), prompt_ids=semantic_code[:, :1], temperature=temp, top_k=top_k, top_p=top_p)
-        elif infer_mode == "new":
+        if infer_mode == "new":
             predict_semantic = t2s_model_new.sample_hf(phone_ids=phone_id.unsqueeze(0), prompt_ids=semantic_code[:, :1], prompt0_ids=semantic_code_prompt0[:, :1], temperature=temp, top_k=top_k, top_p=top_p)
 
 
     combine_semantic_code = torch.cat([semantic_code[:,:], predict_semantic], dim=-1)
     prompt_semantic_code = semantic_code
     
-    # max_com_semantic_value = torch.max(combine_semantic_code).item()
-    # max_prompt_semantic_value = torch.max(prompt_semantic_code).item()
-
-    # print(f"Max token value in com semantic: {max_com_semantic_value}, shape is {combine_semantic_code.shape}")
-    # print(f"Max token value in prompt semantic: {max_prompt_semantic_value}, shape is {prompt_semantic_code.shape}")
-    # print(f"combine semantic_code of t2s new is {combine_semantic_code}, shape is {combine_semantic_code.shape}")
-
     return combine_semantic_code, prompt_semantic_code
 
 @torch.no_grad()
@@ -250,8 +234,8 @@ def semantic2acoustic(combine_semantic_code, acoustic_code):
     return combine_audio, recovered_audio
 
 device = torch.device("cuda:0")
-cfg_soundstorm_1layer = load_config("./egs/tts/SoundStorm/exp_config_16k_emilia_llama_new_semantic_repcodec_8192_1q_1layer_24k.json")
-cfg_soundstorm_full = load_config("./models/tts/debatts/egs/tts/SoundStorm/exp_config_16k_emilia_llama_new_semantic_repcodec_8192_1q_24k.json")
+cfg_soundstorm_1layer = load_config("./s2a_egs/exp_config_16k_emilia_llama_new_semantic_repcodec_8192_1q_1layer_24k.json")
+cfg_soundstorm_full = load_config("./s2a_egs/exp_config_16k_emilia_llama_new_semantic_repcodec_8192_1q_24k.json")
 
 soundstorm_1layer = build_soundstorm(cfg_soundstorm_1layer, device)
 soundstorm_full = build_soundstorm(cfg_soundstorm_full, device)
@@ -270,20 +254,9 @@ soundstorm_full_path = "./s2a_model/emilia_50k_8192_519k_model.safetensors"
 safetensors.torch.load_model(soundstorm_1layer, soundstorm_1layer_path)
 safetensors.torch.load_model(soundstorm_full, soundstorm_full_path)
 
-t2s_cfg = load_config("./exp_config_16k_emilia_new_semantic_repcodec_8192_1q_large_101k_fix_new.json")
-t2s_model = build_t2s_model(t2s_cfg, device)
-t2s_model_ckpt_path = "/mntcephfs/lab_data/lijiaqi/debate/gluster-tts/ckpt/t2s/t2s_625ksteps_model.safetensors"
-safetensors.torch.load_model(t2s_model, t2s_model_ckpt_path)
-print(t2s_model.bos_target_id, t2s_model.eos_target_id, t2s_model.bos_phone_id, t2s_model.eos_phone_id, t2s_model.pad_token_id)
-
-t2s_cfg = load_config("./egs/tts/Text2Semantic/exp_config_16k_emilia_new_semantic_repcodec_8192_1q_large_101k_fix_new.json")
-t2s_model_tune = build_t2s_model(t2s_cfg, device)
-t2s_model_tune_ckpt_path = "/mntcephfs/data/wuzhizheng/debate_/ckpt_ori_tune/epoch-0021_step-0005000_loss-4.354165/model.safetensors"
-safetensors.torch.load_model(t2s_model_tune, t2s_model_tune_ckpt_path)
-
-t2s_cfg = load_config("./egs/tts/Text2Semantic/exp_config_16k_emilia_new_semantic_repcodec_8192_1q_large_101k_fix_new.json")
+t2s_cfg = load_config("./t2s_egs/exp_config_16k_emilia_new_semantic_repcodec_8192_1q_large_101k_fix_new.json")
 t2s_model_new = build_t2s_model_new(t2s_cfg, device)
-t2s_model_new_ckpt_path = "./s2a_model/model.safetensors" # 1900(02), 1906
+t2s_model_new_ckpt_path = "./t2s_model/model.safetensors"
 safetensors.torch.load_model(t2s_model_new, t2s_model_new_ckpt_path)
 
 from funasr import AutoModel
@@ -361,7 +334,7 @@ def generate_text_data(wav_file):
     return wav_file, txt, wav_file
 
 
-def infer(speech_path, prompt_text, target_wav_path, target_text, target_language='zh', speech_path_prompt0=None, prompt0_text=None, temperature=0.2, top_k=20, top_p=0.9, concat_prompt=False, infer_mode="ori", idx = 0, epoch=0, spk_prompt_type=""):
+def infer(speech_path, prompt_text, target_wav_path, target_text, target_language='zh', speech_path_prompt0=None, prompt0_text=None, temperature=0.2, top_k=20, top_p=0.9, concat_prompt=False, infer_mode="new", idx = 0, epoch=0, spk_prompt_type=""):
     if idx != 0:
         save_dir = os.path.join("The Path to Store Generated Speech", f"{infer_mode}/{spk_prompt_type}")
         if not os.path.exists(save_dir):
@@ -376,22 +349,20 @@ def infer(speech_path, prompt_text, target_wav_path, target_text, target_languag
     if os.path.exists(save_path):
         return save_path
     
-    print(f"HERE COMES INFER!!! {infer_mode}")
-    print(f"IN INFER PROMPT text is {prompt_text}")
-    print(f"IN INFER Target text is {target_text}")
+    # print(f"HERE COMES INFER!!! {infer_mode}")
+    # print(f"IN INFER PROMPT text is {prompt_text}")
+    # print(f"IN INFER Target text is {target_text}")
     speech_16k = librosa.load(speech_path, sr=16000)[0]
     speech = librosa.load(speech_path, sr=cfg_soundstorm_1layer.preprocess.sample_rate)[0]
 
     if infer_mode == "new":
         speech_16k_prompt0 = librosa.load(speech_path_prompt0, sr=16000)[0]
         speech_prompt0 = librosa.load(speech_path_prompt0, sr=cfg_soundstorm_1layer.preprocess.sample_rate)[0]
-        # combine_semantic_code, _ = text2semantic_new(speech_16k_prompt0, prompt0_text, speech_16k, prompt_text, target_language, target_text, target_language, temp=temperature, top_k=top_k, top_p=top_p, infer_mode=infer_mode)
         combine_semantic_code, _ = text2semantic(prompt0_speech=speech_16k_prompt0, prompt0_text=prompt0_text, prompt_speech=speech_16k, prompt_text=prompt_text, prompt_language=target_language, target_text=target_text, target_language=target_language, temp=temperature, top_k=top_k, top_p=top_p, infer_mode = infer_mode)
 
     else:
         combine_semantic_code, _ = text2semantic(prompt0_speech=None, prompt0_text=None, prompt_speech=speech_16k, prompt_text=prompt_text, prompt_language = target_language, target_text=target_text, target_language=target_language, temp=temperature, top_k=top_k, top_p=top_p, infer_mode=infer_mode)
     acoustic_code = extract_acoustic_code(torch.tensor(speech).unsqueeze(0).to(device))
-    # print(acoustic_code.shape)
     combine_audio, recovered_audio = semantic2acoustic(combine_semantic_code, acoustic_code)
     
     
@@ -401,7 +372,7 @@ def infer(speech_path, prompt_text, target_wav_path, target_text, target_languag
     sf.write(save_path, combine_audio, samplerate=cfg_soundstorm_1layer.preprocess.sample_rate)
     return save_path
 
-def infer_small(speech_path, prompt_text, target_text, target_language='zh', speech_path_prompt0=None, prompt0_text=None, temperature=0.2, top_k=20, top_p=0.9, concat_prompt=False, infer_mode="ori", save_path=None):
+def infer_small(speech_path, prompt_text, target_text, target_language='zh', speech_path_prompt0=None, prompt0_text=None, temperature=0.2, top_k=20, top_p=0.9, concat_prompt=False, infer_mode="new", save_path=None):
 
     if os.path.exists(save_path):
         return save_path
@@ -427,24 +398,6 @@ def infer_small(speech_path, prompt_text, target_text, target_language='zh', spe
     sf.write(save_path, combine_audio, samplerate=cfg_soundstorm_1layer.preprocess.sample_rate)
     return save_path
 
-def get_prompt0_wav_path(wav_path):
-    base_path = wav_path.split('chenci')[0].rstrip('_')
-    json_path = f"{base_path}.json"
-
-    try:
-        with open(json_path, 'r', encoding='utf-8') as file:
-            data = json.load(file)
-            prompt0_wav_path = data['prompt0_wav_path']
-            basename = os.path.basename(prompt0_wav_path)
-            prompt0_wav_path = os.path.join("Debatts-Data Test Directory", basename)
-            return prompt0_wav_path
-    except FileNotFoundError:
-        print(f"File not found: {json_path}")
-    except KeyError:
-        print(f"Cannot find 'prompt0_wav_path' in json")
-    except json.JSONDecodeError as e:
-        print(f"Error in reading json: {e}")
-
 ##################################### EVALUATION ################################################################
 from funasr import AutoModel
 import torch.nn.functional as F
@@ -454,7 +407,7 @@ from models.tts.soundstorm.try_inference_new import evaluation
 from models.tts.soundstorm.try_inference_new import evaluation_new
 from models.tts.soundstorm.try_inference_new import extract_emotion_similarity
 
-prompt0_wav_path = "./models/tts/debatts/speech_examples/87_SPEAKER01_2_part03_213.wav"
+prompt0_wav_path = "./debatts/speech_examples/87_SPEAKER01_2_part03_213.wav"
 prompt0_text = generate_text_data(prompt0_wav_path)[1]
 
 spk_prompt_wav_path = "The Speaker Identity Path"
