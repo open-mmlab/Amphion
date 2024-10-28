@@ -14,9 +14,11 @@ import json
 import torch.nn as nn
 import tqdm
 from einops import rearrange
-os.chdir('./models/tts/debatts')
+
+os.chdir("./models/tts/debatts")
 import sys
-sys.path.append('./models/tts/debatts') 
+
+sys.path.append("./models/tts/debatts")
 from utils.topk_sampling import top_k_top_p_filtering
 import pickle
 
@@ -113,7 +115,6 @@ class T2SLlama_new(nn.Module):
             else eos_prompt0_id
         )
 
-
         self.config = LlamaConfig(
             vocab_size=phone_vocab_size + target_vocab_size + 20,
             hidden_size=hidden_size,
@@ -124,7 +125,7 @@ class T2SLlama_new(nn.Module):
             bos_token_id=bos_target_id,
             eos_token_id=eos_target_id,
             bos_prompt0_id=bos_prompt0_id,
-            eos_prompt0_id=eos_prompt0_id
+            eos_prompt0_id=eos_prompt0_id,
         )
         self.phone_vocab_size = phone_vocab_size
         self.target_vocab_size = target_vocab_size
@@ -145,15 +146,24 @@ class T2SLlama_new(nn.Module):
             torch.nn.init.normal_(self.lang_emb.weight, mean=0.0, std=0.02)
 
     def forward(
-        self, prompt0_ids, prompt0_mask, phone_ids, phone_mask, target_ids, target_mask, lang_id=None,
+        self,
+        prompt0_ids,
+        prompt0_mask,
+        phone_ids,
+        phone_mask,
+        target_ids,
+        target_mask,
+        lang_id=None,
     ):
-        prompt0_ids, prompt0_mask, prompt0_label, prompt0_lang_mask = self.add_phone_eos_bos_label(
-            prompt0_ids,
-            prompt0_mask,
-            self.eos_prompt0_id,
-            self.bos_prompt0_id,
-            self.pad_token_id,
-            label="prompt0_id"
+        prompt0_ids, prompt0_mask, prompt0_label, prompt0_lang_mask = (
+            self.add_phone_eos_bos_label(
+                prompt0_ids,
+                prompt0_mask,
+                self.eos_prompt0_id,
+                self.bos_prompt0_id,
+                self.pad_token_id,
+                label="prompt0_id",
+            )
         )
         phone_ids, phone_mask, phone_label, lang_mask = self.add_phone_eos_bos_label(
             phone_ids,
@@ -161,7 +171,7 @@ class T2SLlama_new(nn.Module):
             self.eos_phone_id,
             self.bos_phone_id,
             self.pad_token_id,
-            label="phone_id"
+            label="phone_id",
         )
         target_ids, target_mask, target_label = self.add_target_eos_bos_label(
             target_ids,
@@ -178,9 +188,15 @@ class T2SLlama_new(nn.Module):
 
         # lang_id: (B,); lang_mask: (B, T)
         if self.use_lang_emb:
-            lang_embedding = self.lang_emb(lang_id).unsqueeze(1)   # (B, d) -> (B, 1, d)
-            lang_embedding = lang_embedding * torch.cat([prompt0_lang_mask, lang_mask, torch.zeros_like(target_mask)], dim=-1).unsqueeze(-1)   # (B, T, d)
-            input_token_embedding = self.model.model.embed_tokens(input_token_ids)   # (B, T, d)
+            lang_embedding = self.lang_emb(lang_id).unsqueeze(1)  # (B, d) -> (B, 1, d)
+            lang_embedding = lang_embedding * torch.cat(
+                [prompt0_lang_mask, lang_mask, torch.zeros_like(target_mask)], dim=-1
+            ).unsqueeze(
+                -1
+            )  # (B, T, d)
+            input_token_embedding = self.model.model.embed_tokens(
+                input_token_ids
+            )  # (B, T, d)
             inputs_embeds = input_token_embedding + lang_embedding
 
             out = self.model(
@@ -233,12 +249,16 @@ class T2SLlama_new(nn.Module):
         """
         phone_ids = F.pad(phone_ids, (0, 1), value=0) + phone_eos_id * F.pad(
             1 - phone_mask, (0, 1), value=1
-        ) # make pad token eos token, add eos token at the end
-        phone_mask = F.pad(phone_mask, (1, 0), value=1) # add eos mask
-        phone_ids = phone_ids * phone_mask + pad_token_id * (1 - phone_mask) # restore pad token ids
-        phone_ids = F.pad(phone_ids, (1, 0), value=phone_bos_id) # add bos token
-        phone_mask = F.pad(phone_mask, (1, 0), value=1) # add bos mask
-        phone_label = -100 * torch.ones_like(phone_ids) # loss for entire phone is not computed (passed to llama)
+        )  # make pad token eos token, add eos token at the end
+        phone_mask = F.pad(phone_mask, (1, 0), value=1)  # add eos mask
+        phone_ids = phone_ids * phone_mask + pad_token_id * (
+            1 - phone_mask
+        )  # restore pad token ids
+        phone_ids = F.pad(phone_ids, (1, 0), value=phone_bos_id)  # add bos token
+        phone_mask = F.pad(phone_mask, (1, 0), value=1)  # add bos mask
+        phone_label = -100 * torch.ones_like(
+            phone_ids
+        )  # loss for entire phone is not computed (passed to llama)
         return phone_ids, phone_mask, phone_label, lang_mask
 
     def add_target_eos_bos_label(
@@ -254,9 +274,11 @@ class T2SLlama_new(nn.Module):
         target_ids = target_ids * target_mask + pad_token_id * (1 - target_mask)
         target_ids = F.pad(target_ids, (1, 0), value=target_bos_id)
         target_mask = F.pad(target_mask, (1, 0), value=1)
-        target_label = target_ids * target_mask + (-100) * (1 - target_mask) # loss for target is computed on unmasked tokens
+        target_label = target_ids * target_mask + (-100) * (
+            1 - target_mask
+        )  # loss for target is computed on unmasked tokens
         return target_ids, target_mask, target_label
-    
+
     def add_phone_middle_label(
         self, prompt0_ids, prompt0_mask, eos_prompt0_id, pad_token_id
     ):
@@ -267,19 +289,28 @@ class T2SLlama_new(nn.Module):
         prompt0_ids = F.pad(prompt0_ids, (0, 1), value=0) + eos_prompt0_id * F.pad(
             1 - prompt0_mask, (0, 1), value=1
         )  # Add eos_prompt0_id at the positions transitioning to padding
-        prompt0_mask = F.pad(prompt0_mask, (1, 0), value=1)  # Pad the mask for the new eos_prompt0_id
-        prompt0_ids = prompt0_ids * prompt0_mask + pad_token_id * (1 - prompt0_mask)  # Restore pad tokens
-        prompt0_ids = F.pad(prompt0_ids, (1, 0), value=eos_prompt0_id)  # Add eos_prompt0_id at the beginning
-        prompt0_mask = F.pad(prompt0_mask, (1, 0), value=1)  # Adjust the mask for the added eos_prompt0_id
-        prompt0_label = prompt0_ids * prompt0_mask + (-100) * (1 - prompt0_mask)  # Set up labels for loss computation
+        prompt0_mask = F.pad(
+            prompt0_mask, (1, 0), value=1
+        )  # Pad the mask for the new eos_prompt0_id
+        prompt0_ids = prompt0_ids * prompt0_mask + pad_token_id * (
+            1 - prompt0_mask
+        )  # Restore pad tokens
+        prompt0_ids = F.pad(
+            prompt0_ids, (1, 0), value=eos_prompt0_id
+        )  # Add eos_prompt0_id at the beginning
+        prompt0_mask = F.pad(
+            prompt0_mask, (1, 0), value=1
+        )  # Adjust the mask for the added eos_prompt0_id
+        prompt0_label = prompt0_ids * prompt0_mask + (-100) * (
+            1 - prompt0_mask
+        )  # Set up labels for loss computation
 
         return prompt0_ids, prompt0_mask, prompt0_label
-
 
     @torch.no_grad()
     def sample_hf(
         self,
-        phone_ids, # the phones of prompt and target should be concatenated together。在实际使用中，phone_ids是文本的token输入
+        phone_ids,  # the phones of prompt and target should be concatenated together。在实际使用中，phone_ids是文本的token输入
         prompt_ids,
         prompt0_ids=None,
         max_length=100000,
@@ -287,12 +318,12 @@ class T2SLlama_new(nn.Module):
         top_k=30,
         top_p=0.7,
         repeat_penalty=3.5,
-        lang_ids=None
+        lang_ids=None,
     ):
         if prompt0_ids is not None:
             phone_mask = torch.ones_like(phone_ids)
             prompt_mask = torch.ones_like(prompt_ids)
-            
+
             prompt_mask_prompt0 = torch.ones_like(prompt0_ids)
 
             # downsample = DownsampleWithMask(downsample_factor=2)
@@ -304,7 +335,7 @@ class T2SLlama_new(nn.Module):
                 self.eos_phone_id,
                 self.bos_phone_id,
                 self.pad_token_id,
-                label="phone_id"
+                label="phone_id",
             )
             prompt_ids, _, _ = self.add_target_eos_bos_label(
                 prompt_ids,
@@ -313,8 +344,8 @@ class T2SLlama_new(nn.Module):
                 self.bos_target_id,
                 self.pad_token_id,
             )
-            prompt_ids = prompt_ids[:, :-1] # remove end token. Make it continue mode
-            
+            prompt_ids = prompt_ids[:, :-1]  # remove end token. Make it continue mode
+
             prompt0_ids, _, _ = self.add_target_eos_bos_label(
                 prompt0_ids,
                 prompt_mask_prompt0,
@@ -322,20 +353,37 @@ class T2SLlama_new(nn.Module):
                 self.bos_prompt0_id,
                 self.pad_token_id,
             )
-            
+
             input_token_ids = torch.cat([prompt0_ids, phone_ids, prompt_ids], dim=-1)
             input_length = input_token_ids.shape[1]
 
             if lang_ids != None and self.use_lang_emb:
                 lang_ids = F.pad(F.pad(lang_ids, (1, 0), value=0), (0, 1), value=0)
 
-                input_token_embedding = self.model.model.embed_tokens(input_token_ids)   # (B, T, d)
+                input_token_embedding = self.model.model.embed_tokens(
+                    input_token_ids
+                )  # (B, T, d)
                 # lang_ids: [1,1,1,1,1,1,2,2,2,2] which means ['en','en','en','en','en','en','zh','zh','zh','zh']
                 lang_mask = torch.ones_like(phone_ids)
-                lang_mask[:,0] = 0
-                lang_mask[:,-1] = 0
-                lang_embedding = torch.cat([self.lang_emb(lang_ids), self.lang_emb(lang_ids), torch.zeros(lang_ids.shape[0], input_token_ids.shape[1] - lang_ids.shape[1], self.hidden_size).to(input_token_ids.device)], dim=1) * torch.cat([lang_mask, torch.zeros_like(prompt_ids)], dim=-1).unsqueeze(-1)
-                
+                lang_mask[:, 0] = 0
+                lang_mask[:, -1] = 0
+                lang_embedding = torch.cat(
+                    [
+                        self.lang_emb(lang_ids),
+                        self.lang_emb(lang_ids),
+                        torch.zeros(
+                            lang_ids.shape[0],
+                            input_token_ids.shape[1] - lang_ids.shape[1],
+                            self.hidden_size,
+                        ).to(input_token_ids.device),
+                    ],
+                    dim=1,
+                ) * torch.cat(
+                    [lang_mask, torch.zeros_like(prompt_ids)], dim=-1
+                ).unsqueeze(
+                    -1
+                )
+
                 inputs_embeds = input_token_embedding + lang_embedding
 
                 # if prosody_features is not None:
@@ -356,11 +404,11 @@ class T2SLlama_new(nn.Module):
                     repetition_penalty=repeat_penalty,
                     min_new_tokens=50,
                 )
-                gen_tokens = generated_ids[:,:-1]
+                gen_tokens = generated_ids[:, :-1]
             else:
 
                 input_token_embedding = self.model.model.embed_tokens(input_token_ids)
-                
+
                 generated_ids = self.model.generate(
                     input_token_ids,
                     do_sample=True,
@@ -376,7 +424,7 @@ class T2SLlama_new(nn.Module):
                 gen_tokens = generated_ids[:, input_length:-1]
 
             return gen_tokens
-        
+
         else:
             phone_mask = torch.ones_like(phone_ids)
             prompt_mask = torch.ones_like(prompt_ids)
@@ -386,7 +434,7 @@ class T2SLlama_new(nn.Module):
                 self.eos_phone_id,
                 self.bos_phone_id,
                 self.pad_token_id,
-                label="phone_ids"
+                label="phone_ids",
             )
             prompt_ids, _, _ = self.add_target_eos_bos_label(
                 prompt_ids,
@@ -395,22 +443,37 @@ class T2SLlama_new(nn.Module):
                 self.bos_target_id,
                 self.pad_token_id,
             )
-            prompt_ids = prompt_ids[:, :-1] # remove end token. Make it continue mode
-            
+            prompt_ids = prompt_ids[:, :-1]  # remove end token. Make it continue mode
+
             input_token_ids = torch.cat([phone_ids, prompt_ids], dim=-1)
             input_length = input_token_ids.shape[1]
 
             if lang_ids != None and self.use_lang_emb:
                 lang_ids = F.pad(F.pad(lang_ids, (1, 0), value=0), (0, 1), value=0)
                 # token to vector
-                input_token_embedding = self.model.model.embed_tokens(input_token_ids)   # (B, T, d)
+                input_token_embedding = self.model.model.embed_tokens(
+                    input_token_ids
+                )  # (B, T, d)
                 # lang_ids: [1,1,1,1,1,1,2,2,2,2] which means ['en','en','en','en','en','en','zh','zh','zh','zh']
                 lang_mask = torch.ones_like(phone_ids)
-                lang_mask[:,0] = 0
-                lang_mask[:,-1] = 0
-                lang_embedding = torch.cat([self.lang_emb(lang_ids), torch.zeros(lang_ids.shape[0], input_token_ids.shape[1] - lang_ids.shape[1], self.hidden_size).to(input_token_ids.device)], dim=1) * torch.cat([lang_mask, torch.zeros_like(prompt_ids)], dim=-1).unsqueeze(-1)
-                
-                
+                lang_mask[:, 0] = 0
+                lang_mask[:, -1] = 0
+                lang_embedding = torch.cat(
+                    [
+                        self.lang_emb(lang_ids),
+                        torch.zeros(
+                            lang_ids.shape[0],
+                            input_token_ids.shape[1] - lang_ids.shape[1],
+                            self.hidden_size,
+                        ).to(input_token_ids.device),
+                    ],
+                    dim=1,
+                ) * torch.cat(
+                    [lang_mask, torch.zeros_like(prompt_ids)], dim=-1
+                ).unsqueeze(
+                    -1
+                )
+
                 inputs_embeds = input_token_embedding + lang_embedding
 
                 generated_ids = self.model.generate(
@@ -427,13 +490,13 @@ class T2SLlama_new(nn.Module):
                     min_new_tokens=50,
                 )
                 # assert generated_ids.size(1) > input_length, f"Generated tokens length {generated_ids.size(1)} is less than input length {input_length}, generated ids is {generated_ids}"
-                gen_tokens = generated_ids[:,:-1]
+                gen_tokens = generated_ids[:, :-1]
 
             else:
 
                 input_token_embedding = self.model.model.embed_tokens(input_token_ids)
                 # if prosody_features is not None:
-                #   
+                #
                 #     prosody_features = prosody_features.unsqueeze(1).expand(-1, input_token_embedding.size(1), -1)
                 #     inputs_embeds = input_token_embedding + prosody_features
                 #     generated_ids = self.model.generate(
@@ -448,7 +511,7 @@ class T2SLlama_new(nn.Module):
                     top_k=top_k,
                     top_p=top_p,
                     repetition_penalty=repeat_penalty,
-                    min_new_tokens=50
+                    min_new_tokens=50,
                 )
                 # assert generated_ids.size(1) > input_length, f"Generated tokens length {generated_ids.size(1)} is less than input length {input_length}, generated ids is {generated_ids}"
 
@@ -464,15 +527,20 @@ class DownsampleWithMask(nn.Module):
     def forward(self, x, mask):
         # x shape: (batch_size, seq_len)
         # mask shape: (batch_size, seq_len)
-        
+
         x = x.float()
         x = x.unsqueeze(1)  # add channel dimension: (batch_size, 1, seq_len)
-        x = F.avg_pool1d(x, kernel_size=self.downsample_factor, stride=self.downsample_factor)
-        x = x.squeeze(1)  # remove channel dimension: (batch_size, seq_len // downsample_factor)
+        x = F.avg_pool1d(
+            x, kernel_size=self.downsample_factor, stride=self.downsample_factor
+        )
+        x = x.squeeze(
+            1
+        )  # remove channel dimension: (batch_size, seq_len // downsample_factor)
         x = x.long()
 
         # average pooling
         mask = mask.float()  # convert mask to float for pooling
         mask = mask.unsqueeze(1)  # add channel dimension: (batch_size, 1, seq_len)
-        mask = F.avg_pool1d(mask, kernel_size=self.downsample_factor, stride=self.downsample_factor)
-   
+        mask = F.avg_pool1d(
+            mask, kernel_size=self.downsample_factor, stride=self.downsample_factor
+        )

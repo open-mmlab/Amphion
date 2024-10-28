@@ -23,9 +23,11 @@ import concurrent.futures
 from pathlib import Path
 from transformers import SeamlessM4TFeatureExtractor
 from transformers import Wav2Vec2BertModel
-os.chdir('./models/tts/debatts')
+
+os.chdir("./models/tts/debatts")
 import sys
-sys.path.append('./models/tts/debatts') 
+
+sys.path.append("./models/tts/debatts")
 from utils.g2p_new.g2p import phonemizer_g2p
 from utils.g2p_new.g2p_new import new_g2p
 from torch.nn.utils.rnn import pad_sequence
@@ -44,6 +46,7 @@ class WarningFilter(logging.Filter):
             return False
         return True
 
+
 filter = WarningFilter()
 logging.getLogger("phonemizer").addFilter(filter)
 logging.getLogger("qcloud_cos.cos_client").addFilter(filter)
@@ -51,13 +54,14 @@ logging.getLogger("jieba").addFilter(filter)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class T2SDataset(torch.utils.data.Dataset):
     def __init__(
         self,
         cfg=None,
     ):
         self.cfg = cfg
-        
+
         self.meta_info_path = "Debatts-Data Summary Json"
         with open(self.meta_info_path, "r") as f:
             self.meta_info_data = json.load(f)
@@ -82,7 +86,7 @@ class T2SDataset(torch.utils.data.Dataset):
             self.wav_path_index2spkid.append(info["speaker_id"])
             self.wav_path_index2phoneid.append(info["phone_id"])
             self.index2num_frames.append(info["duration"] * 50 + len(info["phone_id"]))
-            lang_id = self.lang2id[info['language']]
+            lang_id = self.lang2id[info["language"]]
             self.index2lang.append(lang_id)
 
             # self.index2num_frames.append(info["duration"] * self.cfg.preprocess.sample_rate)
@@ -94,9 +98,7 @@ class T2SDataset(torch.utils.data.Dataset):
             )
         )
 
-        self.processor = SeamlessM4TFeatureExtractor.from_pretrained(
-            "./w2v-bert-2"
-        )
+        self.processor = SeamlessM4TFeatureExtractor.from_pretrained("./w2v-bert-2")
 
     def new_g2p(self, text, language):
         return new_g2p(text, language)
@@ -105,12 +107,23 @@ class T2SDataset(torch.utils.data.Dataset):
         return self.wav_paths.__len__()
 
     def get_num_frames(self, index):
-        return self.wav_path_index2duration[index] * 50 + self.wav_path_index2phonelen[index]
+        return (
+            self.wav_path_index2duration[index] * 50
+            + self.wav_path_index2phonelen[index]
+        )
 
     def __getitem__(self, idx):
         wav_path = self.wav_paths[idx]
         speech, sr = librosa.load(wav_path, sr=self.cfg.preprocess.sample_rate)
-        speech = np.pad(speech, (0, self.cfg.preprocess.hop_size - len(speech) % self.cfg.preprocess.hop_size), mode="constant")
+        speech = np.pad(
+            speech,
+            (
+                0,
+                self.cfg.preprocess.hop_size
+                - len(speech) % self.cfg.preprocess.hop_size,
+            ),
+            mode="constant",
+        )
         # resample the speech to 16k for feature extraction
         if self.cfg.preprocess.sample_rate != 16000:
             speech_16k = librosa.resample(
@@ -124,8 +137,18 @@ class T2SDataset(torch.utils.data.Dataset):
         attention_mask = inputs["attention_mask"][0]
 
         prompt0_wav_path = self.prompt0_paths[idx]  # Get prompt0 path
-        speech_prompt0, sr_prompt0 = librosa.load(prompt0_wav_path, sr=self.cfg.preprocess.sample_rate)
-        speech_prompt0 = np.pad(speech_prompt0, (0, self.cfg.preprocess.hop_size - len(speech_prompt0) % self.cfg.preprocess.hop_size), mode="constant")
+        speech_prompt0, sr_prompt0 = librosa.load(
+            prompt0_wav_path, sr=self.cfg.preprocess.sample_rate
+        )
+        speech_prompt0 = np.pad(
+            speech_prompt0,
+            (
+                0,
+                self.cfg.preprocess.hop_size
+                - len(speech_prompt0) % self.cfg.preprocess.hop_size,
+            ),
+            mode="constant",
+        )
         # resample the speech to 16k for feature extraction
         if self.cfg.preprocess.sample_rate != 16000:
             speech_16k_prompt0 = librosa.resample(
@@ -133,7 +156,7 @@ class T2SDataset(torch.utils.data.Dataset):
             )
         else:
             speech_16k_prompt0 = speech_prompt0
-        
+
         inputs_prompt0 = self.processor(speech_16k_prompt0, sampling_rate=16000)
 
         input_features_prompt0 = inputs_prompt0["input_features"][0]
@@ -157,8 +180,8 @@ class T2SDataset(torch.utils.data.Dataset):
 
         spk_id = self.wav_path_index2spkid[idx]
 
-        single_feature.update({"spk_id": spk_id})        
-        single_feature.update({"lang_id": lang_id})        
+        single_feature.update({"spk_id": spk_id})
+        single_feature.update({"lang_id": lang_id})
 
         single_feature.update({"phone_id": phone_id})
         single_feature.update({"phone_mask": phone_mask})
@@ -170,12 +193,11 @@ class T2SDataset(torch.utils.data.Dataset):
                 "mask": mask,
                 "input_features_prompt0": input_features_prompt0,
                 "attention_mask_prompt0": attention_mask_prompt0,
-                "mask_prompt0":mask_prompt0
+                "mask_prompt0": mask_prompt0,
             }
         )
 
         return single_feature
-    
 
 
 class T2SCollator(object):
@@ -188,36 +210,70 @@ class T2SCollator(object):
         for key in batch[0].keys():
             if "input_features" in key:
                 packed_batch_features[key] = pad_sequence(
-                    [utt[key].float() if isinstance(utt[key], torch.Tensor) else torch.tensor(utt[key]).float() for utt in batch],
-                    batch_first=True
+                    [
+                        (
+                            utt[key].float()
+                            if isinstance(utt[key], torch.Tensor)
+                            else torch.tensor(utt[key]).float()
+                        )
+                        for utt in batch
+                    ],
+                    batch_first=True,
                 )
             if "attention_mask" in key:
                 packed_batch_features[key] = pad_sequence(
-                    [utt[key].float() if isinstance(utt[key], torch.Tensor) else torch.tensor(utt[key]).float() for utt in batch],
-                    batch_first=True
+                    [
+                        (
+                            utt[key].float()
+                            if isinstance(utt[key], torch.Tensor)
+                            else torch.tensor(utt[key]).float()
+                        )
+                        for utt in batch
+                    ],
+                    batch_first=True,
                 )
             if "mask" in key:
                 packed_batch_features[key] = pad_sequence(
-                    [utt[key].long() if isinstance(utt[key], torch.Tensor) else torch.tensor(utt[key]).long() for utt in batch],
-                    batch_first=True
+                    [
+                        (
+                            utt[key].long()
+                            if isinstance(utt[key], torch.Tensor)
+                            else torch.tensor(utt[key]).long()
+                        )
+                        for utt in batch
+                    ],
+                    batch_first=True,
                 )
             if "semantic_code" in key:
                 packed_batch_features[key] = pad_sequence(
-                    [utt[key].float() if isinstance(utt[key], torch.Tensor) else torch.tensor(utt[key]).float() for utt in batch],
-                    batch_first=True
+                    [
+                        (
+                            utt[key].float()
+                            if isinstance(utt[key], torch.Tensor)
+                            else torch.tensor(utt[key]).float()
+                        )
+                        for utt in batch
+                    ],
+                    batch_first=True,
                 )
             if key == "phone_id":
                 packed_batch_features[key] = pad_sequence(
-                    [utt[key].long() for utt in batch], batch_first=True, padding_value=1023,   # phone vocab size is 1024
+                    [utt[key].long() for utt in batch],
+                    batch_first=True,
+                    padding_value=1023,  # phone vocab size is 1024
                 )
             if key == "phone_mask":
                 packed_batch_features[key] = pad_sequence(
                     [torch.tensor(utt[key]).long() for utt in batch], batch_first=True
                 )
             if key == "lang_id":
-                packed_batch_features[key] = torch.tensor([utt[key] for utt in batch]).long()
+                packed_batch_features[key] = torch.tensor(
+                    [utt[key] for utt in batch]
+                ).long()
             if key == "spk_id":
-                packed_batch_features[key] = torch.tensor([utt[key] for utt in batch]).long()
+                packed_batch_features[key] = torch.tensor(
+                    [utt[key] for utt in batch]
+                ).long()
             if key == "spk_emb_input_features":
                 packed_batch_features[key] = pad_sequence(
                     [torch.tensor(utt[key]).float() for utt in batch], batch_first=True
@@ -230,7 +286,6 @@ class T2SCollator(object):
                 pass
 
         return packed_batch_features
-
 
 
 class DownsampleWithMask(nn.Module):
@@ -250,24 +305,32 @@ class DownsampleWithMask(nn.Module):
         x = x.float()
         x = x.permute(1, 0)  # to (feature_dim, timestep)
         x = x.unsqueeze(1)  # add channel dimension: (timestep, 1, feature_dim)
-        
+
         if x.size(-1) < self.downsample_factor:
             raise ValueError("Input size must be larger than downsample factor")
 
         # print(f"################## x size before {x.shape}################################")
         x = F.avg_pool1d(x, kernel_size=self.downsample_factor)
-        x = x.squeeze(1)  # remove channel dimension: (timestep, feature_dim // downsample_factor)
+        x = x.squeeze(
+            1
+        )  # remove channel dimension: (timestep, feature_dim // downsample_factor)
         x = x.long()
         x = x.permute(1, 0)  # to (feature_dim, timestep)
 
         mask = mask.float()  # convert mask to float for pooling
-        mask = mask.unsqueeze(0).unsqueeze(0)  # add channel dimension: (timestep, 1, feature_dim)
-        
+        mask = mask.unsqueeze(0).unsqueeze(
+            0
+        )  # add channel dimension: (timestep, 1, feature_dim)
+
         if mask.size(-1) < self.downsample_factor:
             raise ValueError("Mask size must be larger than downsample factor")
 
-        mask = F.avg_pool1d(mask, kernel_size=self.downsample_factor, stride=self.downsample_factor)
-        mask = mask.squeeze(0).squeeze(0)  # remove channel dimension: (timestep, feature_dim // downsample_factor)
+        mask = F.avg_pool1d(
+            mask, kernel_size=self.downsample_factor, stride=self.downsample_factor
+        )
+        mask = mask.squeeze(0).squeeze(
+            0
+        )  # remove channel dimension: (timestep, feature_dim // downsample_factor)
         mask = (mask >= 0.5).long()  # if average > 0.5 --> 1, else 0
 
         return x, mask

@@ -3,5 +3,6 @@ import tqdm
 
 text_tokenizer = PhonemeBpeTokenizer()
 
+
 def new_g2p(text, language):
     return text_tokenizer.tokenize(text=text, language=language)
