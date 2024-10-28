@@ -310,7 +310,7 @@ class T2SLlama_new(nn.Module):
     @torch.no_grad()
     def sample_hf(
         self,
-        phone_ids,  # the phones of prompt and target should be concatenated together。在实际使用中，phone_ids是文本的token输入
+        phone_ids,  # the phones of prompt and target should be concatenated together
         prompt_ids,
         prompt0_ids=None,
         max_length=100000,

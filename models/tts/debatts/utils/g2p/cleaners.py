@@ -1,3 +1,8 @@
+# Copyright (c) 2024 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 import re
 from utils.g2p.japanese import japanese_to_ipa
 from utils.g2p.mandarin import chinese_to_ipa

@@ -28,7 +28,6 @@ os.chdir("./models/tts/debatts")
 import sys
 
 sys.path.append("./models/tts/debatts")
-from utils.g2p_new.g2p import phonemizer_g2p
 from utils.g2p_new.g2p_new import new_g2p
 from torch.nn.utils.rnn import pad_sequence
 

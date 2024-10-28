@@ -25,7 +25,6 @@ def init_logger(name):
     fh.setFormatter(formatter)
     logger.addHandler(fh)
 
-    # 创建一个自定义的日志格式器，将特定级别的日志设置为红色
     class ColorFormatter(logging.Formatter):
         def format(self, record):
             if record.levelno >= logging.ERROR:

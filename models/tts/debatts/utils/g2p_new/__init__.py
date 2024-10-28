@@ -1,3 +1,8 @@
+# Copyright (c) 2024 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
 from utils.g2p_new import cleaners
 from tokenizers import Tokenizer
 from utils.g2p_new.text_tokenizers import TextTokenizer
@@ -18,8 +23,7 @@ class PhonemeBpeTokenizer:
         }
         self.text_tokenizers = {}
         self.int_text_tokenizers()
-        # TODO
-        vacab_path = "/mntcephfs/lab_data/lijiaqi/Speech/utils/g2p_new/vacab.json"
+        vacab_path = "./g2p_new/vacab.json"
         with open(vacab_path, "rb") as f:
             json_data = f.read()
         data = json.loads(json_data)
@@ -55,7 +59,7 @@ class PhonemeBpeTokenizer:
         return text
 
     def phoneme2token(self, phonemes):
-        # 使用的是国际音标，可以将音素转化成token。实际上输入的phone id也是将音频先asr成文本再转成token的，使用的是同一套vocab体系
+        # converts phonemes into tokens. In fact, the input phone id is also the first asr audio into text and then converted into token, using the same set of vocab system
         tokens = []
         if isinstance(phonemes, list):
             for phone in phonemes:
