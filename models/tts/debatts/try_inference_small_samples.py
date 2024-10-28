@@ -36,7 +36,7 @@ from utils.util import load_config
 from tqdm import tqdm
 
 from transformers import SeamlessM4TFeatureExtractor
-processor = SeamlessM4TFeatureExtractor.from_pretrained("/mntcephfs/lab_data/lijiaqi/debate/gluster-tts/w2v-bert-2")
+processor = SeamlessM4TFeatureExtractor.from_pretrained("./ckpt/w2v-bert-2")
 
 from transformers import AutoProcessor, AutoModel
 
