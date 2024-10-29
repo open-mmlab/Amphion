@@ -11,6 +11,7 @@
     <a href="egs/vocoder/README.md"><img src="https://img.shields.io/badge/README-Vocoder-purple"></a>
     <a href="egs/metrics/README.md"><img src="https://img.shields.io/badge/README-Evaluation-yellow"></a>
     <a href="LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-red"></a>
+    <a href="https://trendshift.io/repositories/5469" target="_blank"><img src="https://trendshift.io/api/badge/repositories/5469" alt="open-mmlab%2FAmphion | Trendshift" style="width: 150px; height: 33px;" width="150" height="33"/></a>
 </div>
 <br>
 
