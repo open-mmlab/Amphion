@@ -56,7 +56,6 @@ processed_data
 data
 model_ckpt
 logs
-*.ipynb
 *.lst
 source_audio
 result
