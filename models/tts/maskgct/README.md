@@ -5,7 +5,7 @@
 [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-demo-pink)](https://huggingface.co/spaces/amphion/maskgct)
 [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](../../../models/tts/maskgct/README.md)
 
-[正式版公测地址（趣丸千音）](https://voice.funnycp.com/)
+Public beta version address 公测版地址: [趣丸千音](https://voice.funnycp.com/)
 
 ## Overview
 
@@ -21,17 +21,93 @@ MaskGCT (**Mask**ed **G**enerative **C**odec **T**ransformer) is *a fully non-au
 
 - **2024/10/19**: We release **MaskGCT**, a fully non-autoregressive TTS model that eliminates the need for explicit alignment information between text and speech supervision. MaskGCT is trained on [Emilia](https://huggingface.co/datasets/amphion/Emilia-Dataset) dataset and achieves SOTA zero-shot TTS perfermance.
 
+## Issues
+
+If you encounter any issue when using MaskGCT, feel free to open an issue in this repository. But please use **English** to describe, this will make it easier for keyword searching and more people to participate in the discussion.
+
 ## Quickstart
 
-**Clone and install**
+### Clone and Environment
+
+This parts, follow the steps below to clone the repository and install the environment.
+
+1. Clone the repository, you can choose (a) partial clone or (b) full clone.
+2. Install the environment follow guide below.
+
+#### 1. (a) Partial clone
+
+Since the whole Amphion repository is large, you can use sparse-checkout to download only the needed code.
+
+```bash
+# download meta info only
+git clone --no-checkout --filter=blob:none https://github.com/open-mmlab/Amphion.git
+
+# enter the repositry directory
+cd Amphion
+
+# setting sparse-checkout
+git sparse-checkout init --cone
+git sparse-checkout set models/tts/maskgct
+
+# download the needed code
+git checkout main
+git sparse-checkout add models/codec utils
+```
+
+#### 1. (b) Full clone
+
+If you prefer to download the whole repository, you can use the following command.
 
 ```bash
 git clone https://github.com/open-mmlab/Amphion.git
-# create env
-bash ./models/tts/maskgct/env.sh
+
+# enter the repositry directory
+cd Amphion
 ```
 
-**Model download**
+#### 2. Install the environment
+
+Before start installing, making sure you are under the `Amphion` directory. If not, use `cd` to enter.
+
+Since we use `phonemizer` to convert text to phoneme, you need to install `espeak-ng` first. More details can be found [here](https://bootphon.github.io/phonemizer/install.html). Choose the correct installation command according to your operating system:
+
+```bash
+# For Debian-like distribution (e.g. Ubuntu, Mint, etc.)
+sudo apt-get install espeak-ng
+# For RedHat-like distribution (e.g. CentOS, Fedora, etc.) 
+sudo yum install espeak-ng
+
+# For Windows
+# Please visit https://github.com/espeak-ng/espeak-ng/releases to download .msi installer
+```
+
+It is recommended to use conda to configure the environment. You can use the following command to create and activate a new conda environment.
+
+```bash
+conda create -n maskgct python=3.10
+conda activate maskgct
+```
+
+Then, install the python packages.
+
+```bash
+pip install -r models/tts/maskgct/requirements.txt
+```
+
+### Jupyter Notebook
+
+We provide a [Jupyter notebook](../../../models/tts/maskgct/maskgct_demo.ipynb) to show how to use MaskGCT to inference.
+
+After installing the environment, you can open this notebook and start running.
+
+### Start from Scratch
+
+If you do not want to use Juptyer notebook, you can start from scratch. We provide the following steps to help you start from scratch.
+
+1. Download the pretrained model.
+2. Load the model and inference.
+
+#### 1. Model download
 
 We provide the following pretrained checkpoints:
 
@@ -63,9 +139,11 @@ s2a_1layer_ckpt = hf_hub_download("amphion/MaskGCT", filename="s2a_model/s2a_mod
 s2a_full_ckpt = hf_hub_download("amphion/MaskGCT", filename="s2a_model/s2a_model_full/model.safetensors")
 ```
 
-**Basic Usage**
+#### 2. Basic Inference
 
 You can use the following code to generate speech from text and a prompt speech (the code is also provided in [inference.py](../../../models/tts/maskgct/maskgct_inference.py)).
+
+Run it with `python -m models.tts.maskgct.maskgct_inference`.
 
 ```python
 from models.tts.maskgct.maskgct_utils import *
@@ -92,7 +170,7 @@ if __name__ == "__main__":
     s2a_model_full =  build_s2a_model(cfg.model.s2a_model.s2a_full, device)
 
     # download checkpoint
-    ...
+    # ...
 
     # load semantic codec
     safetensors.torch.load_model(semantic_codec, semantic_code_ckpt)
@@ -132,9 +210,6 @@ if __name__ == "__main__":
     sf.write(save_path, recovered_audio, 24000)        
 ```
 
-**Jupyter Notebook**
-
-We also provide a [jupyter notebook](../../../models/tts/maskgct/maskgct_demo.ipynb) to show more details of MaskGCT inference.
 
 ## Training Dataset
 
