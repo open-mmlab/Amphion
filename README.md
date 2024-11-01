@@ -3,6 +3,7 @@
 <div>
     <a href="https://arxiv.org/abs/2312.09911"><img src="https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg"></a>
     <a href="https://huggingface.co/amphion"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-Amphion-pink"></a>
+    <a href="https://modelscope.cn/organization/amphion"><img src="//img.alicdn.com/imgextra/i4/O1CN01fvt4it25rEZU4Gjso_!!6000000007579-2-tps-128-128.png"></a>
     <a href="https://openxlab.org.cn/usercenter/Amphion"><img src="https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg"></a>
     <a href="https://discord.com/invite/drhW7ajqAG"><img src="https://img.shields.io/badge/Discord-Join%20chat-blue.svg"></a>
     <a href="egs/tts/README.md"><img src="https://img.shields.io/badge/README-TTS-blue"></a>
