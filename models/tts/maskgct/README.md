@@ -27,6 +27,11 @@ If you encounter any issue when using MaskGCT, feel free to open an issue in thi
 
 ## Quickstart
 
+To run this model, you need to follow the steps below:
+
+1. Clone the repository and install the environment.
+2. Run the Jupyter notebook / Gradio demo / Inference script.
+
 ### Clone and Environment
 
 This parts, follow the steps below to clone the repository and install the environment.
@@ -81,33 +86,46 @@ sudo yum install espeak-ng
 # Please visit https://github.com/espeak-ng/espeak-ng/releases to download .msi installer
 ```
 
-It is recommended to use conda to configure the environment. You can use the following command to create and activate a new conda environment.
+Now, we are going to install the environment. It is recommended to use conda to configure:
 
 ```bash
 conda create -n maskgct python=3.10
 conda activate maskgct
+
+pip install -r models/tts/maskgct/requirements.txt
 ```
 
-Then, install the python packages.
+If no error occurs, the environment is successfully installed. Now, you can choose you preferred way to run the model.
+
+- Run Gradio 🤗 Playground Locally
+- Jupyter Notebook
+- Inference Script
+
+### Run Gradio 🤗 Playground Locally
+
+You can run the following command to interact with the playground:
 
 ```bash
-pip install -r models/tts/maskgct/requirements.txt
+python -m models.tts.maskgct.gradio_demo
 ```
 
 ### Jupyter Notebook
 
 We provide a [Jupyter notebook](../../../models/tts/maskgct/maskgct_demo.ipynb) to show how to use MaskGCT to inference.
 
-After installing the environment, you can open this notebook and start running.
+You can open this notebook and start running.
 
-### Start from Scratch
+### Inference Script
 
-If you do not want to use Juptyer notebook, you can start from scratch. We provide the following steps to help you start from scratch.
+If you do not want to use Juptyer notebook or Gradio, you can use the python inference script.
 
-1. Download the pretrained model.
-2. Load the model and inference.
+```bash
+python -m models.tts.maskgct.maskgct_inference
+```
 
-#### 1. Model download
+Running this will automatically download the pretrained model from HuggingFace and start the inference process. The result audio is by default saved in `generated_audio.wav`, you can change this in the [script](../../../models/tts/maskgct/maskgct_inference.py).
+
+## Model Introduction
 
 We provide the following pretrained checkpoints:
 
@@ -119,7 +137,7 @@ We provide the following pretrained checkpoints:
 | [MaskGCT-T2S](https://huggingface.co/amphion/MaskGCT/tree/main/t2s_model)         | Predicting semantic tokens with text and prompt semantic tokens.             |
 | [MaskGCT-S2A](https://huggingface.co/amphion/MaskGCT/tree/main/s2a_model)         | Predicts acoustic tokens conditioned on semantic tokens.              |
 
-You can download all pretrained checkpoints from [HuggingFace](https://huggingface.co/amphion/MaskGCT/tree/main) or use huggingface api.
+You can download all pretrained checkpoints from [HuggingFace](https://huggingface.co/amphion/MaskGCT/tree/main) or use huggingface API.
 
 ```python
 from huggingface_hub import hf_hub_download
@@ -127,89 +145,16 @@ from huggingface_hub import hf_hub_download
 # download semantic codec ckpt
 semantic_code_ckpt = hf_hub_download("amphion/MaskGCT", filename="semantic_codec/model.safetensors")
 
-# download acoustic codec ckpt
-codec_encoder_ckpt = hf_hub_download("amphion/MaskGCT", filename="acoustic_codec/model.safetensors")
-codec_decoder_ckpt = hf_hub_download("amphion/MaskGCT", filename="acoustic_codec/model_1.safetensors")
-
-# download t2s model ckpt
-t2s_model_ckpt = hf_hub_download("amphion/MaskGCT", filename="t2s_model/model.safetensors")
-
-# download s2a model ckpt
-s2a_1layer_ckpt = hf_hub_download("amphion/MaskGCT", filename="s2a_model/s2a_model_1layer/model.safetensors")
-s2a_full_ckpt = hf_hub_download("amphion/MaskGCT", filename="s2a_model/s2a_model_full/model.safetensors")
+# same for other models
 ```
 
-#### 2. Basic Inference
+By running the Jupyter/Gradio/inference script, it will automatically download the pretrained model from HuggingFace.
 
-You can use the following code to generate speech from text and a prompt speech (the code is also provided in [inference.py](../../../models/tts/maskgct/maskgct_inference.py)).
+If you having trouble connecting to HuggingFace, you try switch endpoint to mirror site:
 
-Run it with `python -m models.tts.maskgct.maskgct_inference`.
-
-```python
-from models.tts.maskgct.maskgct_utils import *
-from huggingface_hub import hf_hub_download
-import safetensors
-import soundfile as sf
-
-if __name__ == "__main__":
-
-    # build model
-    device = torch.device("cuda:0")
-    cfg_path = "./models/tts/maskgct/config/maskgct.json"
-    cfg = load_config(cfg_path)
-    # 1. build semantic model (w2v-bert-2.0)
-    semantic_model, semantic_mean, semantic_std = build_semantic_model(device)
-    # 2. build semantic codec
-    semantic_codec = build_semantic_codec(cfg.model.semantic_codec, device)
-    # 3. build acoustic codec
-    codec_encoder, codec_decoder = build_acoustic_codec(cfg.model.acoustic_codec, device)
-    # 4. build t2s model
-    t2s_model = build_t2s_model(cfg.model.t2s_model, device)
-    # 5. build s2a model
-    s2a_model_1layer = build_s2a_model(cfg.model.s2a_model.s2a_1layer, device)
-    s2a_model_full =  build_s2a_model(cfg.model.s2a_model.s2a_full, device)
-
-    # download checkpoint
-    # ...
-
-    # load semantic codec
-    safetensors.torch.load_model(semantic_codec, semantic_code_ckpt)
-    # load acoustic codec
-    safetensors.torch.load_model(codec_encoder, codec_encoder_ckpt)
-    safetensors.torch.load_model(codec_decoder, codec_decoder_ckpt)
-    # load t2s model
-    safetensors.torch.load_model(t2s_model, t2s_model_ckpt)
-    # load s2a model
-    safetensors.torch.load_model(s2a_model_1layer, s2a_1layer_ckpt)
-    safetensors.torch.load_model(s2a_model_full, s2a_full_ckpt)
-
-    # inference
-    prompt_wav_path = "./models/tts/maskgct/wav/prompt.wav"
-    save_path = "[YOUR SAVE PATH]"
-    prompt_text = " We do not break. We never give in. We never back down."
-    target_text = "In this paper, we introduce MaskGCT, a fully non-autoregressive TTS model that eliminates the need for explicit alignment information between text and speech supervision."
-    # Specify the target duration (in seconds). If target_len = None, we use a simple rule to predict the target duration.
-    target_len = 18
-
-    maskgct_inference_pipeline = MaskGCT_Inference_Pipeline(
-        semantic_model,
-        semantic_codec,
-        codec_encoder,
-        codec_decoder,
-        t2s_model,
-        s2a_model_1layer,
-        s2a_model_full,
-        semantic_mean,
-        semantic_std,
-        device,
-    )
-
-    recovered_audio = maskgct_inference_pipeline.maskgct_inference(
-        prompt_wav_path, prompt_text, target_text, "en", "en", target_len=target_len
-    )
-    sf.write(save_path, recovered_audio, 24000)        
+```bash
+export HF_ENDPOINT=https://hf-mirror.com
 ```
-
 
 ## Training Dataset
 

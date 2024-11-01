@@ -1,15 +1,15 @@
 setuptools
 onnxruntime
 torch==2.0.1
-transformers===4.41.1
-tensorboard
-tensorboardX 
-accelerate==0.31.0
+transformers==4.41.2
+accelerate==0.24.1
 unidecode
-numpy==1.23.5
+numpy==1.26.0
+scipy==1.12.0
 
 librosa
-encodecphonemizer
+encodec
+phonemizer
 g2p_en
 jieba
 cn2an
@@ -22,3 +22,7 @@ json5
 black==24.1.1
 ruamel.yaml
 tqdm
+
+spaces
+gradio
+openai-whisper
