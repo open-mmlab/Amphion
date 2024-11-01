@@ -32,8 +32,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "CPU")
 whisper_model = None
 output_file_name_idx = 0
 
+
 def detect_text_language(text):
     return langid.classify(text)[0]
+
 
 def detect_speech_language(speech_file):
     global whisper_model
@@ -61,13 +63,13 @@ def get_prompt_text(speech_16k, language):
     if whisper_model == None:
         whisper_model = whisper.load_model("turbo")
     asr_result = whisper_model.transcribe(speech_16k, language=language)
-    full_prompt_text = asr_result["text"] # whisper asr result
-    #text = asr_result["segments"][0]["text"] # whisperx asr result
+    full_prompt_text = asr_result["text"]  # whisper asr result
+    # text = asr_result["segments"][0]["text"] # whisperx asr result
     shot_prompt_text = ""
     short_prompt_end_ts = 0.0
     for segment in asr_result["segments"]:
-        shot_prompt_text = shot_prompt_text +  segment['text']
-        short_prompt_end_ts = segment['end']
+        shot_prompt_text = shot_prompt_text + segment["text"]
+        short_prompt_end_ts = segment["end"]
         if short_prompt_end_ts >= 4:
             break
     return full_prompt_text, shot_prompt_text, short_prompt_end_ts
@@ -332,11 +334,12 @@ def maskgct_inference(
     print("Audio loaded.")
 
     prompt_language = detect_speech_language(prompt_speech_path)
-    full_prompt_text, short_prompt_text, shot_prompt_end_ts = get_prompt_text(prompt_speech_path,
-                                                                              prompt_language)
+    full_prompt_text, short_prompt_text, shot_prompt_end_ts = get_prompt_text(
+        prompt_speech_path, prompt_language
+    )
     # use the first 4+ seconds wav as the prompt in case the prompt wav is too long
-    speech = speech[0: int(shot_prompt_end_ts * 24000)]
-    speech_16k = speech_16k[0: int(shot_prompt_end_ts*16000)]
+    speech = speech[0 : int(shot_prompt_end_ts * 24000)]
+    speech_16k = speech_16k[0 : int(shot_prompt_end_ts * 16000)]
 
     target_language = detect_text_language(target_text)
     combine_semantic_code, _ = text2semantic(
@@ -388,6 +391,7 @@ def inference(
     output_file_name_idx = (output_file_name_idx + 1) % 100
     return save_path
 
+
 # Load models once
 (
     semantic_model,
@@ -411,7 +415,8 @@ iface = gr.Interface(
         gr.Audio(label="Upload Prompt Wav", type="filepath"),
         gr.Textbox(label="Target Text"),
         gr.Number(
-            label="Target Duration (in seconds), if the target duration is less than 0, the system will estimate a duration.", value=-1
+            label="Target Duration (in seconds), if the target duration is less than 0, the system will estimate a duration.",
+            value=-1,
         ),  # Removed 'optional=True'
         gr.Slider(
             label="Number of Timesteps", minimum=15, maximum=100, value=25, step=1
@@ -421,9 +426,8 @@ iface = gr.Interface(
     title="MaskGCT TTS Demo",
     description="""
     [![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2409.00750) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-model-yellow)](https://huggingface.co/amphion/maskgct) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-demo-pink)](https://huggingface.co/spaces/amphion/maskgct) [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](https://github.com/open-mmlab/Amphion/tree/main/models/tts/maskgct)
-    """
+    """,
 )
 
 # Launch the interface
 iface.launch(allowed_paths=["./output"])
-
