@@ -51,6 +51,20 @@ class BaseOfflineDataset(torch.utils.data.Dataset):
                     utt, spk = line.strip().split("\t")
                     self.utt2spk[utt] = spk
 
+        if cfg.preprocess.use_spkemb:
+            self.utt2spk_path = {}
+            for utt_info in self.metadata:
+                dataset = utt_info["Dataset"]
+                uid = utt_info["Uid"]
+                utt = "{}_{}".format(dataset, uid)
+
+                self.utt2spk_path[utt] = os.path.join(
+                    cfg.preprocess.processed_dir,
+                    dataset,
+                    cfg.preprocess.speaker_dir,
+                    uid + ".npy",
+                )
+
         if cfg.preprocess.use_uv:
             self.utt2uv_path = {}
             for utt_info in self.metadata:
@@ -208,6 +222,8 @@ class BaseOfflineDataset(torch.utils.data.Dataset):
             single_feature["spk_id"] = np.array(
                 [self.spk2id[self.utt2spk[utt]]], dtype=np.int32
             )
+        if self.cfg.preprocess.use_spkemb:
+            single_feature["spkemb"] = np.load(self.utt2spk_path[utt])
 
         if self.cfg.preprocess.use_mel:
             mel = np.load(self.utt2mel_path[utt])

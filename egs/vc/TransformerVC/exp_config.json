@@ -1,0 +1,119 @@
+{
+    "base_config": "config/transformer.json",
+    "model_type": "TransformerVC",
+    "dataset": [
+        "libritts",
+    ],
+    "dataset_path": {
+        // TODO: Fill in your dataset path
+        "libritts": "/home/mingyang/LibriTTS/LibriTTS",
+    },
+    // TODO: Fill in the output log path. The default value is "Amphion/ckpts/svc"
+    "log_dir": "ckpts/vc",
+    "preprocess": {
+        // TODO: Fill in the output data path. The default value is "Amphion/data"
+        "processed_dir": "data",
+        // Config for features extraction
+        "extract_mel": true,
+        "extract_pitch": true,
+        "extract_uv": false,
+        "extract_duration": false,
+        "extract_energy": false,
+        "extract_speaker": true,
+        "extract_whisper_feature": false,
+        "extract_contentvec_feature": false,
+        "extract_wenet_feature": false,
+        "extract_hubert_feature": true,
+        "speaker_dir": "speaker",
+        "whisper_batch_size": 30, // decrease it if your GPU is out of memory
+        "contentvec_batch_size": 1,
+        // Fill in the content-based pretrained model's path
+        "hubert_model_path": "pretrained/hubert/mhubert_base_vp_en_es_fr_it3.pt",
+        "hubert_km_path": "pretrained/hubert/mhubert_base_vp_en_es_fr_it3_L11_km1000.bin",
+        "contentvec_file": "pretrained/contentvec/checkpoint_best_legacy_500.pt",
+        "wenet_model_path": "pretrained/wenet/20220506_u2pp_conformer_exp/final.pt",
+        "wenet_config": "pretrained/wenet/20220506_u2pp_conformer_exp/train.yaml",
+        "whisper_model": "medium",
+        "whisper_model_path": "pretrained/whisper/medium.pt",
+        // Config for features usage
+        "use_mel": true,
+        "use_min_max_norm_mel": true,
+        "use_frame_pitch": true,
+        "use_frame_energy": false,
+        "use_uv": false,
+        "use_spkid": false,
+        "use_spkemb": true,
+        "use_whisper": false,
+        "use_contentvec": false,
+        "use_wenet": false,
+        "use_hubert": true,
+        "n_mel": 100,
+        "sample_rate": 24000
+    },
+    "model": {
+        "condition_encoder": {
+            // Config for features usage
+            "use_whisper": false,
+            "use_contentvec": false,
+            "use_wenet": false,
+            "use_hubert": true,
+            "spkemb_dim": 256,
+            "whisper_dim": 1024,
+            "contentvec_dim": 256,
+            "wenet_dim": 512,
+            "use_singer_encoder": false,
+            "pitch_min": 50,
+            "pitch_max": 1100,
+            "f0_min": 0,
+            "f0_max": 1,
+            "use_spkemb": true,
+            "use_spkid": false
+        },
+        "transformer": {
+            // 'conformer' or 'transformer'
+            "type": "conformer",
+            "input_dim": 384,
+            "output_dim": 100,
+            "n_heads": 2,
+            "n_layers": 6,
+            "filter_channels": 512,
+            "dropout": 0.1,
+        }
+    },
+    "train": {
+        "batch_size": 128,
+        "gradient_accumulation_step": 1,
+        "max_epoch": -1, // -1 means no limit
+        "save_checkpoint_stride": [
+            5,
+            50
+        ],
+        "keep_last": [
+            5,
+            -1
+        ],
+        "run_eval": [
+            false,
+            true
+        ],
+        "adamw": {
+            "lr": 4.0e-4
+        },
+        "reducelronplateau": {
+            "factor": 0.8,
+            "patience": 10,
+            "min_lr": 1.0e-4
+        },
+        "dataloader": {
+            "num_worker": 8,
+            "pin_memory": true
+        },
+        "sampler": {
+            "holistic_shuffle": false,
+            "drop_last": true
+        }
+    },
+    "inference": {
+
+    }
+}
