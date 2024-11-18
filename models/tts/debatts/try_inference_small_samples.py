@@ -307,10 +307,10 @@ def semantic2acoustic(combine_semantic_code, acoustic_code):
 
 device = torch.device("cuda:0")
 cfg_soundstorm_1layer = load_config(
-    "./s2a_egs/exp_config_16k_emilia_llama_new_semantic_repcodec_8192_1q_1layer_24k.json"
+    "./s2a_egs/s2a_debatts_1layer.json"
 )
 cfg_soundstorm_full = load_config(
-    "./s2a_egs/exp_config_16k_emilia_llama_new_semantic_repcodec_8192_1q_24k.json"
+    "./s2a_egs/s2a_debatts_full.json"
 )
 
 soundstorm_1layer = build_soundstorm(cfg_soundstorm_1layer, device)
@@ -328,14 +328,13 @@ semantic_model, semantic_mean, semantic_std = build_semantic_model(
 )
 kmeans_model = build_kmeans_model(cfg_soundstorm_full, device)
 
-
-soundstorm_1layer_path = "./s2a_model/emilia_50k_8192_331k_model.safetensors"
-soundstorm_full_path = "./s2a_model/emilia_50k_8192_519k_model.safetensors"
+soundstorm_1layer_path = "./s2a_model/s2a_model_1layer/onelayer_model.safetensors"
+soundstorm_full_path = "./s2a_model/s2a_model_full/full_model.safetensors"
 safetensors.torch.load_model(soundstorm_1layer, soundstorm_1layer_path)
 safetensors.torch.load_model(soundstorm_full, soundstorm_full_path)
 
 t2s_cfg = load_config(
-    "./t2s_egs/exp_config_16k_emilia_new_semantic_repcodec_8192_1q_large_101k_fix_new.json"
+    "./t2s_egs/t2s_debatts.json"
 )
 t2s_model_new = build_t2s_model_new(t2s_cfg, device)
 t2s_model_new_ckpt_path = "./t2s_model/model.safetensors"
@@ -607,12 +606,13 @@ from models.tts.soundstorm.try_inference_new import evaluation
 from models.tts.soundstorm.try_inference_new import evaluation_new
 from models.tts.soundstorm.try_inference_new import extract_emotion_similarity
 
-prompt0_wav_path = "./debatts/speech_examples/87_SPEAKER01_2_part03_213.wav"
+prompt0_wav_path = "./speech_examples/87_SPEAKER01_2_part03_213.wav"
 prompt0_text = generate_text_data(prompt0_wav_path)[1]
 
-spk_prompt_wav_path = "The Speaker Identity Path"
+spk_prompt_wav_path = "./speech_examples/87_SPEAKER00_7_part11_212_prompt.wav"
 spk_prompt_text = generate_text_data(spk_prompt_wav_path)[1]
 
+# TODO
 save_path_dir = "The Path to Save Generated Speech"
 wav_filename = "The Filename of Generated Speech"
 save_path = os.path.join(save_path_infer_dir, wav_filename)

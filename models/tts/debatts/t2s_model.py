@@ -513,9 +513,7 @@ class T2SLlama_new(nn.Module):
                     repetition_penalty=repeat_penalty,
                     min_new_tokens=50,
                 )
-                # assert generated_ids.size(1) > input_length, f"Generated tokens length {generated_ids.size(1)} is less than input length {input_length}, generated ids is {generated_ids}"
 
-                gen_tokens = generated_ids[:, input_length:-1]
             return gen_tokens
 
 
@@ -526,8 +524,6 @@ class DownsampleWithMask(nn.Module):
 
     def forward(self, x, mask):
         # x shape: (batch_size, seq_len)
-        # mask shape: (batch_size, seq_len)
-
         x = x.float()
         x = x.unsqueeze(1)  # add channel dimension: (batch_size, 1, seq_len)
         x = F.avg_pool1d(
