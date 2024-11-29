@@ -17,6 +17,7 @@ from utils.mel import mel_spectrogram_torch
 from utils.f0 import get_f0_features_using_dio, interpolate
 from torch.nn.utils.rnn import pad_sequence
 
+
 def build_trainer(args, cfg):
     supported_trainer = {
         "VC": NoroTrainer,
@@ -24,6 +25,7 @@ def build_trainer(args, cfg):
     trainer_class = supported_trainer[cfg.model_type]
     trainer = trainer_class(args, cfg)
     return trainer
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -54,19 +56,14 @@ def main():
         type=str,
         help="Source voice path",
     )
-    parser.add_argument(
-        "--cuda_id",
-        type=int,
-        default=0,
-        help="CUDA id for training."
-    )
-    
+    parser.add_argument("--cuda_id", type=int, default=0, help="CUDA id for training.")
+
     parser.add_argument("--local_rank", default=-1, type=int)
     args = parser.parse_args()
     cfg = load_config(args.config)
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
- 
+
     cuda_id = args.cuda_id
     args.local_rank = torch.device(f"cuda:{cuda_id}")
     print("Local rank:", args.local_rank)
@@ -76,7 +73,7 @@ def main():
     with torch.cuda.device(args.local_rank):
         torch.cuda.empty_cache()
     ckpt_path = args.checkpoint_path
-    
+
     w2v = HubertExtractor(cfg)
     w2v = w2v.to(device=args.local_rank)
     w2v.eval()
@@ -88,24 +85,26 @@ def main():
     print("Model loaded")
     model.cuda(args.local_rank)
     model.eval()
-    
+
     wav_path = args.source_path
     ref_wav_path = args.ref_path
-    
+
     wav, _ = librosa.load(wav_path, sr=16000)
     wav = np.pad(wav, (0, 1600 - len(wav) % 1600))
     audio = torch.from_numpy(wav).to(args.local_rank)
     audio = audio[None, :]
-    
+
     ref_wav, _ = librosa.load(ref_wav_path, sr=16000)
     ref_wav = np.pad(ref_wav, (0, 200 - len(ref_wav) % 200))
     ref_audio = torch.from_numpy(ref_wav).to(args.local_rank)
     ref_audio = ref_audio[None, :]
-    
+
     with torch.no_grad():
         ref_mel = mel_spectrogram_torch(ref_audio, cfg)
         ref_mel = ref_mel.transpose(1, 2).to(device=args.local_rank)
-        ref_mask = torch.ones(ref_mel.shape[0], ref_mel.shape[1]).to(args.local_rank).bool()
+        ref_mask = (
+            torch.ones(ref_mel.shape[0], ref_mel.shape[1]).to(args.local_rank).bool()
+        )
 
         _, content_feature = w2v.extract_content_features(audio)
         content_feature = content_feature.to(device=args.local_rank)
@@ -122,7 +121,7 @@ def main():
         pitch = (pitch - pitch.mean(dim=1, keepdim=True)) / (
             pitch.std(dim=1, keepdim=True) + 1e-6
         )
-        pitch=pitch.to(device=args.local_rank)
+        pitch = pitch.to(device=args.local_rank)
 
         x0 = model.inference(
             content_feature=content_feature,
@@ -137,6 +136,6 @@ def main():
         np.save(recon_path, x0.transpose(1, 2).detach().cpu().numpy())
         print(f"Mel spectrogram saved to: {recon_path}")
 
+
 if __name__ == "__main__":
     main()
-

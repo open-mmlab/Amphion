@@ -25,7 +25,7 @@ from processors.content_extractor import (
     WhisperExtractor,
     ContentvecExtractor,
     WenetExtractor,
-    HubertExtractor
+    HubertExtractor,
 )
 
 
@@ -156,7 +156,7 @@ class AudioFeaturesExtractor:
         wenet_feats = self.wenet_extractor.extract_content_features(wavs, lens=wav_lens)
         wenet_feats = self.wenet_extractor.ReTrans(wenet_feats, target_frame_len)
         return wenet_feats
-    
+
     def get_hubert_features(self, wavs):
         """Get HuBERT Features
 
@@ -170,6 +170,5 @@ class AudioFeaturesExtractor:
             self.hubert_extractor = HubertExtractor(self.cfg)
 
         clusters, hubert_feats = self.hubert_extractor.extract_content_features(wavs)
-        
-        
+
         return clusters, hubert_feats

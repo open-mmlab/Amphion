@@ -164,7 +164,6 @@ class Noro_base_Trainer(BaseTrainer):
                 open(os.path.join(self.ckpt_path, "ckpts.json"), "r")
             )
 
-    
     def _load_model(self, checkpoint_dir, checkpoint_path=None, resume_type="resume"):
         """Load model from checkpoint. If a folder is given, it will
         load the latest checkpoint in checkpoint_dir. If a path is given
@@ -174,7 +173,9 @@ class Noro_base_Trainer(BaseTrainer):
         if checkpoint_path is None or checkpoint_path == "":
             ls = [str(i) for i in Path(checkpoint_dir).glob("*")]
             # example path epoch-0000_step-0017000_loss-1.972191, 找step最大的
-            checkpoint_path = max(ls, key=lambda x: int(x.split("_")[-2].split("-")[-1]))
+            checkpoint_path = max(
+                ls, key=lambda x: int(x.split("_")[-2].split("-")[-1])
+            )
 
         if self.accelerator.is_main_process:
             self.logger.info("Load model from {}".format(checkpoint_path))
@@ -182,7 +183,7 @@ class Noro_base_Trainer(BaseTrainer):
 
         if resume_type == "resume":
             self.epoch = int(checkpoint_path.split("_")[-3].split("-")[-1])
-            self.step = int(checkpoint_path.split("_")[-2].split("-")[-1]) 
+            self.step = int(checkpoint_path.split("_")[-2].split("-")[-1])
             if isinstance(self.model, dict):
                 for idx, sub_model in enumerate(self.model.keys()):
                     try:

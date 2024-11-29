@@ -15,6 +15,7 @@ from einops.layers.torch import Rearrange
 sr = 16000
 MAX_WAV_VALUE = 32768.0
 
+
 def dynamic_range_compression(x, C=1, clip_val=1e-5):
     return np.log(np.clip(x, a_min=clip_val, a_max=None) * C)
 
@@ -877,14 +878,14 @@ class ReferenceEncoder(nn.Module):
 
         x = self.transformer_encoder(
             x, key_padding_mask=key_padding_mask, condition=None, diffusion_step=None
-        ) # B, T, d_out
+        )  # B, T, d_out
 
         if self.use_query_emb:
             spk_query_emb = self.query_embs(
                 torch.arange(self.num_query_emb).to(x.device)
             ).repeat(x.shape[0], 1, 1)
-            #k/v b x t x d
-            #q b x n x d 
+            # k/v b x t x d
+            # q b x n x d
             spk_embs, _ = self.query_attn(
                 query=spk_query_emb,
                 key=x,
@@ -892,7 +893,7 @@ class ReferenceEncoder(nn.Module):
                 key_padding_mask=(
                     ~(key_padding_mask.bool()) if key_padding_mask is not None else None
                 ),
-            )# B, N_query, d_out
+            )  # B, N_query, d_out
             if self.out_linear != None:
                 spk_embs = self.out_linear(spk_embs)
 
@@ -1005,7 +1006,7 @@ class ResidualBlock(nn.Module):
             y_ = self.ln(y_)
 
             y_, _ = self.attn(y_, spk_query_emb, spk_query_emb)  # (B, T, d)
-        
+
         y = self.dilated_conv(y) + cond  # (B, 2*d, T)
 
         if self.has_cattn:
@@ -1153,7 +1154,6 @@ def get_lowercase_keys_config(cfg):
     return updated_cfg
 
 
-
 def save_config(save_path, cfg):
     """Save configurations into a json file
 
@@ -1200,7 +1200,7 @@ class JsonHParams:
 
 
 class Noro_VCmodel(nn.Module):
-    def __init__(self, cfg, use_ref_noise = False):
+    def __init__(self, cfg, use_ref_noise=False):
         super().__init__()
         self.cfg = cfg
         self.use_ref_noise = use_ref_noise
@@ -1228,6 +1228,7 @@ class Noro_VCmodel(nn.Module):
         )
 
         self.reset_parameters()
+
     def forward(
         self,
         x=None,
@@ -1236,15 +1237,15 @@ class Noro_VCmodel(nn.Module):
         x_ref=None,
         x_mask=None,
         x_ref_mask=None,
-        noisy_x_ref=None
-    ): 
+        noisy_x_ref=None,
+    ):
         noisy_reference_embedding = None
         noisy_condition_embedding = None
 
         reference_embedding, encoded_x = self.reference_encoder(
             x_ref=x_ref, key_padding_mask=x_ref_mask
         )
-        
+
         # content_feature: B x T x D
         # pitch: B x T x 1
         # B x t x D+1
@@ -1256,21 +1257,27 @@ class Noro_VCmodel(nn.Module):
         if self.use_ref_noise:
             # noisy_reference
             noisy_reference_embedding, _ = self.reference_encoder(
-            x_ref=noisy_x_ref, key_padding_mask=x_ref_mask
+                x_ref=noisy_x_ref, key_padding_mask=x_ref_mask
             )
-            combined_reference_embedding = (noisy_reference_embedding + reference_embedding) / 2
+            combined_reference_embedding = (
+                noisy_reference_embedding + reference_embedding
+            ) / 2
         else:
             combined_reference_embedding = reference_embedding
 
         combined_condition_embedding = condition_embedding
-          
+
         diff_out = self.diffusion(
             x=x,
             condition_embedding=combined_condition_embedding,
             x_mask=x_mask,
             reference_embedding=combined_reference_embedding,
         )
-        return diff_out, (reference_embedding, noisy_reference_embedding), (condition_embedding, noisy_condition_embedding)
+        return (
+            diff_out,
+            (reference_embedding, noisy_reference_embedding),
+            (condition_embedding, noisy_condition_embedding),
+        )
 
     @torch.no_grad()
     def inference(
@@ -1307,7 +1314,7 @@ class Noro_VCmodel(nn.Module):
         )
 
         return x0
-    
+
     def reset_parameters(self):
         def _reset_parameters(m):
             if isinstance(m, nn.MultiheadAttention):

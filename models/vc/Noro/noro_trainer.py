@@ -74,15 +74,21 @@ class NoroTrainer(Noro_base_Trainer):
         self.batch_count: int = 0
         self.step: int = 0
         self.epoch: int = 0
-        self.max_epoch = self.cfg.train.max_epoch if self.cfg.train.max_epoch > 0 else float("inf")
+        self.max_epoch = (
+            self.cfg.train.max_epoch if self.cfg.train.max_epoch > 0 else float("inf")
+        )
         if self.accelerator.is_main_process:
-            self.logger.info(f"Max epoch: {self.max_epoch if self.max_epoch < float('inf') else 'Unlimited'}")
+            self.logger.info(
+                f"Max epoch: {self.max_epoch if self.max_epoch < float('inf') else 'Unlimited'}"
+            )
 
         # Check basic configuration
         if self.accelerator.is_main_process:
             self._check_basic_configs()
             self.save_checkpoint_stride = self.cfg.train.save_checkpoint_stride
-            self.keep_last = [i if i > 0 else float("inf") for i in self.cfg.train.keep_last]
+            self.keep_last = [
+                i if i > 0 else float("inf") for i in self.cfg.train.keep_last
+            ]
             self.run_eval = self.cfg.train.run_eval
 
         # Set random seed
@@ -216,7 +222,7 @@ class NoroTrainer(Noro_base_Trainer):
             self.cfg.train.lr_scheduler,
             optimizer=self.optimizer,
             num_warmup_steps=self.cfg.train.lr_warmup_steps,
-            num_training_steps=self.cfg.train.num_train_steps
+            num_training_steps=self.cfg.train.num_train_steps,
         )
         return lr_scheduler
 
@@ -256,7 +262,10 @@ class NoroTrainer(Noro_base_Trainer):
         device = self.accelerator.device
 
         # Move all Tensor data to the specified device
-        batch = {k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
+        batch = {
+            k: v.to(device) if isinstance(v, torch.Tensor) else v
+            for k, v in batch.items()
+        }
 
         speech = batch["speech"]
         ref_speech = batch["ref_speech"]
@@ -264,7 +273,7 @@ class NoroTrainer(Noro_base_Trainer):
         with torch.set_grad_enabled(False):
             # Extract features and spectrograms
             mel = mel_spectrogram_torch(speech, self.cfg).transpose(1, 2)
-            ref_mel = mel_spectrogram_torch(ref_speech,self.cfg).transpose(1, 2)
+            ref_mel = mel_spectrogram_torch(ref_speech, self.cfg).transpose(1, 2)
             mask = batch["mask"]
             ref_mask = batch["ref_mask"]
 
@@ -272,37 +281,54 @@ class NoroTrainer(Noro_base_Trainer):
             audio = speech.cpu().numpy()
             f0s = []
             for i in range(audio.shape[0]):
-                wav = audio[i] 
+                wav = audio[i]
                 f0 = get_f0_features_using_dio(wav, self.cfg.preprocess)
                 f0, _ = interpolate(f0)
-                frame_num = len(wav) // self.cfg.preprocess.hop_size           
-                f0 = torch.from_numpy(f0[:frame_num]).to(speech.device)              
+                frame_num = len(wav) // self.cfg.preprocess.hop_size
+                f0 = torch.from_numpy(f0[:frame_num]).to(speech.device)
                 f0s.append(f0)
 
             pitch = pad_sequence(f0s, batch_first=True, padding_value=0).float()
-            pitch = (pitch - pitch.mean(dim=1, keepdim=True)) / (pitch.std(dim=1, keepdim=True) + 1e-6) # Normalize pitch (B,T)
-            _, content_feature = self.w2v.extract_content_features(speech) # semantic (B, T, 768)
+            pitch = (pitch - pitch.mean(dim=1, keepdim=True)) / (
+                pitch.std(dim=1, keepdim=True) + 1e-6
+            )  # Normalize pitch (B,T)
+            _, content_feature = self.w2v.extract_content_features(
+                speech
+            )  # semantic (B, T, 768)
 
             if self.use_ref_noise:
-                noisy_ref_mel = mel_spectrogram_torch(batch["noisy_ref_speech"], self.cfg).transpose(1, 2)
+                noisy_ref_mel = mel_spectrogram_torch(
+                    batch["noisy_ref_speech"], self.cfg
+                ).transpose(1, 2)
 
         if self.use_ref_noise:
             diff_out, (ref_emb, noisy_ref_emb), (cond_emb, _) = self.model(
-                x=mel, content_feature=content_feature, pitch=pitch, x_ref=ref_mel,
-                x_mask=mask, x_ref_mask=ref_mask, noisy_x_ref=noisy_ref_mel
+                x=mel,
+                content_feature=content_feature,
+                pitch=pitch,
+                x_ref=ref_mel,
+                x_mask=mask,
+                x_ref_mask=ref_mask,
+                noisy_x_ref=noisy_ref_mel,
             )
         else:
             diff_out, (ref_emb, _), (cond_emb, _) = self.model(
-                x=mel, content_feature=content_feature, pitch=pitch, x_ref=ref_mel,
-                x_mask=mask, x_ref_mask=ref_mask
+                x=mel,
+                content_feature=content_feature,
+                pitch=pitch,
+                x_ref=ref_mel,
+                x_mask=mask,
+                x_ref_mask=ref_mask,
             )
 
         if self.use_ref_noise:
             # B x N_query x D
-            ref_emb = torch.mean(ref_emb, dim=1) # B x D
-            noisy_ref_emb = torch.mean(noisy_ref_emb, dim=1) # B x D
-            all_ref_emb = torch.cat([ref_emb, noisy_ref_emb], dim=0) # 2B x D
-            all_speaker_ids = torch.cat([batch["speaker_id"], batch["speaker_id"]], dim=0) # 2B
+            ref_emb = torch.mean(ref_emb, dim=1)  # B x D
+            noisy_ref_emb = torch.mean(noisy_ref_emb, dim=1)  # B x D
+            all_ref_emb = torch.cat([ref_emb, noisy_ref_emb], dim=0)  # 2B x D
+            all_speaker_ids = torch.cat(
+                [batch["speaker_id"], batch["speaker_id"]], dim=0
+            )  # 2B
             cs_loss = self.contrastive_speaker_loss(all_ref_emb, all_speaker_ids) * 0.25
             total_loss += cs_loss
             train_losses["ref_loss"] = cs_loss
@@ -311,7 +337,9 @@ class NoroTrainer(Noro_base_Trainer):
         total_loss += diff_loss_x0
         train_losses["diff_loss_x0"] = diff_loss_x0
 
-        diff_loss_noise = diff_loss(diff_out["noise_pred"], diff_out["noise"], mask=mask)
+        diff_loss_noise = diff_loss(
+            diff_out["noise_pred"], diff_out["noise"], mask=mask
+        )
         total_loss += diff_loss_noise
         train_losses["diff_loss_noise"] = diff_loss_noise
         train_losses["total_loss"] = total_loss
@@ -319,14 +347,16 @@ class NoroTrainer(Noro_base_Trainer):
         self.optimizer.zero_grad()
         self.accelerator.backward(total_loss)
         if self.accelerator.sync_gradients:
-            self.accelerator.clip_grad_norm_(filter(lambda p: p.requires_grad, self.model.parameters()), 0.5)
+            self.accelerator.clip_grad_norm_(
+                filter(lambda p: p.requires_grad, self.model.parameters()), 0.5
+            )
         self.optimizer.step()
         self.scheduler.step()
 
         for item in train_losses:
             train_losses[item] = train_losses[item].item()
 
-        train_losses['learning_rate'] = f"{self.optimizer.param_groups[0]['lr']:.1e}"
+        train_losses["learning_rate"] = f"{self.optimizer.param_groups[0]['lr']:.1e}"
         train_losses["batch_size"] = batch["speaker_id"].shape[0]
 
         return (train_losses["total_loss"], train_losses, None)
@@ -346,7 +376,7 @@ class NoroTrainer(Noro_base_Trainer):
         else:
             self.w2v.eval()
 
-        epoch_sum_loss: float = 0.0 # total loss
+        epoch_sum_loss: float = 0.0  # total loss
         # Put the data to cuda device
         device = self.accelerator.device
         with device:
@@ -401,7 +431,9 @@ class NoroTrainer(Noro_base_Trainer):
         # Wait to ensure good to go
         self.accelerator.wait_for_everyone()
         # Stop when meeting max epoch or self.cfg.train.num_train_steps
-        while self.epoch < self.max_epoch and self.step < self.cfg.train.num_train_steps:
+        while (
+            self.epoch < self.max_epoch and self.step < self.cfg.train.num_train_steps
+        ):
             if self.accelerator.is_main_process:
                 self.logger.info("\n")
                 self.logger.info("-" * 32)
@@ -442,10 +474,16 @@ class NoroTrainer(Noro_base_Trainer):
                 # Read all folders in self.checkpoint_dir
                 all_ckpts = os.listdir(self.checkpoint_dir)
                 # Exclude non-folders
-                all_ckpts = [ckpt for ckpt in all_ckpts if os.path.isdir(os.path.join(self.checkpoint_dir, ckpt))]
+                all_ckpts = [
+                    ckpt
+                    for ckpt in all_ckpts
+                    if os.path.isdir(os.path.join(self.checkpoint_dir, ckpt))
+                ]
                 if len(all_ckpts) > keep_last:
                     # Keep only the last keep_last folders in self.checkpoint_dir, sorted by step "epoch-{:04d}_step-{:07d}_loss-{:.6f}"
-                    all_ckpts = sorted(all_ckpts, key=lambda x: int(x.split("_")[1].split('-')[1]))
+                    all_ckpts = sorted(
+                        all_ckpts, key=lambda x: int(x.split("_")[1].split("-")[1])
+                    )
                     for ckpt in all_ckpts[:-keep_last]:
                         shutil.rmtree(os.path.join(self.checkpoint_dir, ckpt))
                 checkpoint_filename = "epoch-{:04d}_step-{:07d}_loss-{:.6f}".format(
@@ -456,7 +494,7 @@ class NoroTrainer(Noro_base_Trainer):
                 self.accelerator.save_state(path)
                 self.logger.info("Finished saving state.")
         self.accelerator.wait_for_everyone()
-        
+
     def echo_log(self, losses, mode="Training"):
         message = [
             "{} - Epoch {} Step {}: [{:.3f} s/step]".format(

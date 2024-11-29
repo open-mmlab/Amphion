@@ -9,6 +9,7 @@ import torch
 from models.vc.Noro.noro_trainer import NoroTrainer
 from utils.util import load_config
 
+
 def build_trainer(args, cfg):
     supported_trainer = {
         "VC": NoroTrainer,

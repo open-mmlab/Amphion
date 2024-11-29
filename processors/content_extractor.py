@@ -497,25 +497,24 @@ class MertExtractor(AudioPretrainedModelFeaturesExtractor):
                 mert_features.append(feature)
 
         return mert_features
-    
+
+
 class HubertExtractor(nn.Module):
     def __init__(self, cfg):
         super().__init__()
         self.cfg = cfg
         self.load_model()
-        
+
     def load_model(self):
         kmeans_model_path = self.cfg.preprocess.kmeans_model_path
         hubert_model_path = self.cfg.preprocess.hubert_model_path
         print("Load Hubert Model...")
         checkpoint = torch.load(hubert_model_path)
         load_model_input = {hubert_model_path: checkpoint}
-        model, *_ = checkpoint_utils.load_model_ensemble_and_task(
-            load_model_input
-        )
+        model, *_ = checkpoint_utils.load_model_ensemble_and_task(load_model_input)
         self.model = model[0]
         self.model.eval()
-        
+
         # Load KMeans cluster centers
         kmeans = joblib.load(kmeans_model_path)
         self.kmeans = kmeans
@@ -540,20 +539,20 @@ class HubertExtractor(nn.Module):
             wav_input,
             features_only=True,
             mask=False,
-            output_layer=9 #adjust based on the hubert model used  
+            output_layer=9,  # adjust based on the hubert model used
         )["x"]
-        
-        #make the hop size chaged from 200 to 320
+
+        # make the hop size chaged from 200 to 320
         embed = embed.permute((0, 2, 1))
         embed = F.interpolate(embed, scale_factor=1.6, mode="nearest")
         embed = embed.permute((0, 2, 1))
-        
+
         batched_cluster_centers = repeat(
             self.cluster_centers, "c d -> b c d", b=embed.shape[0]
         )
-        
+
         dists = -torch.cdist(embed, batched_cluster_centers, p=2)
-        clusters = dists.argmax(dim=-1) # (batch, seq_len)
+        clusters = dists.argmax(dim=-1)  # (batch, seq_len)
         quantize = F.embedding(clusters, self.cluster_centers)
 
         return clusters, quantize
