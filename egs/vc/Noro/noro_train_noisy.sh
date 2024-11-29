@@ -5,7 +5,7 @@
 
 ######## Build Experiment Environment ###########
 exp_dir=$(cd `dirname $0`; pwd)
-work_dir=$(dirname $(dirname $exp_dir))
+work_dir=$(dirname $(dirname $(dirname $exp_dir)))
 
 export WORK_DIR=$work_dir
 export PYTHONPATH=$work_dir
@@ -38,7 +38,7 @@ checkpoint_path="path/to/checkpoint/noro_checkpoint"
 
 # If this is a new experiment, use the following command:
 # CUDA_VISIBLE_DEVICES=$gpu accelerate launch --main_process_port 26667 --mixed_precision fp16 \
-# "${work_dir}/bins/vc/train.py" \
+# "${work_dir}/bins/vc/Noro/train.py" \
 #     --config $exp_config \
 #     --exp_name $exp_name \
 #     --log_level debug
@@ -46,7 +46,7 @@ checkpoint_path="path/to/checkpoint/noro_checkpoint"
 # To resume training or fine-tune from a checkpoint, use the following command:
 # Ensure the options --resume, --resume_type resume, and --checkpoint_path are set
 CUDA_VISIBLE_DEVICES=$gpu accelerate launch --main_process_port 26667 --mixed_precision fp16 \
-"${work_dir}/bins/vc/train.py" \
+"${work_dir}/bins/vc/Noro/train.py" \
     --config $exp_config \
     --exp_name $exp_name \
     --log_level debug \

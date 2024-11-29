@@ -63,7 +63,6 @@ def main():
         default=None,
         help="Checkpoint for resume training or finetuning.",
     )
-    NoroTrainer.add_arguments(parser)
     args = parser.parse_args()
     cfg = load_config(args.config)
     print("experiment name: ", args.exp_name)

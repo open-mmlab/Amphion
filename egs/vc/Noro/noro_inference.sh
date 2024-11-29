@@ -10,7 +10,7 @@ export PYTHONPATH="./"
 # Get the current directory of the script
 exp_dir=$(cd `dirname $0`; pwd)
 # Get the parent directory of the experiment directory
-work_dir=$(dirname $(dirname $exp_dir))
+work_dir=$(dirname $(dirname $(dirname $exp_dir)))
 
 # Export environment variables for the working directory and Python path
 export WORK_DIR=$work_dir
@@ -24,7 +24,7 @@ python setup.py build_ext --inplace
 cd $work_dir
 
 if [ -z "$exp_config" ]; then
-    exp_config="${exp_dir}/exp_config_base.json"
+    exp_config="${exp_dir}/exp_config_clean.json"
 fi
 
 echo "Experimental Configuration File: $exp_config"
@@ -44,7 +44,7 @@ echo "Source Audio Path: $source_path"
 echo "Reference Audio Path: $reference_path"
 
 # Run the voice conversion inference script
-python "${work_dir}/models/vc/noro_inference.py" \
+python "${work_dir}/models/vc/Noro/noro_inference.py" \
     --config $exp_config \
     --checkpoint_path $checkpoint_path \
     --output_dir $output_dir \

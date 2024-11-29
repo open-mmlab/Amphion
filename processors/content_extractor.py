@@ -539,8 +539,14 @@ class HubertExtractor(nn.Module):
         embed = self.model(
             wav_input,
             features_only=True,
-            mask=False,  
-        )
+            mask=False,
+            output_layer=9 #adjust based on the hubert model used  
+        )["x"]
+        
+        #make the hop size chaged from 200 to 320
+        embed = embed.permute((0, 2, 1))
+        embed = F.interpolate(embed, scale_factor=1.6, mode="nearest")
+        embed = embed.permute((0, 2, 1))
         
         batched_cluster_centers = repeat(
             self.cluster_centers, "c d -> b c d", b=embed.shape[0]

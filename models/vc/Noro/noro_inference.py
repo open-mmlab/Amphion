@@ -15,6 +15,7 @@ from models.vc.Noro.noro_model import Noro_VCmodel
 from processors.content_extractor import HubertExtractor
 from utils.mel import mel_spectrogram_torch
 from utils.f0 import get_f0_features_using_dio, interpolate
+from torch.nn.utils.rnn import pad_sequence
 
 def build_trainer(args, cfg):
     supported_trainer = {
@@ -110,13 +111,18 @@ def main():
         content_feature = content_feature.to(device=args.local_rank)
 
         wav = audio.cpu().numpy()
-        pitch_raw = get_f0_features_using_dio(wav, cfg)
+        wav = wav[0, :]
+        f0s = []
+        pitch_raw = get_f0_features_using_dio(wav, cfg.preprocess)
         pitch_raw, _ = interpolate(pitch_raw)
         frame_num = len(wav) // cfg.preprocess.hop_size
         pitch_raw = torch.from_numpy(pitch_raw[:frame_num]).float()
-        pitch = (pitch_raw - pitch_raw.mean(dim=1, keepdim=True)) / (
-            pitch_raw.std(dim=1, keepdim=True) + 1e-6
+        f0s.append(pitch_raw)
+        pitch = pad_sequence(f0s, batch_first=True, padding_value=0).float()
+        pitch = (pitch - pitch.mean(dim=1, keepdim=True)) / (
+            pitch.std(dim=1, keepdim=True) + 1e-6
         )
+        pitch=pitch.to(device=args.local_rank)
 
         x0 = model.inference(
             content_feature=content_feature,

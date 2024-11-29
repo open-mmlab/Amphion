@@ -456,3 +456,22 @@ class NoroTrainer(Noro_base_Trainer):
                 self.accelerator.save_state(path)
                 self.logger.info("Finished saving state.")
         self.accelerator.wait_for_everyone()
+        
+    def echo_log(self, losses, mode="Training"):
+        message = [
+            "{} - Epoch {} Step {}: [{:.3f} s/step]".format(
+                mode, self.epoch + 1, self.step, self.time_window.average
+            )
+        ]
+
+        for key in sorted(losses.keys()):
+            if isinstance(losses[key], dict):
+                for k, v in losses[key].items():
+                    message.append(
+                        str(k).split("/")[-1] + "=" + str(round(float(v), 5))
+                    )
+            else:
+                message.append(
+                    str(key).split("/")[-1] + "=" + str(round(float(losses[key]), 5))
+                )
+        self.logger.info(", ".join(message))

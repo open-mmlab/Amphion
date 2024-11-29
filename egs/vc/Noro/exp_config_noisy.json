@@ -1,5 +1,5 @@
 {
-    "base_config": "egs/vc/exp_config_base.json",
+    "base_config": "egs/vc/Noro/exp_config_base.json",
     "dataset": [
       "mls"
     ],

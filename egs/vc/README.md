@@ -1,8 +1,8 @@
-# Amphion Singing Voice Cloning (VC) Recipe
+# Amphion Singing Voice Conversion (VC) Recipe
 
 ## Quick Start
 
-We provide a **[beginner recipe](Noro)** to demonstrate how to train a cutting edge SVC model. Specifically, it is an official implementation of the paper "NORO: A Noise-Robust One-Shot Voice Conversion System with Hidden Speaker Representation Capabilities".
+We provide a **[beginner recipe](Noro)** to demonstrate how to train a cutting edge VC model. Specifically, it is an official implementation of the paper "NORO: A Noise-Robust One-Shot Voice Conversion System with Hidden Speaker Representation Capabilities".
 
 ## Supported Model Architectures
 
