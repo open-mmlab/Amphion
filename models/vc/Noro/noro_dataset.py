@@ -16,7 +16,7 @@ import torchaudio
 
 
 NUM_WORKERS = 64
-lock = Lock()  # 创建一个全局锁
+lock = Lock()  
 SAMPLE_RATE = 16000
 
 
@@ -61,29 +61,8 @@ class VCDataset(Dataset):
         self.directory_list = directory_list
         print(f"Loading {len(directory_list)} directories: {directory_list}")
 
-        # Load metadata cache
-        # metadata_cache: {file_path: num_frames}
-        self.metadata_cache_path = "/mnt/data2/hehaorui/ckpt/rp_metadata_cache.json"
-        print(f"Loading metadata_cache from {self.metadata_cache_path}")
-        if os.path.exists(self.metadata_cache_path):
-            with open(self.metadata_cache_path, "r", encoding="utf-8") as f:
-                self.metadata_cache = json.load(f)
-            print(f"Loaded {len(self.metadata_cache)} metadata_cache")
-        else:
-            print(f"metadata_cache not found, creating new")
-            self.metadata_cache = {}
-
-        # Load speaker cache
-        # speaker_cache: {file_path: speaker}
-        self.speaker_cache_path = "/mnt/data2/hehaorui/ckpt/rp_file2speaker.json"
-        print(f"Loading speaker_cache from {self.speaker_cache_path}")
-        if os.path.exists(self.speaker_cache_path):
-            with open(self.speaker_cache_path, "r", encoding="utf-8") as f:
-                self.speaker_cache = json.load(f)
-            print(f"Loaded {len(self.speaker_cache)} speaker_cache")
-        else:
-            print(f"speaker_cache not found, creating new")
-            self.speaker_cache = {}
+        self.metadata_cache = {}
+        self.speaker_cache = {}
 
         self.files = []
         # Load all flac files
@@ -97,18 +76,6 @@ class VCDataset(Dataset):
             print(f"Now {len(self.files)} files")
             self.meta_data_cache = self.process_files()
             self.speaker_cache = self.process_speakers()
-            temp_cache_path = self.metadata_cache_path.replace(
-                ".json", f'_{directory.split("/")[-1]}.json'
-            )
-            if not os.path.exists(temp_cache_path):
-                safe_write_to_file(self.meta_data_cache, temp_cache_path)
-                print(f"Saved metadata cache to {temp_cache_path}")
-            temp_cache_path = self.speaker_cache_path.replace(
-                ".json", f'_{directory.split("/")[-1]}.json'
-            )
-            if not os.path.exists(temp_cache_path):
-                safe_write_to_file(self.speaker_cache, temp_cache_path)
-                print(f"Saved speaker cache to {temp_cache_path}")
 
         print(f"Loaded {len(self.files)} files")
         random.shuffle(self.files)  # Shuffle the files.
@@ -150,7 +117,6 @@ class VCDataset(Dataset):
                 )
             for file, num_frames in results:
                 self.metadata_cache[file] = num_frames
-            safe_write_to_file(self.metadata_cache, self.metadata_cache_path)
         else:
             print(
                 f"Skipping processing metadata, loaded {len(self.metadata_cache)} files"
@@ -172,7 +138,6 @@ class VCDataset(Dataset):
                 )
             for file, speaker in results:
                 self.speaker_cache[file] = speaker
-            safe_write_to_file(self.speaker_cache, self.speaker_cache_path)
         else:
             print(
                 f"Skipping processing speakers, loaded {len(self.speaker_cache)} files"
@@ -288,7 +253,6 @@ class VCDataset(Dataset):
         if len(speech) > 30 * SAMPLE_RATE:
             speech = speech[: 30 * SAMPLE_RATE]
         speech = torch.tensor(speech, dtype=torch.float32)
-        # inputs = self._get_reference_vc(speech, hop_length=320)
         inputs = self._get_reference_vc(speech, hop_length=200)
         speaker = self.index2speaker[idx]
         speaker_id = self.speaker2id[speaker]
@@ -388,8 +352,6 @@ class BaseCollator(object):
 class VCCollator(BaseCollator):
     def __init__(self, cfg):
         BaseCollator.__init__(self, cfg)
-        # self.use_noise = cfg.trans_exp.use_noise
-
         self.use_ref_noise = self.cfg.trans_exp.use_ref_noise
         print(f"use_ref_noise: {self.use_ref_noise}")
 

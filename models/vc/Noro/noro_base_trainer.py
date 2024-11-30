@@ -15,10 +15,6 @@ from models.base.new_trainer import BaseTrainer
 
 
 class Noro_base_Trainer(BaseTrainer):
-    r"""The base trainer for all TTS models. It inherits from BaseTrainer and implements
-    ``build_criterion``, ``_build_dataset`` and ``_build_singer_lut`` methods. You can inherit from this
-    class, and implement ``_build_model``, ``_forward_step``.
-    """
 
     def __init__(self, args=None, cfg=None):
         self.args = args
@@ -74,12 +70,8 @@ class Noro_base_Trainer(BaseTrainer):
 
         # set random seed
         with self.accelerator.main_process_first():
-            # start = time.monotonic_ns()
             self._set_random_seed(self.cfg.train.random_seed)
             end = time.monotonic_ns()
-            # self.logger.debug(
-            #     f"Setting random seed done in {(end - start) / 1e6:.2f}ms"
-            # )
             self.logger.debug(f"Random seed: {self.cfg.train.random_seed}")
 
         # setup data_loader
@@ -89,10 +81,6 @@ class Noro_base_Trainer(BaseTrainer):
             self.train_dataloader, self.valid_dataloader = self._build_dataloader()
             end = time.monotonic_ns()
             self.logger.info(f"Building dataset done in {(end - start) / 1e6:.2f}ms")
-
-        # # save phone table to exp dir. Should be done before building model due to loading phone table in model
-        # if cfg.preprocess.use_phone and cfg.preprocess.phone_extractor != "lexicon":
-        #     self._save_phone_symbols_file_to_exp_path()
 
         # setup model
         with self.accelerator.main_process_first():
@@ -144,18 +132,12 @@ class Noro_base_Trainer(BaseTrainer):
             self.speakers = self._build_speaker_lut()
             self.utt2spk_dict = self._build_utt2spk_dict()
 
-        # Only for TTS tasks
-        self.task_type = "TTS"
+        self.task_type = "VC"
         self.logger.info("Task type: {}".format(self.task_type))
 
     def _check_resume(self):
         # if args.resume:
-        if self.args.resume or (
-            self.cfg.model_type == "VALLE" and self.args.train_stage == 2
-        ):
-            if self.cfg.model_type == "VALLE" and self.args.train_stage == 2:
-                self.args.resume_type = "finetune"
-
+        if self.args.resume:
             self.logger.info("Resuming from checkpoint...")
             self.ckpt_path = self._load_model(
                 self.checkpoint_dir, self.args.checkpoint_path, self.args.resume_type
@@ -172,7 +154,6 @@ class Noro_base_Trainer(BaseTrainer):
         """
         if checkpoint_path is None or checkpoint_path == "":
             ls = [str(i) for i in Path(checkpoint_dir).glob("*")]
-            # example path epoch-0000_step-0017000_loss-1.972191, 找step最大的
             checkpoint_path = max(
                 ls, key=lambda x: int(x.split("_")[-2].split("-")[-1])
             )
