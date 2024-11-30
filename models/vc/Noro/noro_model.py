@@ -12,6 +12,7 @@ import json5
 from librosa.filters import mel as librosa_mel_fn
 from einops.layers.torch import Rearrange
 
+
 class Diffusion(nn.Module):
     def __init__(self, cfg, diff_model):
         super().__init__()

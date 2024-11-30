@@ -16,7 +16,7 @@ import torchaudio
 
 
 NUM_WORKERS = 64
-lock = Lock()  
+lock = Lock()
 SAMPLE_RATE = 16000
 
 
