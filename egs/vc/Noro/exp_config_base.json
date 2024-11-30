@@ -1,0 +1,61 @@
+{
+    "base_config": "config/noro.json",
+    "model_type": "VC",
+    "dataset": [
+        "mls"
+    ],
+    "sample_rate": 16000,
+    "n_fft": 1024,
+    "n_mel": 80,
+    "hop_size": 200,
+    "win_size": 800,
+    "fmin": 0,
+    "fmax": 8000,
+    "preprocess": {
+        "kmeans_model_path": "path/to/kmeans_model",
+        "hubert_model_path": "path/to/hubert_model",
+        "sample_rate": 16000, 
+        "hop_size": 200,       
+        "f0_min": 50,         
+        "f0_max": 500,        
+        "frame_period": 12.5  
+    },
+    "model": {
+        "reference_encoder": {
+            "encoder_layer": 6,
+            "encoder_hidden": 512,
+            "encoder_head": 8,
+            "conv_filter_size": 2048,
+            "conv_kernel_size": 9,
+            "encoder_dropout": 0.2,
+            "use_skip_connection": false,
+            "use_new_ffn": true,
+            "ref_in_dim": 80,
+            "ref_out_dim": 512,
+            "use_query_emb": true,
+            "num_query_emb": 32
+        },
+        "diffusion": {
+            "beta_min": 0.05,
+            "beta_max": 20,
+            "sigma": 1.0,
+            "noise_factor": 1.0,
+            "ode_solve_method": "euler",
+            "diff_model_type": "WaveNet",  
+            "diff_wavenet":{
+                "input_size": 80,
+                "hidden_size": 512,
+                "out_size": 80,
+                "num_layers": 47,
+                "cross_attn_per_layer": 3,
+                "dilation_cycle": 2,
+                "attn_head": 8,
+                "drop_out": 0.2
+            }
+        },
+        "vc_feature": {
+            "content_feature_dim": 768,
+            "hidden_dim": 512
+        }
+    }
+}

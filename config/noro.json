@@ -1,0 +1,76 @@
+{
+    "base_config": "config/base.json",
+    "model_type": "VC",
+    "dataset": ["mls"],
+    "model": {
+        "reference_encoder": {
+            "encoder_layer": 6,
+            "encoder_hidden": 512,
+            "encoder_head": 8,
+            "conv_filter_size": 2048,
+            "conv_kernel_size": 9,
+            "encoder_dropout": 0.2,
+            "use_skip_connection": false,
+            "use_new_ffn": true,
+            "ref_in_dim": 80,
+            "ref_out_dim": 512,
+            "use_query_emb": true,
+            "num_query_emb": 32
+        },
+        "diffusion": {
+            "beta_min": 0.05,
+            "beta_max": 20,
+            "sigma": 1.0,
+            "noise_factor": 1.0,
+            "ode_solve_method": "euler",
+            "diff_model_type": "WaveNet",   
+            "diff_wavenet":{
+                "input_size": 80,
+                "hidden_size": 512,
+                "out_size": 80,
+                "num_layers": 47,
+                "cross_attn_per_layer": 3,
+                "dilation_cycle": 2,
+                "attn_head": 8,
+                "drop_out": 0.2
+            }
+        },
+        "prior_encoder": {
+            "encoder_layer": 6,
+            "encoder_hidden": 512,
+            "encoder_head": 8,
+            "conv_filter_size": 2048,
+            "conv_kernel_size": 9,
+            "encoder_dropout": 0.2,
+            "use_skip_connection": false,
+            "use_new_ffn": true,
+            "vocab_size": 256,
+            "cond_dim": 512,
+            "duration_predictor": {
+                "input_size": 512,
+                "filter_size": 512,
+                "kernel_size": 3,
+                "conv_layers": 30,
+                "cross_attn_per_layer": 3,
+                "attn_head": 8,
+                "drop_out": 0.2
+            },
+            "pitch_predictor": {
+                "input_size": 512,
+                "filter_size": 512,
+                "kernel_size": 5,
+                "conv_layers": 30,
+                "cross_attn_per_layer": 3,
+                "attn_head": 8,
+                "drop_out": 0.5
+            },
+            "pitch_min": 50,
+            "pitch_max": 1100,
+            "pitch_bins_num": 512
+        },
+        "vc_feature": {
+            "content_feature_dim": 768,
+            "hidden_dim": 512
+        }
+    }
+}

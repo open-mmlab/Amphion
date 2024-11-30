@@ -1,0 +1,40 @@
+{
+    "base_config": "egs/vc/Noro/exp_config_base.json",
+    "dataset": [
+      "mls"
+    ],
+    // Specify the output root path to save model checkpoints and logs
+    "log_dir": "path/to/your/checkpoint/directory",
+    "train": {
+      // New trainer and Accelerator
+      "gradient_accumulation_step": 1,
+      "tracker": ["tensorboard"],
+      "max_epoch": 10,
+      "save_checkpoint_stride": [1000],
+      "keep_last": [20],
+      "run_eval": [true],
+      "dataloader": {
+        "num_worker": 64,
+        "pin_memory": true
+      },
+      "adam": {
+        "lr": 5e-5
+      },
+      "use_dynamic_batchsize": true,
+      "max_tokens": 3200000,
+      "max_sentences": 64,
+      "lr_warmup_steps": 5000,
+      "lr_scheduler": "cosine",
+      "num_train_steps": 800000
+    },
+    "trans_exp": {
+      "directory_list": [
+        "path/to/your/training_data_directory1", 
+        "path/to/your/training_data_directory2",
+        "path/to/your/training_data_directory3"
+      ],
+      "use_ref_noise": true,
+      "noise_dir": "path/to/your/noise/train/directory",
+      "test_noise_dir": "path/to/your/noise/test/directory"
+    }
+  }
