@@ -1,0 +1,200 @@
+{"filepath": "data/multi_event_test/syn_1.wav", "onoffCaption": "cat meowing at 0.393-1.783, 3.975-5.365 and whistling at 0.861-5.455 and explosion at 2.089-4.841, 5.738-8.538", "frequencyCaption": "cat meowing two times and whistling one times and explosion two times"}
+{"filepath": "data/multi_event_test/syn_6.wav", "onoffCaption": "whistling at 2.093-10.0", "frequencyCaption": "whistling one times"}
+{"filepath": "data/multi_event_test/syn_8.wav", "onoffCaption": "cow mooing at 1.177-3.977, 5.15-7.774", "frequencyCaption": "cow mooing two times"}
+{"filepath": "data/multi_event_test/syn_11.wav", "onoffCaption": "burping belching at 1.039-3.198, 4.085-6.244 and dog barking at 3.119-5.119", "frequencyCaption": "burping belching two times and dog barking one times"}
+{"filepath": "data/multi_event_test/syn_16.wav", "onoffCaption": "duck quacking at 0.799-2.799, 3.634-5.634, 6.976-8.976", "frequencyCaption": "duck quacking three times"}
+{"filepath": "data/multi_event_test/syn_18.wav", "onoffCaption": "door knocking at 1.225-3.352, 5.173-7.3 and door slamming at 5.439-7.678", "frequencyCaption": "door knocking two times and door slamming one times"}
+{"filepath": "data/multi_event_test/syn_21.wav", "onoffCaption": "dog barking at 2.947-4.947, 6.186-8.186", "frequencyCaption": "dog barking two times"}
+{"filepath": "data/multi_event_test/syn_26.wav", "onoffCaption": "whistling at 2.848-7.442", "frequencyCaption": "whistling one times"}
+{"filepath": "data/multi_event_test/syn_28.wav", "onoffCaption": "cow mooing at 2.639-5.263 and spraying at 8.565-9.667", "frequencyCaption": "cow mooing one times and spraying one times"}
+{"filepath": "data/multi_event_test/syn_32.wav", "onoffCaption": "duck quacking at 0.039-2.039, 3.171-5.171, 5.938-7.938", "frequencyCaption": "duck quacking three times"}
+{"filepath": "data/multi_event_test/syn_35.wav", "onoffCaption": "car horn honking at 2.31-5.271, 5.91-8.871", "frequencyCaption": "car horn honking two times"}
+{"filepath": "data/multi_event_test/syn_43.wav", "onoffCaption": "dog barking at 2.157-4.157, 5.953-7.953 and burping belching at 2.431-5.388, 6.452-8.611 and explosion at 4.8-7.552", "frequencyCaption": "dog barking two times and burping belching two times and explosion one times"}
+{"filepath": "data/multi_event_test/syn_44.wav", "onoffCaption": "sneeze at 2.638-6.791", "frequencyCaption": "sneeze one times"}
+{"filepath": "data/multi_event_test/syn_50.wav", "onoffCaption": "car horn honking at 0.874-3.835, 4.429-7.39 and sneeze at 1.814-5.167 and train horn at 2.818-7.898", "frequencyCaption": "car horn honking two times and sneeze one times and train horn one times"}
+{"filepath": "data/multi_event_test/syn_57.wav", "onoffCaption": "dog barking at 3.007-5.007, 6.103-8.103 and cow mooing at 3.017-5.641", "frequencyCaption": "dog barking two times and cow mooing one times"}
+{"filepath": "data/multi_event_test/syn_59.wav", "onoffCaption": "door slamming at 0.035-2.274 and explosion at 3.857-6.609, 7.377-10.0", "frequencyCaption": "door slamming one times and explosion two times"}
+{"filepath": "data/multi_event_test/syn_60.wav", "onoffCaption": "train horn at 0.062-3.062", "frequencyCaption": "train horn one times"}
+{"filepath": "data/multi_event_test/syn_67.wav", "onoffCaption": "whistling at 1.616-10.0", "frequencyCaption": "whistling one times"}
+{"filepath": "data/multi_event_test/syn_69.wav", "onoffCaption": "door knocking at 0.237-2.801, 4.117-6.681, 7.378-9.942", "frequencyCaption": "door knocking three times"}
+{"filepath": "data/multi_event_test/syn_73.wav", "onoffCaption": "door knocking at 0.045-2.172, 2.718-5.282, 6.027-8.591 and sneeze at 2.92-6.273, 6.847-9.032", "frequencyCaption": "door knocking three times and sneeze two times"}
+{"filepath": "data/multi_event_test/syn_74.wav", "onoffCaption": "spraying at 0.38-1.176, 3.06-3.856 and gunshot at 1.729-3.729, 4.367-6.367, 7.031-9.031", "frequencyCaption": "spraying two times and gunshot three times"}
+{"filepath": "data/multi_event_test/syn_82.wav", "onoffCaption": "dog barking at 0.497-2.497, 4.187-6.187", "frequencyCaption": "dog barking two times"}
+{"filepath": "data/multi_event_test/syn_91.wav", "onoffCaption": "gunshot at 0.501-2.501, 3.148-5.148", "frequencyCaption": "gunshot two times"}
+{"filepath": "data/multi_event_test/syn_96.wav", "onoffCaption": "door slamming at 0.154-2.393, 3.23-4.641, 5.232-7.471", "frequencyCaption": "door slamming three times"}
+{"filepath": "data/multi_event_test/syn_98.wav", "onoffCaption": "thump thud at 1.835-4.135, 6.505-9.18", "frequencyCaption": "thump thud two times"}
+{"filepath": "data/multi_event_test/syn_101.wav", "onoffCaption": "dog barking at 0.681-2.681", "frequencyCaption": "dog barking one times"}
+{"filepath": "data/multi_event_test/syn_106.wav", "onoffCaption": "burping belching at 0.093-3.05, 3.962-6.121, 7.309-9.468", "frequencyCaption": "burping belching three times"}
+{"filepath": "data/multi_event_test/syn_108.wav", "onoffCaption": "sneeze at 3.287-7.44", "frequencyCaption": "sneeze one times"}
+{"filepath": "data/multi_event_test/syn_112.wav", "onoffCaption": "woman laughing at 1.823-4.587, 6.243-9.007", "frequencyCaption": "woman laughing two times"}
+{"filepath": "data/multi_event_test/syn_115.wav", "onoffCaption": "duck quacking at 0.044-1.862 and tapping clicking clanking at 0.436-3.876, 5.547-7.6", "frequencyCaption": "duck quacking one times and tapping clicking clanking two times"}
+{"filepath": "data/multi_event_test/syn_122.wav", "onoffCaption": "door knocking at 1.266-3.83, 4.854-7.418, 7.929-10.0", "frequencyCaption": "door knocking three times"}
+{"filepath": "data/multi_event_test/syn_125.wav", "onoffCaption": "cow mooing at 2.954-5.754, 6.384-9.008", "frequencyCaption": "cow mooing two times"}
+{"filepath": "data/multi_event_test/syn_131.wav", "onoffCaption": "whistling at 0.666-5.26, 5.984-8.335 and cat meowing at 0.904-2.294", "frequencyCaption": "whistling two times and cat meowing one times"}
+{"filepath": "data/multi_event_test/syn_136.wav", "onoffCaption": "sheep goat bleating at 0.226-2.226, 3.707-5.707 and whistling at 1.058-5.652, 6.943-10.0 and woman laughing at 2.749-7.207", "frequencyCaption": "sheep goat bleating two times and whistling two times and woman laughing one times"}
+{"filepath": "data/multi_event_test/syn_138.wav", "onoffCaption": "gunshot at 0.785-2.785 and tapping clicking clanking at 5.685-9.125", "frequencyCaption": "gunshot one times and tapping clicking clanking one times"}
+{"filepath": "data/multi_event_test/syn_140.wav", "onoffCaption": "door knocking at 0.341-2.468, 3.382-5.946, 7.206-9.77", "frequencyCaption": "door knocking three times"}
+{"filepath": "data/multi_event_test/syn_147.wav", "onoffCaption": "door slamming at 0.305-1.716, 2.95-4.361, 5.691-7.102", "frequencyCaption": "door slamming three times"}
+{"filepath": "data/multi_event_test/syn_149.wav", "onoffCaption": "car horn honking at 0.666-3.35, 5.748-8.432 and spraying at 7.494-8.29, 8.904-9.7", "frequencyCaption": "car horn honking two times and spraying two times"}
+{"filepath": "data/multi_event_test/syn_153.wav", "onoffCaption": "cat meowing at 3.029-4.355", "frequencyCaption": "cat meowing one times"}
+{"filepath": "data/multi_event_test/syn_154.wav", "onoffCaption": "cat meowing at 2.044-3.37 and door knocking at 2.866-5.43", "frequencyCaption": "cat meowing one times and door knocking one times"}
+{"filepath": "data/multi_event_test/syn_163.wav", "onoffCaption": "sheep goat bleating at 0.139-2.139, 3.188-5.188, 6.077-8.077", "frequencyCaption": "sheep goat bleating three times"}
+{"filepath": "data/multi_event_test/syn_164.wav", "onoffCaption": "whistling at 0.15-4.744, 6.868-8.971", "frequencyCaption": "whistling two times"}
+{"filepath": "data/multi_event_test/syn_170.wav", "onoffCaption": "dog barking at 0.286-2.286, 3.801-5.801", "frequencyCaption": "dog barking two times"}
+{"filepath": "data/multi_event_test/syn_177.wav", "onoffCaption": "thump thud at 0.593-2.893 and cow mooing at 4.617-7.241", "frequencyCaption": "thump thud one times and cow mooing one times"}
+{"filepath": "data/multi_event_test/syn_179.wav", "onoffCaption": "cow mooing at 2.754-5.378, 6.145-8.769", "frequencyCaption": "cow mooing two times"}
+{"filepath": "data/multi_event_test/syn_181.wav", "onoffCaption": "cow mooing at 3.381-6.181, 7.936-10.0", "frequencyCaption": "cow mooing two times"}
+{"filepath": "data/multi_event_test/syn_186.wav", "onoffCaption": "gunshot at 0.131-2.131", "frequencyCaption": "gunshot one times"}
+{"filepath": "data/multi_event_test/syn_188.wav", "onoffCaption": "gunshot at 0.785-2.785, 3.847-5.847 and duck quacking at 2.99-4.99", "frequencyCaption": "gunshot two times and duck quacking one times"}
+{"filepath": "data/multi_event_test/syn_192.wav", "onoffCaption": "spraying at 1.763-2.865, 5.335-6.437", "frequencyCaption": "spraying two times"}
+{"filepath": "data/multi_event_test/syn_195.wav", "onoffCaption": "thump thud at 2.422-5.097, 5.945-8.245", "frequencyCaption": "thump thud two times"}
+{"filepath": "data/multi_event_test/syn_3.wav", "onoffCaption": "tapping clicking clanking at 2.711-6.151, 7.783-10.0", "frequencyCaption": "tapping clicking clanking two times"}
+{"filepath": "data/multi_event_test/syn_4.wav", "onoffCaption": "door slamming at 3.076-4.487, 6.877-8.288", "frequencyCaption": "door slamming two times"}
+{"filepath": "data/multi_event_test/syn_13.wav", "onoffCaption": "duck quacking at 0.012-2.012, 3.202-5.202, 7.582-9.582", "frequencyCaption": "duck quacking three times"}
+{"filepath": "data/multi_event_test/syn_14.wav", "onoffCaption": "sneeze at 1.853-6.006", "frequencyCaption": "sneeze one times"}
+{"filepath": "data/multi_event_test/syn_23.wav", "onoffCaption": "sneeze at 0.109-4.262, 6.151-8.608", "frequencyCaption": "sneeze two times"}
+{"filepath": "data/multi_event_test/syn_24.wav", "onoffCaption": "woman laughing at 3.051-7.509", "frequencyCaption": "woman laughing one times"}
+{"filepath": "data/multi_event_test/syn_30.wav", "onoffCaption": "burping belching at 3.234-6.191, 7.597-10.0", "frequencyCaption": "burping belching two times"}
+{"filepath": "data/multi_event_test/syn_37.wav", "onoffCaption": "thump thud at 1.883-4.558, 6.153-8.453 and door knocking at 2.227-4.791, 5.771-8.335 and burping belching at 6.746-8.905", "frequencyCaption": "thump thud two times and door knocking two times and burping belching one times"}
+{"filepath": "data/multi_event_test/syn_39.wav", "onoffCaption": "train horn at 2.197-5.197, 5.755-8.755", "frequencyCaption": "train horn two times"}
+{"filepath": "data/multi_event_test/syn_41.wav", "onoffCaption": "thump thud at 1.465-3.765", "frequencyCaption": "thump thud one times"}
+{"filepath": "data/multi_event_test/syn_48.wav", "onoffCaption": "cat meowing at 0.07-1.396, 3.738-5.064, 6.912-8.238", "frequencyCaption": "cat meowing three times"}
+{"filepath": "data/multi_event_test/syn_52.wav", "onoffCaption": "gunshot at 0.761-2.761 and duck quacking at 0.994-2.994 and tapping clicking clanking at 5.144-8.584", "frequencyCaption": "gunshot one times and duck quacking one times and tapping clicking clanking one times"}
+{"filepath": "data/multi_event_test/syn_55.wav", "onoffCaption": "sneeze at 2.529-6.682, 7.206-9.677", "frequencyCaption": "sneeze two times"}
+{"filepath": "data/multi_event_test/syn_62.wav", "onoffCaption": "woman laughing at 0.152-2.916, 5.112-7.934", "frequencyCaption": "woman laughing two times"}
+{"filepath": "data/multi_event_test/syn_65.wav", "onoffCaption": "gunshot at 3.755-5.755, 6.54-8.54", "frequencyCaption": "gunshot two times"}
+{"filepath": "data/multi_event_test/syn_71.wav", "onoffCaption": "door slamming at 0.023-2.262, 4.712-6.123 and whistling at 1.979-6.573", "frequencyCaption": "door slamming two times and whistling one times"}
+{"filepath": "data/multi_event_test/syn_76.wav", "onoffCaption": "dog barking at 0.741-2.741", "frequencyCaption": "dog barking one times"}
+{"filepath": "data/multi_event_test/syn_78.wav", "onoffCaption": "explosion at 0.11-2.862, 4.292-7.044 and duck quacking at 2.338-4.156, 5.898-7.716", "frequencyCaption": "explosion two times and duck quacking two times"}
+{"filepath": "data/multi_event_test/syn_80.wav", "onoffCaption": "door slamming at 0.695-2.106 and sheep goat bleating at 0.985-2.985", "frequencyCaption": "door slamming one times and sheep goat bleating one times"}
+{"filepath": "data/multi_event_test/syn_85.wav", "onoffCaption": "door knocking at 4.074-6.201", "frequencyCaption": "door knocking one times"}
+{"filepath": "data/multi_event_test/syn_87.wav", "onoffCaption": "explosion at 0.371-3.123, 5.335-8.087", "frequencyCaption": "explosion two times"}
+{"filepath": "data/multi_event_test/syn_89.wav", "onoffCaption": "car horn honking at 2.099-5.06 and cat meowing at 5.989-7.315", "frequencyCaption": "car horn honking one times and cat meowing one times"}
+{"filepath": "data/multi_event_test/syn_93.wav", "onoffCaption": "dog barking at 0.988-2.988, 5.289-7.289", "frequencyCaption": "dog barking two times"}
+{"filepath": "data/multi_event_test/syn_94.wav", "onoffCaption": "gunshot at 1.463-3.463, 4.41-6.41, 7.226-9.226 and thump thud at 1.729-4.404, 6.318-8.993 and sheep goat bleating at 1.895-3.895, 5.909-7.909", "frequencyCaption": "gunshot three times and thump thud two times and sheep goat bleating two times"}
+{"filepath": "data/multi_event_test/syn_103.wav", "onoffCaption": "whistling at 2.759-10.0", "frequencyCaption": "whistling one times"}
+{"filepath": "data/multi_event_test/syn_104.wav", "onoffCaption": "duck quacking at 4.149-5.967", "frequencyCaption": "duck quacking one times"}
+{"filepath": "data/multi_event_test/syn_110.wav", "onoffCaption": "train horn at 0.111-5.191 and duck quacking at 0.894-2.894 and cow mooing at 5.062-7.862", "frequencyCaption": "train horn one times and duck quacking one times and cow mooing one times"}
+{"filepath": "data/multi_event_test/syn_117.wav", "onoffCaption": "sheep goat bleating at 3.487-5.487, 7.705-9.705", "frequencyCaption": "sheep goat bleating two times"}
+{"filepath": "data/multi_event_test/syn_119.wav", "onoffCaption": "train horn at 2.056-5.056 and door knocking at 2.912-5.039, 5.997-8.124", "frequencyCaption": "train horn one times and door knocking two times"}
+{"filepath": "data/multi_event_test/syn_120.wav", "onoffCaption": "burping belching at 2.114-5.071, 5.723-8.68", "frequencyCaption": "burping belching two times"}
+{"filepath": "data/multi_event_test/syn_127.wav", "onoffCaption": "whistling at 1.653-10.0", "frequencyCaption": "whistling one times"}
+{"filepath": "data/multi_event_test/syn_129.wav", "onoffCaption": "door knocking at 0.592-2.719, 3.326-5.453, 6.255-8.382", "frequencyCaption": "door knocking three times"}
+{"filepath": "data/multi_event_test/syn_133.wav", "onoffCaption": "duck quacking at 1.444-3.262, 4.595-6.413", "frequencyCaption": "duck quacking two times"}
+{"filepath": "data/multi_event_test/syn_134.wav", "onoffCaption": "car horn honking at 0.439-3.123, 5.193-7.877", "frequencyCaption": "car horn honking two times"}
+{"filepath": "data/multi_event_test/syn_142.wav", "onoffCaption": "sneeze at 0.338-4.491, 5.776-7.91", "frequencyCaption": "sneeze two times"}
+{"filepath": "data/multi_event_test/syn_145.wav", "onoffCaption": "door knocking at 0.308-2.872, 4.395-6.959 and whistling at 0.583-9.383", "frequencyCaption": "door knocking two times and whistling one times"}
+{"filepath": "data/multi_event_test/syn_151.wav", "onoffCaption": "dog barking at 0.368-2.368, 3.112-5.112, 5.983-7.983", "frequencyCaption": "dog barking three times"}
+{"filepath": "data/multi_event_test/syn_156.wav", "onoffCaption": "car horn honking at 0.03-2.714, 3.401-6.085, 6.775-9.459", "frequencyCaption": "car horn honking three times"}
+{"filepath": "data/multi_event_test/syn_158.wav", "onoffCaption": "tapping clicking clanking at 3.057-6.497, 7.876-10.0", "frequencyCaption": "tapping clicking clanking two times"}
+{"filepath": "data/multi_event_test/syn_161.wav", "onoffCaption": "spraying at 0.049-1.151, 2.004-2.8", "frequencyCaption": "spraying two times"}
+{"filepath": "data/multi_event_test/syn_166.wav", "onoffCaption": "woman laughing at 1.442-5.9", "frequencyCaption": "woman laughing one times"}
+{"filepath": "data/multi_event_test/syn_168.wav", "onoffCaption": "sheep goat bleating at 0.016-2.016", "frequencyCaption": "sheep goat bleating one times"}
+{"filepath": "data/multi_event_test/syn_172.wav", "onoffCaption": "door knocking at 0.153-2.28, 3.142-5.706, 6.305-8.869", "frequencyCaption": "door knocking three times"}
+{"filepath": "data/multi_event_test/syn_175.wav", "onoffCaption": "cow mooing at 0.61-3.41 and spraying at 3.012-4.114", "frequencyCaption": "cow mooing one times and spraying one times"}
+{"filepath": "data/multi_event_test/syn_183.wav", "onoffCaption": "explosion at 0.192-5.114, 5.844-8.596", "frequencyCaption": "explosion two times"}
+{"filepath": "data/multi_event_test/syn_184.wav", "onoffCaption": "sheep goat bleating at 0.322-2.322", "frequencyCaption": "sheep goat bleating one times"}
+{"filepath": "data/multi_event_test/syn_190.wav", "onoffCaption": "whistling at 2.571-7.165", "frequencyCaption": "whistling one times"}
+{"filepath": "data/multi_event_test/syn_197.wav", "onoffCaption": "tapping clicking clanking at 1.043-4.483, 5.786-9.226", "frequencyCaption": "tapping clicking clanking two times"}
+{"filepath": "data/multi_event_test/syn_199.wav", "onoffCaption": "duck quacking at 3.246-5.246 and cat meowing at 7.245-8.635", "frequencyCaption": "duck quacking one times and cat meowing one times"}
+{"filepath": "data/multi_event_test/syn_200.wav", "onoffCaption": "explosion at 3.045-5.797, 7.133-9.196", "frequencyCaption": "explosion two times"}
+{"filepath": "data/multi_event_test/syn_2.wav", "onoffCaption": "door knocking at 2.42-4.984", "frequencyCaption": "door knocking one times"}
+{"filepath": "data/multi_event_test/syn_5.wav", "onoffCaption": "burping belching at 3.676-5.835", "frequencyCaption": "burping belching one times"}
+{"filepath": "data/multi_event_test/syn_12.wav", "onoffCaption": "sheep goat bleating at 1.611-3.611 and sneeze at 5.808-9.161", "frequencyCaption": "sheep goat bleating one times and sneeze one times"}
+{"filepath": "data/multi_event_test/syn_15.wav", "onoffCaption": "tapping clicking clanking at 0.807-4.247", "frequencyCaption": "tapping clicking clanking one times"}
+{"filepath": "data/multi_event_test/syn_22.wav", "onoffCaption": "whistling at 3.354-7.948", "frequencyCaption": "whistling one times"}
+{"filepath": "data/multi_event_test/syn_25.wav", "onoffCaption": "burping belching at 2.316-5.273, 6.42-9.377", "frequencyCaption": "burping belching two times"}
+{"filepath": "data/multi_event_test/syn_31.wav", "onoffCaption": "woman laughing at 0.674-5.132, 6.464-10.0", "frequencyCaption": "woman laughing two times"}
+{"filepath": "data/multi_event_test/syn_36.wav", "onoffCaption": "door slamming at 0.106-2.345, 2.885-5.124, 5.997-8.236", "frequencyCaption": "door slamming three times"}
+{"filepath": "data/multi_event_test/syn_38.wav", "onoffCaption": "cat meowing at 0.245-1.571, 3.125-4.451, 5.016-6.342", "frequencyCaption": "cat meowing three times"}
+{"filepath": "data/multi_event_test/syn_40.wav", "onoffCaption": "door knocking at 2.051-4.178, 4.942-7.506 and cow mooing at 2.928-5.728", "frequencyCaption": "door knocking two times and cow mooing one times"}
+{"filepath": "data/multi_event_test/syn_46.wav", "onoffCaption": "door slamming at 0.382-1.793, 2.674-4.913", "frequencyCaption": "door slamming two times"}
+{"filepath": "data/multi_event_test/syn_47.wav", "onoffCaption": "spraying at 0.719-1.515, 2.813-3.915, 4.469-5.265 and cow mooing at 1.592-4.392, 4.998-7.798", "frequencyCaption": "spraying three times and cow mooing two times"}
+{"filepath": "data/multi_event_test/syn_49.wav", "onoffCaption": "sheep goat bleating at 0.44-2.44, 3.141-5.141 and tapping clicking clanking at 1.283-4.723, 6.144-8.215", "frequencyCaption": "sheep goat bleating two times and tapping clicking clanking two times"}
+{"filepath": "data/multi_event_test/syn_51.wav", "onoffCaption": "train horn at 0.258-3.258, 4.737-7.277", "frequencyCaption": "train horn two times"}
+{"filepath": "data/multi_event_test/syn_53.wav", "onoffCaption": "dog barking at 0.072-2.072, 3.076-5.076, 6.003-8.003", "frequencyCaption": "dog barking three times"}
+{"filepath": "data/multi_event_test/syn_54.wav", "onoffCaption": "train horn at 0.347-3.347, 4.652-7.652", "frequencyCaption": "train horn two times"}
+{"filepath": "data/multi_event_test/syn_63.wav", "onoffCaption": "train horn at 0.507-3.507 and cat meowing at 7.463-8.789 and dog barking at 7.612-9.612", "frequencyCaption": "train horn one times and cat meowing one times and dog barking one times"}
+{"filepath": "data/multi_event_test/syn_64.wav", "onoffCaption": "sheep goat bleating at 1.521-3.521", "frequencyCaption": "sheep goat bleating one times"}
+{"filepath": "data/multi_event_test/syn_70.wav", "onoffCaption": "whistling at 2.267-10.0", "frequencyCaption": "whistling one times"}
+{"filepath": "data/multi_event_test/syn_77.wav", "onoffCaption": "cow mooing at 0.75-3.55", "frequencyCaption": "cow mooing one times"}
+{"filepath": "data/multi_event_test/syn_79.wav", "onoffCaption": "dog barking at 1.282-3.282, 4.117-6.117, 6.789-8.789", "frequencyCaption": "dog barking three times"}
+{"filepath": "data/multi_event_test/syn_81.wav", "onoffCaption": "gunshot at 0.019-2.019, 2.851-4.851, 5.918-7.918", "frequencyCaption": "gunshot three times"}
+{"filepath": "data/multi_event_test/syn_86.wav", "onoffCaption": "whistling at 1.438-6.032 and woman laughing at 2.351-5.115, 6.601-9.365", "frequencyCaption": "whistling one times and woman laughing two times"}
+{"filepath": "data/multi_event_test/syn_88.wav", "onoffCaption": "sheep goat bleating at 3.021-5.021, 6.26-8.26", "frequencyCaption": "sheep goat bleating two times"}
+{"filepath": "data/multi_event_test/syn_92.wav", "onoffCaption": "door slamming at 0.346-1.757, 2.569-3.98, 5.839-7.25 and tapping clicking clanking at 2.508-5.948", "frequencyCaption": "door slamming three times and tapping clicking clanking one times"}
+{"filepath": "data/multi_event_test/syn_95.wav", "onoffCaption": "door slamming at 2.522-3.933, 5.673-7.084, 8.486-9.897", "frequencyCaption": "door slamming three times"}
+{"filepath": "data/multi_event_test/syn_102.wav", "onoffCaption": "door knocking at 2.145-4.272, 4.881-7.008", "frequencyCaption": "door knocking two times"}
+{"filepath": "data/multi_event_test/syn_105.wav", "onoffCaption": "train horn at 0.682-3.682, 4.465-6.698, 7.809-10.0", "frequencyCaption": "train horn three times"}
+{"filepath": "data/multi_event_test/syn_111.wav", "onoffCaption": "whistling at 0.032-4.626, 6.182-10.0 and door slamming at 0.753-2.164", "frequencyCaption": "whistling two times and door slamming one times"}
+{"filepath": "data/multi_event_test/syn_116.wav", "onoffCaption": "burping belching at 3.577-5.736, 6.261-9.218", "frequencyCaption": "burping belching two times"}
+{"filepath": "data/multi_event_test/syn_118.wav", "onoffCaption": "sneeze at 3.124-6.477", "frequencyCaption": "sneeze one times"}
+{"filepath": "data/multi_event_test/syn_121.wav", "onoffCaption": "car horn honking at 0.782-3.743, 4.51-7.194, 7.76-10.0", "frequencyCaption": "car horn honking three times"}
+{"filepath": "data/multi_event_test/syn_123.wav", "onoffCaption": "sheep goat bleating at 2.222-4.222, 6.493-8.493", "frequencyCaption": "sheep goat bleating two times"}
+{"filepath": "data/multi_event_test/syn_126.wav", "onoffCaption": "sneeze at 2.136-6.289 and car horn honking at 2.473-5.434, 7.027-9.711", "frequencyCaption": "sneeze one times and car horn honking two times"}
+{"filepath": "data/multi_event_test/syn_128.wav", "onoffCaption": "sheep goat bleating at 0.291-2.291 and door knocking at 0.293-2.42, 3.227-5.791", "frequencyCaption": "sheep goat bleating one times and door knocking two times"}
+{"filepath": "data/multi_event_test/syn_132.wav", "onoffCaption": "sheep goat bleating at 0.295-2.295 and spraying at 0.328-1.124, 2.065-3.167, 4.421-5.217 and duck quacking at 0.387-2.387, 2.967-4.785, 5.384-7.384", "frequencyCaption": "sheep goat bleating one times and spraying three times and duck quacking three times"}
+{"filepath": "data/multi_event_test/syn_135.wav", "onoffCaption": "tapping clicking clanking at 0.458-3.898, 5.425-8.865", "frequencyCaption": "tapping clicking clanking two times"}
+{"filepath": "data/multi_event_test/syn_139.wav", "onoffCaption": "thump thud at 2.477-4.777, 6.095-8.77", "frequencyCaption": "thump thud two times"}
+{"filepath": "data/multi_event_test/syn_143.wav", "onoffCaption": "spraying at 2.679-3.475 and explosion at 5.945-10.0", "frequencyCaption": "spraying one times and explosion one times"}
+{"filepath": "data/multi_event_test/syn_144.wav", "onoffCaption": "duck quacking at 1.162-2.98, 3.994-5.994, 8.158-9.976", "frequencyCaption": "duck quacking three times"}
+{"filepath": "data/multi_event_test/syn_150.wav", "onoffCaption": "gunshot at 1.946-3.946, 4.6-6.6, 7.322-9.322", "frequencyCaption": "gunshot three times"}
+{"filepath": "data/multi_event_test/syn_157.wav", "onoffCaption": "train horn at 1.991-7.071", "frequencyCaption": "train horn one times"}
+{"filepath": "data/multi_event_test/syn_159.wav", "onoffCaption": "door slamming at 3.182-5.421, 7.675-9.086", "frequencyCaption": "door slamming two times"}
+{"filepath": "data/multi_event_test/syn_160.wav", "onoffCaption": "spraying at 0.179-0.975 and whistling at 3.947-10.0", "frequencyCaption": "spraying one times and whistling one times"}
+{"filepath": "data/multi_event_test/syn_167.wav", "onoffCaption": "burping belching at 0.386-3.343, 4.105-6.264 and gunshot at 4.772-6.772", "frequencyCaption": "burping belching two times and gunshot one times"}
+{"filepath": "data/multi_event_test/syn_169.wav", "onoffCaption": "sneeze at 0.56-4.713, 5.69-7.783", "frequencyCaption": "sneeze two times"}
+{"filepath": "data/multi_event_test/syn_173.wav", "onoffCaption": "sheep goat bleating at 0.834-2.834, 3.932-5.932, 6.656-8.656", "frequencyCaption": "sheep goat bleating three times"}
+{"filepath": "data/multi_event_test/syn_174.wav", "onoffCaption": "dog barking at 0.021-2.021, 2.529-4.529, 5.505-7.505", "frequencyCaption": "dog barking three times"}
+{"filepath": "data/multi_event_test/syn_176.wav", "onoffCaption": "woman laughing at 2.645-5.409, 7.198-9.435", "frequencyCaption": "woman laughing two times"}
+{"filepath": "data/multi_event_test/syn_182.wav", "onoffCaption": "cow mooing at 0.007-2.807 and gunshot at 1.124-3.124", "frequencyCaption": "cow mooing one times and gunshot one times"}
+{"filepath": "data/multi_event_test/syn_185.wav", "onoffCaption": "spraying at 2.564-3.666 and door knocking at 6.756-9.32", "frequencyCaption": "spraying one times and door knocking one times"}
+{"filepath": "data/multi_event_test/syn_189.wav", "onoffCaption": "door slamming at 2.717-4.956, 5.586-6.997", "frequencyCaption": "door slamming two times"}
+{"filepath": "data/multi_event_test/syn_191.wav", "onoffCaption": "burping belching at 2.833-4.992, 6.271-8.43", "frequencyCaption": "burping belching two times"}
+{"filepath": "data/multi_event_test/syn_193.wav", "onoffCaption": "cow mooing at 0.942-3.742, 4.83-7.454", "frequencyCaption": "cow mooing two times"}
+{"filepath": "data/multi_event_test/syn_196.wav", "onoffCaption": "spraying at 3.461-4.563", "frequencyCaption": "spraying one times"}
+{"filepath": "data/multi_event_test/syn_198.wav", "onoffCaption": "gunshot at 1.546-3.546, 4.501-6.501, 7.428-9.428", "frequencyCaption": "gunshot three times"}
+{"filepath": "data/multi_event_test/syn_7.wav", "onoffCaption": "spraying at 0.113-0.909 and burping belching at 0.623-3.58", "frequencyCaption": "spraying one times and burping belching one times"}
+{"filepath": "data/multi_event_test/syn_9.wav", "onoffCaption": "cow mooing at 1.06-3.86", "frequencyCaption": "cow mooing one times"}
+{"filepath": "data/multi_event_test/syn_10.wav", "onoffCaption": "door knocking at 0.3-2.864, 5.022-7.586", "frequencyCaption": "door knocking two times"}
+{"filepath": "data/multi_event_test/syn_17.wav", "onoffCaption": "dog barking at 3.791-5.791, 7.757-9.757", "frequencyCaption": "dog barking two times"}
+{"filepath": "data/multi_event_test/syn_19.wav", "onoffCaption": "gunshot at 0.007-2.007 and spraying at 4.251-5.047", "frequencyCaption": "gunshot one times and spraying one times"}
+{"filepath": "data/multi_event_test/syn_20.wav", "onoffCaption": "tapping clicking clanking at 0.017-3.457, 5.475-7.882", "frequencyCaption": "tapping clicking clanking two times"}
+{"filepath": "data/multi_event_test/syn_27.wav", "onoffCaption": "dog barking at 2.012-4.012, 4.76-6.76", "frequencyCaption": "dog barking two times"}
+{"filepath": "data/multi_event_test/syn_29.wav", "onoffCaption": "tapping clicking clanking at 2.18-5.62, 6.49-9.93", "frequencyCaption": "tapping clicking clanking two times"}
+{"filepath": "data/multi_event_test/syn_33.wav", "onoffCaption": "dog barking at 2.805-4.805, 5.866-7.866 and car horn honking at 5.136-8.097", "frequencyCaption": "dog barking two times and car horn honking one times"}
+{"filepath": "data/multi_event_test/syn_34.wav", "onoffCaption": "sheep goat bleating at 1.113-3.113", "frequencyCaption": "sheep goat bleating one times"}
+{"filepath": "data/multi_event_test/syn_42.wav", "onoffCaption": "tapping clicking clanking at 2.443-5.883, 7.179-9.684", "frequencyCaption": "tapping clicking clanking two times"}
+{"filepath": "data/multi_event_test/syn_45.wav", "onoffCaption": "cat meowing at 0.324-1.65 and train horn at 4.186-9.266", "frequencyCaption": "cat meowing one times and train horn one times"}
+{"filepath": "data/multi_event_test/syn_56.wav", "onoffCaption": "tapping clicking clanking at 1.696-5.136, 6.886-9.533", "frequencyCaption": "tapping clicking clanking two times"}
+{"filepath": "data/multi_event_test/syn_58.wav", "onoffCaption": "door slamming at 2.48-3.891", "frequencyCaption": "door slamming one times"}
+{"filepath": "data/multi_event_test/syn_61.wav", "onoffCaption": "explosion at 2.489-5.241, 5.792-8.521 and train horn at 2.512-7.592 and woman laughing at 6.424-9.188", "frequencyCaption": "explosion two times and train horn one times and woman laughing one times"}
+{"filepath": "data/multi_event_test/syn_66.wav", "onoffCaption": "sheep goat bleating at 1.634-3.634", "frequencyCaption": "sheep goat bleating one times"}
+{"filepath": "data/multi_event_test/syn_68.wav", "onoffCaption": "car horn honking at 0.051-3.012, 4.062-6.746, 7.319-10.0", "frequencyCaption": "car horn honking three times"}
+{"filepath": "data/multi_event_test/syn_72.wav", "onoffCaption": "spraying at 0.013-0.809, 1.742-2.844 and thump thud at 1.117-3.792 and dog barking at 6.065-8.065", "frequencyCaption": "spraying two times and thump thud one times and dog barking one times"}
+{"filepath": "data/multi_event_test/syn_75.wav", "onoffCaption": "explosion at 0.266-5.188, 6.431-9.183", "frequencyCaption": "explosion two times"}
+{"filepath": "data/multi_event_test/syn_83.wav", "onoffCaption": "whistling at 2.863-10.0", "frequencyCaption": "whistling one times"}
+{"filepath": "data/multi_event_test/syn_84.wav", "onoffCaption": "burping belching at 2.009-4.966, 6.768-8.927", "frequencyCaption": "burping belching two times"}
+{"filepath": "data/multi_event_test/syn_90.wav", "onoffCaption": "gunshot at 0.175-2.175", "frequencyCaption": "gunshot one times"}
+{"filepath": "data/multi_event_test/syn_97.wav", "onoffCaption": "cat meowing at 3.666-5.056", "frequencyCaption": "cat meowing one times"}
+{"filepath": "data/multi_event_test/syn_99.wav", "onoffCaption": "duck quacking at 0.697-2.515, 3.677-5.677", "frequencyCaption": "duck quacking two times"}
+{"filepath": "data/multi_event_test/syn_100.wav", "onoffCaption": "cat meowing at 0.122-1.512 and sheep goat bleating at 0.564-2.564, 3.078-5.078, 5.762-7.762", "frequencyCaption": "cat meowing one times and sheep goat bleating three times"}
+{"filepath": "data/multi_event_test/syn_107.wav", "onoffCaption": "spraying at 0.005-1.107, 3.385-4.487 and dog barking at 1.269-3.269, 4.85-6.85 and tapping clicking clanking at 1.455-4.895, 5.47-8.91", "frequencyCaption": "spraying two times and dog barking two times and tapping clicking clanking two times"}
+{"filepath": "data/multi_event_test/syn_109.wav", "onoffCaption": "cow mooing at 1.573-4.373 and gunshot at 7.482-9.482", "frequencyCaption": "cow mooing one times and gunshot one times"}
+{"filepath": "data/multi_event_test/syn_113.wav", "onoffCaption": "whistling at 0.12-4.714 and tapping clicking clanking at 0.731-4.171", "frequencyCaption": "whistling one times and tapping clicking clanking one times"}
+{"filepath": "data/multi_event_test/syn_114.wav", "onoffCaption": "car horn honking at 3.216-5.9 and door knocking at 3.814-6.378", "frequencyCaption": "car horn honking one times and door knocking one times"}
+{"filepath": "data/multi_event_test/syn_124.wav", "onoffCaption": "gunshot at 2.794-4.794, 5.712-7.712", "frequencyCaption": "gunshot two times"}
+{"filepath": "data/multi_event_test/syn_130.wav", "onoffCaption": "dog barking at 0.835-2.835, 3.911-5.911, 6.459-8.459", "frequencyCaption": "dog barking three times"}
+{"filepath": "data/multi_event_test/syn_137.wav", "onoffCaption": "door knocking at 0.152-2.716 and cow mooing at 1.559-4.183 and gunshot at 5.826-7.826", "frequencyCaption": "door knocking one times and cow mooing one times and gunshot one times"}
+{"filepath": "data/multi_event_test/syn_141.wav", "onoffCaption": "sneeze at 0.816-4.969, 5.643-9.796", "frequencyCaption": "sneeze two times"}
+{"filepath": "data/multi_event_test/syn_146.wav", "onoffCaption": "sneeze at 0.145-4.298, 5.107-8.031 and cat meowing at 1.128-2.454", "frequencyCaption": "sneeze two times and cat meowing one times"}
+{"filepath": "data/multi_event_test/syn_148.wav", "onoffCaption": "duck quacking at 3.185-5.003, 5.701-7.701 and cow mooing at 3.469-6.093", "frequencyCaption": "duck quacking two times and cow mooing one times"}
+{"filepath": "data/multi_event_test/syn_152.wav", "onoffCaption": "tapping clicking clanking at 0.851-4.291, 4.863-7.054 and train horn at 5.524-8.524", "frequencyCaption": "tapping clicking clanking two times and train horn one times"}
+{"filepath": "data/multi_event_test/syn_155.wav", "onoffCaption": "tapping clicking clanking at 0.869-4.309 and gunshot at 1.402-3.402 and cat meowing at 6.9-8.226", "frequencyCaption": "tapping clicking clanking one times and gunshot one times and cat meowing one times"}
+{"filepath": "data/multi_event_test/syn_162.wav", "onoffCaption": "gunshot at 0.5-2.5, 3.074-5.074, 5.829-7.829", "frequencyCaption": "gunshot three times"}
+{"filepath": "data/multi_event_test/syn_165.wav", "onoffCaption": "thump thud at 0.322-2.622, 4.239-6.914 and whistling at 0.361-9.161", "frequencyCaption": "thump thud two times and whistling one times"}
+{"filepath": "data/multi_event_test/syn_171.wav", "onoffCaption": "spraying at 1.23-2.332, 3.511-4.613, 5.79-6.892 and thump thud at 1.604-3.904 and sheep goat bleating at 1.985-3.985, 4.796-6.796", "frequencyCaption": "spraying three times and thump thud one times and sheep goat bleating two times"}
+{"filepath": "data/multi_event_test/syn_178.wav", "onoffCaption": "door slamming at 0.233-2.472 and woman laughing at 6.658-10.0", "frequencyCaption": "door slamming one times and woman laughing one times"}
+{"filepath": "data/multi_event_test/syn_180.wav", "onoffCaption": "spraying at 2.203-3.305 and cow mooing at 4.398-7.198", "frequencyCaption": "spraying one times and cow mooing one times"}
+{"filepath": "data/multi_event_test/syn_187.wav", "onoffCaption": "sneeze at 2.13-6.283, 6.866-10.0", "frequencyCaption": "sneeze two times"}
+{"filepath": "data/multi_event_test/syn_194.wav", "onoffCaption": "duck quacking at 2.028-3.846, 5.612-7.43", "frequencyCaption": "duck quacking two times"}
