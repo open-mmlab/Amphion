@@ -1,0 +1,30 @@
+bias: true
+code_dim: 1024
+codebook_num: 1
+codebook_size: 32
+dec_block_dilations:
+- 1
+- 1
+dec_block_kernel_size: 3
+dec_kernel_size: 3
+dec_ratios:
+- 1
+- 1
+dec_strides:
+- 1
+- 1
+decode_channels: 1024
+enc_block_dilations:
+- 1
+- 1
+enc_block_kernel_size: 3
+enc_kernel_size: 3
+enc_ratios:
+- 1
+- 1
+enc_strides:
+- 1
+- 1
+encode_channels: 1024
+input_channels: 1024
+output_channels: 1024

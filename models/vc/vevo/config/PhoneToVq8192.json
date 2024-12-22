@@ -1,0 +1,48 @@
+{
+    "model_type": "AutoregressiveTransformer",
+    "dataset": [
+        "emilia"
+    ],
+    "preprocess": {
+        "hop_size": 320,
+        "sample_rate": 16000, // HuBERT, WavLM, are both 16000
+        "n_fft": 1920,
+        "num_mels": 128,
+        "win_size": 1920,
+        "fmin": 0,
+        "fmax": 12000,
+        "mel_var": 8.14,
+        "mel_mean": -4.92,
+        "load_phone": true,
+    },
+    "model": {
+        "autoregressive_transformer": {
+            "input_vocab_size": 1024,
+            "output_vocab_size": 8192,
+            "hidden_size": 1920,
+            "intermediate_size": 7680,
+            "num_hidden_layers": 12,
+            "num_attention_heads": 16,
+            "use_global_style_encoder": false,
+        },
+        "train_both_vc_and_tts": false,
+        "train_vc": false,
+        "train_tts": true,
+        "vc_input_token_type": "hubert_vevo_codec",
+        "vc_input_vocab_size": 32,
+        "vc_random_mask_input_prob": -1,
+        "vc_random_mask_input_max_ratio": 0.2,
+        "tts_input_token_type": "g2p",
+        "tts_input_vocab_size": 1024,
+        "output_token_type": "hubert_codec",
+        "representation_stat_mean_var_path": "./models/vc/vevo/config/hubert_large_l18_mean_std.npz",
+        "output_repcodec": {
+            "codebook_size": 8192, // VQ Codebook Size
+            "hidden_size": 1024, // Representations Dim
+            "codebook_dim": 8,
+            "vocos_dim": 384,
+            "vocos_intermediate_dim": 2048,
+            "vocos_num_layers": 12,
+        }
+    },
+}
