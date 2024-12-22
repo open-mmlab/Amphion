@@ -22,7 +22,8 @@
 
 - **TTS**: Text to Speech (⛳ supported)
 - **SVS**: Singing Voice Synthesis (👨‍💻 developing)
-- **VC**: Voice Conversion (👨‍💻 developing)
+- **VC**: Voice Conversion (⛳ supported)
+- **AC**: Accent Conversion (⛳ supported)
 - **SVC**: Singing Voice Conversion (⛳ supported)
 - **TTA**: Text to Audio (⛳ supported)
 - **TTM**: Text to Music (👨‍💻 developing)
@@ -31,6 +32,7 @@
 In addition to the specific generation tasks, Amphion includes several **vocoders** and **evaluation metrics**. A vocoder is an important module for producing high-quality audio signals, while evaluation metrics are critical for ensuring consistent metrics in generation tasks. Moreover, Amphion is dedicated to advancing audio generation in real-world applications, such as building **large-scale datasets** for speech synthesis.
 
 ## 🚀 News
+- **2024/12/22**: We release the reproduction of **Vevo**, a zero-shot voice imitation framework with controllable timbre and style. Vevo can be applied into a series of speech generation tasks, including VC, TTS, AC, and more. The released pre-trained models are trained on [Emilia](https://huggingface.co/datasets/amphion/Emilia-Dataset) dataset and achieve SOTA zero-shot VC performance. [![arXiv](https://img.shields.io/badge/OpenReview-Paper-COLOR.svg)](https://openreview.net/pdf?id=anQDiQZhDP) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-model-yellow)](https://huggingface.co/amphion/Vevo) [![WebPage](https://img.shields.io/badge/WebPage-Demo-red)](https://versavoice.github.io/) [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](models/vc/vevo/README.md)
 - **2024/10/19**: We release **MaskGCT**, a fully non-autoregressive TTS model that eliminates the need for explicit alignment information between text and speech supervision. MaskGCT is trained on [Emilia](https://huggingface.co/datasets/amphion/Emilia-Dataset) dataset and achieves SOTA zero-shot TTS performance.  [![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2409.00750) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-model-yellow)](https://huggingface.co/amphion/maskgct) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-demo-pink)](https://huggingface.co/spaces/amphion/maskgct) [![ModelScope](https://img.shields.io/badge/ModelScope-space-purple)](https://modelscope.cn/studios/amphion/maskgct) [![ModelScope](https://img.shields.io/badge/ModelScope-model-cyan)](https://modelscope.cn/models/amphion/MaskGCT) [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](models/tts/maskgct/README.md)
 - **2024/09/01**: [Amphion](https://arxiv.org/abs/2312.09911), [Emilia](https://arxiv.org/abs/2407.05361) and [DSFF-SVC](https://arxiv.org/abs/2310.11160) got accepted by IEEE SLT 2024! 🤗
 - **2024/08/28**: Welcome to join Amphion's [Discord channel](https://discord.com/invite/drhW7ajqAG) to stay connected and engage with our community！
@@ -54,6 +56,17 @@ In addition to the specific generation tasks, Amphion includes several **vocoder
     - [NaturalSpeech2](https://arxiv.org/abs/2304.09116): An architecture for TTS that utilizes a latent diffusion model to generate natural-sounding voices.
     - [Jets](Jets): An end-to-end TTS model that jointly trains FastSpeech2 and HiFi-GAN with an alignment module.
     - [MaskGCT](https://arxiv.org/abs/2409.00750): a fully non-autoregressive TTS architecture that eliminates the need for explicit alignment information between text and speech supervision.
+
+### VC: Voice Conversion
+
+Amphion supports the following voice conversion models:
+
+- [Vevo](https://openreview.net/pdf?id=anQDiQZhDP): A zero-shot voice imitation framework with controllable timbre and style. **Vevo-Timbre** conducts the style-preserved voice conversion, and **Vevo-Voice** conducts the style-converted voice conversion.
+- [Noro](https://arxiv.org/abs/2411.19770): A **noise-robust** zero-shot voice conversion system. Noro introduces innovative components tailored for VC using noisy reference speeches, including a dual-branch reference encoding module and a noise-agnostic contrastive speaker loss.
+
+### AC: Accent Conversion
+
+- Amphion supports AC with [Vevo-Style](models/vc/vevo/README.md). Particularly, it can conduct the accent conversion in a zero-shot manner.
 
 ### SVC: Singing Voice Conversion
 
@@ -133,6 +146,8 @@ Mount dataset by argument `-v` is necessary when using Docker. Please refer to [
 We detail the instructions of different tasks in the following recipes:
 
 - [Text to Speech (TTS)](egs/tts/README.md)
+- [Voice Conversion (VC)](models/vc/vevo/README.md)
+- [Accent Conversion (AC)](models/vc/vevo/README.md)
 - [Singing Voice Conversion (SVC)](egs/svc/README.md)
 - [Text to Audio (TTA)](egs/tta/README.md)
 - [Vocoder](egs/vocoder/README.md)
