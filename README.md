@@ -62,6 +62,7 @@ In addition to the specific generation tasks, Amphion includes several **vocoder
 Amphion supports the following voice conversion models:
 
 - [Vevo](https://openreview.net/pdf?id=anQDiQZhDP): A zero-shot voice imitation framework with controllable timbre and style. **Vevo-Timbre** conducts the style-preserved voice conversion, and **Vevo-Voice** conducts the style-converted voice conversion.
+- [FACodec](https://huggingface.co/amphion/naturalspeech3_facodec): FACodec decomposes speech into subspaces representing different attributes like content, prosody, and timbre. It can achieve zero-shot voice conversion.
 - [Noro](https://arxiv.org/abs/2411.19770): A **noise-robust** zero-shot voice conversion system. Noro introduces innovative components tailored for VC using noisy reference speeches, including a dual-branch reference encoding module and a noise-agnostic contrastive speaker loss.
 
 ### AC: Accent Conversion
