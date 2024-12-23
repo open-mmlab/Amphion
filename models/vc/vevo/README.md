@@ -4,7 +4,7 @@
 [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-model-yellow)](https://huggingface.co/amphion/Vevo)
 [![WebPage](https://img.shields.io/badge/WebPage-Demo-red)](https://versavoice.github.io/)
 
-We present our reproduction of [Vevo](https://openreview.net/pdf?id=anQDiQZhDP), a versatile zero-shot voice imitation framework with controllable timbre and style. We invite you to explore our [audio samples](https://versavoice.github.io/) at to experience Vevo's capabilities firsthand.
+We present our reproduction of [Vevo](https://openreview.net/pdf?id=anQDiQZhDP), a versatile zero-shot voice imitation framework with controllable timbre and style. We invite you to explore the [audio samples](https://versavoice.github.io/) to experience Vevo's capabilities firsthand.
 
 <br>
 <div align="center">
@@ -81,6 +81,8 @@ python -m models.vc.vevo.infer_vevotts
 Running this will automatically download the pretrained model from HuggingFace and start the inference process. The result audio is by default saved in `models/vc/vevo/wav/output*.wav`, you can change this in the scripts  `models/vc/vevo/infer_vevo*.py`
 
 ## Citations
+
+If you use Vevo in your research, please cite the following papers:
 
 ```bibtex
 @article{vevo,
