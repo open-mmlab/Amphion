@@ -6,6 +6,7 @@
 .vs
 .vscode
 .cache
+pyrightconfig.json
 
 # GitHub files
 .github

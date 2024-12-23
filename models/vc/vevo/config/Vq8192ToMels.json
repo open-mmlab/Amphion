@@ -1,0 +1,49 @@
+{
+    "model_type": "FlowMatchingTransformer",
+    "dataset": [
+        "emilia"
+    ],
+    "preprocess": {
+        "hop_size": 480,
+        "sample_rate": 24000,
+        "n_fft": 1920,
+        "num_mels": 128,
+        "win_size": 1920,
+        "fmin": 0,
+        "fmax": 12000,
+        "mel_var": 8.14,
+        "mel_mean": -4.92,
+        "processed_dir": "",
+        "valid_file": "valid.json",
+        "train_file": "train.json",
+        "use_phone_cond": false,
+        "use_emilia_101k": true
+    },
+    "model": {
+        "flow_matching_transformer": {
+            "mel_dim": 128,
+            "hidden_size": 1024,
+            "num_layers": 16,
+            "num_heads": 16,
+            "cfg_scale": 0.2,
+            "use_cond_code": true, // false means Hidden features
+            "cond_dim": 1024, // HuBERT features dimension
+            "cond_codebook_size": 8192, // VQ Codebook Size
+            "cond_scale_factor": 1, // 1 means not use ReTrans
+            "use_pretrained_model": false,
+            "sigma": 1e-5,
+            "time_scheduler": "cos"
+        },
+        "cond_type": "hubert_codec",
+        "cond_sample_rate": 16000,
+        "representation_stat_mean_var_path": "./models/vc/vevo/config/hubert_large_l18_mean_std.npz",
+        "repcodec": {
+            "codebook_size": 8192, // VQ Codebook Size
+            "hidden_size": 1024, // Representations Dim
+            "codebook_dim": 8,
+            "vocos_dim": 384,
+            "vocos_intermediate_dim": 2048,
+            "vocos_num_layers": 12,
+        }
+    },
+}
