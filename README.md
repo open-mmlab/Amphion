@@ -50,33 +50,33 @@ In addition to the specific generation tasks, Amphion includes several **vocoder
 ### TTS: Text to Speech
 
 - Amphion achieves state-of-the-art performance compared to existing open-source repositories on text-to-speech (TTS) systems. It supports the following models or architectures:
-    - [FastSpeech2](https://arxiv.org/abs/2006.04558): A non-autoregressive TTS architecture that utilizes feed-forward Transformer blocks.
-    - [VITS](https://arxiv.org/abs/2106.06103): An end-to-end TTS architecture that utilizes conditional variational autoencoder with adversarial learning
-    - [VALL-E](https://arxiv.org/abs/2301.02111): A zero-shot TTS architecture that uses a neural codec language model with discrete codes.
-    - [NaturalSpeech2](https://arxiv.org/abs/2304.09116): An architecture for TTS that utilizes a latent diffusion model to generate natural-sounding voices.
-    - [Jets](Jets): An end-to-end TTS model that jointly trains FastSpeech2 and HiFi-GAN with an alignment module.
-    - [MaskGCT](https://arxiv.org/abs/2409.00750): a fully non-autoregressive TTS architecture that eliminates the need for explicit alignment information between text and speech supervision.
+    - [FastSpeech2](https://arxiv.org/abs/2006.04558): A non-autoregressive TTS architecture that utilizes feed-forward Transformer blocks. [![code](https://img.shields.io/badge/README-Code-blue)](egs/tts/FastSpeech2/README.md)
+    - [VITS](https://arxiv.org/abs/2106.06103): An end-to-end TTS architecture that utilizes conditional variational autoencoder with adversarial learning [![code](https://img.shields.io/badge/README-Code-blue)](egs/tts/VITS/README.md)
+    - [VALL-E](https://arxiv.org/abs/2301.02111): A zero-shot TTS architecture that uses a neural codec language model with discrete codes. [![code](https://img.shields.io/badge/README-Code-blue)](egs/tts/VALLE_V2/README.md)
+    - [NaturalSpeech2](https://arxiv.org/abs/2304.09116): An architecture for TTS that utilizes a latent diffusion model to generate natural-sounding voices. [![code](https://img.shields.io/badge/README-Code-blue)](egs/tts/NaturalSpeech2/README.md)
+    - [Jets](Jets): An end-to-end TTS model that jointly trains FastSpeech2 and HiFi-GAN with an alignment module. [![code](https://img.shields.io/badge/README-Code-blue)](egs/tts/Jets/README.md)
+    - [MaskGCT](https://arxiv.org/abs/2409.00750): a fully non-autoregressive TTS architecture that eliminates the need for explicit alignment information between text and speech supervision. [![code](https://img.shields.io/badge/README-Code-blue)](models/tts/maskgct/README.md)
 
 ### VC: Voice Conversion
 
 Amphion supports the following voice conversion models:
 
-- [Vevo](https://openreview.net/pdf?id=anQDiQZhDP): A zero-shot voice imitation framework with controllable timbre and style. **Vevo-Timbre** conducts the style-preserved voice conversion, and **Vevo-Voice** conducts the style-converted voice conversion.
-- [FACodec](https://huggingface.co/amphion/naturalspeech3_facodec): FACodec decomposes speech into subspaces representing different attributes like content, prosody, and timbre. It can achieve zero-shot voice conversion.
-- [Noro](https://arxiv.org/abs/2411.19770): A **noise-robust** zero-shot voice conversion system. Noro introduces innovative components tailored for VC using noisy reference speeches, including a dual-branch reference encoding module and a noise-agnostic contrastive speaker loss.
+- [Vevo](https://openreview.net/pdf?id=anQDiQZhDP): A zero-shot voice imitation framework with controllable timbre and style. **Vevo-Timbre** conducts the style-preserved voice conversion, and **Vevo-Voice** conducts the style-converted voice conversion. [![code](https://img.shields.io/badge/README-Code-blue)](models/vc/vevo/README.md)
+- [FACodec](https://arxiv.org/abs/2403.03100): FACodec decomposes speech into subspaces representing different attributes like content, prosody, and timbre. It can achieve zero-shot voice conversion. [![code](https://img.shields.io/badge/README-Code-blue)](https://huggingface.co/amphion/naturalspeech3_facodec)
+- [Noro](https://arxiv.org/abs/2411.19770): A **noise-robust** zero-shot voice conversion system. Noro introduces innovative components tailored for VC using noisy reference speeches, including a dual-branch reference encoding module and a noise-agnostic contrastive speaker loss. [![code](https://img.shields.io/badge/README-Code-blue)](egs/vc/Noro/README.md)
 
 ### AC: Accent Conversion
 
-- Amphion supports AC with [Vevo-Style](models/vc/vevo/README.md). Particularly, it can conduct the accent conversion in a zero-shot manner.
+- Amphion supports AC with [Vevo-Style](models/vc/vevo/README.md). Particularly, it can conduct the accent conversion in a zero-shot manner. [![code](https://img.shields.io/badge/README-Code-blue)](models/vc/vevo/README.md)
 
 ### SVC: Singing Voice Conversion
 
-- Ampion supports multiple content-based features from various pretrained models, including [WeNet](https://github.com/wenet-e2e/wenet), [Whisper](https://github.com/openai/whisper), and [ContentVec](https://github.com/auspicious3000/contentvec). Their specific roles in SVC has been investigated in our SLT 2024 paper. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2310.11160) [![code](https://img.shields.io/badge/README-Code-red)](egs/svc/MultipleContentsSVC)
-- Amphion implements several state-of-the-art model architectures, including diffusion-, transformer-, VAE- and flow-based models. The diffusion-based architecture uses [Bidirectional dilated CNN](https://openreview.net/pdf?id=a-xFK8Ymz5J) as a backend and supports several sampling algorithms such as [DDPM](https://arxiv.org/pdf/2006.11239.pdf), [DDIM](https://arxiv.org/pdf/2010.02502.pdf), and [PNDM](https://arxiv.org/pdf/2202.09778.pdf). Additionally, it supports single-step inference based on the [Consistency Model](https://openreview.net/pdf?id=FmqFfMTNnv).
+- Ampion supports multiple content-based features from various pretrained models, including [WeNet](https://github.com/wenet-e2e/wenet), [Whisper](https://github.com/openai/whisper), and [ContentVec](https://github.com/auspicious3000/contentvec). Their specific roles in SVC has been investigated in our SLT 2024 paper. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2310.11160) [![code](https://img.shields.io/badge/README-Code-blue)](egs/svc/MultipleContentsSVC)
+- Amphion implements several state-of-the-art model architectures, including diffusion-, transformer-, VAE- and flow-based models. The diffusion-based architecture uses [Bidirectional dilated CNN](https://openreview.net/pdf?id=a-xFK8Ymz5J) as a backend and supports several sampling algorithms such as [DDPM](https://arxiv.org/pdf/2006.11239.pdf), [DDIM](https://arxiv.org/pdf/2010.02502.pdf), and [PNDM](https://arxiv.org/pdf/2202.09778.pdf). Additionally, it supports single-step inference based on the [Consistency Model](https://openreview.net/pdf?id=FmqFfMTNnv). [![code](https://img.shields.io/badge/README-Code-blue)](egs/svc/DiffComoSVC/README.md)
 
 ### TTA: Text to Audio
 
-- Amphion supports the TTA with a latent diffusion model. It is designed like [AudioLDM](https://arxiv.org/abs/2301.12503), [Make-an-Audio](https://arxiv.org/abs/2301.12661), and [AUDIT](https://arxiv.org/abs/2304.00830). It is also the official implementation of the text-to-audio generation part of our NeurIPS 2023 paper. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2304.00830) [![code](https://img.shields.io/badge/README-Code-red)](egs/tta/RECIPE.md)
+- Amphion supports the TTA with a latent diffusion model. It is designed like [AudioLDM](https://arxiv.org/abs/2301.12503), [Make-an-Audio](https://arxiv.org/abs/2301.12661), and [AUDIT](https://arxiv.org/abs/2304.00830). It is also the official implementation of the text-to-audio generation part of our NeurIPS 2023 paper. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2304.00830) [![code](https://img.shields.io/badge/README-Code-blue)](egs/tta/RECIPE.md)
 
 ### Vocoder
 
@@ -85,11 +85,13 @@ Amphion supports the following voice conversion models:
     - Flow-based vocoders: [WaveGlow](https://arxiv.org/abs/1811.00002).
     - Diffusion-based vocoders: [Diffwave](https://arxiv.org/abs/2009.09761).
     - Auto-regressive based vocoders: [WaveNet](https://arxiv.org/abs/1609.03499), [WaveRNN](https://arxiv.org/abs/1802.08435v1).
-- Amphion provides the official implementation of [Multi-Scale Constant-Q Transform Discriminator](https://arxiv.org/abs/2311.14957) (our ICASSP 2024 paper). It can be used to enhance any architecture GAN-based vocoders during training, and keep the inference stage (such as memory or speed) unchanged. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2311.14957) [![code](https://img.shields.io/badge/README-Code-red)](egs/vocoder/gan/tfr_enhanced_hifigan)
+- Amphion provides the official implementation of [Multi-Scale Constant-Q Transform Discriminator](https://arxiv.org/abs/2311.14957) (our ICASSP 2024 paper). It can be used to enhance any architecture GAN-based vocoders during training, and keep the inference stage (such as memory or speed) unchanged. [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2311.14957) [![code](https://img.shields.io/badge/README-Code-blue)](egs/vocoder/gan/tfr_enhanced_hifigan)
 
 ### Evaluation
 
-Amphion provides a comprehensive objective evaluation of the generated audio. The evaluation metrics contain:
+Amphion provides a comprehensive objective evaluation of the generated audio. [![code](https://img.shields.io/badge/README-Code-blue)](egs/metrics/README.md) 
+
+The supported evaluation metrics contain:
 
 - **F0 Modeling**: F0 Pearson Coefficients, F0 Periodicity Root Mean Square Error, F0 Root Mean Square Error, Voiced/Unvoiced F1 Score, etc.
 - **Energy Modeling**: Energy Root Mean Square Error, Energy Pearson Coefficients, etc.
