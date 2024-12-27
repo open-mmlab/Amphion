@@ -7,6 +7,8 @@
     <a href="https://openxlab.org.cn/usercenter/Amphion"><img src="https://cdn-static.openxlab.org.cn/app-center/openxlab_app.svg"></a>
     <a href="https://discord.com/invite/drhW7ajqAG"><img src="https://img.shields.io/badge/Discord-Join%20chat-blue.svg"></a>
     <a href="egs/tts/README.md"><img src="https://img.shields.io/badge/README-TTS-blue"></a>
+    <a href="models/vc/vevo/README.md"><img src="https://img.shields.io/badge/README-VC-blue"></a>
+    <a href="models/vc/vevo/README.md"><img src="https://img.shields.io/badge/README-AC-blue"></a>
     <a href="egs/svc/README.md"><img src="https://img.shields.io/badge/README-SVC-blue"></a>
     <a href="egs/tta/README.md"><img src="https://img.shields.io/badge/README-TTA-blue"></a>
     <a href="egs/vocoder/README.md"><img src="https://img.shields.io/badge/README-Vocoder-purple"></a>
@@ -55,7 +57,8 @@ In addition to the specific generation tasks, Amphion includes several **vocoder
     - [VALL-E](https://arxiv.org/abs/2301.02111): A zero-shot TTS architecture that uses a neural codec language model with discrete codes. [![code](https://img.shields.io/badge/README-Code-blue)](egs/tts/VALLE_V2/README.md)
     - [NaturalSpeech2](https://arxiv.org/abs/2304.09116): An architecture for TTS that utilizes a latent diffusion model to generate natural-sounding voices. [![code](https://img.shields.io/badge/README-Code-blue)](egs/tts/NaturalSpeech2/README.md)
     - [Jets](Jets): An end-to-end TTS model that jointly trains FastSpeech2 and HiFi-GAN with an alignment module. [![code](https://img.shields.io/badge/README-Code-blue)](egs/tts/Jets/README.md)
-    - [MaskGCT](https://arxiv.org/abs/2409.00750): a fully non-autoregressive TTS architecture that eliminates the need for explicit alignment information between text and speech supervision. [![code](https://img.shields.io/badge/README-Code-blue)](models/tts/maskgct/README.md)
+    - [MaskGCT](https://arxiv.org/abs/2409.00750): A fully non-autoregressive TTS architecture that eliminates the need for explicit alignment information between text and speech supervision. [![code](https://img.shields.io/badge/README-Code-blue)](models/tts/maskgct/README.md)
+    - [Vevo-TTS](https://openreview.net/pdf?id=anQDiQZhDP): A zero-shot TTS architecture with controllable timbre and style. It consists of an autoregressive transformer and a flow-matching transformer. [![code](https://img.shields.io/badge/README-Code-blue)](models/vc/vevo/README.md)
 
 ### VC: Voice Conversion
 
