@@ -382,7 +382,10 @@ def evaluate(model, data, epoch, args, tb_writer=None):
                                 mlp_loss=args.clap_mlploss,
                             )
                         else:
-                            (audio_features, text_features,) = gather_features(
+                            (
+                                audio_features,
+                                text_features,
+                            ) = gather_features(
                                 audio_features=audio_features,
                                 text_features=text_features,
                                 local_loss=False,
@@ -808,9 +811,9 @@ def select_top_metric_clotho_audiocaps(metrics, val_metrics_per_dataset, args):
         metric_update = {}
         for n in val_metrics_per_dataset.keys():
             for k in val_metrics_per_dataset[n].keys():
-                metric_update[
-                    k.split("/")[0] + "-top" + "/" + k.split("/")[1]
-                ] = val_metrics_per_dataset[n][k]
+                metric_update[k.split("/")[0] + "-top" + "/" + k.split("/")[1]] = (
+                    val_metrics_per_dataset[n][k]
+                )
         metric_update["top_selection_performance"] = selection_performance
         metric_update["top-selection-epoch"] = metrics["epoch"]
         metrics.update(metric_update)
@@ -825,9 +828,9 @@ def select_top_metric_clotho_audiocaps(metrics, val_metrics_per_dataset, args):
             metric_update = {}
             for n in val_metrics_per_dataset.keys():
                 for k in val_metrics_per_dataset[n].keys():
-                    metric_update[
-                        k.split("/")[0] + "-top" + "/" + k.split("/")[1]
-                    ] = val_metrics_per_dataset[n][k]
+                    metric_update[k.split("/")[0] + "-top" + "/" + k.split("/")[1]] = (
+                        val_metrics_per_dataset[n][k]
+                    )
             metric_update["top_selection_performance"] = selection_performance_new
             metric_update["top-selection-epoch"] = metrics["epoch"]
             metrics.update(metric_update)

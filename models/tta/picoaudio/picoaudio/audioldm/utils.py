@@ -11,23 +11,27 @@ import urllib.request
 import progressbar
 
 CACHE_DIR = os.getenv(
-    "AUDIOLDM_CACHE_DIR",
-    os.path.join(os.path.expanduser("~"), ".cache/audioldm"))
+    "AUDIOLDM_CACHE_DIR", os.path.join(os.path.expanduser("~"), ".cache/audioldm")
+)
+
 
 def get_duration(fname):
-    with contextlib.closing(wave.open(fname, 'r')) as f:
+    with contextlib.closing(wave.open(fname, "r")) as f:
         frames = f.getnframes()
         rate = f.getframerate()
         return frames / float(rate)
-    
+
+
 def get_bit_depth(fname):
-    with contextlib.closing(wave.open(fname, 'r')) as f:
+    with contextlib.closing(wave.open(fname, "r")) as f:
         bit_depth = f.getsampwidth() * 8
         return bit_depth
-       
+
+
 def get_time():
     t = time.localtime()
     return time.strftime("%d_%m_%Y_%H_%M_%S", t)
+
 
 def seed_everything(seed):
     import random, os
@@ -52,9 +56,11 @@ def save_wave(waveform, savepath, name="outwav"):
             savepath,
             "%s_%s.wav"
             % (
-                os.path.basename(name[i])
-                if (not ".wav" in name[i])
-                else os.path.basename(name[i]).split(".")[0],
+                (
+                    os.path.basename(name[i])
+                    if (not ".wav" in name[i])
+                    else os.path.basename(name[i]).split(".")[0]
+                ),
                 i,
             ),
         )
@@ -97,7 +103,7 @@ def instantiate_from_config(config):
     return get_obj_from_str(config["target"])(**config.get("params", dict()))
 
 
-def default_audioldm_config(model_name="audioldm-s-full"):    
+def default_audioldm_config(model_name="audioldm-s-full"):
     basic_config = {
         "wave_file_save_path": "./output",
         "id": {
@@ -191,16 +197,21 @@ def default_audioldm_config(model_name="audioldm-s-full"):
             },
         },
     }
-    
-    if("-l-" in model_name):
+
+    if "-l-" in model_name:
         basic_config["model"]["params"]["unet_config"]["params"]["model_channels"] = 256
-        basic_config["model"]["params"]["unet_config"]["params"]["num_head_channels"] = 64
-    elif("-m-" in model_name):
+        basic_config["model"]["params"]["unet_config"]["params"][
+            "num_head_channels"
+        ] = 64
+    elif "-m-" in model_name:
         basic_config["model"]["params"]["unet_config"]["params"]["model_channels"] = 192
-        basic_config["model"]["params"]["cond_stage_config"]["params"]["amodel"] = "HTSAT-base" # This model use a larger HTAST
-        
+        basic_config["model"]["params"]["cond_stage_config"]["params"][
+            "amodel"
+        ] = "HTSAT-base"  # This model use a larger HTAST
+
     return basic_config
-        
+
+
 def get_metadata():
     return {
         "audioldm-s-full": {
@@ -246,14 +257,15 @@ def get_metadata():
             "url": "https://zenodo.org/record/7813012/files/audioldm-m-full.ckpt?download=1",
         },
     }
-    
-class MyProgressBar():
+
+
+class MyProgressBar:
     def __init__(self):
         self.pbar = None
 
     def __call__(self, block_num, block_size, total_size):
         if not self.pbar:
-            self.pbar=progressbar.ProgressBar(maxval=total_size)
+            self.pbar = progressbar.ProgressBar(maxval=total_size)
             self.pbar.start()
 
         downloaded = block_num * block_size
@@ -261,21 +273,31 @@ class MyProgressBar():
             self.pbar.update(downloaded)
         else:
             self.pbar.finish()
-            
+
+
 def download_checkpoint(checkpoint_name="audioldm-s-full"):
     meta = get_metadata()
-    if(checkpoint_name not in meta.keys()):
-        print("The model name you provided is not supported. Please use one of the following: ", meta.keys())
+    if checkpoint_name not in meta.keys():
+        print(
+            "The model name you provided is not supported. Please use one of the following: ",
+            meta.keys(),
+        )
 
-    if not os.path.exists(meta[checkpoint_name]["path"]) or os.path.getsize(meta[checkpoint_name]["path"]) < 2*10**9:
+    if (
+        not os.path.exists(meta[checkpoint_name]["path"])
+        or os.path.getsize(meta[checkpoint_name]["path"]) < 2 * 10**9
+    ):
         os.makedirs(os.path.dirname(meta[checkpoint_name]["path"]), exist_ok=True)
-        print(f"Downloading the main structure of {checkpoint_name} into {os.path.dirname(meta[checkpoint_name]['path'])}")
+        print(
+            f"Downloading the main structure of {checkpoint_name} into {os.path.dirname(meta[checkpoint_name]['path'])}"
+        )
 
-        urllib.request.urlretrieve(meta[checkpoint_name]["url"], meta[checkpoint_name]["path"], MyProgressBar())
+        urllib.request.urlretrieve(
+            meta[checkpoint_name]["url"], meta[checkpoint_name]["path"], MyProgressBar()
+        )
         print(
             "Weights downloaded in: {} Size: {}".format(
                 meta[checkpoint_name]["path"],
                 os.path.getsize(meta[checkpoint_name]["path"]),
             )
         )
-    

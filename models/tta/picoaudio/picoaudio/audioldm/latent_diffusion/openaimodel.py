@@ -587,9 +587,11 @@ class UNetModel(nn.Module):
                 layers = [
                     ResBlock(
                         ch,
-                        time_embed_dim
-                        if (not self.use_extra_film_by_concat)
-                        else time_embed_dim * 2,
+                        (
+                            time_embed_dim
+                            if (not self.use_extra_film_by_concat)
+                            else time_embed_dim * 2
+                        ),
                         dropout,
                         out_channels=mult * model_channels,
                         dims=dims,
@@ -637,9 +639,11 @@ class UNetModel(nn.Module):
                     TimestepEmbedSequential(
                         ResBlock(
                             ch,
-                            time_embed_dim
-                            if (not self.use_extra_film_by_concat)
-                            else time_embed_dim * 2,
+                            (
+                                time_embed_dim
+                                if (not self.use_extra_film_by_concat)
+                                else time_embed_dim * 2
+                            ),
                             dropout,
                             out_channels=out_ch,
                             dims=dims,
@@ -669,35 +673,41 @@ class UNetModel(nn.Module):
         self.middle_block = TimestepEmbedSequential(
             ResBlock(
                 ch,
-                time_embed_dim
-                if (not self.use_extra_film_by_concat)
-                else time_embed_dim * 2,
+                (
+                    time_embed_dim
+                    if (not self.use_extra_film_by_concat)
+                    else time_embed_dim * 2
+                ),
                 dropout,
                 dims=dims,
                 use_checkpoint=use_checkpoint,
                 use_scale_shift_norm=use_scale_shift_norm,
             ),
-            AttentionBlock(
-                ch,
-                use_checkpoint=use_checkpoint,
-                num_heads=num_heads,
-                num_head_channels=dim_head,
-                use_new_attention_order=use_new_attention_order,
-            )
-            if not use_spatial_transformer
-            else SpatialTransformer(
-                ch,
-                num_heads,
-                dim_head,
-                depth=transformer_depth,
-                context_dim=context_dim,
-                no_context=spatial_transformer_no_context,
+            (
+                AttentionBlock(
+                    ch,
+                    use_checkpoint=use_checkpoint,
+                    num_heads=num_heads,
+                    num_head_channels=dim_head,
+                    use_new_attention_order=use_new_attention_order,
+                )
+                if not use_spatial_transformer
+                else SpatialTransformer(
+                    ch,
+                    num_heads,
+                    dim_head,
+                    depth=transformer_depth,
+                    context_dim=context_dim,
+                    no_context=spatial_transformer_no_context,
+                )
             ),
             ResBlock(
                 ch,
-                time_embed_dim
-                if (not self.use_extra_film_by_concat)
-                else time_embed_dim * 2,
+                (
+                    time_embed_dim
+                    if (not self.use_extra_film_by_concat)
+                    else time_embed_dim * 2
+                ),
                 dropout,
                 dims=dims,
                 use_checkpoint=use_checkpoint,
@@ -713,9 +723,11 @@ class UNetModel(nn.Module):
                 layers = [
                     ResBlock(
                         ch + ich,
-                        time_embed_dim
-                        if (not self.use_extra_film_by_concat)
-                        else time_embed_dim * 2,
+                        (
+                            time_embed_dim
+                            if (not self.use_extra_film_by_concat)
+                            else time_embed_dim * 2
+                        ),
                         dropout,
                         out_channels=model_channels * mult,
                         dims=dims,
@@ -760,9 +772,11 @@ class UNetModel(nn.Module):
                     layers.append(
                         ResBlock(
                             ch,
-                            time_embed_dim
-                            if (not self.use_extra_film_by_concat)
-                            else time_embed_dim * 2,
+                            (
+                                time_embed_dim
+                                if (not self.use_extra_film_by_concat)
+                                else time_embed_dim * 2
+                            ),
                             dropout,
                             out_channels=out_ch,
                             dims=dims,

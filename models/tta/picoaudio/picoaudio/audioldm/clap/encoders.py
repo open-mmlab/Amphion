@@ -14,7 +14,7 @@ class CLAPAudioEmbeddingClassifierFreev2(nn.Module):
         key="class",
         sampling_rate=16000,
         embed_mode="audio",
-        amodel = "HTSAT-tiny",
+        amodel="HTSAT-tiny",
         unconditional_prob=0.1,
         random_mute=False,
         max_random_mute_portion=0.5,
@@ -92,7 +92,11 @@ class CLAPAudioEmbeddingClassifierFreev2(nn.Module):
             audio_emb = self(waveform.cuda())
             self.embed_mode = "text"
             text_emb = self(text)
-            similarity = F.cosine_similarity(audio_emb, text_emb, dim=2), audio_emb, text_emb
+            similarity = (
+                F.cosine_similarity(audio_emb, text_emb, dim=2),
+                audio_emb,
+                text_emb,
+            )
             return similarity.squeeze()
 
     def forward(self, batch, key=None):

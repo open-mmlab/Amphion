@@ -1,11 +1,19 @@
 #!/usr/bin/python3
 import os
-from audioldm import text_to_audio, style_transfer, build_model, save_wave, get_time, round_up_duration, get_duration
+from audioldm import (
+    text_to_audio,
+    style_transfer,
+    build_model,
+    save_wave,
+    get_time,
+    round_up_duration,
+    get_duration,
+)
 import argparse
 
 CACHE_DIR = os.getenv(
-    "AUDIOLDM_CACHE_DIR",
-    os.path.join(os.path.expanduser("~"), ".cache/audioldm"))
+    "AUDIOLDM_CACHE_DIR", os.path.join(os.path.expanduser("~"), ".cache/audioldm")
+)
 
 parser = argparse.ArgumentParser()
 
@@ -15,7 +23,7 @@ parser.add_argument(
     required=False,
     default="generation",
     help="generation: text-to-audio generation; transfer: style transfer",
-    choices=["generation", "transfer"]
+    choices=["generation", "transfer"],
 )
 
 parser.add_argument(
@@ -59,7 +67,7 @@ parser.add_argument(
     required=False,
     help="The checkpoint you gonna use",
     default="audioldm-s-full",
-    choices=["audioldm-s-full", "audioldm-l-full", "audioldm-s-full-v2"]
+    choices=["audioldm-s-full", "audioldm-l-full", "audioldm-s-full-v2"],
 )
 
 parser.add_argument(
@@ -125,21 +133,21 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-if(args.ckpt_path is not None):
+if args.ckpt_path is not None:
     print("Warning: ckpt_path has no effect after version 0.0.20.")
-    
+
 assert args.duration % 2.5 == 0, "Duration must be a multiple of 2.5"
 
 mode = args.mode
-if(mode == "generation" and args.file_path is not None):
+if mode == "generation" and args.file_path is not None:
     mode = "generation_audio_to_audio"
-    if(len(args.text) > 0):
+    if len(args.text) > 0:
         print("Warning: You have specified the --file_path. --text will be ignored")
         args.text = ""
-        
+
 save_path = os.path.join(args.save_path, mode)
 
-if(args.file_path is not None):
+if args.file_path is not None:
     save_path = os.path.join(save_path, os.path.basename(args.file_path.split(".")[0]))
 
 text = args.text
@@ -151,7 +159,7 @@ n_candidate_gen_per_text = args.n_candidate_gen_per_text
 os.makedirs(save_path, exist_ok=True)
 audioldm = build_model(model_name=args.model_name)
 
-if(args.mode == "generation"):
+if args.mode == "generation":
     waveform = text_to_audio(
         audioldm,
         text,
@@ -163,10 +171,13 @@ if(args.mode == "generation"):
         n_candidate_gen_per_text=n_candidate_gen_per_text,
         batchsize=args.batchsize,
     )
-    
-elif(args.mode == "transfer"):
+
+elif args.mode == "transfer":
     assert args.file_path is not None
-    assert os.path.exists(args.file_path), "The original audio file \'%s\' for style transfer does not exist." % args.file_path
+    assert os.path.exists(args.file_path), (
+        "The original audio file '%s' for style transfer does not exist."
+        % args.file_path
+    )
     waveform = style_transfer(
         audioldm,
         text,
@@ -178,6 +189,6 @@ elif(args.mode == "transfer"):
         ddim_steps=args.ddim_steps,
         batchsize=args.batchsize,
     )
-    waveform = waveform[:,None,:]
+    waveform = waveform[:, None, :]
 
 save_wave(waveform, save_path, name="%s_%s" % (get_time(), text))

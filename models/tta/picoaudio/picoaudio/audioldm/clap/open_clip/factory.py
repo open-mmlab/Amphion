@@ -18,7 +18,6 @@ _MODEL_CONFIGS = {}  # directory (model_name: config) of model architecture conf
 CACHE_DIR = os.getenv("AUDIOLDM_CACHE_DIR", "~/.cache/audioldm")
 
 
-
 def _natural_key(string_):
     return [int(s) if s.isdigit() else s for s in re.split(r"(\d+)", string_.lower())]
 
@@ -82,7 +81,7 @@ def create_model(
     pretrained_audio: str = "",
     pretrained_text: str = "",
     enable_fusion: bool = False,
-    fusion_type: str = "None"
+    fusion_type: str = "None",
     # pretrained_image: bool = False,
 ):
     amodel_name = amodel_name.replace(

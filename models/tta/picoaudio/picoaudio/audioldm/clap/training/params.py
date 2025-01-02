@@ -1,10 +1,7 @@
 import argparse
 import os
 
-CACHE_DIR = os.getenv(
-    "AUDIOLDM_CACHE_DIR",
-    "~/.cache")
-
+CACHE_DIR = os.getenv("AUDIOLDM_CACHE_DIR", "~/.cache")
 
 
 def get_default_params(model_name):

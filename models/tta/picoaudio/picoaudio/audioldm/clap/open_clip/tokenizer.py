@@ -2,6 +2,7 @@
 
 Copied from https://github.com/openai/CLIP. Originally MIT License, Copyright (c) 2021 OpenAI.
 """
+
 import gzip
 import html
 import os

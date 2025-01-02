@@ -21,7 +21,6 @@ __all__ = ["list_openai_models", "load_openai_model"]
 CACHE_DIR = os.getenv("AUDIOLDM_CACHE_DIR", "~/.cache")
 
 
-
 def list_openai_models() -> List[str]:
     """Returns the names of available CLIP models"""
     return list_pretrained_tag_models("openai")

@@ -21,7 +21,7 @@ class AutoencoderKL(nn.Module):
         colorize_nlabels=None,
         monitor=None,
         base_learning_rate=1e-5,
-        scale_factor=1
+        scale_factor=1,
     ):
         super().__init__()
 
@@ -46,7 +46,7 @@ class AutoencoderKL(nn.Module):
         self.reload_from_ckpt = reload_from_ckpt
         self.reloaded = False
         self.mean, self.std = None, None
-        
+
         self.scale_factor = scale_factor
 
     def encode(self, x):
@@ -104,14 +104,14 @@ class AutoencoderKL(nn.Module):
         assert subband_fbank.size(1) == self.subband  # Channel dimension
         bs, sub_ch, tstep, fbins = subband_fbank.size()
         return subband_fbank.permute(0, 2, 1, 3).reshape(bs, tstep, -1).unsqueeze(1)
-    
+
     def device(self):
         return next(self.parameters()).device
-    
+
     @torch.no_grad()
     def encode_first_stage(self, x):
         return self.encode(x)
-    
+
     @torch.no_grad()
     def decode_first_stage(self, z, predict_cids=False, force_not_quantize=False):
         if predict_cids:

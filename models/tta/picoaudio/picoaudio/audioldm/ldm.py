@@ -407,9 +407,11 @@ class LatentDiffusion(DDPM):
         if cond is not None:
             if isinstance(cond, dict):
                 cond = {
-                    key: cond[key][:batch_size]
-                    if not isinstance(cond[key], list)
-                    else list(map(lambda x: x[:batch_size], cond[key]))
+                    key: (
+                        cond[key][:batch_size]
+                        if not isinstance(cond[key], list)
+                        else list(map(lambda x: x[:batch_size], cond[key]))
+                    )
                     for key in cond
                 }
             else:
@@ -557,9 +559,11 @@ class LatentDiffusion(DDPM):
         if cond is not None:
             if isinstance(cond, dict):
                 cond = {
-                    key: cond[key][:batch_size]
-                    if not isinstance(cond[key], list)
-                    else list(map(lambda x: x[:batch_size], cond[key]))
+                    key: (
+                        cond[key][:batch_size]
+                        if not isinstance(cond[key], list)
+                        else list(map(lambda x: x[:batch_size], cond[key]))
+                    )
                     for key in cond
                 }
             else:
@@ -695,10 +699,10 @@ class LatentDiffusion(DDPM):
                     unconditional_conditioning=unconditional_conditioning,
                     use_plms=use_plms,
                 )
-                
-                if(torch.max(torch.abs(samples)) > 1e2):
+
+                if torch.max(torch.abs(samples)) > 1e2:
                     samples = torch.clip(samples, min=-10, max=10)
-                    
+
                 mel = self.decode_first_stage(samples)
 
                 waveform = self.mel_spectrogram_to_waveform(mel)
@@ -764,18 +768,30 @@ class LatentDiffusion(DDPM):
                     bs=None,
                 )
                 text = super().get_input(batch, "text")
-                
+
                 # Generate multiple samples
                 batch_size = z.shape[0] * n_candidate_gen_per_text
-                
+
                 _, h, w = z.shape[0], z.shape[2], z.shape[3]
-                
+
                 mask = torch.ones(batch_size, h, w).to(self.device)
-                
-                mask[:, int(h * time_mask_ratio_start_and_end[0]) : int(h * time_mask_ratio_start_and_end[1]), :] = 0 
-                mask[:, :, int(w * freq_mask_ratio_start_and_end[0]) : int(w * freq_mask_ratio_start_and_end[1])] = 0 
+
+                mask[
+                    :,
+                    int(h * time_mask_ratio_start_and_end[0]) : int(
+                        h * time_mask_ratio_start_and_end[1]
+                    ),
+                    :,
+                ] = 0
+                mask[
+                    :,
+                    :,
+                    int(w * freq_mask_ratio_start_and_end[0]) : int(
+                        w * freq_mask_ratio_start_and_end[1]
+                    ),
+                ] = 0
                 mask = mask[:, None, ...]
-                
+
                 c = torch.cat([c] * n_candidate_gen_per_text, dim=0)
                 text = text * n_candidate_gen_per_text
 
@@ -793,7 +809,9 @@ class LatentDiffusion(DDPM):
                     eta=ddim_eta,
                     unconditional_guidance_scale=unconditional_guidance_scale,
                     unconditional_conditioning=unconditional_conditioning,
-                    use_plms=use_plms, mask=mask, x0=torch.cat([z] * n_candidate_gen_per_text)
+                    use_plms=use_plms,
+                    mask=mask,
+                    x0=torch.cat([z] * n_candidate_gen_per_text),
                 )
 
                 mel = self.decode_first_stage(samples)

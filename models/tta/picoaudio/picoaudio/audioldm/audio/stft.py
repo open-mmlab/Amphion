@@ -52,7 +52,7 @@ class STFT(torch.nn.Module):
     def transform(self, input_data):
         device = self.forward_basis.device
         input_data = input_data.to(device)
-        
+
         num_batches = input_data.size(0)
         num_samples = input_data.size(1)
 
@@ -72,7 +72,7 @@ class STFT(torch.nn.Module):
             torch.autograd.Variable(self.forward_basis, requires_grad=False),
             stride=self.hop_length,
             padding=0,
-        )#.cpu()
+        )  # .cpu()
 
         cutoff = int((self.filter_length / 2) + 1)
         real_part = forward_transform[:, :cutoff, :]
@@ -86,7 +86,7 @@ class STFT(torch.nn.Module):
     def inverse(self, magnitude, phase):
         device = self.forward_basis.device
         magnitude, phase = magnitude.to(device), phase.to(device)
-        
+
         recombine_magnitude_phase = torch.cat(
             [magnitude * torch.cos(phase), magnitude * torch.sin(phase)], dim=1
         )
@@ -149,7 +149,11 @@ class TacotronSTFT(torch.nn.Module):
         self.sampling_rate = sampling_rate
         self.stft_fn = STFT(filter_length, hop_length, win_length)
         mel_basis = librosa_mel_fn(
-            sr=sampling_rate, n_fft=filter_length, n_mels=n_mel_channels, fmin=mel_fmin, fmax=mel_fmax
+            sr=sampling_rate,
+            n_fft=filter_length,
+            n_mels=n_mel_channels,
+            fmin=mel_fmin,
+            fmax=mel_fmax,
         )
         mel_basis = torch.from_numpy(mel_basis).float()
         self.register_buffer("mel_basis", mel_basis)

@@ -26,6 +26,7 @@ from .utils import do_mixup, interpolate
 
 from .feature_fusion import iAFF, AFF, DAF
 
+
 # from PyTorch internals
 def _ntuple(n):
     def parse(x):
@@ -737,9 +738,9 @@ class BasicLayer(nn.Module):
                     qk_scale=qk_scale,
                     drop=drop,
                     attn_drop=attn_drop,
-                    drop_path=drop_path[i]
-                    if isinstance(drop_path, list)
-                    else drop_path,
+                    drop_path=(
+                        drop_path[i] if isinstance(drop_path, list) else drop_path
+                    ),
                     norm_layer=norm_layer,
                     norm_before_mlp=norm_before_mlp,
                 )
