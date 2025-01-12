@@ -6,7 +6,7 @@ We provide a [**beginner recipe**](gan/tfr_enhanced_hifigan/README.md) to demons
 
 ## Supported Models
 
-Neural vocoder generates audible waveforms from acoustic representations, which is one of the key parts for current audio generation systems. Until now, Amphion has supported various widely-used vocoders according to different vocoder types, including:
+Neural vocoder generates audible waveforms from acoustic representations, which is one of the key parts for current audio generation systems. Amphion supports various widely-used vocoders according to different vocoder types, including:
 
 - **GAN-based vocoders**, which we have provided [**a unified recipe**](gan/README.md) :
   - [MelGAN](https://arxiv.org/abs/1910.06711)
