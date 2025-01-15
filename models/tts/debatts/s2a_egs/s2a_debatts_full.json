@@ -1,0 +1,113 @@
+{
+    "model_type": "SoundStorm",
+    "dataset": ["emilia"],
+    "preprocess": {
+        "hop_size": 480,
+        "sample_rate": 24000,
+        "processed_dir": "",
+        "valid_file": "valid.json",
+        "train_file": "train.json",
+        "use_phone_cond": false
+    },
+    "model": {
+        "soundstorm": {
+            "num_quantizer": 12,
+            "hidden_size": 1024,
+            "num_layers": 16,
+            "num_heads": 16,
+            "codebook_size": 1024,
+            "cfg_scale": 0.15,
+            "mask_layer_schedule": "linear",
+            "use_cond_code": true,
+            "cond_codebook_size": 8192,
+            "cond_dim":1024,
+            "use_llama_style": true,
+            "use_phone_cond": false,
+            "use_pretrained_model": false,
+            "predict_layer_1": false
+        },
+        "kmeans": {
+            "type": "repcodec",
+            "stat_mean_var_path": "./stat_ckpt/emilia_wav2vec2bert_stats_10k.pt In HuggingFace",
+            "repcodec": {
+                "codebook_size": 8192,
+                "hidden_size": 1024,
+                "codebook_dim": 8,
+                "vocos_dim": 384,
+                "vocos_intermediate_dim": 2048,
+                "vocos_num_layers": 12
+            },
+            "pretrained_path": "./semantic_codec/emilia_50k_8192_norm_8d_86k_steps_model.safetensors In HuggingFace"
+        },
+        "codec": {
+            "encoder": {
+                "d_model": 96,
+                "up_ratios": [3, 4, 5, 8],
+                "out_channels": 256,
+                "use_tanh": false,
+                "pretrained_path": "./acoustic_codec/emilia_50k_model.safetensors In HuggingFace"
+            },
+            "decoder": {
+                "in_channel": 256,
+                "upsample_initial_channel": 1536,
+                "up_ratios": [8, 5, 4, 3],
+                "num_quantizers": 12,
+                "codebook_size": 1024,
+                "codebook_dim": 8,
+                "quantizer_type": "fvq",
+                "quantizer_dropout": 0.5,
+                "commitment": 0.25,
+                "codebook_loss_weight": 1.0,
+                "use_l2_normlize": true,
+                "codebook_type": "euclidean",
+                "kmeans_init": false,
+                "kmeans_iters": 10,
+                "decay": 0.8,
+                "eps": 0.5,
+                "threshold_ema_dead_code": 2,
+                "weight_init": false,
+                "use_vocos": true,
+                "vocos_dim": 512,
+                "vocos_intermediate_dim": 4096,
+                "vocos_num_layers": 30,
+                "n_fft": 1920,
+                "hop_size": 480,
+                "padding": "same",
+                "pretrained_path": "./acoustic_codec/emilia_50k_model_1.safetensors In HuggingFace"
+            }
+        }
+    },
+    "log_dir": "",
+    "train": {
+        "max_epoch": 0,
+        "use_dynamic_batchsize": true,
+        "max_tokens": 2000000,
+        "max_sentences": 20,
+        "lr_warmup_steps": 32000,
+        "lr_scheduler": "inverse_sqrt",
+        "num_train_steps": 800000,
+        "adam": {
+            "lr": 1e-4
+        },
+        "ddp": false,
+        "random_seed": 114,
+        "batch_size": 10,
+        "epochs": 5000,
+        "max_steps": 1000000,
+        "total_training_steps": 800000,
+        "save_summary_steps": 500,
+        "save_checkpoints_steps": 1000,
+        "valid_interval": 2000,
+        "keep_checkpoint_max": 100,
+        "gradient_accumulation_step": 1,
+        "tracker": ["tensorboard"],
+        "save_checkpoint_stride": [1],
+        "keep_last": [10],
+        "run_eval": [true],
+        "dataloader": {
+          "num_worker": 16,
+          "pin_memory": true
+        },
+        "use_emilia_dataset": true
+    }
+}
