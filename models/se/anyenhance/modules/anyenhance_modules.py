@@ -173,8 +173,6 @@ def reshape_for_broadcast(freqs_cis: torch.Tensor, x: torch.Tensor):
         AssertionError: If the frequency tensor doesn't match the expected shape.
         AssertionError: If the target tensor 'x' doesn't have the expected number of dimensions.
     """
-    # print("freqs_cis.shape: ", freqs_cis.shape) # [n, dim_head]
-    # print("x.shape: ", x.shape) # [b, n, head, dim_head]
     ndim = x.ndim
     assert 0 <= 1 < ndim
     assert freqs_cis.shape == (x.shape[1], x.shape[-1])
@@ -264,7 +262,6 @@ class Attention(nn.Module):
             q = q.transpose(1, 2)
             k = k.transpose(1, 2)
 
-        # 创建空键/值对, so network can choose to pay attention to nothing
         nk, nv = self.null_kv
         nk, nv = map(lambda t: repeat(t, "h 1 d -> b h 1 d", b=x.shape[0]), (nk, nv))
 
@@ -329,7 +326,6 @@ class Transformer(nn.Module):
         self.mask_id = num_tokens if add_mask_id else None
 
         self.num_tokens = num_tokens
-        # self.token_emb = nn.Embedding(num_tokens + int(add_mask_id), dim)
         self.use_rotary_pos_enc = use_rotary_pos_enc
         if not self.use_rotary_pos_enc:
             self.pos_emb = SinusoidalPositionalEncoding(seq_len, dim)
@@ -428,16 +424,10 @@ class Transformer(nn.Module):
 
         # classifier free guidance
         if cond_drop_prob > 0.0:
-            # pdb.set_trace()
-            mask = prob_mask_like(
-                (b, 1), cond_drop_prob, device=device
-            )  # 想要输出True的概率是cond_drop_prob
-            # print("mask:", mask)
+            mask = prob_mask_like((b, 1), cond_drop_prob, device=device)
             mask = mask.expand(b, n)
             # mask with learnable null_embed
             audio_embeds[mask] = self.null_embed
-            # print("audio_embeds.shape: ", audio_embeds.shape)
-            # print("audio_embeds: ", audio_embeds)
 
         x = code_embeds + audio_embeds
 
@@ -473,8 +463,6 @@ class Transformer(nn.Module):
         logits = torch.stack(
             [linear(embed) for linear in self.to_logits], dim=1
         )  # [b, vq_layers, n, dim_out]
-        # print("logits.shape: ", logits.shape)
-        # print("labels.shape: ", labels.shape)
 
         if return_embed:
             return logits, embed
@@ -518,7 +506,6 @@ class Transformer(nn.Module):
                 logits[:, k, ...].contiguous().view(-1, logits.size(-1))
             )  # [B x T, card]
             targets_k = targets[:, k, ...].contiguous().view(-1)  # [B x T]
-            # print(f"{k}: logits_k.shape: {logits_k.shape}, targets_k.shape: {targets_k.shape}")
             q_ce = F.cross_entropy(logits_k, targets_k, ignore_index=ignore_index)
             ce += q_ce
             ce_per_codebook.append(q_ce.detach())
@@ -538,7 +525,6 @@ class MaskGitTransformer(Transformer):
 
 
 def uniform(shape, min=0, max=1, device=None):
-    # return torch.zeros(shape, device = device).float().uniform_(0, 1)
     return torch.rand(shape, device=device) * (max - min) + min
 
 
@@ -559,7 +545,6 @@ def log(t, eps=1e-20):
 
 
 def gumbel_noise(t):
-    # noise = torch.zeros_like(t).uniform_(0, 1)
     noise = torch.rand_like(t)
     return -log(-log(noise))
 

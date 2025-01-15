@@ -75,21 +75,15 @@ class SemanticLoss(nn.Module):
         # Resample clean_audios to 16kHz
         clean_audios_16k = self.resampler(clean_audios)  # [batch_size, 1, seq_len_16k]
         clean_audios_16k = clean_audios_16k.cpu()
-        # print("CLEAN_AUDIOS_16K", clean_audios_16k.shape)
 
         # Get input_features from the feature extractor
         with torch.no_grad():
-            # input_features = torch.cat([
-            #     self.semantic_feature_extractor(audio, sampling_rate=16000, return_tensors='pt', padding=True)['input_features']
-            #     for audio in clean_audios_16k
-            # ], dim=0)  # [batch_size, 136, 160]
             input_features = self.semantic_feature_extractor(
                 [audio.squeeze(0).numpy() for audio in clean_audios_16k],
                 sampling_rate=16000,
                 return_tensors="pt",
                 padding=True,
             )["input_features"]
-            # print("INPUT FEATURES", input_features.shape)
 
             # Pass through semantic_model to get hidden states
             outputs = self.semantic_model(
@@ -122,21 +116,15 @@ class SemanticLoss(nn.Module):
         # Resample clean_audios to 16kHz
         clean_audios_16k = self.resampler(clean_audios)  # [batch_size, 1, seq_len_16k]
         clean_audios_16k = clean_audios_16k.cpu()
-        # print("[LOSS] CLEAN_AUDIOS_16K", clean_audios_16k.shape)
 
         # Get input_features
         with torch.no_grad():
-            # input_features = torch.cat([
-            #     self.semantic_feature_extractor(audio, sampling_rate=16000, return_tensors='pt', padding=True)['input_features']
-            #     for audio in clean_audios_16k
-            # ], dim=0) # [batch_size, 136, 160] (80 band mel * 2)
             input_features = self.semantic_feature_extractor(
                 [audio.squeeze(0).numpy() for audio in clean_audios_16k],
                 sampling_rate=16000,
                 return_tensors="pt",
                 padding=True,
             )["input_features"]
-            # print("[LOSS] INPUT FEATURES", input_features.shape)
 
             # Pass through semantic_model
             outputs = self.semantic_model(
@@ -180,7 +168,6 @@ class EncoderLoss(nn.Module):
         self.losses = []
         for item in config:
             if item["type"] in type_dict:
-                # self.losses[item['type']] = type_dict[item['type']](weight=item['weight'], device=device)
                 if "args" not in item:
                     item["args"] = {}
                 item["args"]["device"] = device

@@ -97,7 +97,6 @@ class AudioEncoder_v2(nn.Module):
             ]
         )
         self.use_noisy_audio_embed = use_noisy_audio_embed
-        # self.init_noisy_embed_provider()
 
     def init_noisy_embed_provider(self, device):
         from models.se.anyenhance.modules.encoder_loss import SemanticLoss
@@ -122,11 +121,10 @@ class AudioEncoder_v2(nn.Module):
         else:
             X = x_spec
 
-        X_real = X[..., 0]  # 实部
-        X_imag = X[..., 1]  # 虚部
-        # 计算幅度和相位，并进行功率压缩
-        X_mag = (X_real**2 + X_imag**2) ** 0.15  # 等价于 |X|^0.3
-        X_phase = torch.atan2(X_imag, X_real)  # 相位角
+        X_real = X[..., 0]
+        X_imag = X[..., 1]
+        X_mag = (X_real**2 + X_imag**2) ** 0.15
+        X_phase = torch.atan2(X_imag, X_real)
 
         X_mag = self.batch_norm(X_mag)  # [batch, freq, time]
         X_compressed = torch.cat(
@@ -135,9 +133,7 @@ class AudioEncoder_v2(nn.Module):
         X_compressed = X_compressed[
             :, :, :-1
         ]  # [b, 2*ceil((n - win_length) / hop_length + 1), n // hop_length]
-        # print("X_compressed.shape: ", X_compressed.shape)
         X_compressed = X_compressed.transpose(1, 2)
-        # print("X_compressed.shape: ", X_compressed.shape)
 
         # Apply MLP
         mlp_output = self.mlp(X_compressed)
@@ -158,7 +154,6 @@ class AudioEncoder_v2(nn.Module):
             for path in self.transformer_paths:
                 embeddings.append(path(mlp_output))
         else:
-            # embeddings = self.transformer_blocks(mlp_output, freqs_cis=self.freqs_cis)
             for path in self.transformer_paths:
                 embeddings.append(path(mlp_output, freqs_cis=self.freqs_cis))
 
@@ -312,12 +307,10 @@ class AnyEnhance(nn.Module):
             ]
         )
         self.audio_encoder = audio_encoder
-        # print(self.audio_encoder)
         self.task_emb = nn.Embedding(task_num, self.transformer.dim)
 
         self.self_critic = self_critic
         if self.self_critic:
-            # self.token_critic = SelfCritic(self.transformer)
             critic_class = SelfCritic_V2 if critic_v2 else SelfCritic
             print("critic_class: ", critic_class)
             self.token_critic = critic_class(self.transformer)
@@ -362,7 +355,6 @@ class AnyEnhance(nn.Module):
         prompt_audio_codes = prompt_audio_codes[
             :, :, : self.prompt_len
         ]  # Only keep prompt positions
-        # print("prompt_audio_codes.shape: ", prompt_audio_codes.shape)
 
         # Initialize ids with prompt_audio_codes at prompt positions and mask_id elsewhere
         ids = torch.full(
@@ -371,7 +363,6 @@ class AnyEnhance(nn.Module):
             dtype=torch.long,
             device=device,
         )
-        # ids[:, :, :self.prompt_len] = prompt_audio_codes[:, :, :self.prompt_len]  # Set prompt positions
 
         # Initialize scores tensor
         scores = torch.zeros(
@@ -388,7 +379,6 @@ class AnyEnhance(nn.Module):
             token_critic_fn = self.token_critic.forward_with_cond_scale
 
         # Zero out the prompt sections in noisy_audios
-        # print("noisy_audios.shape: ", noisy_audios.shape)
         prompt_audio_length = self.audio_encoder.hop_length * self.prompt_len
         # zero audio in prompt_audio_length
         noisy_audios_prefix = torch.zeros(
@@ -399,7 +389,6 @@ class AnyEnhance(nn.Module):
         )
         # Concatenate the zeroed out prefix with the rest of the audio
         noisy_audios = torch.cat((noisy_audios_prefix, noisy_audios), dim=-1)
-        # print("noisy_audios.shape: ", noisy_audios.shape)
 
         seq_len_to_mask = (
             self.seq_len * self.vq_layers
@@ -411,11 +400,9 @@ class AnyEnhance(nn.Module):
         audio_embeds, audio_embeds_proj = self.audio_encoder(
             noisy_audios, task_embeds
         )  # list([b, n, dim]), list([b, n, dim])
-        # print("task_embeds.shape: ", task_embeds.shape)
         for timestep, steps_until_x0 in zip(
             torch.linspace(0, 1, timesteps, device=device), reversed(range(timesteps))
         ):
-            # import pdb; pdb.set_trace()
             rand_mask_prob = self.noise_schedule(timestep)
             num_token_masked = max(int((rand_mask_prob * seq_len_to_mask).item()), 1)
 
@@ -448,8 +435,6 @@ class AnyEnhance(nn.Module):
             )
 
             self_cond_embed = embed if self.self_cond else None
-
-            # logits = logits.reshape(batch, self.vq_layers * seq_len_total, -1)
 
             logits = logits[
                 :, :, self.prompt_len :, :
@@ -565,7 +550,6 @@ class AnyEnhance(nn.Module):
         audio_embeds, audio_embeds_proj = self.audio_encoder(
             noisy_audios, task_embeds
         )  # list([b, n, dim]), list([b, n, dim])
-        # print("task_embeds.shape: ", task_embeds.shape)
         # for timestep, steps_until_x0 in tqdm(zip(torch.linspace(0, 1, timesteps, device = device), reversed(range(timesteps))), total = timesteps):
         for timestep, steps_until_x0 in zip(
             torch.linspace(0, 1, timesteps, device=device), reversed(range(timesteps))
@@ -664,9 +648,7 @@ class AnyEnhance(nn.Module):
         return ids, audios
 
     def state_dict(self, *args, **kwargs):
-        # 获取模型的 state_dict
         state_dict = super().state_dict(*args, **kwargs)
-        # 过滤掉与 noisy_embed_provider 相关的参数
         filtered_state_dict = {
             k: v
             for k, v in state_dict.items()
@@ -753,19 +735,13 @@ class AnyEnhance(nn.Module):
         assert len(audio_codes.shape) == 3
         assert audio_codes.shape[1] == self.vq_layers
         assert audio_codes.shape[2] == self.seq_len + self.prompt_len
-        # 设置prompt_len, prompt_len的不被mask，可以尝试单独把audio_codes拆成prompt_audio_codes和target_audio_codes，只用target_audio_codes来计算loss
-        # 如果这样做的话需要注意：loss只计算target_audio_codes的部分，需要把prompt的label设置为ignore_index
-        # 与此同时，把noisy_audios也拆成prompt_noisy_audios和target_noisy_audios，把prompt_noisy_audios置空再和target_noisy_audios拼接起来
-        # 如果不使用prompt的话，就不用考虑这个问题
+
         ids = rearrange(audio_codes, "b ... -> b (...)")  # [batch, vq_layers*n]
         batch, seq_len_total = ids.shape  # seq_len_total = seq_len + prompt_len
         device = ids.device
         cond_drop_prob = default(cond_drop_prob, self.cond_drop_prob)
         prompt_len = self.prompt_len
         seq_len = self.seq_len
-
-        # import pdb; pdb.set_trace()
-        # (batch, )
 
         seq_len_to_mask = torch.where(
             rand_prompt,
@@ -813,7 +789,6 @@ class AnyEnhance(nn.Module):
             # Set mask for all positions
             mask[idxs_without_prompt] = sample_mask
 
-        # import pdb; pdb.set_trace()
         # Prepare labels
         labels = ids.clone()
         labels[~mask] = ignore_index  # [batch, vq_layers*n]
@@ -851,10 +826,6 @@ class AnyEnhance(nn.Module):
         audio_embeds, audio_embeds_proj = self.audio_encoder(
             noisy_audios, task_embeds
         )  # list([b, n, dim]), list([b, n, dim])
-        # print("task_embeds.shape: ", task_embeds.shape)
-        # print("code_embeds.shape: ", code_embeds.shape)
-        # print("audio_embeds.shape: ", audio_embeds.shape)
-        # x = code_embeds + audio_embeds
 
         # get loss
 
@@ -881,7 +852,6 @@ class AnyEnhance(nn.Module):
                 batch, self.vq_layers, self.seq_len + self.prompt_len
             )
             critic_labels[rand_prompt, :, :prompt_len] = ignore_index
-            # critic_labels = critic_labels.reshape(batch, -1)
 
             critic_input = critic_input.reshape(
                 batch, self.vq_layers, self.seq_len + self.prompt_len

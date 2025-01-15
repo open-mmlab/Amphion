@@ -206,7 +206,7 @@ def infer_single_audio(
     os.makedirs(output_path, exist_ok=True)
 
     signal, sr = torchaudio.load(audio_path)
-    signal = torch.mean(signal, dim=0, keepdim=True)  # 如果音频有多个声道，取平均值
+    signal = torch.mean(signal, dim=0, keepdim=True)
     signal = signal.to(device)
     resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=44100).to(device)
     signal = resampler(signal)
