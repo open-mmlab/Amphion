@@ -26,6 +26,7 @@
 - **SVS**: Singing Voice Synthesis (👨‍💻 developing)
 - **VC**: Voice Conversion (⛳ supported)
 - **AC**: Accent Conversion (⛳ supported)
+- **SE**: Speech Enhancement (⛳ supported)
 - **SVC**: Singing Voice Conversion (⛳ supported)
 - **TTA**: Text to Audio (⛳ supported)
 - **TTM**: Text to Music (👨‍💻 developing)
@@ -34,6 +35,7 @@
 In addition to the specific generation tasks, Amphion includes several **vocoders** and **evaluation metrics**. A vocoder is an important module for producing high-quality audio signals, while evaluation metrics are critical for ensuring consistent metrics in generation tasks. Moreover, Amphion is dedicated to advancing audio generation in real-world applications, such as building **large-scale datasets** for speech synthesis.
 
 ## 🚀 News
+- **2025/01/15**: We release the **AnyEnhance**, a unified model capable of addressing diverse speech \& singing voice front-end tasks, including denoising, dereverberation, declipping, super-resolution, and target speaker extraction. [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](models/se/anyenhance/README.md)
 - **2024/12/22**: We release the reproduction of **Vevo**, a zero-shot voice imitation framework with controllable timbre and style. Vevo can be applied into a series of speech generation tasks, including VC, TTS, AC, and more. The released pre-trained models are trained on [Emilia](https://huggingface.co/datasets/amphion/Emilia-Dataset) dataset and achieve SOTA zero-shot VC performance. [![arXiv](https://img.shields.io/badge/OpenReview-Paper-COLOR.svg)](https://openreview.net/pdf?id=anQDiQZhDP) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-model-yellow)](https://huggingface.co/amphion/Vevo) [![WebPage](https://img.shields.io/badge/WebPage-Demo-red)](https://versavoice.github.io/) [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](models/vc/vevo/README.md)
 - **2024/10/19**: We release **MaskGCT**, a fully non-autoregressive TTS model that eliminates the need for explicit alignment information between text and speech supervision. MaskGCT is trained on [Emilia](https://huggingface.co/datasets/amphion/Emilia-Dataset) dataset and achieves SOTA zero-shot TTS performance.  [![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2409.00750) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-model-yellow)](https://huggingface.co/amphion/maskgct) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-demo-pink)](https://huggingface.co/spaces/amphion/maskgct) [![ModelScope](https://img.shields.io/badge/ModelScope-space-purple)](https://modelscope.cn/studios/amphion/maskgct) [![ModelScope](https://img.shields.io/badge/ModelScope-model-cyan)](https://modelscope.cn/models/amphion/MaskGCT) [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](models/tts/maskgct/README.md)
 - **2024/09/01**: [Amphion](https://arxiv.org/abs/2312.09911), [Emilia](https://arxiv.org/abs/2407.05361) and [DSFF-SVC](https://arxiv.org/abs/2310.11160) got accepted by IEEE SLT 2024! 🤗
@@ -71,6 +73,10 @@ Amphion supports the following voice conversion models:
 ### AC: Accent Conversion
 
 - Amphion supports AC with [Vevo-Style](models/vc/vevo/README.md). Particularly, it can conduct the accent conversion in a zero-shot manner. [![code](https://img.shields.io/badge/README-Code-blue)](models/vc/vevo/README.md)
+
+### SE: Speech Enhancement
+
+- Amphion supports SE with [AnyEnhance](models/se/anyenhance/README.md). Particularly, it can conduct enhancement and extraction tasks under various distortions (noise, reverberation, clipping, etc.). [![code](https://img.shields.io/badge/README-Code-blue)](models/se/anyenhance/README.md)
 
 ### SVC: Singing Voice Conversion
 
@@ -154,6 +160,7 @@ We detail the instructions of different tasks in the following recipes:
 - [Text to Speech (TTS)](egs/tts/README.md)
 - [Voice Conversion (VC)](models/vc/vevo/README.md)
 - [Accent Conversion (AC)](models/vc/vevo/README.md)
+- [Speech Enhancement (SE)](models/se/anyenhance/README.md)
 - [Singing Voice Conversion (SVC)](egs/svc/README.md)
 - [Text to Audio (TTA)](egs/tta/README.md)
 - [Vocoder](egs/vocoder/README.md)
