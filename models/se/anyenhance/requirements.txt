@@ -1,0 +1,11 @@
+torch==2.3.1
+torchaudio==2.3.1
+torchvision==0.18.1
+numpy==2.2.1
+memory-efficient-attention-pytorch>=0.1.4
+einops>=0.7
+transformers
+beartype
+descript_audio_codec
+json5
+tqdm

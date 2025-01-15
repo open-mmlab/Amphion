@@ -1,0 +1,4 @@
+pretrained/
+
+!wav/enhancement/*.wav
+!wav/extraction/*.wav
