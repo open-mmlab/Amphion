@@ -1,3 +1,10 @@
+# Copyright (c) 2023 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
+# code borrowed from https://github.com/lucidrains/muse-maskgit-pytorch/blob/main/muse_maskgit_pytorch/attend.py
+
 from functools import wraps
 from packaging import version
 from collections import namedtuple

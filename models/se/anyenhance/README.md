@@ -34,6 +34,8 @@ Before start installing, making sure you are under the `Amphion` directory. If n
 ```bash
 # root_dir: Amphion
 cd models/se/anyenhance
+conda create -n anyenhance python=3.10
+conda activate anyenhance
 pip install -r requirements.txt
 ```
 
@@ -73,12 +75,6 @@ python -m models.se.anyenhance.infer_anyenhance \
     --input_file models/se/anyenhance/wav/enhancement/13-noisy.wav \
     --prompt_file models/se/anyenhance/wav/enhancement/13-prompt.wav \
     --output_folder models/se/anyenhance/wav/enhanced \
-    --device cuda:0
-
-python -m models.se.anyenhance.infer_anyenhance \
-    --task_type "enhancement" \
-    --input_file models/se/anyenhance/wav/enhancement/13-noisy.wav \
-    --output_folder models/se/anyenhance/wav/enhanced-no-prompt \
     --device cuda:0
 ```
 

@@ -1,7 +1,9 @@
 torch==2.3.1
 torchaudio==2.3.1
 torchvision==0.18.1
-numpy==2.2.1
+librosa==0.10.2.post1
+numba
+numpy
 memory-efficient-attention-pytorch>=0.1.4
 einops>=0.7
 transformers
