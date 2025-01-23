@@ -6,10 +6,11 @@
 import re
 from utils.g2p_new.mandarin import chinese_to_ipa
 
+
 def cjekfd_cleaners(text, language, text_tokenizers):
 
-    if language == 'zh':
-        return chinese_to_ipa(text, text_tokenizers['zh'])
+    if language == "zh":
+        return chinese_to_ipa(text, text_tokenizers["zh"])
     else:
-        raise Exception('Unknown or Not supported yet language: %s' % language)
+        raise Exception("Unknown or Not supported yet language: %s" % language)
         return None
