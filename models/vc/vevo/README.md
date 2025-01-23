@@ -85,14 +85,16 @@ Running this will automatically download the pretrained model from HuggingFace a
 If you use Vevo in your research, please cite the following papers:
 
 ```bibtex
-@article{vevo,
-  title={Vevo: Controllable Zero-Shot Voice Imitation with Self-Supervised Disentanglement},
-  journal={OpenReview},
-  year={2024}
+@inproceedings{vevo,
+  author       = {Xueyao Zhang and Xiaohui Zhang and Kainan Peng and Zhenyu Tang and Vimal Manohar and Yingru Liu and Jeff Hwang and Dangna Li and Yuhao Wang and Julian Chan and Yuan Huang and Zhizheng Wu and Mingbo Ma},
+  title        = {Vevo: Controllable Zero-Shot Voice Imitation with Self-Supervised Disentanglement},
+  booktitle    = {{ICLR}},
+  publisher    = {OpenReview.net},
+  year         = {2025}
 }
 
 @inproceedings{amphion,
-    author={Zhang, Xueyao and Xue, Liumeng and Gu, Yicheng and Wang, Yuancheng and Li, Jiaqi and He, Haorui and Wang, Chaoren and Song, Ting and Chen, Xi and Fang, Zihao and Chen, Haopeng and Zhang, Junan and Tang, Tze Ying and Zou, Lexiao and Wang, Mingxuan and Han, Jun and Chen, Kai and Li, Haizhou and Wu, Zhizheng},
+    author={Xueyao Zhang and Liumeng Xue and Yicheng Gu and Yuancheng Wang and Jiaqi Li and Haorui He and Chaoren Wang and Ting Song and Xi Chen and Zihao Fang and Haopeng Chen and Junan Zhang and Tze Ying Tang and Lexiao Zou and Mingxuan Wang and Jun Han and Kai Chen and Haizhou Li and Zhizheng Wu},
     title={Amphion: An Open-Source Audio, Music and Speech Generation Toolkit},
     booktitle={{IEEE} Spoken Language Technology Workshop, {SLT} 2024},
     year={2024}
