@@ -306,12 +306,8 @@ def semantic2acoustic(combine_semantic_code, acoustic_code):
 
 
 device = torch.device("cuda:0")
-cfg_soundstorm_1layer = load_config(
-    "./s2a_egs/s2a_debatts_1layer.json"
-)
-cfg_soundstorm_full = load_config(
-    "./s2a_egs/s2a_debatts_full.json"
-)
+cfg_soundstorm_1layer = load_config("./s2a_egs/s2a_debatts_1layer.json")
+cfg_soundstorm_full = load_config("./s2a_egs/s2a_debatts_full.json")
 
 soundstorm_1layer = build_soundstorm(cfg_soundstorm_1layer, device)
 soundstorm_full = build_soundstorm(cfg_soundstorm_full, device)
@@ -333,9 +329,7 @@ soundstorm_full_path = "./s2a_model/s2a_model_full/full_model.safetensors"
 safetensors.torch.load_model(soundstorm_1layer, soundstorm_1layer_path)
 safetensors.torch.load_model(soundstorm_full, soundstorm_full_path)
 
-t2s_cfg = load_config(
-    "./t2s_egs/t2s_debatts.json"
-)
+t2s_cfg = load_config("./t2s_egs/t2s_debatts.json")
 t2s_model_new = build_t2s_model_new(t2s_cfg, device)
 t2s_model_new_ckpt_path = "./t2s_model/model.safetensors"
 safetensors.torch.load_model(t2s_model_new, t2s_model_new_ckpt_path)
