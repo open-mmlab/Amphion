@@ -34,6 +34,7 @@
 In addition to the specific generation tasks, Amphion includes several **vocoders** and **evaluation metrics**. A vocoder is an important module for producing high-quality audio signals, while evaluation metrics are critical for ensuring consistent metrics in generation tasks. Moreover, Amphion is dedicated to advancing audio generation in real-world applications, such as building **large-scale datasets** for speech synthesis.
 
 ## 🚀 News
+- **2025/01/30**: We release [Amphion v0.2 Technical Report](https://arxiv.org/abs/2501.15442), which provides a comprehensive overview of the Amphion updates in 2024. [![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2501.15442)
 - **2025/01/23**: [MaskGCT](https://arxiv.org/abs/2409.00750) and [Vevo](https://openreview.net/pdf?id=anQDiQZhDP) got accepted by ICLR 2025! 🎉
 - **2024/12/22**: We release the reproduction of **Vevo**, a zero-shot voice imitation framework with controllable timbre and style. Vevo can be applied into a series of speech generation tasks, including VC, TTS, AC, and more. The released pre-trained models are trained on [Emilia](https://huggingface.co/datasets/amphion/Emilia-Dataset) dataset and achieve SOTA zero-shot VC performance. [![arXiv](https://img.shields.io/badge/OpenReview-Paper-COLOR.svg)](https://openreview.net/pdf?id=anQDiQZhDP) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-model-yellow)](https://huggingface.co/amphion/Vevo) [![WebPage](https://img.shields.io/badge/WebPage-Demo-red)](https://versavoice.github.io/) [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](models/vc/vevo/README.md)
 - **2024/10/19**: We release **MaskGCT**, a fully non-autoregressive TTS model that eliminates the need for explicit alignment information between text and speech supervision. MaskGCT is trained on [Emilia](https://huggingface.co/datasets/amphion/Emilia-Dataset) dataset and achieves SOTA zero-shot TTS performance.  [![arXiv](https://img.shields.io/badge/arXiv-Paper-COLOR.svg)](https://arxiv.org/abs/2409.00750) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-model-yellow)](https://huggingface.co/amphion/maskgct) [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-demo-pink)](https://huggingface.co/spaces/amphion/maskgct) [![ModelScope](https://img.shields.io/badge/ModelScope-space-purple)](https://modelscope.cn/studios/amphion/maskgct) [![ModelScope](https://img.shields.io/badge/ModelScope-model-cyan)](https://modelscope.cn/models/amphion/MaskGCT) [![readme](https://img.shields.io/badge/README-Key%20Features-blue)](models/tts/maskgct/README.md)
@@ -182,7 +183,16 @@ We appreciate all contributions to improve Amphion. Please refer to [CONTRIBUTIN
 Amphion is under the [MIT License](LICENSE). It is free for both research and commercial use cases.
 
 ## 📚 Citations
-
+Amphion v0.2:
+```bibtex
+@article{amphion_v0.2,
+  title        = {Overview of the Amphion Toolkit (v0.2)},
+  author       = {Jiaqi Li and Xueyao Zhang and Yuancheng Wang and Haorui He and Chaoren Wang and Li Wang and Huan Liao and Junyi Ao and Zeyu Xie and Yiqiao Huang and Junan Zhang and Zhizheng Wu},
+  year         = {2025},
+  journal      = {arXiv preprint arXiv:2501.15442},
+}
+```
+Amphion v0.1: 
 ```bibtex
 @inproceedings{amphion,
     author={Xueyao Zhang and Liumeng Xue and Yicheng Gu and Yuancheng Wang and Jiaqi Li and Haorui He and Chaoren Wang and Ting Song and Xi Chen and Zihao Fang and Haopeng Chen and Junan Zhang and Tze Ying Tang and Lexiao Zou and Mingxuan Wang and Jun Han and Kai Chen and Haizhou Li and Zhizheng Wu},

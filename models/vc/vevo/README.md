@@ -92,6 +92,12 @@ If you use Vevo in your research, please cite the following papers:
   publisher    = {OpenReview.net},
   year         = {2025}
 }
+@article{amphion_v0.2,
+  title        = {Overview of the Amphion Toolkit (v0.2)},
+  author       = {Jiaqi Li and Xueyao Zhang and Yuancheng Wang and Haorui He and Chaoren Wang and Li Wang and Huan Liao and Junyi Ao and Zeyu Xie and Yiqiao Huang and Junan Zhang and Zhizheng Wu},
+  year         = {2025},
+  journal      = {arXiv preprint arXiv:2501.15442},
+}
 
 @inproceedings{amphion,
     author={Xueyao Zhang and Liumeng Xue and Yicheng Gu and Yuancheng Wang and Jiaqi Li and Haorui He and Chaoren Wang and Ting Song and Xi Chen and Zihao Fang and Haopeng Chen and Junan Zhang and Tze Ying Tang and Lexiao Zou and Mingxuan Wang and Jun Han and Kai Chen and Haizhou Li and Zhizheng Wu},
