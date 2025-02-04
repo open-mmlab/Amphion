@@ -266,7 +266,7 @@ class NSFHiFiGAN(nn.Module):
 
             length = min(x.shape[-1], x_source.shape[-1])
             x = x[:, :, :length]
-            x_source = x[:, :, :length]
+            x_source = x_source[:, :, :length]
 
             x = x + x_source
             xs = None
