@@ -511,7 +511,7 @@ if __name__ == "__main__":
         device = torch.device(device_name)
         # whisperX expects compute type: int8
         logger.info("Overriding the compute type to int8")
-        args.compute_type="int8"
+        args.compute_type = "int8"
 
     check_env(logger)
 
