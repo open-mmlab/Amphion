@@ -15,7 +15,7 @@ Unlike previous task-specific or multi-task models, Metis follows a pre-training
 Specifically, (1) Metis utilizes two discrete speech representations: SSL tokens derived from speech self-supervised learning (SSL) features, and acoustic tokens directly quantized from waveforms. (2) Metis performs masked generative pre-training on SSL tokens, utilizing 300K hours of diverse speech data, without any additional condition. (3) Through fine-tuning with task-specific conditions, Metis achieves efficient adaptation to various speech generation tasks while supporting multimodal input, even when using limited data and trainable parameters.
 Experiments demonstrate that Metis can serve as a foundation model for unified speech generation: Metis outperforms state-of-the-art task-specific or multi-task systems
 across five speech generation tasks, including zero-shot text-to-speech, voice conversion, target speaker extraction, speech enhancement, and lip-to-speech, even with fewer than 20M trainable parameters or 300 times less training data.
-Audio samples are are available at [demo page](https://metis-demo.github.io/).
+Audio samples are available at [demo page](https://metis-demo.github.io/).
 
 
 <div align="center">
@@ -45,7 +45,7 @@ Metis is fully compatible with MaskGCT and shares several key model components w
 | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | [Semantic Codec](https://huggingface.co/amphion/MaskGCT/tree/main/semantic_codec) | Converting speech to semantic tokens.                                                  |
 | [Acoustic Codec](https://huggingface.co/amphion/MaskGCT/tree/main/acoustic_codec) | Converting speech to acoustic tokens and reconstructing waveform from acoustic tokens. |
-| [Semantic2Acoustic](https://huggingface.co/amphion/MaskGCT/tree/main/s2a_model)         | Predicts acoustic tokens conditioned on semantic tokens.    
+| [Semantic2Acoustic](https://huggingface.co/amphion/MaskGCT/tree/main/s2a_model)         | Predicts acoustic tokens conditioned on semantic tokens.    |
 <!-- | [MaskGCT-T2S](https://huggingface.co/amphion/MaskGCT/tree/main/t2s_model)         | Predicting semantic tokens with text and prompt semantic tokens.                       | -->
 
 We open-source the pretrained model checkpoint of the first stage of Metis (with masked generative pre-training), as well as the fine-tuned models for speech enhancement (SE), target speaker extraction (TSE), voice conversion (VC), lip-to-speech (L2S), and the unified multi-task (Omni) model.
