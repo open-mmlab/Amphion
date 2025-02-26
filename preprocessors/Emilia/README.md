@@ -6,7 +6,7 @@ This is the official repository 👑 for the **Emilia** dataset and the source c
 <div align="center"><img width="500px" src="https://github.com/user-attachments/assets/b1c1a1f8-3149-4f96-8eb4-af470152a9b7" /></div>
 
 ## News 🔥
-- **2025/02/24**: *The Emilia-Large dataset, featuring over 200,000 hours of data, is now available!!!* Emilia-Large combines the original 101k-hour Emilia dataset (licensed under `CC BY-NC 4.0`) with the brand-new 114k-hour **Emilia-YODAS dataset** (licensed under `CC BY 4.0`)!!!
+- **2025/02/26**: *The Emilia-Large dataset, featuring over 200,000 hours of data, is now available!!!* Emilia-Large combines the original 101k-hour Emilia dataset (licensed under `CC BY-NC 4.0`) with the brand-new 114k-hour **Emilia-YODAS dataset** (licensed under `CC BY 4.0`)!!!
 - **2025/01/27**: We release the extened version of Emilia's paper on [arXiv](https://arxiv.org/abs/2501.15907)! More experiments and more insights! 
 - **2024/12/04**: We present Emilia at the [IEEE SLT 2024](https://2024.ieeeslt.org/)! 
 - **2024/09/01**: [Emilia](https://arxiv.org/abs/2407.05361) got accepted by IEEE SLT 2024! 🤗
