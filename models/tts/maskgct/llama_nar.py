@@ -430,9 +430,12 @@ class DiffLlamaPrefix(LlamaModel):
         hidden_size=1024,
         num_heads=16,
         num_layers=16,
+        use_phone_cond=True,
         config=LlamaConfig(0, 256, 1024, 1, 1),
     ):
         super().__init__(config)
+
+        self.use_phone_cond = use_phone_cond
 
         self.layers = nn.ModuleList(
             [
@@ -458,11 +461,12 @@ class DiffLlamaPrefix(LlamaModel):
             nn.Linear(hidden_size * 4, hidden_size),
         )
 
-        self.cond_mlp = nn.Sequential(
-            nn.Linear(hidden_size, hidden_size * 4),
-            nn.SiLU(),
-            nn.Linear(hidden_size * 4, hidden_size),
-        )
+        if self.use_phone_cond:
+            self.cond_mlp = nn.Sequential(
+                nn.Linear(hidden_size, hidden_size * 4),
+                nn.SiLU(),
+                nn.Linear(hidden_size * 4, hidden_size),
+            )
 
         for layer in self.layers:
             layer.input_layernorm = LlamaAdaptiveRMSNorm(
@@ -535,10 +539,15 @@ class DiffLlamaPrefix(LlamaModel):
 
         # retrieve some shape info
 
-        phone_embedding = self.cond_mlp(phone_embedding)  # (B, T, C)
-        phone_length = phone_embedding.shape[1]
-        inputs_embeds = torch.cat([phone_embedding, x], dim=1)
-        attention_mask = torch.cat([phone_mask, x_mask], dim=1)
+        if self.use_phone_cond and phone_embedding is not None:
+            phone_embedding = self.cond_mlp(phone_embedding)  # (B, T, C)
+            phone_length = phone_embedding.shape[1]
+            inputs_embeds = torch.cat([phone_embedding, x], dim=1)
+            attention_mask = torch.cat([phone_mask, x_mask], dim=1)
+        else:
+            inputs_embeds = x
+            attention_mask = x_mask
+            phone_length = 0
 
         # diffusion step embedding
         diffusion_step = self.diff_step_embedding(diffusion_step).to(x.device)

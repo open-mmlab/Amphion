@@ -21,6 +21,10 @@ MaskGCT (**Mask**ed **G**enerative **C**odec **T**ransformer) is *a fully non-au
 
 ## News
 
+- **2025/02/26**: We release [**Metis**](https://github.com/open-mmlab/Amphion/tree/main/models/tts/metis), an upgraded version of MaskGCT that supports multiple speech generation tasks (text-to-speech, voice conversion, target speaker extraction, speech enhancement, and lip2speech) within a unified framework.
+
+- **2025/01/25**: MaskGCT gets accepted by ICLR 2025.
+
 - **2024/10/19**: We release **MaskGCT**, a fully non-autoregressive TTS model that eliminates the need for explicit alignment information between text and speech supervision. MaskGCT is trained on [Emilia](https://huggingface.co/datasets/amphion/Emilia-Dataset) dataset and achieves SOTA zero-shot TTS performance.
 
 ## Issues

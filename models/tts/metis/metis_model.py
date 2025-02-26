@@ -3,114 +3,67 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
+
 import torch
-import numpy as np
 import torch.nn as nn
-import math
 from einops import rearrange
-from models.tts.maskgct.llama_nar import DiffLlamaPrefix
+
+from models.tts.maskgct.maskgct_t2s import (
+    gumbel_noise,
+    gumbel_sample,
+    top_k,
+    MaskGCT_T2S,
+)
 
 
-def top_k(logits, thres=0.9):
-    k = math.ceil((1 - thres) * logits.shape[-1])
-    val, ind = logits.topk(k, dim=-1)
-    probs = torch.full_like(logits, float("-inf"))
-    probs.scatter_(2, ind, val)
-    return probs
+class SimpleAdapter(nn.Module):
+    def __init__(self, in_dim, out_dim):
+        super().__init__()
+        self.in_dim = in_dim
+        self.out_dim = out_dim
+        self.in_linear = nn.Linear(in_dim, out_dim * 4)
+        self.act = nn.SiLU()
+        self.out_linear = nn.Linear(out_dim * 4, out_dim)
+        # gate scale
+        self.gate_scale = nn.Parameter(torch.zeros(1))
+
+        self.in_linear.weight.data.normal_(mean=0.0, std=0.02)
+        self.in_linear.bias.data.zero_()
+        self.out_linear.weight.data.normal_(mean=0.0, std=0.02)
+        self.out_linear.bias.data.zero_()
+
+    def forward(self, x):
+        x = self.in_linear(x)
+        x = self.act(x)
+        x = self.out_linear(x)
+        x = x * self.gate_scale
+        return x
 
 
-def log(t, eps=1e-10):
-    return torch.log(t + eps)
-
-
-def gumbel_noise(t):
-    noise = torch.zeros_like(t).uniform_(0, 1)
-    return -log(-log(noise))
-
-
-def gumbel_sample(t, temperature=1.0, dim=-1):
-    return ((t / max(temperature, 1e-10)) + gumbel_noise(t)).argmax(dim=dim)
-
-
-class MaskGCT_T2S(nn.Module):
+class MetisStage1(MaskGCT_T2S):
     def __init__(
         self,
-        hidden_size=1024,
-        num_layers=16,
-        num_heads=16,
-        cfg_scale=0.2,
-        cond_codebook_size=8192,
-        cond_dim=1024,
-        use_phone_cond=True,
-        cfg=None,
+        ft_type=None,  # tts, vc, se, tse, l2s, omni
+        ft_cond_dim=1024,
+        use_zero_gate_adapter=True,
+        *args,
+        **kwargs
     ):
-        super().__init__()
+        super().__init__(*args, **kwargs)
 
-        hidden_size = (
-            cfg.hidden_size
-            if cfg is not None and hasattr(cfg, "hidden_size")
-            else hidden_size
-        )
-        num_layers = (
-            cfg.num_layers
-            if cfg is not None and hasattr(cfg, "num_layers")
-            else num_layers
-        )
-        num_heads = (
-            cfg.num_heads
-            if cfg is not None and hasattr(cfg, "num_heads")
-            else num_heads
-        )
-        cfg_scale = (
-            cfg.cfg_scale
-            if cfg is not None and hasattr(cfg, "cfg_scale")
-            else cfg_scale
-        )
-        cond_codebook_size = (
-            cfg.cond_codebook_size
-            if cfg is not None and hasattr(cfg, "cond_codebook_size")
-            else cond_codebook_size
-        )
-        cond_dim = (
-            cfg.cond_dim if cfg is not None and hasattr(cfg, "cond_dim") else cond_dim
-        )
-        use_phone_cond = (
-            cfg.use_phone_cond
-            if cfg is not None and hasattr(cfg, "use_phone_cond")
-            else use_phone_cond
-        )
+        if ft_type is not None and ft_type in ["vc", "se", "tse", "l2s", "omni"]:
+            if use_zero_gate_adapter:
+                self.cond_adapter = SimpleAdapter(ft_cond_dim, self.hidden_size)
+            else:
+                self.cond_adapter = nn.Sequential(
+                    nn.Linear(ft_cond_dim, self.hidden_size * 4),
+                    nn.SiLU(),
+                    nn.Linear(self.hidden_size * 4, self.hidden_size),
+                )
 
-        self.hidden_size = hidden_size
-        self.num_layers = num_layers
-        self.num_heads = num_heads
-        self.cfg_scale = cfg_scale
-        self.cond_codebook_size = cond_codebook_size
-        self.cond_dim = cond_dim
-        self.use_phone_cond = use_phone_cond
+        self.ft_type = ft_type
 
-        self.mask_emb = nn.Embedding(1, self.hidden_size)
-
-        self.to_logit = nn.Linear(self.hidden_size, self.cond_codebook_size)
-
-        self.cond_emb = nn.Embedding(cond_codebook_size, self.hidden_size)
-
-        if self.use_phone_cond:
-            self.phone_emb = nn.Embedding(1024, hidden_size, padding_idx=1023)
-            torch.nn.init.normal_(self.phone_emb.weight, mean=0.0, std=0.02)
-
-        self.reset_parameters()
-
-        self.diff_estimator = DiffLlamaPrefix(
-            hidden_size=hidden_size,
-            num_heads=num_heads,
-            num_layers=num_layers,
-            use_phone_cond=use_phone_cond,
-        )
-
-    def mask_prob(self, t):
-        return torch.sin(t * np.pi / 2).to(t.device)
-
-    def forward_diffusion(self, x0, t):
+    def forward_diffusion(self, x0, t, prompt_len=None):
         # x0: semantic tokens (B, T)
         new_t = t
         mask_prob = self.mask_prob(new_t)  # (B,)
@@ -127,14 +80,16 @@ class MaskGCT_T2S(nn.Module):
         cfg_scale = self.cfg_scale
 
         #  a segment of r% sequence length is masked, where r ~ U[60, 100]
-        if torch.rand(1) > cfg_scale:
-            prompt_len = torch.randint(
-                min(x0.shape[1] // 4, 5), int(x0.shape[1] * 0.4), (x0.shape[0],)
-            ).to(
-                x0.device
-            )  # (B,)
-        else:
-            prompt_len = torch.zeros(x0.shape[0]).to(x0)  # (B,)
+        if prompt_len is None:
+            if torch.rand(1) > cfg_scale:
+                prompt_len = torch.randint(
+                    min(x0.shape[1] // 4, 5), int(x0.shape[1] * 0.4), (x0.shape[0],)
+                ).to(
+                    x0.device
+                )  # (B,)
+            else:
+                prompt_len = torch.zeros(x0.shape[0]).to(x0)  # (B,)
+        # else use inputed prompt_len
 
         # get is prompt
         is_prompt = torch.zeros_like(x0[:, :])  # (B, T)
@@ -159,13 +114,24 @@ class MaskGCT_T2S(nn.Module):
 
         return xt, new_t, mask, prompt_len, mask_prob
 
-    def loss_t(self, x0, x_mask, t, phone_embedding=None, phone_mask=None):
-        xt, new_t, mask, prompt_len, mask_prob = self.forward_diffusion(x0, t)
-        # xt: (B, T, hidden_size)
-        # new_t: (B,)
-        # mask: (B, T, 1)   mask if 1, not mask if 0
-        # prompt_len: (B,)
-        # mask_prob: (B,)
+    def loss_t(
+        self,
+        x0,
+        x_mask,
+        t,
+        phone_embedding=None,
+        phone_mask=None,
+        prompt_len=None,
+        finetune_cond=None,
+    ):
+        xt, new_t, mask, prompt_len, mask_prob = self.forward_diffusion(
+            x0, t, prompt_len
+        )
+
+        if finetune_cond is not None:
+            if self.ft_type in ["tse", "vc", "se", "l2s", "omni"]:
+                finetune_cond = self.cond_adapter(finetune_cond)
+                xt = xt + finetune_cond
 
         embeds = self.diff_estimator(
             xt, new_t, x_mask, phone_embedding=phone_embedding, phone_mask=phone_mask
@@ -177,50 +143,49 @@ class MaskGCT_T2S(nn.Module):
 
         return logits, final_mask, x0, prompt_len, mask_prob
 
-    def compute_loss(self, x0, x_mask, phone_embedding=None, phone_mask=None):
+    def compute_loss(
+        self,
+        x0,
+        x_mask,
+        phone_embedding=None,
+        phone_mask=None,
+        prompt_len=None,
+        finetune_cond=None,
+    ):
         # x0: (B, T)
         # x_mask: (B, T) mask is 0 for padding
         t = torch.rand(x0.shape[0], device=x0.device, requires_grad=False)
         t = torch.clamp(t, 1e-5, 1.0)
-        return self.loss_t(x0, x_mask, t, phone_embedding, phone_mask)
+        return self.loss_t(
+            x0, x_mask, t, phone_embedding, phone_mask, prompt_len, finetune_cond
+        )
 
-    def reset_parameters(self):
-        def _reset_parameters(m):
-            if isinstance(m, nn.MultiheadAttention):
-                if m._qkv_same_embed_dim:
-                    nn.init.normal_(m.in_proj_weight, std=0.02)
-                else:
-                    nn.init.normal_(m.q_proj_weight, std=0.02)
-                    nn.init.normal_(m.k_proj_weight, std=0.02)
-                    nn.init.normal_(m.v_proj_weight, std=0.02)
+    def forward(
+        self,
+        x0,
+        x_mask,
+        phone_id=None,
+        phone_mask=None,
+        prompt_len=None,
+        finetune_cond=None,
+    ):
+        # x0: (B, T)
+        # x_mask: (B, T) mask is 0 for padding
 
-                if m.in_proj_bias is not None:
-                    nn.init.constant_(m.in_proj_bias, 0.0)
-                    nn.init.constant_(m.out_proj.bias, 0.0)
-                if m.bias_k is not None:
-                    nn.init.xavier_normal_(m.bias_k)
-                if m.bias_v is not None:
-                    nn.init.xavier_normal_(m.bias_v)
+        if self.use_phone_cond and phone_id != None:
+            phone_embedding = self.phone_emb(phone_id)
+        else:
+            phone_embedding = None
 
-            elif (
-                isinstance(m, nn.Conv1d)
-                or isinstance(m, nn.ConvTranspose1d)
-                or isinstance(m, nn.Conv2d)
-                or isinstance(m, nn.ConvTranspose2d)
-            ):
-                m.weight.data.normal_(0.0, 0.02)
-
-            elif isinstance(m, nn.Linear):
-                m.weight.data.normal_(mean=0.0, std=0.02)
-                if m.bias is not None:
-                    m.bias.data.zero_()
-
-            elif isinstance(m, nn.Embedding):
-                m.weight.data.normal_(mean=0.0, std=0.02)
-                if m.padding_idx is not None:
-                    m.weight.data[m.padding_idx].zero_()
-
-        self.apply(_reset_parameters)
+        logits, final_mask, x0, prompt_len, mask_prob = self.compute_loss(
+            x0,
+            x_mask,
+            phone_embedding,
+            phone_mask=phone_mask,
+            prompt_len=prompt_len,
+            finetune_cond=finetune_cond,
+        )
+        return logits, final_mask, x0, prompt_len, mask_prob
 
     @torch.no_grad()
     def reverse_diffusion(
@@ -234,9 +199,16 @@ class MaskGCT_T2S(nn.Module):
         n_timesteps=40,
         cfg=1.0,
         rescale_cfg=1.0,
+        finetune_cond=None,
+        preschedule_mask_indices=None,
     ):
         # prompt: (B, T)
-        phone_embedding = self.phone_emb(phone_id)
+        if self.use_phone_cond and phone_id != None:
+            phone_embedding = self.phone_emb(phone_id)
+            phone_mask = torch.ones_like(phone_id)
+        else:
+            phone_embedding = None
+            phone_mask = None
 
         prompt_code = prompt  # (B, prompt_len)
         prompt_len = prompt_code.shape[1]
@@ -244,7 +216,6 @@ class MaskGCT_T2S(nn.Module):
         x_mask = torch.ones(prompt_code.shape[0], target_len).to(
             prompt_code.device
         )  # (B, target_len)
-        phone_mask = torch.ones_like(phone_id)
 
         if prompt_mask == None:
             prompt_mask = torch.ones(prompt_code.shape[0], prompt_len).to(
@@ -256,6 +227,11 @@ class MaskGCT_T2S(nn.Module):
         )  # (B, T, hidden_size)
 
         bsz, seq_len, _ = cum.shape
+
+        if finetune_cond is not None:
+            if self.ft_type in ["vc", "se", "tse", "l2s", "omni"]:
+                finetune_cond = self.cond_adapter(finetune_cond)
+                finetune_cond_wo_prompt = finetune_cond[:, prompt_len:, :]
 
         choice_temp = 1.0
         start_temp = temp  # temperature for sampling
@@ -283,6 +259,11 @@ class MaskGCT_T2S(nn.Module):
             cur = cum + mask * mask_token[:, None, :] + (~mask) * token
 
             xt_input = torch.cat([cur_prompt, cur], dim=1)  # (B, T, hidden_size)
+
+            if finetune_cond is not None:
+                if self.ft_type in ["vc", "se", "tse", "l2s", "omni"]:
+                    xt_input = xt_input + finetune_cond
+
             xt_mask = torch.cat(
                 [prompt_mask, x_mask], dim=1
             )  # (B, T), mask is 0 for padding
@@ -299,12 +280,24 @@ class MaskGCT_T2S(nn.Module):
             # classifier free guidance
             # phone_embedding=phone_embedding[:,phone_embedding.shape[1]:,:] means phone_embedding is None
             if cfg > 0:
+                input_cur = cur
+                if finetune_cond is not None:
+                    if self.ft_type in ["vc", "se", "tse", "l2s", "omni"]:
+                        input_cur = input_cur + finetune_cond_wo_prompt
                 mask_embeds = self.diff_estimator(
-                    cur,
+                    input_cur,
                     t,
                     x_mask,
-                    phone_embedding=phone_embedding[:, phone_embedding.shape[1] :, :],
-                    phone_mask=phone_mask[:, prompt_len:],
+                    phone_embedding=(
+                        phone_embedding[:, phone_embedding.shape[1] :, :]
+                        if phone_embedding is not None
+                        else None
+                    ),
+                    phone_mask=(
+                        phone_mask[:, prompt_len:]
+                        if phone_embedding is not None
+                        else None
+                    ),
                 )
                 pos_emb_std = embeds.std()  # std(g_cond)
                 embeds = embeds + cfg * (embeds - mask_embeds)  # g_cfg
@@ -349,7 +342,19 @@ class MaskGCT_T2S(nn.Module):
                 ~mask.squeeze(-1), -torch.finfo(scores.dtype).max
             )
 
-            mask_indices = scores.topk(next_mask_num, dim=-1).indices
+            if preschedule_mask_indices is not None:
+                mask_indices = torch.LongTensor(
+                    preschedule_mask_indices[:next_mask_num]
+                ).to(
+                    x_mask.device
+                )  # [len]
+                # repeat to [batch, len]
+                mask_indices = mask_indices.unsqueeze(0).repeat(
+                    x_mask.size(0), 1
+                )  # [batch, len]
+            else:
+                mask_indices = scores.topk(next_mask_num, dim=-1).indices
+
             mask = torch.zeros_like(scores, dtype=torch.bool).scatter(
                 1, mask_indices, True
             )
@@ -361,14 +366,3 @@ class MaskGCT_T2S(nn.Module):
         xt = seq
 
         return xt
-
-    def forward(self, x0, x_mask, phone_id=None, phone_mask=None):
-        # x0: (B, T)
-        # x_mask: (B, T) mask is 0 for padding
-
-        phone_embedding = self.phone_emb(phone_id)
-
-        logits, final_mask, x0, prompt_len, mask_prob = self.compute_loss(
-            x0, x_mask, phone_embedding, phone_mask=phone_mask
-        )
-        return logits, final_mask, x0, prompt_len, mask_prob

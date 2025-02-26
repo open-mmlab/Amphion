@@ -1,0 +1,17 @@
+{
+    "base_config": "./models/tts/metis/config/base.json",
+    "model": {
+        "t2s_model": {
+            "hidden_size": 1536,
+            "num_layers": 16,
+            "num_heads": 16,
+            "cfg_scale": 0.15,
+            "cond_codebook_size": 8192,
+            "cond_dim": 1024,
+            "use_phone_cond": false,
+            "use_lora": true,
+            "lora_r": 32,
+            "lora_alpha": 64
+        }
+    }
+}
