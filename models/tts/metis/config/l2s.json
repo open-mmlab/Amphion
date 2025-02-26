@@ -1,0 +1,16 @@
+{
+    "base_config": "./models/tts/metis/config/base.json",
+    "model": {
+        "t2s_model": {
+            "hidden_size": 1536,
+            "num_layers": 16,
+            "num_heads": 16,
+            "cfg_scale": 0.15,
+            "cond_codebook_size": 8192,
+            "cond_dim": 768,
+            "use_phone_cond": false,
+            "vis_model_path": "./models/tts/metis/ckpt/metis_l2s/vis_model.pth",
+            "vis_model_conf": "./models/tts/metis/ckpt/metis_l2s/vis_model.json"
+        }
+    }
+}

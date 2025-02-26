@@ -41,6 +41,7 @@ class MaskGCT_T2S(nn.Module):
         cfg_scale=0.2,
         cond_codebook_size=8192,
         cond_dim=1024,
+        use_phone_cond=True,
         cfg=None,
     ):
         super().__init__()
@@ -73,6 +74,11 @@ class MaskGCT_T2S(nn.Module):
         cond_dim = (
             cfg.cond_dim if cfg is not None and hasattr(cfg, "cond_dim") else cond_dim
         )
+        use_phone_cond = (
+            cfg.use_phone_cond
+            if cfg is not None and hasattr(cfg, "use_phone_cond")
+            else use_phone_cond
+        )
 
         self.hidden_size = hidden_size
         self.num_layers = num_layers
@@ -80,6 +86,7 @@ class MaskGCT_T2S(nn.Module):
         self.cfg_scale = cfg_scale
         self.cond_codebook_size = cond_codebook_size
         self.cond_dim = cond_dim
+        self.use_phone_cond = use_phone_cond
 
         self.mask_emb = nn.Embedding(1, self.hidden_size)
 
@@ -87,7 +94,9 @@ class MaskGCT_T2S(nn.Module):
 
         self.cond_emb = nn.Embedding(cond_codebook_size, self.hidden_size)
 
-        self.phone_emb = nn.Embedding(1024, hidden_size, padding_idx=1023)
+        if self.use_phone_cond:
+            self.phone_emb = nn.Embedding(1024, hidden_size, padding_idx=1023)
+            torch.nn.init.normal_(self.phone_emb.weight, mean=0.0, std=0.02)
 
         self.reset_parameters()
 
@@ -95,6 +104,7 @@ class MaskGCT_T2S(nn.Module):
             hidden_size=hidden_size,
             num_heads=num_heads,
             num_layers=num_layers,
+            use_phone_cond=use_phone_cond,
         )
 
     def mask_prob(self, t):
