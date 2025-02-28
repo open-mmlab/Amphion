@@ -18,7 +18,7 @@ from peft import LoraModel, LoraConfig
 
 from huggingface_hub import hf_hub_download, snapshot_download
 
-import langid
+import py3langid as langid
 
 
 def build_metis_stage1(cfg, device, ft_type=None):
