@@ -1,4 +1,4 @@
-""" from https://github.com/keithito/tacotron """
+"""from https://github.com/keithito/tacotron"""
 
 import re
 from unidecode import unidecode

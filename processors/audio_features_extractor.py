@@ -11,7 +11,7 @@ The common audio features include:
 1. Acoustic features such as Mel Spectrogram, F0, Energy, etc.
 2. Content features such as phonetic posteriorgrams (PPG) and bottleneck features (BNF) from pretrained models
 
-Note: 
+Note:
 All the features extraction are designed to utilize GPU to the maximum extent, which can ease the on-the-fly extraction for large-scale dataset.
 
 """

@@ -1,4 +1,4 @@
-""" CLAP Model
+"""CLAP Model
 
 Adapted from CLIP: https://github.com/openai/CLIP. Originally MIT License, Copyright (c) 2021 OpenAI.
 Adapted to the Audio Task.
