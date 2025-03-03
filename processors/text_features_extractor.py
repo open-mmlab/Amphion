@@ -11,7 +11,7 @@ This module aims to be an entrance that integrates all the "text" features extra
 The common text features include:
 1. phone features that are used for TTS, SVS, etc.
 
-Note: 
+Note:
 All the features extraction are designed to utilize GPU to the maximum extent, which can ease the on-the-fly extraction for large-scale dataset.
 
 """

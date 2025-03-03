@@ -3,7 +3,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-""" This code is modified from https://github.com/keithito/tacotron """
+"""This code is modified from https://github.com/keithito/tacotron"""
 
 """
 Defines the set of symbols used in text input to the model.
