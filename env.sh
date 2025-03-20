@@ -30,5 +30,6 @@ pip install phonemizer==3.2.1 pypinyin==0.48.0
 
 pip install black==24.1.1
 
+pip install torch-ema ninja
 # Uninstall nvidia-cublas-cu11 if there exist some bugs about CUDA version
 # pip uninstall nvidia-cublas-cu11
