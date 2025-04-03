@@ -9,12 +9,12 @@ from huggingface_hub import snapshot_download
 from models.svc.vevosing.vevosing_utils import *
 
 
-def vevo_tts(
+def vevosing_tts(
     tgt_text,
     ref_wav_path,
+    ref_text=None,
     timbre_ref_wav_path=None,
     output_path=None,
-    ref_text=None,
     src_language="en",
     ref_language="en",
 ):
@@ -36,7 +36,82 @@ def vevo_tts(
     save_audio(gen_audio, output_path=output_path)
 
 
-if __name__ == "__main__":
+def vevosing_editing(
+    tgt_text,
+    raw_wav_path,
+    raw_text=None,
+    output_path=None,
+    raw_language="en",
+    tgt_language="en",
+):
+    gen_audio = inference_pipeline.inference_ar_and_fm(
+        task="recognition-synthesis",
+        src_wav_path=raw_wav_path,
+        src_text=tgt_text,
+        style_ref_wav_path=raw_wav_path,
+        style_ref_wav_text=raw_text,
+        src_text_language=tgt_language,
+        style_ref_wav_text_language=raw_language,
+        timbre_ref_wav_path=raw_wav_path,  # keep the timbre as the raw wav
+        use_style_tokens_as_ar_input=True,  # To use the prosody code of the raw wav
+    )
+
+    assert output_path is not None
+    save_audio(gen_audio, output_path=output_path)
+
+
+def vevosing_singing_style_conversion(
+    raw_wav_path,
+    style_ref_wav_path,
+    output_path=None,
+    raw_text=None,
+    style_ref_text=None,
+    raw_language="en",
+    style_ref_language="en",
+):
+    gen_audio = inference_pipeline.inference_ar_and_fm(
+        task="recognition-synthesis",
+        src_wav_path=raw_wav_path,
+        src_text=raw_text,
+        style_ref_wav_path=style_ref_wav_path,
+        style_ref_wav_text=style_ref_text,
+        src_text_language=raw_language,
+        style_ref_wav_text_language=style_ref_language,
+        timbre_ref_wav_path=raw_wav_path,  # keep the timbre as the raw wav
+        use_style_tokens_as_ar_input=True,  # To use the prosody code of the raw wav
+    )
+
+    assert output_path is not None
+    save_audio(gen_audio, output_path=output_path)
+
+
+def vevosing_melody_control(
+    tgt_text,
+    tgt_melody_wav_path,
+    output_path=None,
+    style_ref_wav_path=None,
+    style_ref_text=None,
+    timbre_ref_wav_path=None,
+    tgt_language="en",
+    style_ref_language="en",
+):
+    gen_audio = inference_pipeline.inference_ar_and_fm(
+        task="recognition-synthesis",
+        src_wav_path=tgt_melody_wav_path,
+        src_text=tgt_text,
+        style_ref_wav_path=style_ref_wav_path,
+        style_ref_wav_text=style_ref_text,
+        src_text_language=tgt_language,
+        style_ref_wav_text_language=style_ref_language,
+        timbre_ref_wav_path=timbre_ref_wav_path,
+        use_style_tokens_as_ar_input=True,  # To use the prosody code
+    )
+
+    assert output_path is not None
+    save_audio(gen_audio, output_path=output_path)
+
+
+def load_inference_pipeline():
     # ===== Device =====
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
@@ -116,6 +191,11 @@ if __name__ == "__main__":
         vocoder_ckpt_path=vocoder_ckpt_path,
         device=device,
     )
+    return inference_pipeline
+
+
+if __name__ == "__main__":
+    inference_pipeline = load_inference_pipeline()
 
     ### Zero-shot Text-to-Speech and Text-to-Singing  ###
     tgt_text = "I don't really care what you call me. I've been a silent spectator, watching species evolve, empires rise and fall. But always remember, I am mighty and enduring. Respect me and I'll nurture you; ignore me and you shall face the consequences."
@@ -123,7 +203,7 @@ if __name__ == "__main__":
     ref_text = "Flip stood undecided, his ears strained to catch the slightest sound."
 
     # the style reference and timbre reference are same
-    vevo_tts(
+    vevosing_tts(
         tgt_text=tgt_text,
         ref_wav_path=ref_wav_path,
         timbre_ref_wav_path=ref_wav_path,
@@ -134,7 +214,7 @@ if __name__ == "__main__":
     )
 
     # the style reference and timbre reference are different
-    vevo_tts(
+    vevosing_tts(
         tgt_text=tgt_text,
         ref_wav_path=ref_wav_path,
         timbre_ref_wav_path="./models/vc/vevo/wav/mandarin_female.wav",
@@ -144,12 +224,89 @@ if __name__ == "__main__":
         ref_language="en",
     )
 
-    # TODO:
-    # # the style reference is a singing voice
-    # vevo_tts(
-    #     tgt_text=tgt_text,
-    #     ref_wav_path=ref_wav_path,
-    #     timbre_ref_wav_path=ref_wav_path,
-    #     output_path="./models/svc/vevosing/output/zstts_singing.wav",
-    #     ref_text=ref_text,
-    # )
+    # the style reference is a singing voice
+    jaychou_path = "./models/svc/vevosing/wav/jaychou.wav"
+    jaychou_text = (
+        "对这个世界如果你有太多的抱怨，跌倒了就不该继续往前走，为什么，人要这么的脆弱堕"
+    )
+    taiyizhenren_path = "./models/svc/vevosing/wav/taiyizhenren.wav"
+    taiyizhenren_text = (
+        "对，这就是我，万人敬仰的太乙真人。虽然有点婴儿肥，但也掩不住我，逼人的帅气。"
+    )
+
+    vevosing_tts(
+        tgt_text="顿时，气氛变得沉郁起来。乍看之下，一切的困扰仿佛都围绕在我身边。我皱着眉头，感受着那份压力，但我知道我不能放弃，不能认输。于是，我深吸一口气，心底的声音告诉我：“无论如何，都要冷静下来，重新开始。”",
+        ref_wav_path=jaychou_path,
+        ref_text=jaychou_text,
+        timbre_ref_wav_path=taiyizhenren_path,
+        output_path="./models/svc/vevosing/output/zstts_singing.wav",
+        src_language="zh",
+        ref_language="zh",
+    )
+
+    ### Zero-shot Singing Editing ###
+    adele_path = "./models/svc/vevosing/wav/adele.wav"
+    adele_text = "Never mind, I'll find someone like you. I wish nothing but."
+
+    vevosing_editing(
+        tgt_text="Never mind, you'll find anyone like me. You wish nothing but.",
+        raw_wav_path=adele_path,
+        raw_text=adele_text,
+        output_path="./models/svc/vevosing/output/editing_adele.wav",
+        raw_language="en",
+        tgt_language="en",
+    )
+
+    vevosing_editing(
+        tgt_text="对你的人生如果你有太多的期盼，跌倒了就不该低头认输，为什么啊，人要这么的彷徨堕",
+        raw_wav_path=jaychou_path,
+        raw_text=jaychou_text,
+        output_path="./models/svc/vevosing/output/editing_jaychou.wav",
+        raw_language="zh",
+        tgt_language="zh",
+    )
+
+    ### Zero-shot Singing Style Conversion ###
+    breathy_path = "./models/svc/vevosing/wav/breathy.wav"
+    breathy_text = "离别没说再见你是否心酸"
+
+    vibrato_path = "./models/svc/vevosing/wav/vibrato.wav"
+    vibrato_text = "玫瑰的红，容易受伤的梦，握在手中却流失于指缝"
+
+    vevosing_singing_style_conversion(
+        raw_wav_path=breathy_path,
+        raw_text=breathy_text,
+        style_ref_wav_path=vibrato_path,
+        style_ref_text=vibrato_text,
+        output_path="./models/svc/vevosing/output/ssc_breathy2vibrato.wav",
+        raw_language="zh",
+        style_ref_language="zh",
+    )
+
+    ### Melody Control for Singing Synthesis ##
+    humming_path = "./models/svc/vevosing/wav/humming.wav"
+    piano_path = "./models/svc/vevosing/wav/piano.wav"
+
+    # Humming to control the melody
+    vevosing_melody_control(
+        tgt_text="你是我的小呀小苹果，怎么爱，不嫌多",
+        tgt_melody_wav_path=humming_path,
+        output_path="./models/svc/vevosing/output/melody_humming.wav",
+        style_ref_wav_path=taiyizhenren_path,
+        style_ref_text=taiyizhenren_text,
+        timbre_ref_wav_path=taiyizhenren_path,
+        tgt_language="zh",
+        style_ref_language="zh",
+    )
+
+    # Piano to control the melody
+    vevosing_melody_control(
+        tgt_text="你是我的小呀小苹果，怎么爱，不嫌多",
+        tgt_melody_wav_path=piano_path,
+        output_path="./models/svc/vevosing/output/melody_piano.wav",
+        style_ref_wav_path=taiyizhenren_path,
+        style_ref_text=taiyizhenren_text,
+        timbre_ref_wav_path=taiyizhenren_path,
+        tgt_language="zh",
+        style_ref_language="zh",
+    )
