@@ -138,35 +138,33 @@ def load_inference_pipeline():
     )
 
     # ===== Autoregressive Transformer =====
+    model_name = "ar_emilia101k_singnet7k"
+
     local_dir = snapshot_download(
         repo_id="amphion/VevoSing",
         repo_type="model",
         cache_dir="./ckpts/VevoSing",
-        allow_patterns=[
-            "contentstyle_modeling/text_prosody_fvq512_6.25hz_to_contentstyle_fvq16384_12.5hz/*"
-        ],
+        allow_patterns=[f"contentstyle_modeling/{model_name}/*"],
     )
 
-    ar_cfg_path = "./models/svc/vevosing/config/text_prosody_fvq512_6.25hz_to_contentstyle_fvq16384_12.5hz.json"
+    ar_cfg_path = f"./models/svc/vevosing/config/{model_name}.json"
     ar_ckpt_path = os.path.join(
         local_dir,
-        "contentstyle_modeling/text_prosody_fvq512_6.25hz_to_contentstyle_fvq16384_12.5hz",
+        f"contentstyle_modeling/{model_name}",
     )
 
     # ===== Flow Matching Transformer =====
+    model_name = "fm_emilia101k_singnet7k"
+
     local_dir = snapshot_download(
         repo_id="amphion/VevoSing",
         repo_type="model",
         cache_dir="./ckpts/VevoSing",
-        allow_patterns=["acoustic_modeling/contentstyle_fvq16384_12.5hz_to_24kmels/*"],
+        allow_patterns=[f"acoustic_modeling/{model_name}/*"],
     )
 
-    fmt_cfg_path = (
-        "./models/svc/vevosing/config/contentstyle_fvq16384_12.5hz_to_24kmels.json"
-    )
-    fmt_ckpt_path = os.path.join(
-        local_dir, "acoustic_modeling/contentstyle_fvq16384_12.5hz_to_24kmels"
-    )
+    fmt_cfg_path = f"./models/svc/vevosing/config/{model_name}.json"
+    fmt_ckpt_path = os.path.join(local_dir, f"acoustic_modeling/{model_name}")
 
     # ===== Vocoder =====
     local_dir = snapshot_download(
@@ -197,34 +195,14 @@ def load_inference_pipeline():
 if __name__ == "__main__":
     inference_pipeline = load_inference_pipeline()
 
+    output_dir = "./models/svc/vevosing/output"
+    os.makedirs(output_dir, exist_ok=True)
+
     ### Zero-shot Text-to-Speech and Text-to-Singing  ###
     tgt_text = "I don't really care what you call me. I've been a silent spectator, watching species evolve, empires rise and fall. But always remember, I am mighty and enduring. Respect me and I'll nurture you; ignore me and you shall face the consequences."
     ref_wav_path = "./models/vc/vevo/wav/arabic_male.wav"
     ref_text = "Flip stood undecided, his ears strained to catch the slightest sound."
 
-    # the style reference and timbre reference are same
-    vevosing_tts(
-        tgt_text=tgt_text,
-        ref_wav_path=ref_wav_path,
-        timbre_ref_wav_path=ref_wav_path,
-        output_path="./models/svc/vevosing/output/zstts.wav",
-        ref_text=ref_text,
-        src_language="en",
-        ref_language="en",
-    )
-
-    # the style reference and timbre reference are different
-    vevosing_tts(
-        tgt_text=tgt_text,
-        ref_wav_path=ref_wav_path,
-        timbre_ref_wav_path="./models/vc/vevo/wav/mandarin_female.wav",
-        output_path="./models/svc/vevosing/output/zstts_disentangled.wav",
-        ref_text=ref_text,
-        src_language="en",
-        ref_language="en",
-    )
-
-    # the style reference is a singing voice
     jaychou_path = "./models/svc/vevosing/wav/jaychou.wav"
     jaychou_text = (
         "对这个世界如果你有太多的抱怨，跌倒了就不该继续往前走，为什么，人要这么的脆弱堕"
@@ -234,12 +212,35 @@ if __name__ == "__main__":
         "对，这就是我，万人敬仰的太乙真人。虽然有点婴儿肥，但也掩不住我，逼人的帅气。"
     )
 
+    # the style reference and timbre reference are same
+    vevosing_tts(
+        tgt_text=tgt_text,
+        ref_wav_path=ref_wav_path,
+        timbre_ref_wav_path=ref_wav_path,
+        output_path=os.path.join(output_dir, "zstts.wav"),
+        ref_text=ref_text,
+        src_language="en",
+        ref_language="en",
+    )
+
+    # the style reference and timbre reference are different
+    vevosing_tts(
+        tgt_text=tgt_text,
+        ref_wav_path=ref_wav_path,
+        timbre_ref_wav_path=jaychou_path,
+        output_path=os.path.join(output_dir, "zstts_disentangled.wav"),
+        ref_text=ref_text,
+        src_language="en",
+        ref_language="en",
+    )
+
+    # the style reference is a singing voice
     vevosing_tts(
         tgt_text="顿时，气氛变得沉郁起来。乍看之下，一切的困扰仿佛都围绕在我身边。我皱着眉头，感受着那份压力，但我知道我不能放弃，不能认输。于是，我深吸一口气，心底的声音告诉我：“无论如何，都要冷静下来，重新开始。”",
         ref_wav_path=jaychou_path,
         ref_text=jaychou_text,
         timbre_ref_wav_path=taiyizhenren_path,
-        output_path="./models/svc/vevosing/output/zstts_singing.wav",
+        output_path=os.path.join(output_dir, "zstts_singing.wav"),
         src_language="zh",
         ref_language="zh",
     )
@@ -251,8 +252,8 @@ if __name__ == "__main__":
     vevosing_editing(
         tgt_text="Never mind, you'll find anyone like me. You wish nothing but.",
         raw_wav_path=adele_path,
-        raw_text=adele_text,
-        output_path="./models/svc/vevosing/output/editing_adele.wav",
+        raw_text=adele_text,  # "Never mind, I'll find someone like you. I wish nothing but."
+        output_path=os.path.join(output_dir, "editing_adele.wav"),
         raw_language="en",
         tgt_language="en",
     )
@@ -260,8 +261,8 @@ if __name__ == "__main__":
     vevosing_editing(
         tgt_text="对你的人生如果你有太多的期盼，跌倒了就不该低头认输，为什么啊，人要这么的彷徨堕",
         raw_wav_path=jaychou_path,
-        raw_text=jaychou_text,
-        output_path="./models/svc/vevosing/output/editing_jaychou.wav",
+        raw_text=jaychou_text,  # "对这个世界如果你有太多的抱怨，跌倒了就不该继续往前走，为什么，人要这么的脆弱堕"
+        output_path=os.path.join(output_dir, "editing_jaychou.wav"),
         raw_language="zh",
         tgt_language="zh",
     )
@@ -278,7 +279,7 @@ if __name__ == "__main__":
         raw_text=breathy_text,
         style_ref_wav_path=vibrato_path,
         style_ref_text=vibrato_text,
-        output_path="./models/svc/vevosing/output/ssc_breathy2vibrato.wav",
+        output_path=os.path.join(output_dir, "ssc_breathy2vibrato.wav"),
         raw_language="zh",
         style_ref_language="zh",
     )
@@ -291,7 +292,7 @@ if __name__ == "__main__":
     vevosing_melody_control(
         tgt_text="你是我的小呀小苹果，怎么爱，不嫌多",
         tgt_melody_wav_path=humming_path,
-        output_path="./models/svc/vevosing/output/melody_humming.wav",
+        output_path=os.path.join(output_dir, "melody_humming.wav"),
         style_ref_wav_path=taiyizhenren_path,
         style_ref_text=taiyizhenren_text,
         timbre_ref_wav_path=taiyizhenren_path,
@@ -303,7 +304,7 @@ if __name__ == "__main__":
     vevosing_melody_control(
         tgt_text="你是我的小呀小苹果，怎么爱，不嫌多",
         tgt_melody_wav_path=piano_path,
-        output_path="./models/svc/vevosing/output/melody_piano.wav",
+        output_path=os.path.join(output_dir, "melody_piano.wav"),
         style_ref_wav_path=taiyizhenren_path,
         style_ref_text=taiyizhenren_text,
         timbre_ref_wav_path=taiyizhenren_path,
