@@ -21,6 +21,7 @@ import random
 import numpy as np
 import whisper
 from librosa.feature import chroma_stft
+from librosa.effects import pitch_shift
 
 from models.codec.coco.rep_coco_model import CocoContentStyle, CocoContent, CocoStyle
 from models.svc.flow_matching_transformer.fmt_model import FlowMatchingTransformer
@@ -29,6 +30,7 @@ from models.codec.melvqgan.melspec import MelSpectrogram
 from models.codec.amphion_codec.vocos import Vocos
 
 from utils.util import load_config
+from evaluation.metrics.f0.f0_corr import extract_f0_hz
 
 
 def g2p_(text, language):
@@ -304,6 +306,9 @@ class VevosingInferencePipeline:
         wav24k_numpy,
         whisper_spec_perturb=False,
         frame_len_ratio=1.0,
+        use_shifted_src_to_extract_prosody=False,
+        use_shifted_src_to_extract_contentstyle=False,
+        src_shifted_steps=0,
     ):
         """
         Args:
@@ -314,7 +319,15 @@ class VevosingInferencePipeline:
             codecs: [1, T]. Note that codecs might be not at 50Hz!
         """
         frame_len = len(wav24k_numpy) // self.fmt_cfg.preprocess.hop_size
-        chromagram_feats = self.get_chromagram(wav24k_numpy, frame_len)  # [T, 24]
+
+        if not use_shifted_src_to_extract_prosody:
+            chromagram_feats = self.get_chromagram(wav24k_numpy, frame_len)  # [T, 24]
+        else:
+            chromagram_feats = self.get_chromagram(
+                pitch_shift(wav24k_numpy, sr=24000, n_steps=src_shifted_steps),
+                frame_len,
+            )  # [T, 24]
+
         chromagram_feats = (
             torch.tensor(chromagram_feats, dtype=torch.float)
             .unsqueeze(0)
@@ -327,15 +340,21 @@ class VevosingInferencePipeline:
             chromagram_feats = chromagram_feats.transpose(1, 2)
             chromagram_feats = torch.nn.functional.interpolate(
                 chromagram_feats,
-                size=int(raw_len * chromagram_frame_len_ratio),  # 明确指定目标长度
+                size=int(raw_len * frame_len_ratio),  # 明确指定目标长度
                 mode="linear",
                 align_corners=False,
             )  # [1, 24, T']
             # 转换回原始形状 [1, T', 24]
             chromagram_feats = chromagram_feats.transpose(1, 2)
             print(
-                f"Chromagram feats are sampled from {raw_len} to {chromagram_feats.shape[1]}, ratio = {chromagram_frame_len_ratio}"
+                f"Chromagram feats are sampled from {raw_len} to {chromagram_feats.shape[1]}, ratio = {frame_len_ratio}"
             )
+
+        if use_shifted_src_to_extract_contentstyle:
+            wav16k_shifted = pitch_shift(
+                wav16k.cpu().numpy()[0], sr=16000, n_steps=src_shifted_steps
+            )  # [T]
+            wav16k = torch.tensor(wav16k_shifted).unsqueeze(0).to(self.device)  # [1, T]
 
         whisper_feats = self.extract_whisper_features(
             wav16k,
@@ -383,6 +402,8 @@ class VevosingInferencePipeline:
         src_wav_path,
         timbre_ref_wav_path,
         whisper_spec_perturb=False,
+        use_shifted_src_to_extract_prosody=False,
+        use_shifted_src_to_extract_contentstyle=False,
         flow_matching_steps=32,
         display_audio=False,
     ):
@@ -394,14 +415,33 @@ class VevosingInferencePipeline:
         if display_audio:
             print("-" * 20)
             if src_wav_path == timbre_ref_wav_path:
-                print("Audio:")
+                print("We want to reconstruct this audio:", src_wav_path)
                 display_audio_in_notebook(src_wav_path, rate=24000)
             else:
                 print("Source audio:")
                 display_audio_in_notebook(src_speech, rate=24000)
-                print("Timbre Reference audio:")
-                display_audio_in_notebook(timbre_ref_speech, rate=24000)
+
+        ## Whether to use shifted src to extract prosody and content-style ##
+        if (
+            use_shifted_src_to_extract_prosody
+            or use_shifted_src_to_extract_contentstyle
+        ):
+            src_f0 = extract_f0_hz(src_wav_path)
+            timbre_ref_f0 = extract_f0_hz(timbre_ref_wav_path)
+
+            src_f0_median = np.median(src_f0)
+            timbre_ref_f0_median = np.median(timbre_ref_f0)
+
+            src_shifted_steps = 12 * np.log2(timbre_ref_f0_median / src_f0_median)
+            src_shifted_steps = round(src_shifted_steps)
+
+            if display_audio:
                 print("-" * 20)
+                print(
+                    f"src_wav f0 median: {src_f0_median} hz, timbre_ref_wav f0 median: {timbre_ref_f0_median} hz, src_shifted_steps: {src_shifted_steps}"
+                )
+        else:
+            src_shifted_steps = 0
 
         ## Diffusion ##
         src_codecs = self.extract_coco_codec(
@@ -409,6 +449,9 @@ class VevosingInferencePipeline:
             src_speech16k,
             src_speech,
             whisper_spec_perturb=whisper_spec_perturb,
+            use_shifted_src_to_extract_prosody=use_shifted_src_to_extract_prosody,
+            use_shifted_src_to_extract_contentstyle=use_shifted_src_to_extract_contentstyle,
+            src_shifted_steps=src_shifted_steps,
         )  # [1, T]
         timbre_ref_codecs = self.extract_coco_codec(
             "content_style",
@@ -417,13 +460,6 @@ class VevosingInferencePipeline:
             whisper_spec_perturb=whisper_spec_perturb,
         )  # [1, T]
         diffusion_input_codecs = torch.cat([timbre_ref_codecs, src_codecs], dim=1)
-
-        # if display_audio:
-        #     print(
-        #         "src_speech, duration = {:.2f}s, src_codecs.shape = {}, {}".format(
-        #             len(src_speech) / 24000, src_codecs.shape, src_codecs
-        #         )
-        #     )
 
         # Prepare the condition for diffusion
         diffusion_cond = self.fmt_model.cond_emb(diffusion_input_codecs)  # [1, T, D]
