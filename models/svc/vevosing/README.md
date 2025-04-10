@@ -17,13 +17,13 @@ For a hands-on demonstration of VevoSing's capabilities, we invite readers to ex
 
 We have included the following pre-trained models at Amphion:
 
-| Model                       | Description                                                                                                                                                                                                                                                           | Pre-trained Data and Checkpoint                                                                                                                                                                                                                             |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Prosody Tokenizer           | Converting speech/singing waveform to **coarse-grained prosody tokens** (which is also be interpreted as *melody contour* from a musical perspective). It is a single codebook VQ-VAE with a vocabulary size of 512. The frame rate is 6.25 Hz. (i.e., **56.25 bps**) | [🤗 Emilia-101k, Sing-0.4k](https://huggingface.co/amphion/VevoSing/tree/main/tokenizer/style_fvq512_6.25hz)                                                                                                                                                 |
-| Content-Style Tokenizer     | Converting speech/singing waveform to **fine-grained content-style tokens**. It is a single codebook VQ-VAE with a vocabulary size of 16384. The frame rate is 12.5 Hz. (i.e., **175 bps**)                                                                           | [🤗 Emilia-101k, Sing-0.4k](https://huggingface.co/amphion/VevoSing/tree/main/tokenizer/contentstyle_fvq16384_12.5hz)                                                                                                                                        |
-| Auto-regressive Transformer | Predicting content-style tokens from phone tokens (and optionally, prosody tokens) with an auto-regressive transformer (780M).                                                                                                                                        | [🤗 Emilia-101k, Sing-0.4k](https://huggingface.co/amphion/VevoSing/tree/main/contentstyle_modeling/ar_emilia101k_sing0.4k) <br>[🤗 Emilia-101k, SingNet-7k](https://huggingface.co/amphion/VevoSing/tree/main/contentstyle_modeling/ar_emilia101k_singnet7k) |
-| Flow-matching Transformer   | Predicting mel-spectrogram from content-style tokens with a flow-matching transformer (350M).                                                                                                                                                                         | [🤗 Emilia-101k, Sing-0.4k](https://huggingface.co/amphion/VevoSing/tree/main/acoustic_modeling/fm_emilia101k_sing0.4k) <br> [🤗 Emilia-101k, SingNet-7k](https://huggingface.co/amphion/VevoSing/tree/main/acoustic_modeling/fm_emilia101k_singnet7k)        |
-| Vocoder                     | Predicting audio from mel-spectrogram with a Vocos-based vocoder (250M).                                                                                                                                                                                              | [🤗 Emilia-101k, SingNet-3k](https://huggingface.co/amphion/VevoSing/tree/main/acoustic_modeling/Vocoder)                                                                                                                                                    |
+| Model                           | Description                                                                                                                                                                                                                                                           | Pre-trained Data and Checkpoint                                                                                                                                                                                                                             |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Prosody Tokenizer**           | Converting speech/singing waveform to **coarse-grained prosody tokens** (which is also be interpreted as *melody contour* from a musical perspective). It is a single codebook VQ-VAE with a vocabulary size of 512. The frame rate is 6.25 Hz. (i.e., **56.25 bps**) | [🤗 Emilia-101k, Sing-0.4k](https://huggingface.co/amphion/VevoSing/tree/main/tokenizer/style_fvq512_6.25hz)                                                                                                                                                 |
+| **Content-Style Tokenizer**     | Converting speech/singing waveform to **fine-grained content-style tokens**. It is a single codebook VQ-VAE with a vocabulary size of 16384. The frame rate is 12.5 Hz. (i.e., **175 bps**)                                                                           | [🤗 Emilia-101k, Sing-0.4k](https://huggingface.co/amphion/VevoSing/tree/main/tokenizer/contentstyle_fvq16384_12.5hz)                                                                                                                                        |
+| **Auto-regressive Transformer** | Predicting content-style tokens from phone tokens (and optionally, prosody tokens) with an auto-regressive transformer (780M).                                                                                                                                        | [🤗 Emilia-101k, Sing-0.4k](https://huggingface.co/amphion/VevoSing/tree/main/contentstyle_modeling/ar_emilia101k_sing0.4k) <br>[🤗 Emilia-101k, SingNet-7k](https://huggingface.co/amphion/VevoSing/tree/main/contentstyle_modeling/ar_emilia101k_singnet7k) |
+| **Flow-matching Transformer**   | Predicting mel-spectrogram from content-style tokens with a flow-matching transformer (350M).                                                                                                                                                                         | [🤗 Emilia-101k, Sing-0.4k](https://huggingface.co/amphion/VevoSing/tree/main/acoustic_modeling/fm_emilia101k_sing0.4k) <br> [🤗 Emilia-101k, SingNet-7k](https://huggingface.co/amphion/VevoSing/tree/main/acoustic_modeling/fm_emilia101k_singnet7k)        |
+| **Vocoder**                     | Predicting audio from mel-spectrogram with a Vocos-based vocoder (250M).                                                                                                                                                                                              | [🤗 Emilia-101k, SingNet-3k](https://huggingface.co/amphion/VevoSing/tree/main/acoustic_modeling/Vocoder)                                                                                                                                                    |
 
 The training data includes:
 
@@ -51,7 +51,7 @@ To infer with VevoSing, you need to follow the steps below:
 1. Clone the repository and install the environment. 
 2. Run the inference script.
 
-> **Note:** Same environment as MaskGCT/Vevo.
+> **Note:** Same environment requirement as MaskGCT/Vevo.
 
 ### Clone and Environment Setup
 
@@ -86,7 +86,7 @@ pip install -r models/vc/vevo/requirements.txt
 
 ### Inference Script
 
-```bash
+```python
 # FM model only (i.e., timbre control. Usually for VC and SVC)
 python -m models.svc.vevosing.infer_vevosing_fm
 
@@ -94,11 +94,11 @@ python -m models.svc.vevosing.infer_vevosing_fm
 python -m models.svc.vevosing.infer_vevosing_ar
 ```
 
-Running this will automatically download the pretrained model from HuggingFace and start the inference process. The result audio is by default saved in `models/svc/vevosing/output/*.wav`.
+Running this will automatically download the pretrained model from HuggingFace and start the inference process. The generated audios are saved in `models/svc/vevosing/output/*.wav` by default.
 
 ## Training Recipe
 
-For advanced user, we have provided the following training instructions.
+For advanced users, we provide the following training recipe:
 
 ### Data preparation
 
@@ -106,7 +106,7 @@ For advanced user, we have provided the following training instructions.
 
 1. Please download the dataset following the official instructions provided by [Emilia](https://huggingface.co/datasets/amphion/Emilia-Dataset).
 
-2. Due to Emilia's substantial storage requirements, data loading logic may vary slightly depending on storage configuration. We provide a reference implementation for local disk loading [in this file](../../base/emilia_dataset.py). After downloading the Emilia dataset, please adapt the data loading logic accordingly. In most cases, only modifying the paths specified in [Lines 36-37]((../../base/emilia_dataset.py#L36)) should be sufficient: 
+2. Due to Emilia's substantial storage requirements, data loading logic may vary slightly depending on storage configuration. We provide a reference implementation for local disk loading [in this file](../../base/emilia_dataset.py). After downloading the Emilia dataset, please adapt the data loading logic accordingly. In most cases, only modifying the paths specified in [Lines 36-37](../../base/emilia_dataset.py#L36) should be sufficient: 
 
    ```python
    MNT_PATH = "[Please fill out your emilia data root path]"
@@ -115,12 +115,12 @@ For advanced user, we have provided the following training instructions.
 
 #### SingNet
 
-Due to copyright restrictions, we are unable to release specific singing voice datasets. This work assumes users have pre-processed vocal track data (e.g., Sing-0.4k) available. Please prepare a JSON metadata file with the following structure to track your dataset:
+Due to copyright restrictions, we are unable to release specific singing voice datasets. We assume users have pre-processed vocal track data (e.g., Sing-0.4k) available. Please prepare a JSON metadata file with the following structure to track your dataset:
 
 ```json
 [
     {
-        "Path": "2020-ISMIR-CSD/english/wav/en048b/en048b#6.wav",
+        "Path": "[Please fill out your data root]/2020-ISMIR-CSD/english/wav/en048b/en048b#6.wav",
         "Duration": 29.94,
         "Text": " They sing along Look out the window, look out the window Singing the winter song Out there where the snowman stands Only I can see Children run to shake his hands For when the sun shines he'll be gone Hurry, hurry, see the flurry",
         "Language": "en" // Supported: "en", "zh", "ja", "ko", "fr", and "de"
@@ -140,12 +140,11 @@ The JSON metadata file should contain the following fields for each audio sample
 
 Train the prosody tokenizer, the content-style tokenizer, the auto-regressive model, the flow-matching model, and the vocoder respectively:
 
-**Note**: You need to run every command of this recipe under the `Amphion` root path:
-
-```
-git clone https://github.com/open-mmlab/Amphion.git
-cd Amphion
-```
+> **Note**: You need to run the following commands under the `Amphion` root path:
+> ```
+> git clone https://github.com/open-mmlab/Amphion.git
+> cd Amphion
+> ```
 
 #### Prosody Tokenizer
 
