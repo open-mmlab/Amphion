@@ -70,7 +70,7 @@ class FlowMatchingTransformer(nn.Module):
         else:
             self.do_resampling = False
 
-        # Use the Wav2Vec2Bert features to align.
+        ### REPA: Use the Wav2Vec2Bert features to align. ###
         self.use_repa = "repa" in cfg
         self.repa_layer_index = None
         if self.use_repa:
@@ -80,6 +80,18 @@ class FlowMatchingTransformer(nn.Module):
                 nn.Linear(hidden_size, hidden_size * 4),
                 nn.SiLU(),
                 nn.Linear(hidden_size * 4, cfg.repa.output_dim),
+            )
+
+        ### CTC: Use the ASR loss ###
+        self.use_ctc = "ctc" in cfg
+        self.ctc_layer_index = None
+        if self.use_ctc:
+            self.ctc_layer_index = cfg.ctc.layer_index
+
+            self.ctc_mlp_layer = nn.Sequential(
+                nn.Linear(hidden_size, hidden_size * 4),
+                nn.SiLU(),
+                nn.Linear(hidden_size * 4, cfg.ctc.output_dim),
             )
 
         self.reset_parameters()
@@ -155,30 +167,30 @@ class FlowMatchingTransformer(nn.Module):
                 torch.zeros_like(prompt_len),
             ).to(cond.device).unsqueeze(-1).unsqueeze(-1)
 
-        dit_output = self.diff_estimator(
-            xt, new_t, cond, x_mask, return_dict=self.use_repa
-        )
+        dit_output = self.diff_estimator(xt, new_t, cond, x_mask, return_dict=True)
+        flow_pred = dit_output["output"]  # (B, T, mel_dim)
+
+        # final mask used for loss calculation
+        final_mask = mask * x_mask[..., None]  # (B, T, 1)
+
+        results = {"output": (noise, x, flow_pred, final_mask, prompt_len)}
 
         if self.use_repa:
-            flow_pred = dit_output["output"]  # (B, T, mel_dim)
             repa_hidden_states = dit_output["hidden_states"][
                 self.repa_layer_index
             ]  # (B, T, hidden_size)
 
             repa_pred = self.repa_mlp_layer(repa_hidden_states)  # (B, T, repa_dim)
+            results["repa"] = repa_pred
 
-            # final mask used for loss calculation
-            final_mask = mask * x_mask[..., None]  # (B, T, 1)
+        if self.use_ctc:
+            ctc_hidden_states = dit_output["hidden_states"][
+                self.ctc_layer_index
+            ]  # (B, T, hidden_size)
+            ctc_pred = self.ctc_mlp_layer(ctc_hidden_states)  # (B, T, ctc_dim)
+            results["ctc"] = ctc_pred
 
-            return noise, x, flow_pred, repa_pred, final_mask, prompt_len
-
-        else:
-            flow_pred = dit_output  # (B, T, mel_dim)
-
-            # final mask used for loss calculation
-            final_mask = mask * x_mask[..., None]  # (B, T, 1)
-
-            return noise, x, flow_pred, final_mask, prompt_len
+        return results
 
     def compute_loss(self, x, x_mask, cond=None):
         # x0: (B, T, num_quantizer)

@@ -9,6 +9,7 @@ import torch
 
 from models.vocoders.gan.gan_vocoder_trainer import GANVocoderTrainer
 from models.vocoders.diffusion.diffusion_vocoder_trainer import DiffusionVocoderTrainer
+from models.vocoders.vocos.vocos_trainer import VocosTrainer
 
 from utils.util import load_config
 
@@ -17,6 +18,7 @@ def build_trainer(args, cfg):
     supported_trainer = {
         "GANVocoder": GANVocoderTrainer,
         "DiffusionVocoder": DiffusionVocoderTrainer,
+        "Vocos": VocosTrainer,
     }
 
     trainer_class = supported_trainer[cfg.model_type]
@@ -52,6 +54,11 @@ def main():
         required=True,
     )
     parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="If specified, to resume from the existing checkpoint.",
+    )
+    parser.add_argument(
         "--resume_type",
         type=str,
         help="resume for continue to train, finetune for finetuning",
@@ -68,17 +75,18 @@ def main():
     cfg = load_config(args.config)
 
     # Data Augmentation
-    if cfg.preprocess.data_augment:
-        new_datasets_list = []
-        for dataset in cfg.preprocess.data_augment:
-            new_datasets = [
-                # f"{dataset}_pitch_shift",
-                # f"{dataset}_formant_shift",
-                f"{dataset}_equalizer",
-                f"{dataset}_time_stretch",
-            ]
-            new_datasets_list.extend(new_datasets)
-        cfg.dataset.extend(new_datasets_list)
+    if "data_augment" in cfg.preprocess:
+        if cfg.preprocess.data_augment:
+            new_datasets_list = []
+            for dataset in cfg.preprocess.data_augment:
+                new_datasets = [
+                    # f"{dataset}_pitch_shift",
+                    # f"{dataset}_formant_shift",
+                    f"{dataset}_equalizer",
+                    f"{dataset}_time_stretch",
+                ]
+                new_datasets_list.extend(new_datasets)
+            cfg.dataset.extend(new_datasets_list)
 
     # CUDA settings
     cuda_relevant()

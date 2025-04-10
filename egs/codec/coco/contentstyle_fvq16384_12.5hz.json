@@ -1,0 +1,92 @@
+{
+    "model_type": "RepCoco",
+    "dataset": {
+        "emilia": 1, // 101k hours, 34m samples
+        "singnet": 20 // 400 hours, 0.34m samples * 20 = 6.8m samples
+    },
+    "singnet_path": "[Please fill out your singing data path]/sing400.json",
+    "preprocess": {
+        "hop_size": 480,
+        "sample_rate": 24000,
+        "n_fft": 1920,
+        "num_mels": 128,
+        "win_size": 1920,
+        "fmin": 0,
+        "fmax": 12000,
+        "mel_var": 8.14,
+        "mel_mean": -4.92,
+        "f0_fmin": 50.0,
+        "f0_fmax": 1100.0,
+        "load_chromagram": true
+    },
+    "model": {
+        "coco": {
+            "coco_type": "content_style", // content, style, or content_style
+            "downsample_rate": 4, // The original frame rate is 50 Hz, downsample to 12.5 Hz
+            "codebook_size": 16384,
+            "hidden_size": 1024, // Representations Dim
+            "codebook_dim": 8,
+            "encoder": {
+                "vocos_dim": 384,
+                "vocos_intermediate_dim": 2048,
+                "vocos_num_layers": 12,
+            },
+            "decoder": {
+                "vocos_dim": 384,
+                "vocos_intermediate_dim": 2048,
+                "vocos_num_layers": 12,
+            },
+            "use_normed_whisper": true,
+            "whisper_stats_path": "models/svc/vevosing/config/whisper_stats.pt",
+            "whisper_dim": 1024,
+            "chromagram_dim": 24
+        },
+        "cond_sample_rate": 16000
+    },
+    "log_dir": "ckpts/coco",
+    "train": {
+        "max_epoch": 0,
+        "use_dynamic_batchsize": true,
+        "max_tokens": 18000,
+        "max_sentences": 90,
+        "lr_warmup_steps": 10000,
+        "lr_scheduler": "constant",
+        "num_train_steps": 1000000,
+        "adam": {
+            "lr": 1e-4,
+            "betas": [
+                0.5,
+                0.9
+            ]
+        },
+        "ddp": false,
+        "random_seed": 114,
+        "batch_size": 32, // use batch_size if not use dynamic batchsize
+        "epochs": 5000,
+        "max_steps": 1000000,
+        "total_training_steps": 800000,
+        "save_summary_steps": 500,
+        "save_checkpoints_steps": 1000,
+        "save_checkpoints_backup_steps": 100000,
+        "valid_interval": 2000,
+        "keep_checkpoint_max": 100,
+        "gradient_accumulation_step": 1,
+        "tracker": [
+            "tensorboard"
+        ],
+        "save_checkpoint_stride": [
+            1
+        ],
+        "keep_last": [
+            5
+        ],
+        "run_eval": [
+            true
+        ],
+        "dataloader": {
+            "num_worker": 8,
+            "pin_memory": true
+        },
+        "use_emilia_dataset": true
+    }
+}

@@ -137,18 +137,30 @@ def build_samplers(concat_dataset: Dataset, cfg, logger, loader_type):
 
 
 class VariableSampler(BatchSampler):
-    def __init__(self, sampler, drop_last: bool, use_random_sampler=False):
-        self.data_list = sampler
+    def __init__(self, batches, drop_last: bool, use_random_sampler=False):
+        self.data_list = batches
         if use_random_sampler:
-            self.sampler = RandomSampler(sampler)
+            self.sampler = RandomSampler(batches)
         else:
-            self.sampler = SequentialSampler(sampler)
+            self.sampler = SequentialSampler(batches)
+
+        self.start_index = 0
 
         super().__init__(self.sampler, 1, drop_last)
 
+    def skip_steps(self, steps):
+        """Skip a specified number of steps
+
+        Args:
+            steps (int): The number of steps to skip
+        """
+        if not isinstance(steps, int) or steps < 0:
+            raise ValueError("steps must be a non-negative integer")
+        self.start_index = steps % len(self.data_list)
+
     def __iter__(self):
-        for batch_ids in self.data_list:
-            yield batch_ids
+        for i in range(self.start_index, len(self.data_list)):
+            yield self.data_list[i]
 
     def __len__(self):
         if self.drop_last:

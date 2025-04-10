@@ -1,6 +1,3 @@
-autoregressive_transformer/*trainer.py
-flow_matching_transformer/*trainer.py
-
 !vevo/config/*.npz
 
 !vevo/wav/*.wav

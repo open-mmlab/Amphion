@@ -1,4 +1,13 @@
 {
+    "model_type": "FlowMatchingTransformer",
+    "dataset": {
+        "emilia": 1, // 101k hours, 34m samples
+        "singnet": 20 // 400 hours, 0.34m samples * 20 = 6.8m samples
+        // // Debug
+        // "emilia": 0.001,
+        // "singnet": 1
+    },
+    "singnet_path": "[Please fill out your singing data path]/sing400.json",
     "preprocess": {
         "hop_size": 480,
         "sample_rate": 24000,
@@ -23,7 +32,6 @@
             "num_heads": 16,
             "cfg_scale": 0.2,
             "use_cond_code": true, // false means Hidden features
-            // "cond_dim": 1024, // HuBERT features dimension
             "cond_codebook_size": 16384, // VQ Codebook Size
             "cond_scale_factor": 4, // 1 means not use ReTrans. 4 means 12.5Hz * 4 = 50Hz. This should be aligned with the frame rate with Mels
             "use_pretrained_model": false,
@@ -47,6 +55,50 @@
             "whisper_stats_path": "models/svc/vevosing/config/whisper_stats.pt",
             "whisper_dim": 1024,
             "chromagram_dim": 24,
+            "pretrained_path": "[Please fill out your pretrained model path]/model.safetensors"
         },
     },
+    "log_dir": "ckpts/fm",
+    "train": {
+        "max_epoch": 0,
+        "use_dynamic_batchsize": true,
+        "max_tokens": 10000,
+        "max_sentences": 50,
+        "lr_warmup_steps": 32000,
+        "lr_scheduler": "inverse_sqrt",
+        "num_train_steps": 800000,
+        "adam": {
+            "lr": 7.5e-5
+        },
+        "ddp": false,
+        "random_seed": 114,
+        "batch_size": 10,
+        "epochs": 5000,
+        "max_steps": 1000000,
+        "total_training_steps": 800000,
+        "save_summary_steps": 500,
+        "save_checkpoints_steps": 1000,
+        "save_checkpoints_backup_steps": 100000,
+        "valid_interval": 2000,
+        "keep_checkpoint_max": 100,
+        "gradient_accumulation_step": 1,
+        "resume_skip_steps": true,
+        "tracker": [
+            "tensorboard"
+        ],
+        "save_checkpoint_stride": [
+            1
+        ],
+        "keep_last": [
+            5
+        ],
+        "run_eval": [
+            true
+        ],
+        "dataloader": {
+            "num_worker": 8,
+            "pin_memory": true
+        },
+        "use_emilia_dataset": true
+    }
 }

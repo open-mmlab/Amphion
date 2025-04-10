@@ -1,4 +1,13 @@
 {
+    "model_type": "AutoregressiveTransformer",
+    "dataset": {
+        "emilia": 1, // 101k hours, 34m samples
+        "singnet": 20 // 400 hours, 0.34m samples * 20 = 6.8m samples
+        // // Debug
+        // "emilia": 0.001,
+        // "singnet": 1
+    },
+    "singnet_path": "[Please fill out your singing data path]/sing400.json",
     "preprocess": {
         "hop_size": 480,
         "sample_rate": 24000,
@@ -12,7 +21,7 @@
         "f0_fmin": 50.0,
         "f0_fmax": 1100.0,
         "load_phone": true,
-        "load_chromagram": true
+        "load_chromagram": true,
     },
     "model": {
         "autoregressive_transformer": {
@@ -45,6 +54,7 @@
             "whisper_stats_path": "models/svc/vevosing/config/whisper_stats.pt",
             "whisper_dim": 1024,
             "chromagram_dim": 24,
+            "pretrained_path": "[Please fill out your pretrained model path]/model.safetensors"
         },
         "coco_content_style": {
             "coco_type": "content_style", // content, style, or content_style
@@ -61,6 +71,49 @@
             "whisper_stats_path": "models/svc/vevosing/config/whisper_stats.pt",
             "whisper_dim": 1024,
             "chromagram_dim": 24,
+            "pretrained_path": "[Please fill out your pretrained model path]/model.safetensors"
         },
     },
+    "log_dir": "ckpts/ar",
+    "train": {
+        "max_epoch": 0,
+        "use_dynamic_batchsize": true,
+        "max_tokens": 5000,
+        "max_sentences": 25,
+        "lr_warmup_steps": 32000,
+        "lr_scheduler": "inverse_sqrt",
+        "num_train_steps": 800000,
+        "adam": {
+            "lr": 2e-4
+        },
+        "ddp": false,
+        "random_seed": 118,
+        "batch_size": 10,
+        "epochs": 5000,
+        "max_steps": 500000,
+        "total_training_steps": 500000,
+        "save_summary_steps": 500,
+        "save_checkpoints_steps": 1000,
+        "save_checkpoints_backup_steps": 100000,
+        "valid_interval": 2000,
+        "keep_checkpoint_max": 100,
+        "gradient_accumulation_step": 1,
+        "tracker": [
+            "tensorboard"
+        ],
+        "save_checkpoint_stride": [
+            1
+        ],
+        "keep_last": [
+            5
+        ],
+        "run_eval": [
+            true
+        ],
+        "dataloader": {
+            "num_worker": 8,
+            "pin_memory": true
+        },
+        "use_emilia_dataset": true
+    }
 }

@@ -55,7 +55,7 @@
                 "vocos_num_layers": 12,
             },
             "use_normed_whisper": true,
-            "whisper_stats_path": "./models/svc/vevosing/config/whisper_stats.pt",
+            "whisper_stats_path": "models/svc/vevosing/config/whisper_stats.pt",
             "whisper_dim": 1024,
             "chromagram_dim": 24,
         },

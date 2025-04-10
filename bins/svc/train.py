@@ -11,6 +11,13 @@ from models.svc.diffusion.diffusion_trainer import DiffusionTrainer
 from models.svc.comosvc.comosvc_trainer import ComoSVCTrainer
 from models.svc.transformer.transformer_trainer import TransformerTrainer
 from models.svc.vits.vits_trainer import VitsSVCTrainer
+from models.svc.flow_matching_transformer.fmt_trainer import (
+    FlowMatchingTransformerTrainer,
+)
+from models.svc.autoregressive_transformer.ar_trainer import (
+    AutoregressiveTransformerTrainer,
+)
+
 from utils.util import load_config
 
 
@@ -20,6 +27,8 @@ def build_trainer(args, cfg):
         "DiffComoSVC": ComoSVCTrainer,
         "TransformerSVC": TransformerTrainer,
         "VitsSVC": VitsSVCTrainer,
+        "AutoregressiveTransformer": AutoregressiveTransformerTrainer,
+        "FlowMatchingTransformer": FlowMatchingTransformerTrainer,
     }
 
     trainer_class = supported_trainer[cfg.model_type]
@@ -79,24 +88,33 @@ def main():
     cfg = load_config(args.config)
 
     # Data Augmentation
-    if (
-        type(cfg.preprocess.data_augment) == list
-        and len(cfg.preprocess.data_augment) > 0
-    ):
-        new_datasets_list = []
-        for dataset in cfg.preprocess.data_augment:
-            new_datasets = [
-                f"{dataset}_pitch_shift" if cfg.preprocess.use_pitch_shift else None,
-                (
-                    f"{dataset}_formant_shift"
-                    if cfg.preprocess.use_formant_shift
-                    else None
-                ),
-                f"{dataset}_equalizer" if cfg.preprocess.use_equalizer else None,
-                f"{dataset}_time_stretch" if cfg.preprocess.use_time_stretch else None,
-            ]
-            new_datasets_list.extend(filter(None, new_datasets))
-        cfg.dataset.extend(new_datasets_list)
+    if "data_augment" in cfg.preprocess:
+        if (
+            type(cfg.preprocess.data_augment) == list
+            and len(cfg.preprocess.data_augment) > 0
+        ):
+            new_datasets_list = []
+            for dataset in cfg.preprocess.data_augment:
+                new_datasets = [
+                    (
+                        f"{dataset}_pitch_shift"
+                        if cfg.preprocess.use_pitch_shift
+                        else None
+                    ),
+                    (
+                        f"{dataset}_formant_shift"
+                        if cfg.preprocess.use_formant_shift
+                        else None
+                    ),
+                    f"{dataset}_equalizer" if cfg.preprocess.use_equalizer else None,
+                    (
+                        f"{dataset}_time_stretch"
+                        if cfg.preprocess.use_time_stretch
+                        else None
+                    ),
+                ]
+                new_datasets_list.extend(filter(None, new_datasets))
+            cfg.dataset.extend(new_datasets_list)
 
     # CUDA settings
     cuda_relevant()

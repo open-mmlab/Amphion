@@ -120,10 +120,10 @@ def load_inference_pipeline():
         repo_id="amphion/VevoSing",
         repo_type="model",
         cache_dir="./ckpts/VevoSing",
-        allow_patterns=["tokenizer/style_fvq512_6.25hz/*"],
+        allow_patterns=["tokenizer/prosody_fvq512_6.25hz/*"],
     )
     prosody_tokenizer_ckpt_path = os.path.join(
-        local_dir, "tokenizer/style_fvq512_6.25hz"
+        local_dir, "tokenizer/prosody_fvq512_6.25hz"
     )
 
     # ===== Content-Style Tokenizer =====
