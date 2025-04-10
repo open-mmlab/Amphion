@@ -27,9 +27,9 @@ We have included the following pre-trained models at Amphion:
 
 The training data includes:
 
-- **Emilia-101k**: 101k hours of speech data
+- **Emilia-101k**: about 101k hours of speech data
 
-- **Sing-0.4k**: 400 hours of open-source singing voice data as follows: 
+- **Sing-0.4k**: about 400 hours of open-source singing voice data as follows: 
 
   | Dataset Name | \#Hours   |
   | ------------ | --------- |
@@ -42,7 +42,7 @@ The training data includes:
   | CSD          | 3.8       |
   | **Total**    | **438.9** |
 
-- **SingNet-7k**: 7,000 hours of internal singing voice data, preprocessed using the [SingNet pipeline](https://openreview.net/pdf?id=X6ffdf6nh3). The SingNet-3k is a 3000-hour subset of SingNet-7k.
+- **SingNet-7k**: about 7,000 hours of internal singing voice data, preprocessed using the [SingNet pipeline](https://openreview.net/pdf?id=X6ffdf6nh3). The SingNet-3k is a 3000-hour subset of SingNet-7k.
 
 ## Quickstart (Inference Only)
 
@@ -86,7 +86,7 @@ pip install -r models/vc/vevo/requirements.txt
 
 ### Inference Script
 
-```python
+```sh
 # FM model only (i.e., timbre control. Usually for VC and SVC)
 python -m models.svc.vevosing.infer_vevosing_fm
 
@@ -268,7 +268,7 @@ If you find this work useful for your research, please cite our paper:
 }
 ```
 
-If you use the VevoSing pre-trained models or training recipe in Amphion, please also cite:
+If you use the VevoSing pre-trained models or training recipe of Amphion, please also cite:
 
 ```bibtex
 @article{amphion2,
