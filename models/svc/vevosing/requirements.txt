@@ -17,6 +17,7 @@ pypinyin
 LangSegment
 pyopenjtalk
 pykakasi
+praat-parselmouth
 
 json5
 black==24.1.1

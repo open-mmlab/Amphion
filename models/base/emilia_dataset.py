@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 
 MNT_PATH = "[Please fill out your emilia data root path]"
-CACHE_PATH = "[Please fill out your cache path]"
+CACHE_PATH = "[Please fill out your emilia cache path]"
 
 
 class EmiliaDataset(torch.utils.data.Dataset):

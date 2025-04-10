@@ -210,9 +210,7 @@ class FlowMatchingTransformerTrainer(BaseTrainer):
         if self.accelerator.mixed_precision == "bf16":
             self.semantic_model = self.semantic_model.to(torch.bfloat16)
 
-        stat_mean_var = torch.load(
-            "models/tts/maskgct/ckpt/wav2vec2bert_stats.pt"
-        )
+        stat_mean_var = torch.load("models/tts/maskgct/ckpt/wav2vec2bert_stats.pt")
         self.semantic_mean = stat_mean_var["mean"]
         self.semantic_std = torch.sqrt(stat_mean_var["var"])
         self.semantic_mean = self.semantic_mean.to(self.accelerator.device)

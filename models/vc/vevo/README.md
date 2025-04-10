@@ -82,7 +82,7 @@ Running this will automatically download the pretrained model from HuggingFace a
 
 ## Citations
 
-If you use Vevo in your research, please cite the following papers:
+If you find this work useful for your research, please cite our paper:
 
 ```bibtex
 @inproceedings{vevo,
@@ -92,7 +92,12 @@ If you use Vevo in your research, please cite the following papers:
   publisher    = {OpenReview.net},
   year         = {2025}
 }
-@article{amphion_v0.2,
+```
+
+If you use the Vevo pre-trained models or training recipe in Amphion, please also cite:
+
+```bibtex
+@article{amphion2,
   title        = {Overview of the Amphion Toolkit (v0.2)},
   author       = {Jiaqi Li and Xueyao Zhang and Yuancheng Wang and Haorui He and Chaoren Wang and Li Wang and Huan Liao and Junyi Ao and Zeyu Xie and Yiqiao Huang and Junan Zhang and Zhizheng Wu},
   year         = {2025},
