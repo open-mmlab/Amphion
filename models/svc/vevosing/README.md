@@ -1,8 +1,8 @@
 # Vevo1.5
 
 [![blog](https://img.shields.io/badge/Vevo1.5-Blog-blue.svg)](https://veiled-army-9c5.notion.site/Vevo1-5-1d2ce17b49a280b5b444d3fa2300c93a)
-[![arXiv](https://img.shields.io/badge/Vevo-Paper-COLOR.svg)](https://openreview.net/pdf?id=anQDiQZhDP)
 [![hf](https://img.shields.io/badge/%F0%9F%A4%97%20HuggingFace-model-yellow)](https://huggingface.co/amphion/VevoSing)
+[![vevo](https://img.shields.io/badge/Vevo-Homepage-COLOR.svg)](https://versavoice.github.io/)
 
 We present **Vevo1.5**, a versatile zero-shot voice imitation framework capable of modeling both speech and singing voices. This framework offers two key features: 
 
