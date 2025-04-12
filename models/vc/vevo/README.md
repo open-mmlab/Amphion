@@ -204,7 +204,7 @@ sh egs/vc/FlowMatchingTransformer/fm_contentstyle.sh
 ```
 
 #### Vocoder
-We provide a unified vocos-based vocoder training recipe for both speech and singing voice. See our [VevoSing](../../svc/vevosing/README.md#vocoder) framework for the details.
+We provide a unified vocos-based vocoder training recipe for both speech and singing voice. See our [Vevo1.5](../../svc/vevosing/README.md#vocoder) framework for the details.
 
 ## Citations
 
