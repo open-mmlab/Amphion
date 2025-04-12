@@ -117,9 +117,9 @@ def load_inference_pipeline():
 
     # ===== Prosody Tokenizer =====
     local_dir = snapshot_download(
-        repo_id="amphion/VevoSing",
+        repo_id="amphion/Vevo1.5",
         repo_type="model",
-        cache_dir="./ckpts/VevoSing",
+        cache_dir="./ckpts/Vevo1.5",
         allow_patterns=["tokenizer/prosody_fvq512_6.25hz/*"],
     )
     prosody_tokenizer_ckpt_path = os.path.join(
@@ -128,9 +128,9 @@ def load_inference_pipeline():
 
     # ===== Content-Style Tokenizer =====
     local_dir = snapshot_download(
-        repo_id="amphion/VevoSing",
+        repo_id="amphion/Vevo1.5",
         repo_type="model",
-        cache_dir="./ckpts/VevoSing",
+        cache_dir="./ckpts/Vevo1.5",
         allow_patterns=["tokenizer/contentstyle_fvq16384_12.5hz/*"],
     )
     contentstyle_tokenizer_ckpt_path = os.path.join(
@@ -141,9 +141,9 @@ def load_inference_pipeline():
     model_name = "ar_emilia101k_singnet7k"
 
     local_dir = snapshot_download(
-        repo_id="amphion/VevoSing",
+        repo_id="amphion/Vevo1.5",
         repo_type="model",
-        cache_dir="./ckpts/VevoSing",
+        cache_dir="./ckpts/Vevo1.5",
         allow_patterns=[f"contentstyle_modeling/{model_name}/*"],
     )
 
@@ -157,9 +157,9 @@ def load_inference_pipeline():
     model_name = "fm_emilia101k_singnet7k"
 
     local_dir = snapshot_download(
-        repo_id="amphion/VevoSing",
+        repo_id="amphion/Vevo1.5",
         repo_type="model",
-        cache_dir="./ckpts/VevoSing",
+        cache_dir="./ckpts/Vevo1.5",
         allow_patterns=[f"acoustic_modeling/{model_name}/*"],
     )
 
@@ -168,9 +168,9 @@ def load_inference_pipeline():
 
     # ===== Vocoder =====
     local_dir = snapshot_download(
-        repo_id="amphion/VevoSing",
+        repo_id="amphion/Vevo1.5",
         repo_type="model",
-        cache_dir="./ckpts/VevoSing",
+        cache_dir="./ckpts/Vevo1.5",
         allow_patterns=["acoustic_modeling/Vocoder/*"],
     )
 

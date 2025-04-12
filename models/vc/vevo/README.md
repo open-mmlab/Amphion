@@ -134,7 +134,7 @@ If you want to try different vocabulary sizes, just specify it in the `egs/codec
 
 #### Auto-regressive Transformer
 
-Specify the content tokenizer and content-style tokenizer paths, in the `egs/vc/AutoregressiveTransformer/ar_conversion.json`:
+Specify the content tokenizer and content-style tokenizer paths in the `egs/vc/AutoregressiveTransformer/ar_conversion.json`:
 
 ```json
 {
