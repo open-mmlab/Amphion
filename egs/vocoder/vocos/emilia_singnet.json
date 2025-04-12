@@ -1,0 +1,144 @@
+{
+    "model_type": "Vocos",
+    "dataset": {
+        "emilia": 1, // 101k hours, 34m samples
+        "singnet": 20 // 400 hours, 0.34m samples * 20 = 6.8m samples
+        // // Debug
+        // "emilia": 0.001,
+        // "singnet": 1
+    },
+    "singnet_path": "[Please fill out your singing data path]/sing400.json",
+    "preprocess": {
+        "hop_size": 480,
+        "sample_rate": 24000,
+        "max_length": 36000,
+        "n_fft": 1920,
+        "num_mels": 128,
+        "win_size": 1920,
+        "fmin": 0,
+        "fmax": 12000,
+        "mel_var": 8.14,
+        "mel_mean": -4.92,
+        "load_phone": false,
+        "load_chromagram": false
+    },
+    "model": {
+        "vocos": {
+            "input_channels": 128,
+            "dim": 1024,
+            "intermediate_dim": 4096,
+            "num_layers": 30,
+            "n_fft": 1920,
+            "hop_size": 480,
+            "padding": "same"
+        },
+        "period_gan": {
+            "max_downsample_channels": 1024,
+            "channels": 64,
+            "channel_increasing_factor": 2
+        },
+        "spec_gan": {
+            "stft_params": {
+                "fft_sizes": [
+                    128,
+                    256,
+                    512,
+                    1024,
+                    2048
+                ],
+                "hop_sizes": [
+                    32,
+                    64,
+                    128,
+                    256,
+                    512
+                ],
+                "win_lengths": [
+                    128,
+                    256,
+                    512,
+                    1024,
+                    2048
+                ],
+                "window": "hann_window"
+            },
+            "in_channels": 1,
+            "out_channels": 1,
+            "channels": 64,
+            "kernel_sizes": [
+                5,
+                3
+            ],
+            "max_downsample_channels": 1024,
+            "down_scales": [
+                2,
+                2,
+                2
+            ],
+            "use_weight_norm": true,
+            "use_complex": false
+        }
+    },
+    "loss": {
+        "mel_loss": {
+            "sample_rate": 24000
+        },
+        "disc_loss_weight": 1.0,
+        "mel_loss_weight": 10.0,
+        "adv_loss_weight": 2.0,
+        "fm_loss_weight": 2.0,
+        "spec_fm_loss_weight": 1.0
+    },
+    "log_dir": "ckpts/vocos",
+    "train": {
+        "max_epoch": 0,
+        "use_dynamic_batchsize": false,
+        "max_tokens": 5000, // original: 16000000 / 24000 = 11min, 10min * 60 * 50 = 30000
+        "max_sentences": 25, // original: 200
+        "lr_warmup_steps": 10000,
+        "lr_scheduler": "constant",
+        "num_train_steps": 100000,
+        "adam_g": {
+            "lr": 1e-4,
+            "betas": [
+                0.5,
+                0.9
+            ]
+        },
+        "adam_d": {
+            "lr": 1e-4,
+            "betas": [
+                0.5,
+                0.9
+            ]
+        },
+        "ddp": false,
+        "random_seed": 1144,
+        "batch_size": 48,
+        "epochs": 5000,
+        "max_steps": 1000000,
+        "total_training_steps": 800000,
+        "save_summary_steps": 500,
+        "save_checkpoints_steps": 2000,
+        "valid_interval": 2000,
+        "keep_checkpoint_max": 100,
+        "gradient_accumulation_step": 1,
+        "tracker": [
+            "tensorboard"
+        ],
+        "save_checkpoint_stride": [
+            1
+        ],
+        "keep_last": [
+            10
+        ],
+        "run_eval": [
+            true
+        ],
+        "dataloader": {
+            "num_worker": 24,
+            "pin_memory": true
+        },
+        "use_emilia_dataset": true
+    }
+}

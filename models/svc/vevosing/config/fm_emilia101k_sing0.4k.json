@@ -1,0 +1,48 @@
+{
+    "preprocess": {
+        "hop_size": 480,
+        "sample_rate": 24000,
+        "n_fft": 1920,
+        "num_mels": 128,
+        "win_size": 1920,
+        "fmin": 0,
+        "fmax": 12000,
+        "mel_var": 8.14,
+        "mel_mean": -4.92,
+        "f0_fmin": 50.0,
+        "f0_fmax": 1100.0
+    },
+    "model": {
+        "flow_matching_transformer": {
+            "mel_dim": 128,
+            "hidden_size": 1024,
+            "num_layers": 16,
+            "num_heads": 16,
+            "cfg_scale": 0.2,
+            "use_cond_code": true, // false means Hidden features
+            // "cond_dim": 1024, // HuBERT features dimension
+            "cond_codebook_size": 16384, // VQ Codebook Size
+            "cond_scale_factor": 4, // 1 means not use ReTrans. 4 means 12.5Hz * 4 = 50Hz. This should be aligned with the frame rate with Mels
+            "use_pretrained_model": false,
+            "sigma": 1e-5,
+            "time_scheduler": "cos"
+        },
+        "cond_sample_rate": 16000, // whisper: 16000
+        "coco": {
+            "coco_type": "content_style", // content, style, or content_style
+            "downsample_rate": 4, // The original frame rate is 50 Hz, downsample to 12.5 Hz
+            "codebook_size": 16384,
+            "hidden_size": 1024, // Representations Dim
+            "codebook_dim": 8,
+            "encoder": {
+                "vocos_dim": 384,
+                "vocos_intermediate_dim": 2048,
+                "vocos_num_layers": 12,
+            },
+            "use_normed_whisper": true,
+            "whisper_stats_path": "models/svc/vevosing/config/whisper_stats.pt",
+            "whisper_dim": 1024,
+            "chromagram_dim": 24,
+        },
+    },
+}

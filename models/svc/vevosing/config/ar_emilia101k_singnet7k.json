@@ -1,0 +1,63 @@
+{
+    "preprocess": {
+        "hop_size": 480,
+        "sample_rate": 24000,
+        "n_fft": 1920,
+        "num_mels": 128,
+        "win_size": 1920,
+        "fmin": 0,
+        "fmax": 12000,
+        "mel_var": 8.14,
+        "mel_mean": -4.92,
+        "f0_fmin": 50.0,
+        "f0_fmax": 1100.0,
+        "load_phone": true,
+        "load_chromagram": true,
+    },
+    "model": {
+        "autoregressive_transformer": {
+            "content_vocab_size": 1024, // Only Conversion: 16384, Only Synthesis: 1024, Both: 16384 + 1024 = 17408
+            "style_vocab_size": 512,
+            "content_style_vocab_size": 16384,
+            "hidden_size": 1920,
+            "intermediate_size": 7680,
+            "num_hidden_layers": 12,
+            "num_attention_heads": 16,
+        },
+        "cond_sample_rate": 16000, // whisper: 16000
+        "train_both_conversion_and_synthesis": false,
+        "train_only_conversion": false,
+        "train_only_synthesis": true,
+        "use_content_tokens_as_input": false,
+        "use_style_tokens_as_input": true,
+        "coco_style": {
+            "coco_type": "style", // content, style, or content_style
+            "downsample_rate": 8, // The original frame rate is 50 Hz, downsample to 6.25 Hz
+            "codebook_size": 512,
+            "hidden_size": 1024, // Representations Dim
+            "codebook_dim": 8,
+            "encoder": {
+                "vocos_dim": 384,
+                "vocos_intermediate_dim": 2048,
+                "vocos_num_layers": 12,
+            },
+            "chromagram_dim": 24,
+        },
+        "coco_content_style": {
+            "coco_type": "content_style", // content, style, or content_style
+            "downsample_rate": 4, // The original frame rate is 50 Hz, downsample to 12.5 Hz
+            "codebook_size": 16384,
+            "hidden_size": 1024, // Representations Dim
+            "codebook_dim": 8,
+            "encoder": {
+                "vocos_dim": 384,
+                "vocos_intermediate_dim": 2048,
+                "vocos_num_layers": 12,
+            },
+            "use_normed_whisper": true,
+            "whisper_stats_path": "models/svc/vevosing/config/whisper_stats.pt",
+            "whisper_dim": 1024,
+            "chromagram_dim": 24,
+        },
+    }
+}

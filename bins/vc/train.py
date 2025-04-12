@@ -4,23 +4,22 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
-
 import torch
 
-from models.codec.facodec.facodec_trainer import FAcodecTrainer
-from models.codec.vevo.vqvae_trainer import (
-    VQVAETrainer,
+from models.vc.flow_matching_transformer.fmt_trainer import (
+    FlowMatchingTransformerTrainer,
 )
-from models.codec.coco.rep_coco_trainer import RepCocoTrainer
+from models.vc.autoregressive_transformer.ar_trainer import (
+    AutoregressiveTransformerTrainer,
+)
 
 from utils.util import load_config
 
 
 def build_trainer(args, cfg):
     supported_trainer = {
-        "FAcodec": FAcodecTrainer,
-        "RepCoco": RepCocoTrainer,
-        "VQVAE": VQVAETrainer,
+        "FlowMatchingTransformer": FlowMatchingTransformerTrainer,
+        "AutoregressiveTransformer": AutoregressiveTransformerTrainer,
     }
 
     trainer_class = supported_trainer[cfg.model_type]
@@ -33,7 +32,6 @@ def cuda_relevant(deterministic=False):
     # TF32 on Ampere and above
     torch.backends.cuda.matmul.allow_tf32 = True
     torch.backends.cudnn.enabled = True
-    torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.allow_tf32 = True
     # Deterministic
     torch.backends.cudnn.deterministic = deterministic
@@ -60,27 +58,37 @@ def main():
         "--resume", action="store_true", help="The model name to restore"
     )
     parser.add_argument(
-        "--resume_type",
-        type=str,
-        help="resume for continue to train, finetune for finetuning",
-    )
-    parser.add_argument(
-        "--checkpoint",
-        type=str,
-        help="checkpoint to resume",
-    )
-    parser.add_argument(
         "--log_level", default="warning", help="logging level (debug, info, warning)"
     )
+    parser.add_argument(
+        "--resume_type",
+        type=str,
+        default="resume",
+        help="Resume training or finetuning.",
+    )
+    parser.add_argument(
+        "--checkpoint_path",
+        type=str,
+        default=None,
+        help="Checkpoint for resume training or finetuning.",
+    )
+    parser.add_argument(
+        "--dataloader_seed",
+        type=int,
+        default=1,
+        help="Seed for dataloader",
+    )
+
     args = parser.parse_args()
     cfg = load_config(args.config)
 
-    # CUDA settings
+    # # CUDA settings
     cuda_relevant()
 
     # Build trainer
     trainer = build_trainer(args, cfg)
-
+    torch.set_num_threads(1)
+    torch.set_num_interop_threads(1)
     trainer.train_loop()
 
 
