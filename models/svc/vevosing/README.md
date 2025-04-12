@@ -7,7 +7,7 @@
 We present **Vevo1.5**, a versatile zero-shot voice imitation framework capable of modeling both speech and singing voices. This framework offers two key features: 
 
 1. Unified speech and singing voice modeling.
-2. Fine-grained control over multiple voice attributes, including text, melody, style, and melody. 
+2. Controllability for multiple voice attributes, including text, prosody, style, and timbre. 
 
 ![Vevo1.5](../../../imgs/svc/vevo1.5.png)
 
