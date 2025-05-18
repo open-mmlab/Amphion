@@ -41,12 +41,21 @@ python -m models.tts.ints.gradio_app --port 7860 --use_vllm
 If you use Ints in your research, please cite the following paper:
 
 ```bibtex
+@inproceedings{intp,
+  title={Advancing Zero-shot Text-to-Speech Intelligibility across Diverse Domains via Preference Alignment},
+  author={Xueyao Zhang and Yuancheng Wang and Chaoren Wang and Ziniu Li and Zhuo Chen and Zhizheng Wu},
+  booktitle    = {ACL},
+  publisher    = {Association for Computational Linguistics},
+  year={2025}
+}
+
 @article{amphion_v0.2,
   title        = {Overview of the Amphion Toolkit (v0.2)},
   author       = {Jiaqi Li and Xueyao Zhang and Yuancheng Wang and Haorui He and Chaoren Wang and Li Wang and Huan Liao and Junyi Ao and Zeyu Xie and Yiqiao Huang and Junan Zhang and Zhizheng Wu},
   year         = {2025},
   journal      = {arXiv preprint arXiv:2501.15442},
 }
+
 @inproceedings{amphion,
   author={Zhang, Xueyao and Xue, Liumeng and Gu, Yicheng and Wang, Yuancheng and Li, Jiaqi and He, Haorui and Wang, Chaoren and Song, Ting and Chen, Xi and Fang, Zihao and Chen, Haopeng and Zhang, Junan and Tang, Tze Ying and Zou, Lexiao and Wang, Mingxuan and Han, Jun and Chen, Kai and Li, Haizhou and Wu, Zhizheng},
   title={Amphion: An Open-Source Audio, Music and Speech Generation Toolkit},
