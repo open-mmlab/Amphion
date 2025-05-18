@@ -1,0 +1,60 @@
+{
+    "preprocess": {
+        // tokenizer
+        "min_dur": 1,
+        "max_dur": 30,
+        "pad_token_id": 32000,
+        "end_token_id": 32007,
+        "bos_audio_token_id": 32064,
+        "eos_audio_token_id": 32065,
+        "audio_token_shift": 32066,
+        // melspec
+        "hop_size": 480,
+        "sample_rate": 24000,
+        "n_fft": 1920,
+        "num_mels": 128,
+        "win_size": 1920,
+        "fmin": 0,
+        "fmax": 12000,
+        "mel_var": 8.14,
+        "mel_mean": -4.92
+    },
+    "model": {
+        // voicebox
+        "voicebox": {
+            "mel_dim": 128,
+            "hidden_size": 1024,
+            "num_layers": 16,
+            "num_heads": 16,
+            "cfg_scale": 0.2,
+            "use_cond_code": true,
+            "cond_codebook_size": 16384,
+            "cond_dim": 1024,
+            "cond_scale_factor": 4,
+            "use_pretrained_model": false,
+            "sigma": 1e-5,
+            "time_scheduler": "cos"
+        },
+        // kmeans
+        "kmeans": {
+            "type": "dual_codec"
+        },
+        // dual codec
+        "dual_codec": {
+            "n_codebooks": 7,
+            "codebook_size": 4096,
+            "semantic_codebook_size": 16384,
+            "is_causal": true,
+            "semantic_downsample_factor": 4
+        },
+        "vocos": {
+            "input_channels": 128,
+            "dim": 1024,
+            "intermediate_dim": 4096,
+            "num_layers": 30,
+            "n_fft": 1920,
+            "hop_size": 480,
+            "padding": "same"
+        }
+    }
+}
