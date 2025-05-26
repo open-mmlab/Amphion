@@ -1,0 +1,30 @@
+defaults:
+  - data: emilia_hf_raw_audio_static_batch
+  - machine: devbox
+  - model: dualcodec_25hz_16384_1024_12vq
+  - trainer: codec_model_trainer
+  - _self_
+hydra:
+  run:
+    dir: ${machine.log_dir}/${trainer.exp_name}
+
+trainer:
+  exp_name: dualcodec_25hz_16384_1024
+  max_tokens: 2000
+  batch_size: 3
+  # args:
+  #   resume: true
+  #   reset_steps: true
+  #   resume_from_ckpt_path: ${machine.init_model_path}/resume_ckpts/epoch-0002_step-1180000_loss-0.000000-dac_12hz_dual_16384_4096_causal_16codebook/
+  cfg:
+    semantic_vq: true
+    lambda_semantic_commitment_loss: 0.25
+    lambda_semantic_codebook_loss: 1.0
+    lambda_distill_loss: 15.0
+    add_semantic_spec_loss: true
+    train:
+      max_steps: 1000000
+      save_checkpoint_stride:
+        - 20000
+      keep_last: [1]
+      disable_mixed_precision: true

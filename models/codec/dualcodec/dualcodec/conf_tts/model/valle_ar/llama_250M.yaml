@@ -1,0 +1,25 @@
+vocab_size: 68260  # ${51866+16384+10}
+speech_vocab_size: 16384
+initial_offset: 10
+
+llama_cfg:
+  _target_: transformers.models.llama.modeling_llama.LlamaConfig
+  vocab_size: ${..vocab_size}
+  hidden_size: 1024
+  intermediate_size: 4096
+  num_hidden_layers: 12
+  num_attention_heads: 16
+  pad_token_id: 0
+  bos_token_id: 1
+  eos_token_id: 2
+
+llm:
+  _target_: transformers.models.llama.modeling_llama.LlamaForCausalLM
+  config: ${..llama_cfg}
+model:
+  _target_: dualcodec.model_tts.valle_ar.llama_wrapper.LLM
+  llm: ${..llm}
+  config: ${..llama_cfg}
+  speech_vocab_size: ${..speech_vocab_size}
+  initial_offset: ${..initial_offset}
+  sep_token: 3

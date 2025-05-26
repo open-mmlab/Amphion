@@ -1,0 +1,12 @@
+model:
+  _target_: dualcodec.model_tts.valle_nar.valle_nar_model.ValleNAR
+  phone_vocab_size: 1
+  first_layer_vocab_size: 16384
+  target_vocab_size: 4096
+  pad_token_id: 4097
+  bos_target_id: 4099
+  eos_target_id: 4100
+  bos_prompt_id: 4101
+  eos_prompt_id: 4102
+  bos_phone_id: 4103
+  eos_phone_id: 4104

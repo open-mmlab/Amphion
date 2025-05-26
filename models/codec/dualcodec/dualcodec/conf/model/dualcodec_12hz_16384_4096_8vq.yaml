@@ -1,0 +1,17 @@
+SAMPLE_RATE: 24000
+model:
+  _target_: dualcodec.model_codec.DualCodec
+  sample_rate: ${..SAMPLE_RATE}
+  encoder_rates: [4,5,6,8,2]
+  decoder_rates: [2,8,6,5,4]
+  encoder_dim: 32
+  decoder_dim: 1536
+  n_codebooks: 7
+  quantizer_dropout: 1.0
+  codebook_size: 4096
+  semantic_codebook_size: 16384
+  is_causal: true
+  semantic_downsample_factor: 4
+discriminator:
+  _target_: dualcodec.model_codec.Discriminator
+  sample_rate: ${..SAMPLE_RATE}
