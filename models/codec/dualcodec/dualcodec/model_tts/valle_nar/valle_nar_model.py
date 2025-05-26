@@ -557,9 +557,7 @@ class ValleNAR(nn.Module):
         )  # [B, T, H]
 
         if prompt_len is not None:
-            assert (
-                not self.training
-            )
+            assert not self.training
             NUM_PROMPT_TOKENS = prompt_len
         else:
             assert self.training
