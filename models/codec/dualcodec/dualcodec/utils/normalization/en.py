@@ -90,6 +90,6 @@ def normalize_en(text):
 if __name__ == "__main__":
     """F"""
     # Example usage
-    text = "It can't believe it's-- Captain USA!~ al-ready 2023! and i According to WHO, COVID-19, the AI GeneraTion in the White House is sick! She （said） \"hello\" (and) ... :waved. taxi to level 210. 这，是一个2023, 测试。……"
+    text = "It can't believe it's-- Captain USA!~ al-ready 2023! and i According to WHO, COVID-19, the AI GeneraTion in the White House is sick! She （said） \"hello\" (and) ... :waved. taxi to level 210."
     normalized_text = normalize_en(text)
     print(normalized_text)

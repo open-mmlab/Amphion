@@ -21,7 +21,7 @@ def number_to_chinese(text):
 
 def remove_punct(text):
     """
-    Remove punctuation from text 删除所有非中文、数字和标点符号
+    Remove punctuation from text
 
     Args:
         text (str): Text to be cleaned
@@ -31,7 +31,6 @@ def remove_punct(text):
         "",
         text,
     )
-    # text = re.sub(r"\s*([,\.\?!;:\'…])\s*", r"\1", text)
     return text
 
 
@@ -54,7 +53,6 @@ def normalize_zh(text, en_punct=False, number_to_chinese=True):
 
 
 if __name__ == "__main__":
-    # text = "114.514，2023年8月16日，是个特别的日子。我们和5000名观众一起召开新项目的发表会。会场在tokyo-domu，开始时间是下午3点。我们起价¥2,000，贵宾席¥10,000。如果有兴趣的话，请一定要参加!！详情请查看我们的网站:https://example.com。谢谢"
-    text = '问界 M9 于" 2023 年 12 月 26 日"上市，定位豪华科技旗舰 SUV，也是目前问界家族定位最高、价格最贵的产品。问界 M9 搭载了华为智能汽车全栈技术解决方案，截至目前，问界 M9 累计大定突破 12 万辆，交付超 7 万辆。'
+    text = "This is a test text with numbers 123 and punctuation."
     print(text)
     print(normalize_zh(text, True))

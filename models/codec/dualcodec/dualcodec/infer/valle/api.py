@@ -141,17 +141,17 @@ class Inference:
     @torch.cuda.amp.autocast()
     def _extract_semantic_code(self, input_features, attention_mask):
         """
-            从输入特征中提取语义编码。
-        该函数不需要梯度，因此被标记为@torch.no_grad().
+        Extract semantic code from input features.
+        This function is marked with @torch.no_grad() as it doesn't require gradients.
 
         Args:
-            input_features (torch.Tensor, shape=(B, T, C)): 输入特征，其中B是batch size，T是时间维度，C是通道维度。
-            attention_mask (torch.Tensor, shape=(B, T)): 注意力掩码，其中元素为0表示对应位置的特征无效，非0表示有效。
+            input_features (torch.Tensor, shape=(B, T, C)): Input features, where B is batch size, T is time dimension, C is channel dimension.
+            attention_mask (torch.Tensor, shape=(B, T)): Attention mask, where 0 indicates invalid features and non-zero indicates valid features.
 
         Returns:
-            tuple (torch.Tensor, shape=(B, T)): 返回一个元组，包含语义编码和对应的量化索引（可选）。
-                - semantic_code (torch.Tensor, shape=(B, T)): 语义编码，其中B是batch size，T是时间维度。
-                - rep_index (Optional, torch.Tensor, shape=(B, T)): 对于每个时间步骤，如果存在对应的量化索引，则返回这些索引；否则返回None。
+            tuple (torch.Tensor, shape=(B, T)): Returns a tuple containing semantic code and optional quantization indices.
+                - semantic_code (torch.Tensor, shape=(B, T)): Semantic code, where B is batch size, T is time dimension.
+                - rep_index (Optional, torch.Tensor, shape=(B, T)): For each time step, returns quantization indices if they exist; otherwise returns None.
         """
         vq_emb = self.cfg.semantic_model["model"](
             input_features=input_features,

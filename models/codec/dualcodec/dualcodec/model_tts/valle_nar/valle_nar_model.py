@@ -118,18 +118,18 @@ from transformers.models.llama.modeling_llama import BaseModelOutputWithPast
 class MultiEmbedding(nn.Module):
     def __init__(
         self,
-        first_layer_num_embeddings=16384,  # 添加新参数
+        first_layer_num_embeddings=16384,  # Add new parameter
         num_embeddings=1034,
         embedding_dim=1024,
         num_quantization_layers=NUM_QUANTIZERS,
     ):
         super().__init__()
-        # 第一层使用不同的vocab size
+        # First layer uses different vocab size
         self.embeddings = nn.ModuleList(
             [nn.Embedding(first_layer_num_embeddings, embedding_dim)]
         )
 
-        # 其余层使用原来的vocab size
+        # Other layers use original vocab size
         self.embeddings.extend(
             [
                 nn.Embedding(num_embeddings, embedding_dim)
@@ -137,7 +137,7 @@ class MultiEmbedding(nn.Module):
             ]
         )
 
-        # 初始化embeddings
+        # Initialize embeddings
         for i in range(num_quantization_layers):
             self.embeddings[i].weight.data.normal_(mean=0.0, std=0.02)
         self._is_hf_initialized = True
@@ -557,7 +557,9 @@ class ValleNAR(nn.Module):
         )  # [B, T, H]
 
         if prompt_len is not None:
-            assert not self.training
+            assert (
+                not self.training
+            )  # vscode-remote://icoding%2B615692.icoding.baidu-int.com/ssd2/lijiaqi18/AmphionVALLEv2-main/models/tts/valle_v2/valle_inference.pynce stage fix prompt len to input
             NUM_PROMPT_TOKENS = prompt_len
         else:
             assert self.training
@@ -748,21 +750,13 @@ class ValleNAR(nn.Module):
         """
         phone_mask = torch.ones_like(phone_ids, dtype=torch.long)
         assert prompt_ids.shape[-1] >= 5, "prompt_ids should have at least 5 tokens"
-        B, T = first_stage_ids.shape  # 获取形状
-        padding_value = 1  # 在范围 [0, 4096] 内选择一个值作为填充值
-        # 构造最后 7 层的填充值张量
-        padding_tensor = torch.full(
-            (7, B, T),
-            fill_value=padding_value,
-            dtype=first_stage_ids.dtype,
-            device=first_stage_ids.device,
-        )
-        # 将 first_stage_ids 扩展为目标张量，并拼接
-        padded_tensor = torch.cat(
-            [first_stage_ids.unsqueeze(0), padding_tensor], dim=0
-        )  # [7+1, B, T]
-
-        target_ids = torch.cat([prompt_ids, padded_tensor], dim=-1)  # 拼接到最后一维
+        B, T = first_stage_ids.shape  # Get shape
+        padding_value = 1  # Choose a value in range [0, 4096] as padding value
+        # Construct padding tensor for last 7 layers
+        padded_tensor = torch.full((7, B, T), padding_value, device=first_stage_ids.device)
+        # Expand first_stage_ids to target tensor and concatenate
+        first_stage_ids = first_stage_ids.unsqueeze(0)
+        target_ids = torch.cat([prompt_ids, padded_tensor], dim=-1)  # Concatenate along last dimension
 
         target_mask = torch.ones_like(target_ids[0], dtype=torch.long)
 

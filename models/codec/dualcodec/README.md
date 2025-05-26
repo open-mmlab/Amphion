@@ -144,6 +144,11 @@ python -m dualcodec.infer.valle.cli_valle_infer --ref_audio <path_to_ref_audio> 
 ```
 You can also leave all options empty and it will use the default values.
 
+#### Gradio interface
+```bash
+python -m dualcodec.infer.valle.gradio_valle_demo
+```
+
 ### DualCodec-Voicebox
 #### CLI Inference
 ```bash
