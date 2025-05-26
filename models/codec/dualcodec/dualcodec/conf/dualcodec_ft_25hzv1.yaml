@@ -1,0 +1,13 @@
+defaults:
+  - dualcodec_ft_12hzv1 # inherit configs from dualcodec_ft_12hzv1
+  - override model: dualcodec_25hz_16384_1024_12vq # override model to 25hz
+trainer:
+  exp_name: dualcodec_25hzv1_finetune
+  args:
+    resume: true
+    reset_steps: true
+    resume_type: finetune
+    resume_from_ckpt_path: ${machine.init_model_path}
+    model_1_name: dualcodec_25hz_16384_1024.safetensors
+    model_2_name: discriminator_dualcodec_25hz_16384_1024.safetensors
+

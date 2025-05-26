@@ -1,0 +1,63 @@
+
+sample_rate: 24000
+max_tokens: 15000
+
+num_epochs: 3
+batch_size: 13
+
+exp_name: audio_codec_trainer
+args:
+  exp_name: ${..exp_name}
+  log_level: DEBUG
+  seed: 43
+  resume: false
+  resume_type: resume
+
+cfg:
+  dataloader: null
+  log_dir: ${machine.log_dir}
+  model: ${model.model}
+  semantic_model:
+    _target_: dualcodec.dataset.processor._build_semantic_model
+    _partial_: false
+    semantic_model:
+      _target_: transformers.Wav2Vec2BertModel.from_pretrained
+      _partial_: false
+      pretrained_model_name_or_path: ${machine.w2v_path}
+    mean_var_path: ${machine.ckpt_root_path}/w2vbert2_mean_var_stats_emilia.pt
+    repcodec_model: null
+    repcodec_path: null
+  discriminator_model: ${model.discriminator}
+  train:
+    gradient_accumulation_step: 1
+    find_unused_parameters: true
+    tracker: tensorboard
+    max_epoch: 1000
+    save_checkpoint_stride: 
+      - 5000
+    keep_last: [1]
+    run_eval: true
+    dataloader:
+      num_worker: 0
+      pin_memory: false
+      persistent_workers: false
+    use_dynamic_batchsize: true
+    optimizer:
+      _target_: torch.optim.AdamW
+      _partial_: true
+      lr: 1e-4
+      betas: [0.8, 0.9]
+      # betas: [0.9, 0.99]
+    adamw:
+      lr: 1e-4
+    scheduler:
+      warmup_steps: 5000
+      total_steps: 1000000
+      min_lr: 5e-5
+    exponentiallr:
+      gamma: 0.999999
+    max_sentences: 64
+trainer: 
+  _target_: dualcodec.model_codec.trainer.Trainer
+  cfg: ${..cfg}
+  args: ${..args}
