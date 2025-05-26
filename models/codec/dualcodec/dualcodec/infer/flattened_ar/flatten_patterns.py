@@ -1,7 +1,12 @@
+# Copyright (c) 2025 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
 import torch
 from einops import rearrange
 
 import numpy as np
+
 
 def offset_codes(semantic_code, offset_sizes):
     """
@@ -15,7 +20,9 @@ def offset_codes(semantic_code, offset_sizes):
         torch.Tensor: Offset-applied tensor of shape (batch_size, T, num_codec_layers).
     """
     # Calculate cumulative offsets for each layer
-    cumulative_offsets = np.cumsum([0] + offset_sizes[:-1])  # Start with 0 for the first layer
+    cumulative_offsets = np.cumsum(
+        [0] + offset_sizes[:-1]
+    )  # Start with 0 for the first layer
     # Apply offsets layer by layer
     offsetted_code = []
     for i, offset in enumerate(cumulative_offsets):
@@ -24,9 +31,12 @@ def offset_codes(semantic_code, offset_sizes):
         offsetted_code.append(current_layer_code)
 
     # Stack all layers along the codec layer dimension
-    offsetted_code = torch.stack(offsetted_code, dim=-1)  # Shape: (batch_size, T, num_codec_layers)
+    offsetted_code = torch.stack(
+        offsetted_code, dim=-1
+    )  # Shape: (batch_size, T, num_codec_layers)
 
     return offsetted_code
+
 
 def deoffset_codes(flattened_codes, offset_sizes):
     """
@@ -40,7 +50,9 @@ def deoffset_codes(flattened_codes, offset_sizes):
         torch.Tensor: The de-offset tensor of shape (batch_size, T, num_codec_layers).
     """
     # Calculate cumulative offsets for each layer
-    cumulative_offsets = np.cumsum([0] + offset_sizes[:-1])  # Start with 0 for the first layer
+    cumulative_offsets = np.cumsum(
+        [0] + offset_sizes[:-1]
+    )  # Start with 0 for the first layer
 
     # Determine dimensions for reshaping
     batch_size, flattened_dim = flattened_codes.shape
@@ -53,11 +65,15 @@ def deoffset_codes(flattened_codes, offset_sizes):
     # De-offset each layer by subtracting the respective cumulative offset
     deoffsetted_code = []
     for i, offset in enumerate(cumulative_offsets):
-        current_layer_code = reshaped_codes[..., i].clone()  # Clone to avoid in-place operation
+        current_layer_code = reshaped_codes[
+            ..., i
+        ].clone()  # Clone to avoid in-place operation
         current_layer_code = current_layer_code - offset  # Remove the cumulative offset
         deoffsetted_code.append(current_layer_code)
-    
+
     # Stack all layers along the codec layer dimension
-    deoffsetted_code = torch.stack(deoffsetted_code, dim=-1)  # Shape: (batch_size, T, num_codec_layers)
+    deoffsetted_code = torch.stack(
+        deoffsetted_code, dim=-1
+    )  # Shape: (batch_size, T, num_codec_layers)
 
     return deoffsetted_code

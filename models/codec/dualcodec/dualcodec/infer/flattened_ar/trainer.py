@@ -1,3 +1,7 @@
+# Copyright (c) 2025 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
 import json
 import os
 import shutil
@@ -13,14 +17,17 @@ import numpy as np
 from einops import rearrange
 from .flatten_patterns import offset_codes
 
+
 def extract_codes_official_dac(model, audio):
-    audio = rearrange(audio, 'b t -> b 1 t')
-    compressed = model.encode(audio)[1] # (b, n_q, t)
-    return compressed # (b, n_q, t)
+    audio = rearrange(audio, "b t -> b 1 t")
+    compressed = model.encode(audio)[1]  # (b, n_q, t)
+    return compressed  # (b, n_q, t)
+
+
 def extract_codes_modular_dac(model, audio):
-    audio = rearrange(audio, 'b t -> b 1 t')
-    semantic_codes, acoustic_codes = model.encode(audio) # (b, q, t) both
-    return semantic_codes, acoustic_codes # (b, q, t)
+    audio = rearrange(audio, "b t -> b 1 t")
+    semantic_codes, acoustic_codes = model.encode(audio)  # (b, q, t) both
+    return semantic_codes, acoustic_codes  # (b, q, t)
 
 
 class Trainer(BaseTrainer):
@@ -74,6 +81,7 @@ class Trainer(BaseTrainer):
         Returns: None
         """
         return self.cfg.model  # llama model
+
     @torch.no_grad()
     @torch.cuda.amp.autocast()
     def _extract_codes_dac(self, input_features, attention_mask, audio):
@@ -92,13 +100,19 @@ class Trainer(BaseTrainer):
             feat = (feat - self.cfg.semantic_model["mean"]) / self.cfg.semantic_model[
                 "std"
             ]
-        feat = feat.transpose(1,2)
-        feat = torch.nn.functional.avg_pool1d(feat, self.cfg.semantic_model['repcodec_model'].semantic_downsample_factor, self.cfg.semantic_model['repcodec_model'].semantic_downsample_factor)
-        
-        audio = rearrange(audio, 'b t -> b 1 t')
-        semantic_codes, acoustic_codes = self.cfg.semantic_model["repcodec_model"].encode(audio, semantic_repr=feat)
-        semantic_codes = rearrange(semantic_codes, 'b 1 t -> b t')
-        acoustic_codes = rearrange(acoustic_codes, 'b q t -> b t q')
+        feat = feat.transpose(1, 2)
+        feat = torch.nn.functional.avg_pool1d(
+            feat,
+            self.cfg.semantic_model["repcodec_model"].semantic_downsample_factor,
+            self.cfg.semantic_model["repcodec_model"].semantic_downsample_factor,
+        )
+
+        audio = rearrange(audio, "b t -> b 1 t")
+        semantic_codes, acoustic_codes = self.cfg.semantic_model[
+            "repcodec_model"
+        ].encode(audio, semantic_repr=feat)
+        semantic_codes = rearrange(semantic_codes, "b 1 t -> b t")
+        acoustic_codes = rearrange(acoustic_codes, "b q t -> b t q")
         return semantic_codes, acoustic_codes
 
     @torch.no_grad()
@@ -120,7 +134,7 @@ class Trainer(BaseTrainer):
         vq_emb = self.cfg.semantic_model["model"](
             input_features=input_features,
             attention_mask=attention_mask,
-            output_hidden_states=True, 
+            output_hidden_states=True,
         )
         feat = vq_emb.hidden_states[self.cfg.semantic_model["output_idx"]]  # (B, T, C)
 
@@ -134,10 +148,16 @@ class Trainer(BaseTrainer):
                 "std"
             ]
 
-        if hasattr(self.cfg, 'use_our_codec'):
-            feat = torch.nn.functional.avg_pool1d(feat.transpose(1,2), self.cfg.semantic_model['repcodec_model'].semantic_downsample_factor, self.cfg.semantic_model['repcodec_model'].semantic_downsample_factor)
+        if hasattr(self.cfg, "use_our_codec"):
+            feat = torch.nn.functional.avg_pool1d(
+                feat.transpose(1, 2),
+                self.cfg.semantic_model["repcodec_model"].semantic_downsample_factor,
+                self.cfg.semantic_model["repcodec_model"].semantic_downsample_factor,
+            )
 
-            semantic_code = self.cfg.semantic_model["repcodec_model"].semantic_quantize(feat)
+            semantic_code = self.cfg.semantic_model["repcodec_model"].semantic_quantize(
+                feat
+            )
         else:
             semantic_code, _ = self.cfg.semantic_model["repcodec_model"].quantize(
                 feat
@@ -157,35 +177,47 @@ class Trainer(BaseTrainer):
                 batch[k] = v.to(device)
         input_features = batch["input_features"]
         attention_mask = batch["attention_mask"]
-        if hasattr(self.cfg, 'use_our_codec') and self.cfg.use_our_codec:
-            batch['speech_token_len'] = batch['speech_token_len'] // self.cfg.semantic_model['repcodec_model'].semantic_downsample_factor
-        if hasattr(self.cfg, 'use_modular_dac') and self.cfg.use_modular_dac:
-            assert not hasattr(self.cfg, 'use_our_codec') or not self.cfg.use_our_codec
-            assert not hasattr(self.cfg, 'use_official_dac') or not self.cfg.use_official_dac
-            semantic_codes, acoustic_codes = extract_codes_modular_dac(self.cfg.semantic_model['repcodec_model'], batch['speech'])
-            semantic_code = semantic_codes[:, 0] # b,t
-        if hasattr(self.cfg, 'use_official_dac'):
-            assert not hasattr(self.cfg, 'use_our_codec') or not self.cfg.use_our_codec
-            acoustic_codes = extract_codes_official_dac(self.cfg.semantic_model['repcodec_model'], batch['speech'])
-            semantic_code = acoustic_codes[:, 0] # b,t
-        if hasattr(self.cfg, 'use_acoustic_codes') and self.cfg.use_acoustic_codes:
-            semantic_codes = rearrange(semantic_codes, 'b t -> b t 1')
+        if hasattr(self.cfg, "use_our_codec") and self.cfg.use_our_codec:
+            batch["speech_token_len"] = (
+                batch["speech_token_len"]
+                // self.cfg.semantic_model["repcodec_model"].semantic_downsample_factor
+            )
+        if hasattr(self.cfg, "use_modular_dac") and self.cfg.use_modular_dac:
+            assert not hasattr(self.cfg, "use_our_codec") or not self.cfg.use_our_codec
+            assert (
+                not hasattr(self.cfg, "use_official_dac")
+                or not self.cfg.use_official_dac
+            )
+            semantic_codes, acoustic_codes = extract_codes_modular_dac(
+                self.cfg.semantic_model["repcodec_model"], batch["speech"]
+            )
+            semantic_code = semantic_codes[:, 0]  # b,t
+        if hasattr(self.cfg, "use_official_dac"):
+            assert not hasattr(self.cfg, "use_our_codec") or not self.cfg.use_our_codec
+            acoustic_codes = extract_codes_official_dac(
+                self.cfg.semantic_model["repcodec_model"], batch["speech"]
+            )
+            semantic_code = acoustic_codes[:, 0]  # b,t
+        if hasattr(self.cfg, "use_acoustic_codes") and self.cfg.use_acoustic_codes:
+            semantic_codes = rearrange(semantic_codes, "b t -> b t 1")
             # Concatenate semantic and acoustic codes along the codec layer dimension
             num_codec_layers = len(self.cfg.offset_sizes)
-            semantic_code = torch.cat([semantic_codes, acoustic_codes], dim=-1)[..., :num_codec_layers]
+            semantic_code = torch.cat([semantic_codes, acoustic_codes], dim=-1)[
+                ..., :num_codec_layers
+            ]
 
             # # Apply layer-specific offsets before rearranging
             # offsetted_code = []
             # for i in range(num_codec_layers):
             #     # Get the offset size for the current layer
             #     layer_offset = int(np.sum(self.cfg.offset_sizes[:i]))
-                
+
             #     # Extract the current layer's codes
             #     current_layer_code = semantic_code[..., i]  # Shape (batch_size, T)
-                
+
             #     # Apply the offset
             #     current_layer_code += layer_offset
-                
+
             #     # Append the offsetted layer code
             #     offsetted_code.append(current_layer_code)
 
@@ -195,11 +227,11 @@ class Trainer(BaseTrainer):
             semantic_code = offset_codes(semantic_code, self.cfg.offset_sizes)
 
             # Rearrange (flatten the codec layers to the time dimension)
-            semantic_code = rearrange(semantic_code, 'b t q -> b (t q)')
+            semantic_code = rearrange(semantic_code, "b t q -> b (t q)")
 
-            batch['speech_token_len'] *= num_codec_layers
+            batch["speech_token_len"] *= num_codec_layers
 
-            del batch['speech']
+            del batch["speech"]
         else:
             semantic_code, _ = self._extract_semantic_code(
                 input_features, attention_mask
@@ -210,7 +242,7 @@ class Trainer(BaseTrainer):
         batch["speech_token"] = semantic_code
         out = self.model(batch, device=device)
 
-        return out["loss"], {"Train/Batch Size": input_features.shape[0]} | out['acc']
+        return out["loss"], {"Train/Batch Size": input_features.shape[0]} | out["acc"]
 
     def _test_step(self, batch):
         raise NotImplementedError

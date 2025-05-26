@@ -1,3 +1,7 @@
+# Copyright (c) 2025 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
 from cv2 import repeat
 import torch
 from einops import rearrange
@@ -6,8 +10,16 @@ from .flatten_patterns import offset_codes, deoffset_codes
 
 class Inference:
     def __init__(
-        self, model, tokenizer_obj, dualcodec_inference_obj, device="cuda", normalize=False, 
-        half=False, split_paragraph=True, offset_sizes=[16384, 4096, 4096, 4096], **kwargs
+        self,
+        model,
+        tokenizer_obj,
+        dualcodec_inference_obj,
+        device="cuda",
+        normalize=False,
+        half=False,
+        split_paragraph=True,
+        offset_sizes=[16384, 4096, 4096, 4096],
+        **kwargs,
     ) -> None:
         self.model = model
         import safetensors.torch
@@ -21,9 +33,9 @@ class Inference:
         self.offset_sizes = offset_sizes
 
         self.model = self.model.half()
-        
+
         self.split_paragraph = split_paragraph
-    
+
     @torch.no_grad()
     def inference(
         self,
@@ -68,8 +80,9 @@ class Inference:
         prompt_len_tmp = len(self.tokenizer.encode(prompt_text)) // 2
 
         if self.split_paragraph:
-            if prompt_language == 'zh':
+            if prompt_language == "zh":
                 from dualcodec.utils.frontend_utils import split_paragraph
+
                 texts = split_paragraph(
                     target_text,
                     None,
@@ -79,8 +92,9 @@ class Inference:
                     merge_len=20,
                     comma_split=False,
                 )
-            elif prompt_language == 'ja':
+            elif prompt_language == "ja":
                 from dualcodec.utils.frontend_utils import split_paragraph
+
                 texts = split_paragraph(
                     target_text,
                     None,
@@ -90,8 +104,9 @@ class Inference:
                     merge_len=20,
                     comma_split=False,
                 )
-            elif prompt_language == 'en':
+            elif prompt_language == "en":
                 from dualcodec.utils.frontend_utils import split_paragraph
+
                 texts = split_paragraph(
                     target_text,
                     self.tokenizer.encode,
@@ -103,8 +118,8 @@ class Inference:
                 )
             else:
                 texts = [target_text]
-        if prompt_language == 'en':
-            texts = [prompt_text + ' ' + t for t in texts]
+        if prompt_language == "en":
+            texts = [prompt_text + " " + t for t in texts]
         else:
             texts = [prompt_text + t for t in texts]
         print(texts)
@@ -115,12 +130,20 @@ class Inference:
 
             if self.normalize:
                 from dualcodec.dataset.processor import normalize
-                text = list(normalize([{
-                    'language': prompt_language,
-                    'text': text,
-                }], en_punct=True, use_kana=False))[0]['text']
-            print(text)
 
+                text = list(
+                    normalize(
+                        [
+                            {
+                                "language": prompt_language,
+                                "text": text,
+                            }
+                        ],
+                        en_punct=True,
+                        use_kana=False,
+                    )
+                )[0]["text"]
+            print(text)
 
             prompt_text_tokens = torch.tensor(
                 [
@@ -143,13 +166,17 @@ class Inference:
 
             # prompt semantic codes
             # semantic_code, _ = self._extract_semantic_code(input_features, attention_mask)
-            semantic_codes, acoustic_codes = self.dualcodec_inference_obj.encode(prompt_speech, n_quantizers=4)
-            semantic_codes = rearrange(semantic_codes, 'b t -> b t 1')
+            semantic_codes, acoustic_codes = self.dualcodec_inference_obj.encode(
+                prompt_speech, n_quantizers=4
+            )
+            semantic_codes = rearrange(semantic_codes, "b t -> b t 1")
             num_codec_layers = 4
-            semantic_code = torch.cat([semantic_codes, acoustic_codes], dim=-1)[..., :num_codec_layers]
+            semantic_code = torch.cat([semantic_codes, acoustic_codes], dim=-1)[
+                ..., :num_codec_layers
+            ]
 
             semantic_code = offset_codes(semantic_code, self.offset_sizes)
-            semantic_code = rearrange(semantic_code, 'b t q -> b (t q)')
+            semantic_code = rearrange(semantic_code, "b t q -> b (t q)")
 
             ret_semantic_code = semantic_code.clone().detach()
 
@@ -169,6 +196,6 @@ class Inference:
 
             all_codes.append(out)
 
-        all_codes = torch.cat(all_codes, dim=1) # FIXME not tested
+        all_codes = torch.cat(all_codes, dim=1)  # FIXME not tested
         out = self.dualcodec_inference_obj.decode(all_codes)
         return out

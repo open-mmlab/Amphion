@@ -35,6 +35,7 @@ dualcodec_inference_obj = dualcodec.Inference(
 )
 logger.info("Valle models loaded.")
 
+
 def process_tts(
     ref_audio,
     ref_text,
@@ -50,7 +51,7 @@ def process_tts(
     if not ref_audio:
         gr.Warning("Please provide reference audio.")
         return None, None
-    
+
     if not gen_text.strip():
         gr.Warning("Please enter text to generate.")
         return None, None
@@ -84,11 +85,12 @@ def process_tts(
 
     return (final_sample_rate, final_wave) if final_wave is not None else None
 
+
 # Create Gradio interface
 with gr.Blocks(title="Valle TTS Demo") as demo:
     gr.Markdown("# Valle TTS Demo")
     gr.Markdown("Generate speech using reference audio and text.")
-    
+
     with gr.Row():
         with gr.Column():
             ref_audio = gr.Audio(
@@ -106,7 +108,7 @@ with gr.Blocks(title="Valle TTS Demo") as demo:
                 placeholder="Enter the text you want to generate speech for...",
                 lines=4,
             )
-            
+
             with gr.Accordion("Generation Parameters", open=False):
                 with gr.Row():
                     temperature = gr.Slider(
@@ -142,7 +144,7 @@ with gr.Blocks(title="Valle TTS Demo") as demo:
                         label="Repeat Penalty",
                         info="Penalty for repeated tokens (higher = less repetition)",
                     )
-            
+
             with gr.Row():
                 remove_silence = gr.Checkbox(
                     label="Remove Silence",
@@ -157,16 +159,16 @@ with gr.Blocks(title="Valle TTS Demo") as demo:
                     label="Cross-fade Duration",
                     info="Duration of cross-fade between audio segments (seconds)",
                 )
-            
+
             generate_btn = gr.Button("Generate Speech", variant="primary")
-        
+
         with gr.Column():
             output_audio = gr.Audio(
                 label="Generated Audio",
                 type="numpy",
                 format="wav",
             )
-    
+
     # Set up event handlers
     generate_btn.click(
         fn=process_tts,
@@ -185,4 +187,4 @@ with gr.Blocks(title="Valle TTS Demo") as demo:
     )
 
 if __name__ == "__main__":
-    demo.launch(share=True) 
+    demo.launch(share=True)

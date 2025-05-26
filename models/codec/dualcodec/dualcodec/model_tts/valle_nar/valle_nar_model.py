@@ -1,4 +1,4 @@
-# Copyright (c) 2023 Amphion.
+# Copyright (c) 2025 Amphion.
 #
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
@@ -753,10 +753,14 @@ class ValleNAR(nn.Module):
         B, T = first_stage_ids.shape  # Get shape
         padding_value = 1  # Choose a value in range [0, 4096] as padding value
         # Construct padding tensor for last 7 layers
-        padded_tensor = torch.full((7, B, T), padding_value, device=first_stage_ids.device)
+        padded_tensor = torch.full(
+            (7, B, T), padding_value, device=first_stage_ids.device
+        )
         # Expand first_stage_ids to target tensor and concatenate
         first_stage_ids = first_stage_ids.unsqueeze(0)
-        target_ids = torch.cat([prompt_ids, padded_tensor], dim=-1)  # Concatenate along last dimension
+        target_ids = torch.cat(
+            [prompt_ids, padded_tensor], dim=-1
+        )  # Concatenate along last dimension
 
         target_mask = torch.ones_like(target_ids[0], dtype=torch.long)
 

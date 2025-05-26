@@ -1,3 +1,7 @@
+# Copyright (c) 2025 Amphion.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
 import re
 
 chinese_char_pattern = re.compile(r"[\u4e00-\u9fff]+")
@@ -84,7 +88,7 @@ def split_paragraph(
     :param comma_split:
     :return:
     """
-    
+
     def calc_utt_length(_text: str):
         """
         :param _text:
@@ -106,7 +110,13 @@ def split_paragraph(
             return len(tokenize(_text)) < merge_len
 
     if lang == "zh":
-        pounc = ["。", "？", "！", "；", "：", "、", ".", "?", "!", ";"] + [".", "?", "!", ";", ":"]
+        pounc = ["。", "？", "！", "；", "：", "、", ".", "?", "!", ";"] + [
+            ".",
+            "?",
+            "!",
+            ";",
+            ":",
+        ]
     else:
         pounc = [".", "?", "!", ";", ":"]
     if comma_split:
@@ -124,7 +134,7 @@ def split_paragraph(
             else:
                 st = i + 1
     if st != len(text):
-        utts.append(text[st:] + '.')
+        utts.append(text[st:] + ".")
     if len(utts) == 0:
         if lang == "zh":
             utts.append(text + "。")
