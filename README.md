@@ -64,7 +64,7 @@ In addition to the specific generation tasks, Amphion includes several **vocoder
     - [Jets](Jets): An end-to-end TTS model that jointly trains FastSpeech2 and HiFi-GAN with an alignment module. [![code](https://img.shields.io/badge/README-Code-blue)](egs/tts/Jets/README.md)
     - [MaskGCT](https://arxiv.org/abs/2409.00750): A fully non-autoregressive TTS architecture that eliminates the need for explicit alignment information between text and speech supervision. [![code](https://img.shields.io/badge/README-Code-blue)](models/tts/maskgct/README.md)
     - [Vevo-TTS](https://openreview.net/pdf?id=anQDiQZhDP): A zero-shot TTS architecture with controllable timbre and style. It consists of an autoregressive transformer and a flow-matching transformer. [![code](https://img.shields.io/badge/README-Code-blue)](models/vc/vevo/README.md)
-    - [DualCodec-VALLE](models/codec/dualcodec/README.md): A VALLE model trained on 12.5Hz DualCodec tokens.
+    - [DualCodec-VALLE](models/codec/dualcodec/README.md): A VALLE model trained on 12.5Hz DualCodec tokens for super fast generation.
 
 ### VC: Voice Conversion
 
