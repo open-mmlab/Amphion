@@ -172,8 +172,8 @@ pip install "dualcodec[tts]"
 ```
 2. Clone this repository and `cd` to the project root folder (the folder that contains this readme):
 ```bash
-git clone https://github.com/jiaqili3/DualCodec.git
-cd DualCodec
+git clone https://github.com/open-mmlab/Amphion.git
+cd models/codec/dualcodec/
 ```
 
 3. To run example training on example Emilia German data:
