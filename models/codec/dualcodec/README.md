@@ -225,7 +225,9 @@ data.segment_speech.segment_length=24000
 
 
 ## Citation
-```
+If you find this work useful for your research, please cite our paper:
+
+```bibtex
 @inproceedings{dualcodec,
   title     = {DualCodec: A Low-Frame-Rate, Semantically-Enhanced Neural Audio Codec for Speech Generation},
   author    = {Li, Jiaqi and Lin, Xiaolong and Li, Zhekai and Huang, Shixi and Wang, Yuancheng and Wang, Chaoren and Zhan, Zhenpeng and Wu, Zhizheng},
@@ -233,7 +235,9 @@ data.segment_speech.segment_length=24000
   year      = {2025}
 }
 ```
-If you use this with Amphion toolkit, please consider citing:
+
+If you use the pre-trained models or training recipe of Amphion, please also cite:
+
 ```bibtex
 @article{amphion2,
   title        = {Overview of the Amphion Toolkit (v0.2)},
