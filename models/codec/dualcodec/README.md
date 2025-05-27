@@ -5,8 +5,8 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2505.13000-brightgreen.svg?style=flat-square)](http://arxiv.org/abs/2505.13000)
 [![githubio](https://img.shields.io/badge/GitHub.io-Demo_Page-blue?logo=Github&style=flat-square)](https://dualcodec.github.io/)
 [![PyPI](https://img.shields.io/pypi/v/dualcodec?color=blue&label=PyPI&logo=PyPI&style=flat-square)](https://pypi.org/project/dualcodec/)
-![GitHub](https://img.shields.io/badge/Github-Dev_Release-pink?logo=Github&style=flat-square)
-![Amphion](https://img.shields.io/badge/Amphion-Stable_Release-blue?style=flat-square)
+[![GitHub](https://img.shields.io/badge/Github-Dev_Release-pink?logo=Github&style=flat-square)](https://github.com/jiaqili3/dualcodec)
+[![Amphion](https://img.shields.io/badge/Amphion-Stable_Release-blue?style=flat-square)](https://github.com/open-mmlab/Amphion/blob/main/models/codec/dualcodec/README.md)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1VvUhsDffLdY5TdNuaqlLnYzIoXhvI8MK#scrollTo=Lsos3BK4J-4E)
 
 ## About
@@ -125,11 +125,11 @@ This will launch an app that allows you to upload a wav file and get the output 
 ## DualCodec-based TTS models
 Models available: 
 - DualCodec-VALLE: A super fast 12.5Hz VALL-E TTS model based on DualCodec.
-- DualCodec-Voicebox: A flow matching decoder for DualCodec 12.5Hz's semantic codes.
+- DualCodec-Voicebox: A flow matching decoder for DualCodec 12.5Hz's semantic codes. (this can be used as the second stage of tts). The component alone is not a TTS.
 
 To continue, first install other necessary components for training:
 ```bash
-pip install "dualcodec[train]"
+pip install "dualcodec[tts]"
 ```
 Alternatively, if you want to install from source,
 ```bash
@@ -170,7 +170,11 @@ pip install -U wandb protobuf transformers
 ```bash
 pip install "dualcodec[tts]"
 ```
-2. Clone this repository and `cd` to the project root folder (the folder that contains this readme).
+2. Clone this repository and `cd` to the project root folder (the folder that contains this readme):
+```bash
+git clone https://github.com/open-mmlab/Amphion.git
+cd Amphion/models/codec/dualcodec/
+```
 
 3. To run example training on example Emilia German data:
 ```bash
@@ -221,11 +225,31 @@ data.segment_speech.segment_length=24000
 
 
 ## Citation
-```
+If you find this work useful for your research, please cite our paper:
+
+```bibtex
 @inproceedings{dualcodec,
   title     = {DualCodec: A Low-Frame-Rate, Semantically-Enhanced Neural Audio Codec for Speech Generation},
   author    = {Li, Jiaqi and Lin, Xiaolong and Li, Zhekai and Huang, Shixi and Wang, Yuancheng and Wang, Chaoren and Zhan, Zhenpeng and Wu, Zhizheng},
   booktitle = {Proceedings of Interspeech 2025},
   year      = {2025}
+}
+```
+
+If you use the pre-trained models or training recipe of Amphion, please also cite:
+
+```bibtex
+@article{amphion2,
+  title        = {Overview of the Amphion Toolkit (v0.2)},
+  author       = {Jiaqi Li and Xueyao Zhang and Yuancheng Wang and Haorui He and Chaoren Wang and Li Wang and Huan Liao and Junyi Ao and Zeyu Xie and Yiqiao Huang and Junan Zhang and Zhizheng Wu},
+  year         = {2025},
+  journal      = {arXiv preprint arXiv:2501.15442},
+}
+
+@inproceedings{amphion,
+    author={Xueyao Zhang and Liumeng Xue and Yicheng Gu and Yuancheng Wang and Jiaqi Li and Haorui He and Chaoren Wang and Ting Song and Xi Chen and Zihao Fang and Haopeng Chen and Junan Zhang and Tze Ying Tang and Lexiao Zou and Mingxuan Wang and Jun Han and Kai Chen and Haizhou Li and Zhizheng Wu},
+    title={Amphion: An Open-Source Audio, Music and Speech Generation Toolkit},
+    booktitle={{IEEE} Spoken Language Technology Workshop, {SLT} 2024},
+    year={2024}
 }
 ```
