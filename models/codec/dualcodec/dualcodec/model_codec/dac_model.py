@@ -15,9 +15,9 @@ from audiotools import AudioSignal
 from audiotools.ml import BaseModel
 from torch import nn
 
-from dac.nn.layers import Snake1d
-from dac.nn.layers import WNConv1d
-from dac.nn.layers import WNConvTranspose1d
+from .dac_layers import Snake1d
+from .dac_layers import WNConv1d
+from .dac_layers import WNConvTranspose1d
 from .dac_quantize import ResidualVectorQuantize
 from easydict import EasyDict as edict
 import torch.nn.functional as F
