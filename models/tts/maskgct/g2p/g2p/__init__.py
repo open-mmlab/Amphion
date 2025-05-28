@@ -25,7 +25,7 @@ class PhonemeBpeTokenizer:
         self.text_tokenizers = {}
         self.int_text_tokenizers()
 
-        with open(vacab_path, "r") as f:
+        with open(vacab_path, "r", encoding="utf-8") as f:
             json_data = f.read()
         data = json.loads(json_data)
         self.vocab = data["vocab"]
