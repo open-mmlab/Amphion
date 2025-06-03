@@ -1,0 +1,18 @@
+{
+    "base_config": "config/freevc.json",
+    "preprocess": {
+        "vctk_dir": "[VCTK dataset path]",
+        "vctk_16k_dir": "[preprocessed VCTK 16k directory]",
+        "vctk_22k_dir": "[preprocessed VCTK 22k directory]",
+        "spk_dir": "[preprocess_spk directory]",
+        "ssl_dir": "[preprocess_ssl directory]",
+        "sr_dir": "[preprocess_sr directory]",
+        "hifigan_ckpt_path": "[hifigan checkpoint file path]"
+    },
+    "model": {
+        "use_spk": true
+    },
+    "train": {
+        "use_sr": true
+    }
+}
