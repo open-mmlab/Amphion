@@ -6,6 +6,8 @@ accelerate==0.24.1
 unidecode
 numpy==1.26.0
 scipy==1.12.0
+peft==0.13.2
+langid==1.1.6
 
 librosa
 encodec
@@ -14,6 +16,7 @@ g2p_en
 jieba
 cn2an
 pypinyin
+# Should be <0.2.0, see https://github.com/ishine/LangSegment/commit/2ccc10b590c06e6c68550a9c06acd6c7e475bb89#r161867267
 LangSegment
 pyopenjtalk
 pykakasi
