@@ -60,7 +60,7 @@ lang2backend = {
     "de": phonemizer_de,
 }
 
-with open("./models/tts/maskgct/g2p/utils/mls_en.json", "r") as f:
+with open("./models/tts/maskgct/g2p/utils/mls_en.json", "r", encoding="utf-8") as f:
     json_data = f.read()
 token = json.loads(json_data)
 
