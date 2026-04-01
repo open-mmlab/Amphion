@@ -114,7 +114,7 @@ class MaskGCT_Inference_Pipeline:
             attention_mask=attention_mask,
             output_hidden_states=True,
         )
-        feat = vq_emb.hidden_states[17]  # (B, T, C)
+        feat = vq_emb.hidden_states[16]  # (B, T, C)
         feat = (feat - self.semantic_mean.to(feat)) / self.semantic_std.to(feat)
 
         semantic_code, rec_feat = self.semantic_codec.quantize(feat)  # (B, T)
