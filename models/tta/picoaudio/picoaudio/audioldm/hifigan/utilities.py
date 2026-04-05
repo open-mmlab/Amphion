@@ -41,7 +41,10 @@ HIFIGAN_16K_64 = {
 
 def get_available_checkpoint_keys(model, ckpt):
     print("==> Attemp to reload from %s" % ckpt)
-    state_dict = torch.load(ckpt)["state_dict"]
+    try:
+        state_dict = torch.load(ckpt, weights_only=True)["state_dict"]
+    except TypeError:
+        state_dict = torch.load(ckpt)["state_dict"]
     current_state_dict = model.state_dict()
     new_state_dict = {}
     for k in state_dict.keys():
