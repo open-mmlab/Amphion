@@ -67,7 +67,7 @@ The Emilia-Pipe includes the following major steps:
 2. Run the following commands to install the required packages:
 
     ```bash
-    conda create -y -n AudioPipeline python=3.9 
+    conda create -y -n AudioPipeline python=3.10
     conda activate AudioPipeline
 
     bash env.sh
@@ -75,7 +75,7 @@ The Emilia-Pipe includes the following major steps:
 
 3. Download the model files from the third-party repositories.
     - Manually download the checkpoints of UVR-MDX-NET-Inst_HQ_3 ([UVR-MDX-NET-Inst_3.onnx](https://github.com/TRvlvr/model_repo/releases/download/all_public_uvr_models/UVR-MDX-NET-Inst_HQ_3.onnx)) and DNSMOS P.835 ([sig_bak_ovr.onnx](https://github.com/microsoft/DNS-Challenge/blob/master/DNSMOS/DNSMOS/sig_bak_ovr.onnx)), then save their path for the next step configuration (i.e. #2  and #3 TODO).
-    - Creat the access token to pyannote/speaker-diarization-3.1 following [the guide](https://huggingface.co/pyannote/speaker-diarization-3.1#requirements), then save it for the next step configuration (i.e. #4 TODO).
+    - Create the access token to pyannote/speaker-diarization-community-1 following [the guide](https://huggingface.co/pyannote/speaker-diarization-community-1), then save it for the next step configuration (i.e. #4 TODO).
     - Make sure you have stable connection to GitHub and HuggingFace. The checkpoints of Silero and Whisperx-medium will be downloaded automatically on the pipeline's first run. 
 
 
@@ -175,7 +175,7 @@ Here are some potential improvements for the Emilia-Pipe pipeline:
 We acknowledge the wonderful work by these excellent developers!
 - Source Separation: [UVR-MDX-NET-Inst_HQ_3](https://github.com/TRvlvr/model_repo/releases/tag/all_public_uvr_models)
 - VAD: [snakers4/silero-vad](https://github.com/snakers4/silero-vad)
-- Speaker Diarization: [pyannote/speaker-diarization-3.1](https://huggingface.co/pyannote/speaker-diarization-3.1)
+- Speaker Diarization: [pyannote/speaker-diarization-community-1](https://huggingface.co/pyannote/speaker-diarization-community-1)
 - ASR: [m-bain/whisperX](https://github.com/m-bain/whisperX), using [faster-whisper](https://github.com/guillaumekln/faster-whisper) and [CTranslate2](https://github.com/OpenNMT/CTranslate2) backend.
 - DNSMOS Prediction: [DNSMOS P.835](https://github.com/microsoft/DNS-Challenge)
 

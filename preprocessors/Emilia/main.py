@@ -4,6 +4,7 @@
 # LICENSE file in the root directory of this source tree.
 
 import argparse
+import inspect
 import json
 import librosa
 import numpy as np
@@ -151,6 +152,10 @@ def speaker_diarization(audio):
             "channel": 0,
         }
     )
+    # pyannote.audio 4.x returns a rich output object with speaker_diarization.
+    # Legacy versions return Annotation directly.
+    if hasattr(segments, "speaker_diarization"):
+        segments = segments.speaker_diarization
 
     diarize_df = pd.DataFrame(
         segments.itertracks(yield_label=True),
@@ -523,9 +528,11 @@ if __name__ == "__main__":
             "You can get the token at https://huggingface.co/settings/tokens. "
             "Remeber grant access following https://github.com/pyannote/pyannote-audio?tab=readme-ov-file#tldr"
         )
+    from_pretrained_params = inspect.signature(Pipeline.from_pretrained).parameters
+    auth_kwarg = "token" if "token" in from_pretrained_params else "use_auth_token"
     dia_pipeline = Pipeline.from_pretrained(
-        "pyannote/speaker-diarization-3.1",
-        use_auth_token=cfg["huggingface_token"],
+        "pyannote/speaker-diarization-community-1",
+        **{auth_kwarg: cfg["huggingface_token"]},
     )
     dia_pipeline.to(device)
 
