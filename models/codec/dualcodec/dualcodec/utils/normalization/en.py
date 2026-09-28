@@ -44,6 +44,8 @@ def preserve_special_names(text):
         # Keep expanded acronyms in uppercase
         if all(c.isupper() or c == " " for c in word):
             return word
+        if len(word) >= 3 and word[0].isupper() and word[1:].lower() == "'s":
+            return word[0] + word[1:].lower()
         else:
             return word.lower()
 
